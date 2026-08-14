@@ -143,6 +143,14 @@ export default function ChartWorkspace({ conversationId }: ChartWorkspaceProps) 
                 <div className="flex items-center gap-3">
                   <button
                     type="button"
+                    onClick={() => router.push(`/chart/${conversationId}/reports`)}
+                    className="rounded-lg px-3 py-1.5 text-[11px]"
+                    style={{ color: 'var(--t-text)', border: '1px solid var(--t-border)' }}
+                  >
+                    专题报告
+                  </button>
+                  <button
+                    type="button"
                     onClick={() => router.push(`/chart/${conversationId}/events`)}
                     className="rounded-lg px-3 py-1.5 text-[11px]"
                     style={{ color: 'var(--t-text)', border: '1px solid var(--t-border)' }}

@@ -1,0 +1,242 @@
+'use client';
+
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import type { ReportDetail, ReportEvidence } from '@/lib/reports/types';
+
+export default function ReportDetailWorkspace({
+  conversationId,
+  reportId,
+}: {
+  conversationId: string;
+  reportId: string;
+}) {
+  const router = useRouter();
+  const [detail, setDetail] = useState<ReportDetail | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [regenerating, setRegenerating] = useState(false);
+  const [error, setError] = useState('');
+
+  const load = useCallback(async (version?: number) => {
+    setLoading(true);
+    setError('');
+    try {
+      const query = version ? `?version=${version}` : '';
+      const response = await fetch(`/api/reports/${reportId}${query}`, { cache: 'no-store' });
+      const data = await response.json().catch(() => ({})) as ReportDetail & { error?: string };
+      if (!response.ok || !data.report) throw new Error(data.error || '报告加载失败');
+      setDetail(data);
+    } catch (loadError) {
+      setError(loadError instanceof Error ? loadError.message : '报告加载失败');
+    } finally {
+      setLoading(false);
+    }
+  }, [reportId]);
+
+  useEffect(() => { void load(); }, [load]);
+
+  const evidenceBySection = useMemo(() => {
+    const map = new Map<string, ReportEvidence[]>();
+    for (const evidence of detail?.evidence ?? []) {
+      const current = map.get(evidence.sectionKey) ?? [];
+      current.push(evidence);
+      map.set(evidence.sectionKey, current);
+    }
+    return map;
+  }, [detail?.evidence]);
+
+  const regenerate = async () => {
+    setRegenerating(true);
+    setError('');
+    try {
+      const response = await fetch(`/api/reports/${reportId}/regenerate`, { method: 'POST' });
+      const data = await response.json().catch(() => ({})) as ReportDetail & { error?: string };
+      if (!response.ok || !data.report) throw new Error(data.error || '报告重新生成失败');
+      setDetail(data);
+    } catch (regenerateError) {
+      setError(regenerateError instanceof Error ? regenerateError.message : '报告重新生成失败');
+    } finally {
+      setRegenerating(false);
+    }
+  };
+
+  if (loading && !detail) {
+    return <main className="mx-auto max-w-[1000px] px-4 py-24 text-center text-sm" style={{ color: 'var(--t-faint)' }}>正在加载报告…</main>;
+  }
+  if (!detail) {
+    return <main className="mx-auto max-w-[1000px] px-4 py-24 text-center text-sm text-red-500">{error || '报告不存在'}</main>;
+  }
+
+  const content = detail.version?.content;
+  return (
+    <main className="report-print-area mx-auto max-w-[1000px] px-4 py-6 sm:px-6">
+      <div className="report-controls mb-5 flex flex-wrap items-center justify-between gap-3">
+        <button
+          type="button"
+          onClick={() => router.push(`/chart/${conversationId}/reports`)}
+          className="text-xs"
+          style={{ color: 'var(--t-faint)' }}
+        >
+          ← 返回报告中心
+        </button>
+        <div className="flex flex-wrap items-center gap-2">
+          <select
+            value={detail.version?.version ?? ''}
+            onChange={event => void load(Number(event.target.value))}
+            className="rounded-lg px-3 py-2 text-xs"
+            style={{ color: 'var(--t-text)', background: 'var(--t-bg2)', border: '1px solid var(--t-border)' }}
+          >
+            {detail.versions.map(version => (
+              <option key={version.id} value={version.version}>
+                v{version.version} · {version.status === 'completed' ? '已完成' : version.status === 'failed' ? '生成失败' : '生成中'}
+              </option>
+            ))}
+          </select>
+          <button
+            type="button"
+            onClick={() => window.print()}
+            disabled={!content}
+            className="rounded-lg px-3 py-2 text-xs disabled:opacity-40"
+            style={{ color: 'var(--t-text)', border: '1px solid var(--t-border)' }}
+          >
+            打印 / 另存为 PDF
+          </button>
+          <button
+            type="button"
+            onClick={regenerate}
+            disabled={regenerating}
+            className="rounded-lg px-3 py-2 text-xs disabled:opacity-40"
+            style={{ color: 'var(--t-gold)', border: '1px solid rgba(212,168,67,.28)', background: 'rgba(212,168,67,.05)' }}
+          >
+            {regenerating ? '正在生成新版本…' : '重新生成'}
+          </button>
+        </div>
+      </div>
+
+      {error && (
+        <div className="report-controls mb-4 rounded-lg px-4 py-3 text-xs text-red-500" style={{ border: '1px solid rgba(239,68,68,.25)' }}>
+          {error}。旧版本仍然保留，可从版本列表继续查看。
+        </div>
+      )}
+
+      <article className="overflow-hidden rounded-xl card-glass">
+        <header className="px-6 py-8 text-center sm:px-10" style={{ borderBottom: '1px solid var(--t-border)' }}>
+          <div className="text-[10px] tracking-[.28em]" style={{ color: 'var(--t-gold)' }}>紫微斗数 · 专题报告</div>
+          <h1 className="mt-4 text-2xl font-semibold" style={{ color: 'var(--t-text)' }}>{detail.report.title}</h1>
+          <div className="mt-3 text-[10px]" style={{ color: 'var(--t-faint)' }}>
+            版本 v{detail.version?.version ?? '-'} · {detail.version?.completedAt
+              ? new Date(detail.version.completedAt).toLocaleString('zh-CN', { hour12: false })
+              : '尚未完成'} · 引擎 {detail.version?.engineVersion ?? '-'}
+          </div>
+        </header>
+
+        {!content && (
+          <div className="px-6 py-20 text-center text-sm" style={{ color: detail.version?.status === 'failed' ? '#ef4444' : 'var(--t-faint)' }}>
+            {detail.version?.status === 'failed' ? '这个版本生成失败，请切换旧版本或重新生成。' : '报告正在生成。'}
+          </div>
+        )}
+
+        {content && (
+          <div className="px-6 py-8 sm:px-10 sm:py-10">
+            <section className="rounded-xl px-5 py-5" style={{ background: 'rgba(212,168,67,.055)', border: '1px solid rgba(212,168,67,.15)' }}>
+              <h2 className="text-xs font-semibold tracking-wider" style={{ color: 'var(--t-gold)' }}>核心结论摘要</h2>
+              <p className="mt-3 whitespace-pre-wrap text-[12px] leading-7" style={{ color: 'var(--t-text2)' }}>{content.summary}</p>
+            </section>
+
+            <div className="mt-8 space-y-9">
+              {content.sections.map(section => {
+                const sectionEvidence = evidenceBySection.get(section.key) ?? [];
+                return (
+                  <section key={section.key}>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h2 className="text-[15px] font-semibold" style={{ color: 'var(--t-text)' }}>【{section.title}】</h2>
+                      <span className="rounded-full px-2 py-0.5 text-[9px]" style={{ color: section.basis === 'evidence' ? 'var(--t-gold)' : 'var(--t-faint)', background: 'rgba(212,168,67,.07)' }}>
+                        {section.basis === 'evidence' ? `${sectionEvidence.length} 条命盘依据` : '综合观察'}
+                      </span>
+                    </div>
+                    <p className="mt-3 whitespace-pre-wrap text-[12px] leading-8" style={{ color: 'var(--t-text2)' }}>{section.content}</p>
+                    {sectionEvidence.length > 0 && (
+                      <details className="report-evidence mt-4 rounded-lg px-4 py-3" style={{ border: '1px solid var(--t-border)' }}>
+                        <summary className="cursor-pointer text-[10px]" style={{ color: 'var(--t-gold)' }}>查看本节结构化依据</summary>
+                        <div className="mt-3 space-y-3">
+                          {sectionEvidence.map(evidence => (
+                            <div key={evidence.id} className="text-[10px] leading-6" style={{ color: 'var(--t-faint)' }}>
+                              <div style={{ color: 'var(--t-text)' }}>{evidence.label}</div>
+                              <div className="mt-1 break-words">{summarizeFacts(evidence)}</div>
+                            </div>
+                          ))}
+                        </div>
+                      </details>
+                    )}
+                  </section>
+                );
+              })}
+            </div>
+
+            {content.actionItems.length > 0 && (
+              <section className="mt-10">
+                <h2 className="text-[15px] font-semibold" style={{ color: 'var(--t-text)' }}>【行动建议】</h2>
+                <ol className="mt-4 space-y-3">
+                  {content.actionItems.map((item, index) => (
+                    <li key={index} className="flex gap-3 text-[12px] leading-7" style={{ color: 'var(--t-text2)' }}>
+                      <span className="mt-1 flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[9px]" style={{ color: 'var(--t-gold)', border: '1px solid rgba(212,168,67,.25)' }}>{index + 1}</span>
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ol>
+              </section>
+            )}
+
+            {content.openQuestions.length > 0 && (
+              <section className="mt-10">
+                <h2 className="text-[15px] font-semibold" style={{ color: 'var(--t-text)' }}>【待观察事项】</h2>
+                <ul className="mt-4 space-y-2 text-[12px] leading-7" style={{ color: 'var(--t-text2)' }}>
+                  {content.openQuestions.map((item, index) => <li key={index}>· {item}</li>)}
+                </ul>
+              </section>
+            )}
+
+            <footer className="mt-10 rounded-lg px-4 py-3 text-[10px] leading-6" style={{ color: 'var(--t-faint)', background: 'rgba(212,168,67,.04)' }}>
+              {content.disclaimer}
+            </footer>
+          </div>
+        )}
+      </article>
+
+      <style jsx global>{`
+        @media print {
+          body { background: #fff !important; }
+          body * { visibility: hidden; }
+          .report-print-area, .report-print-area * { visibility: visible; }
+          .report-print-area { position: absolute; inset: 0; max-width: none !important; padding: 0 !important; color: #111 !important; }
+          .report-controls { display: none !important; }
+          .report-print-area article { border: 0 !important; box-shadow: none !important; background: #fff !important; }
+          .report-evidence { break-inside: avoid; }
+        }
+      `}</style>
+    </main>
+  );
+}
+
+function summarizeFacts(evidence: ReportEvidence): string {
+  if (evidence.kind === 'palace') {
+    const stars = Array.isArray(evidence.facts.stars)
+      ? evidence.facts.stars
+        .map(item => typeof item === 'object' && item !== null && 'name' in item ? String(item.name) : '')
+        .filter(Boolean)
+        .join('、')
+      : '';
+    const borrowed = Array.isArray(evidence.facts.borrowedStars) ? evidence.facts.borrowedStars.join('、') : '';
+    return stars ? `星曜：${stars}` : borrowed ? `空宫，借对宫主星：${borrowed}` : '命盘宫位事实';
+  }
+  if (evidence.kind === 'pattern') {
+    return typeof evidence.facts.description === 'string' ? evidence.facts.description : '程序识别格局';
+  }
+  if (evidence.kind === 'daxian') {
+    return `阶段宫位：${String(evidence.facts.palaceName ?? '')}，年龄范围 ${String(evidence.facts.startAge ?? '')}-${String(evidence.facts.endAge ?? '')} 岁`;
+  }
+  if (evidence.kind === 'confirmed_event') {
+    return `${String(evidence.facts.startDate ?? '时间未知')} · ${String(evidence.facts.description ?? '用户已确认')}`;
+  }
+  return `五行局：${String(evidence.facts.wuxingJu ?? '')}，命宫：${String(evidence.facts.mingGongBranch ?? '')}`;
+}
