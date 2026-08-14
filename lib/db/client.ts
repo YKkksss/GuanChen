@@ -322,6 +322,80 @@ function migrate(db: Database.Database) {
     applyV5();
   }
 
+  if (!applied.has(6)) {
+    const applyV6 = db.transaction(() => {
+      db.exec(`
+        CREATE TABLE reports (
+          id TEXT PRIMARY KEY,
+          conversation_id TEXT NOT NULL,
+          type TEXT NOT NULL CHECK (type IN (
+            'overview', 'personality', 'career', 'relationship',
+            'wealth', 'health', 'current_daxian'
+          )),
+          title TEXT NOT NULL,
+          active_version_id TEXT,
+          created_at INTEGER NOT NULL,
+          updated_at INTEGER NOT NULL,
+
+          UNIQUE (conversation_id, type),
+          FOREIGN KEY (conversation_id)
+            REFERENCES conversations(id)
+            ON DELETE CASCADE
+        );
+
+        CREATE TABLE report_versions (
+          id TEXT PRIMARY KEY,
+          report_id TEXT NOT NULL,
+          version INTEGER NOT NULL,
+          engine_version TEXT NOT NULL,
+          prompt_version TEXT NOT NULL,
+          provider TEXT NOT NULL,
+          model TEXT NOT NULL,
+          content_json TEXT,
+          status TEXT NOT NULL CHECK (status IN ('generating', 'completed', 'failed')),
+          error_code TEXT,
+          input_tokens INTEGER,
+          output_tokens INTEGER,
+          created_at INTEGER NOT NULL,
+          completed_at INTEGER,
+
+          UNIQUE (report_id, version),
+          FOREIGN KEY (report_id)
+            REFERENCES reports(id)
+            ON DELETE CASCADE
+        );
+
+        CREATE TABLE report_evidence (
+          id TEXT PRIMARY KEY,
+          report_version_id TEXT NOT NULL,
+          section_key TEXT NOT NULL,
+          evidence_key TEXT NOT NULL,
+          kind TEXT NOT NULL,
+          label TEXT NOT NULL,
+          source TEXT NOT NULL,
+          facts_json TEXT NOT NULL,
+          created_at INTEGER NOT NULL,
+
+          UNIQUE (report_version_id, section_key, evidence_key),
+          FOREIGN KEY (report_version_id)
+            REFERENCES report_versions(id)
+            ON DELETE CASCADE
+        );
+
+        CREATE INDEX idx_reports_conversation_updated
+          ON reports(conversation_id, updated_at DESC);
+        CREATE INDEX idx_report_versions_report_version
+          ON report_versions(report_id, version DESC);
+        CREATE INDEX idx_report_evidence_version_section
+          ON report_evidence(report_version_id, section_key);
+      `);
+
+      db.prepare('INSERT INTO schema_migrations(version, applied_at) VALUES (?, ?)')
+        .run(6, Date.now());
+    });
+    applyV6();
+  }
+
   ensureMessageSearch(db);
 }
 
