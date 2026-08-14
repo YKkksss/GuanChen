@@ -49,6 +49,17 @@
   --bg-card: #FFFFFF;
   --bg-page: #fbf6e8;
 
+  /* 命盘工作区语义色 */
+  --t-bg: rgba(255,255,255,0.66);
+  --t-card: rgba(255,255,255,0.88);
+  --t-text: #1A1A18;
+  --t-text1: #1A1A18;
+  --t-text2: #4A4A45;
+  --t-faint: #73736B;
+  --t-gold: #8A681A;
+  --t-border: rgba(122,95,26,0.16);
+  --t-border-acc: rgba(184,146,42,0.30);
+
   /* 圆角 */
   --r-xs:  4px;
   --r-sm:  8px;
@@ -88,6 +99,16 @@
 
   --bg-card: rgba(255,255,255,0.04);
   --bg-page: #020810;
+
+  --t-bg: rgba(5,12,25,0.74);
+  --t-card: rgba(9,17,32,0.90);
+  --t-text: #E8EEF6;
+  --t-text1: #E8EEF6;
+  --t-text2: #B4C2D8;
+  --t-faint: #8190AA;
+  --t-gold: #D4A843;
+  --t-border: rgba(255,255,255,0.10);
+  --t-border-acc: rgba(212,168,67,0.28);
 }
 
 /* ─── 全局基础 ───────────────────────────────────────────── */
@@ -118,6 +139,13 @@ body {
   color: var(--ac-dim);
 }
 
+/* 原生下拉面板统一使用高对比度浅色配色，避免暗色模式下白字白底。 */
+.birth-form select option,
+.birth-form select optgroup {
+  background-color: #ffffff !important;
+  color: #111111 !important;
+}
+
 /* ─── 工具类 ─────────────────────────────────────────────── */
 
 /* 容器 */
@@ -136,6 +164,21 @@ body {
   border: 1px solid var(--bdr);
   border-radius: var(--r-md);
   box-shadow: var(--sh-sm);
+}
+
+.card-glass {
+  background: var(--t-card);
+  border: 1px solid var(--t-border);
+  box-shadow: var(--sh-sm), inset 0 1px 0 rgba(255,255,255,0.04);
+  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .card-glass {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
 }
 .card-flat {
   background: var(--bg-card);

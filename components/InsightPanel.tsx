@@ -1,13 +1,18 @@
 'use client';
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Brain, ChatCircleDots, PaperPlaneTilt } from '@phosphor-icons/react';
+import { isHiddenSource, type ConversationMessage } from '@/lib/conversations/types';
 import type { ZiweiChart, Palace } from '@/lib/ziwei/types';
+import ContextMemoryPanel from './ContextMemoryPanel';
 import type { TimeView } from './TimeNav';
 
 interface Message {
+  id?: string;
   role: 'user' | 'assistant';
   content: string;
   hidden?: boolean; // don't show user bubble for auto/topic messages
+  status?: ConversationMessage['status'];
 }
 
 interface SelectedSiHua {
@@ -18,8 +23,20 @@ interface SelectedSiHua {
 
 interface InsightPanelProps {
   chart: ZiweiChart;
+  conversationId: string;
+  initialMessages?: ConversationMessage[];
   selectedPalace?: Palace | null;
   selectedSiHua?: SelectedSiHua | null;
+  transitContext?: { level: 'year'; targetDate: string } | null;
+  autoGenerate?: boolean;
+}
+
+interface SendOptions {
+  hidden?: boolean;
+  source?: 'question' | 'topic' | 'palace' | 'sihua' | 'auto';
+  topic?: string;
+  palaceBranch?: number;
+  sihuaType?: string;
 }
 
 const TOPICS = [
@@ -182,20 +199,35 @@ function AiContent({ text, streaming }: { text: string; streaming?: boolean }) {
   );
 }
 
-export default function InsightPanel({ chart, selectedPalace, selectedSiHua }: InsightPanelProps) {
-  const [messages, setMessages] = useState<Message[]>([]);
+export default function InsightPanel({
+  chart,
+  conversationId,
+  initialMessages = [],
+  selectedPalace,
+  selectedSiHua,
+  transitContext,
+  autoGenerate = true,
+}: InsightPanelProps) {
+  const [messages, setMessages] = useState<Message[]>(() => initialMessages
+    .filter(message => message.role !== 'system' && message.content)
+    .map(message => ({
+      id: message.id,
+      role: message.role as 'user' | 'assistant',
+      content: message.content,
+      hidden: message.role === 'user' && isHiddenSource(message.source),
+      status: message.status,
+    })));
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [activeTopic, setActiveTopic] = useState<string>('overview');
-  const messagesRef = useRef<Message[]>([]); // always-current copy for closures
+  const [memoryPanelOpen, setMemoryPanelOpen] = useState(false);
   const loadingRef = useRef(false);
   const autoLoaded = useRef(false);
   const lastPalaceBranch = useRef<number | undefined>(undefined);
   const lastSiHuaKey = useRef<string | undefined>(undefined);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Keep refs in sync
-  useEffect(() => { messagesRef.current = messages; }, [messages]);
+  // 保持加载状态引用同步，避免快速连点重复发送。
   useEffect(() => { loadingRef.current = loading; }, [loading]);
 
   // Auto-scroll
@@ -209,7 +241,9 @@ export default function InsightPanel({ chart, selectedPalace, selectedSiHua }: I
   useEffect(() => {
     if (autoLoaded.current) return;
     autoLoaded.current = true;
-    sendMessage(TOPIC_PROMPTS.overview, true);
+    if (autoGenerate && initialMessages.length === 0) {
+      sendMessage(TOPIC_PROMPTS.overview, { hidden: true, source: 'auto', topic: 'overview' });
+    }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Inject palace analysis when palace selected
@@ -237,7 +271,7 @@ ${selectedPalace.name}在命盘中的意义，以及这种星曜配置的整体�
 **【实际建议】**
 基于此宫的具体建议。`;
 
-    sendMessage(prompt, true);
+    sendMessage(prompt, { hidden: true, source: 'palace', palaceBranch: selectedPalace.branch });
   }, [selectedPalace]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // 注入四化飞化分析
@@ -271,30 +305,48 @@ ${selectedSiHua.starName}化${selectedSiHua.siHua}落在【${palaceName}】，�
 **【实际建议】**
 基于此四化的具体可操作建议。`;
 
-    sendMessage(prompt, true);
+    sendMessage(prompt, {
+      hidden: true,
+      source: 'sihua',
+      sihuaType: selectedSiHua.siHua,
+    });
   }, [selectedSiHua]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const streamResponse = async (apiMessages: { role: 'user' | 'assistant'; content: string }[]) => {
+  const streamResponse = async (text: string, options: SendOptions) => {
     try {
-      const res = await fetch('/api/interpret', {
+      const res = await fetch(`/api/conversations/${conversationId}/respond`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ chart, messages: apiMessages }),
+        body: JSON.stringify({
+          message: text,
+          source: options.source ?? 'question',
+          topic: options.topic ?? null,
+          palaceBranch: options.palaceBranch ?? null,
+          sihuaType: options.sihuaType ?? null,
+          transitLevel: transitContext?.level ?? null,
+          targetDate: transitContext?.targetDate ?? null,
+        }),
       });
-      if (!res.ok) throw new Error('请求失败');
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({})) as { error?: string };
+        throw new Error(data.error || '请求失败');
+      }
       if (!res.body) throw new Error('无响应流');
 
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
       let assistantText = '';
+      let buffer = '';
 
       setMessages(prev => [...prev, { role: 'assistant', content: '' }]);
 
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
-        const chunk = decoder.decode(value, { stream: true });
-        for (const line of chunk.split('\n')) {
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split(/\r?\n/);
+        buffer = lines.pop() ?? '';
+        for (const line of lines) {
           if (!line.startsWith('data: ')) continue;
           const data = line.slice(6);
           if (data === '[DONE]') break;
@@ -314,30 +366,26 @@ ${selectedSiHua.starName}化${selectedSiHua.siHua}落在【${palaceName}】，�
     } finally {
       setLoading(false);
       loadingRef.current = false;
+      window.dispatchEvent(new Event('conversation-updated'));
     }
   };
 
-  const sendMessage = (text: string, hidden = false) => {
+  const sendMessage = (text: string, options: SendOptions = {}) => {
     if (!text.trim() || loadingRef.current) return;
     loadingRef.current = true;
     setLoading(true);
 
-    const userMsg: Message = { role: 'user', content: text, hidden };
-    // Capture current messages synchronously via ref (avoids stale closure)
-    const apiMessages = [...messagesRef.current, userMsg].map(m => ({
-      role: m.role,
-      content: m.content,
-    }));
+    const userMsg: Message = { role: 'user', content: text, hidden: options.hidden };
 
     setMessages(prev => [...prev, userMsg]);
     setInput('');
-    streamResponse(apiMessages);
+    streamResponse(text, options);
   };
 
   const handleTopicClick = (topicKey: string) => {
     if (loadingRef.current) return;
     setActiveTopic(topicKey);
-    sendMessage(TOPIC_PROMPTS[topicKey], true);
+    sendMessage(TOPIC_PROMPTS[topicKey], { hidden: true, source: 'topic', topic: topicKey });
   };
 
   const handleSend = () => {
@@ -345,7 +393,41 @@ ${selectedSiHua.starName}化${selectedSiHua.siHua}落在【${palaceName}】，�
   };
 
   return (
-    <div className="flex flex-col h-full rounded-xl overflow-hidden card-glass">
+    <div className="relative flex h-[70dvh] min-h-[520px] flex-col overflow-hidden rounded-xl card-glass lg:h-[clamp(540px,calc(100dvh-8rem),820px)] lg:min-h-0">
+
+      <ContextMemoryPanel
+        conversationId={conversationId}
+        open={memoryPanelOpen}
+        onClose={() => setMemoryPanelOpen(false)}
+      />
+
+      {/* ── Chat header ── */}
+      <div className="flex flex-shrink-0 items-center justify-between gap-3 px-3.5 py-3" style={{ borderBottom: '1px solid var(--t-border)' }}>
+        <div className="flex min-w-0 items-center gap-2">
+          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg" style={{ color: 'var(--t-gold)', background: 'rgba(212,168,67,0.10)' }}>
+            <ChatCircleDots size={16} weight="fill" aria-hidden="true" />
+          </span>
+          <div className="min-w-0">
+            <div className="truncate text-[12px] font-medium" style={{ color: 'var(--t-text)' }}>
+              {transitContext ? `${transitContext.targetDate} 年 AI 解读` : 'AI 命理解读'}
+            </div>
+            <div className="text-[9px]" style={{ color: 'var(--t-faint)' }}>对话内容自动保存</div>
+          </div>
+        </div>
+        <div className="flex shrink-0 items-center gap-2">
+          <button
+            onClick={() => setMemoryPanelOpen(true)}
+            className="flex items-center gap-1 rounded-md px-2 py-1 text-[9px] transition-colors"
+            style={{ color: 'var(--t-faint)', border: '1px solid var(--t-border)' }}
+            title="管理对话记忆"
+          >
+            <Brain size={12} />记忆
+          </button>
+          <span className="text-[9px]" style={{ color: loading ? 'var(--t-gold)' : 'var(--t-faint)' }}>
+            {loading ? '正在生成' : '可以继续追问'}
+          </span>
+        </div>
+      </div>
 
       {/* ── Topic buttons ── */}
       <div className="flex-shrink-0 px-2 pt-2.5 pb-2" style={{ borderBottom: '1px solid var(--t-border)' }}>
@@ -372,13 +454,15 @@ ${selectedSiHua.starName}化${selectedSiHua.siHua}落在【${palaceName}】，�
       </div>
 
       {/* ── Messages ── */}
-      <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-4 min-h-0">
+      <div ref={scrollRef} className="min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-contain p-4 scroll-smooth">
 
         {/* Loading state before first message */}
         {messages.length === 0 && (
           <div className="flex flex-col items-center justify-center h-full text-center">
             <div className="text-4xl mb-3" style={{ color: 'var(--t-gold)', opacity: 0.1 }}>✦</div>
-            <p className="text-[10px] animate-pulse" style={{ color: 'var(--t-faint)' }}>命格解读生成中…</p>
+            <p className="text-[10px]" style={{ color: 'var(--t-faint)' }}>
+              {loading ? '命理解读生成中…' : '可从下方输入问题开始分析'}
+            </p>
           </div>
         )}
 
@@ -431,16 +515,21 @@ ${selectedSiHua.starName}化${selectedSiHua.siHua}落在【${palaceName}】，�
       </div>
 
       {/* ── Input ── */}
-      <div className="flex-shrink-0 px-3 pb-3 pt-2" style={{ borderTop: '1px solid var(--t-border)' }}>
-        <div className="flex gap-2">
-          <input
-            type="text"
+      <div className="flex-shrink-0 px-3 pb-3 pt-2.5" style={{ borderTop: '1px solid var(--t-border)', background: 'var(--t-card)' }}>
+        <div className="flex items-end gap-2">
+          <textarea
+            rows={2}
             value={input}
             onChange={e => setInput(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && !e.shiftKey && handleSend()}
-            placeholder="继续追问，如：今年适合换工作吗？"
+            onKeyDown={e => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                handleSend();
+              }
+            }}
+            placeholder={transitContext ? `询问 ${transitContext.targetDate} 年的事业、感情或财运…` : '继续追问，如：今年适合换工作吗？'}
             disabled={loading}
-            className="flex-1 rounded-lg px-3 py-2 text-[11px] focus:outline-none transition-colors"
+            className="min-h-[52px] flex-1 resize-none rounded-lg px-3 py-2 text-[11px] leading-relaxed transition-colors focus:outline-none disabled:opacity-60"
             style={{
               background: 'var(--t-card)',
               border: '1px solid var(--t-border)',
@@ -450,15 +539,20 @@ ${selectedSiHua.starName}化${selectedSiHua.siHua}落在【${palaceName}】，�
           <button
             onClick={handleSend}
             disabled={loading || !input.trim()}
-            className="px-3 py-2 rounded-lg text-[11px] font-medium transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+            aria-label="发送消息"
+            title="发送消息"
+            className="flex h-[52px] w-11 shrink-0 items-center justify-center rounded-lg transition-all active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-30"
             style={{
               background: 'rgba(212,168,67,0.15)',
               border: '1px solid rgba(212,168,67,0.25)',
               color: 'var(--t-gold)',
             }}
           >
-            {loading ? '…' : '追问'}
+            {loading ? <span className="text-[11px]">…</span> : <PaperPlaneTilt size={17} weight="fill" aria-hidden="true" />}
           </button>
+        </div>
+        <div className="mt-1.5 px-0.5 text-[9px]" style={{ color: 'var(--t-faint)' }}>
+          Enter 发送，Shift + Enter 换行
         </div>
       </div>
 

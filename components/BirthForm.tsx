@@ -202,6 +202,7 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
 
   return (
     <motion.form
+      className="birth-form"
       onSubmit={handleSubmit}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}

@@ -1,7 +1,7 @@
 'use client';
 import { motion } from 'framer-motion';
 import { STEMS, SI_HUA_TABLE } from '@/lib/ziwei/constants';
-import type { ZiweiChart } from '@/lib/ziwei/types';
+import type { DaXian, ZiweiChart } from '@/lib/ziwei/types';
 
 export type TimeView = 'mingpan' | 'daxian' | 'liunian';
 
@@ -11,6 +11,7 @@ interface TimeNavProps {
   liunianYear: number;
   onViewChange: (view: TimeView) => void;
   onYearChange: (year: number) => void;
+  activeDaXian?: DaXian;
 }
 
 /** 由年份计算天干索引 (0-9) */
@@ -43,8 +44,9 @@ export default function TimeNav({
   liunianYear,
   onViewChange,
   onYearChange,
+  activeDaXian,
 }: TimeNavProps) {
-  const currentDx = chart.daXians[chart.currentDaXianIndex];
+  const currentDx = activeDaXian ?? chart.daXians[chart.currentDaXianIndex];
 
   // 计算当前叠加四化信息
   const getOverlayInfo = (): { stemName: string; overlay: Record<string, string> } | null => {
@@ -93,10 +95,10 @@ export default function TimeNav({
           active={view === 'daxian'}
           onClick={() => onViewChange('daxian')}
         >
-          {currentDx ? `大限 ${currentDx.startAge}–${currentDx.endAge}` : '大限'}
+          {currentDx ? `大限 ${currentDx.startAge}-${currentDx.endAge}` : '大限'}
         </TabButton>
 
-        {/* 流年 — 含年份切换 */}
+        {/* 流年，含年份切换 */}
         <div
           className="relative flex-1 flex items-center justify-center rounded-lg py-1.5 gap-1 transition-all duration-200"
           style={{

@@ -5,4 +5,8 @@ node_modules/
 !.env.example
 dist/
 *.tsbuildinfo
+next-start.*
 .DS_Store
+data/*.sqlite
+data/*.sqlite-shm
+data/*.sqlite-wal

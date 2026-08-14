@@ -3,18 +3,24 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev -p 30001",
     "build": "next build",
-    "start": "next start",
+    "test:conversations": "tsx scripts/test-conversations.ts",
+    "test:context": "tsx scripts/test-context-management.ts",
+    "test:transits": "tsx scripts/test-transits.ts",
+    "test:events": "tsx scripts/test-life-events.ts",
+    "start": "next start -p 30001",
     "build:cf": "npx @cloudflare/next-on-pages",
     "preview:cf": "npx wrangler pages dev",
     "prepare": "husky"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.27.0",
+    "@phosphor-icons/react": "^2.1.10",
     "@types/pg": "^8.20.0",
     "@vercel/analytics": "^2.0.1",
     "@vercel/speed-insights": "^2.0.0",
+    "better-sqlite3": "^12.4.1",
     "clsx": "^2.1.1",
     "framer-motion": "^11.3.0",
     "html2canvas": "^1.4.1",
@@ -29,6 +35,7 @@
   },
   "devDependencies": {
     "@cloudflare/next-on-pages": "^1.13.16",
+    "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
@@ -37,6 +44,7 @@
     "lint-staged": "^16.4.0",
     "postcss": "^8",
     "tailwindcss": "^3.4.0",
+    "tsx": "^4.20.5",
     "typescript": "^5"
   },
   "lint-staged": {

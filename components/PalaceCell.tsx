@@ -99,7 +99,7 @@ export default function PalaceCell({
         )}
           style={!isCurrentDaXian ? { color: 'var(--t-faint)', opacity: 0.75 } : undefined}
         >
-          {daXianAge[0]}–{daXianAge[1]}
+          {daXianAge[0]}-{daXianAge[1]}
         </div>
       )}
 

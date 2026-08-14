@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import type { ZiweiChart, Palace, Star } from '@/lib/ziwei/types';
+import type { ZiweiChart, Palace, Star, DaXian } from '@/lib/ziwei/types';
 import { BRANCHES, STEMS } from '@/lib/ziwei/constants';
 import PalaceCell from './PalaceCell';
 import TimeNav, { type TimeView, getYearStemIndex, buildSiHuaOverlay } from './TimeNav';
@@ -11,6 +11,11 @@ interface ChartBoardProps {
   onStarSelect?: (star: Star, palace: Palace) => void;
   onPalaceSelect?: (palace: Palace) => void;
   onSiHuaClick?: (starName: string, siHua: string, view: TimeView) => void;
+  timeView?: TimeView;
+  liunianYear?: number;
+  onTimeViewChange?: (view: TimeView) => void;
+  onLiunianYearChange?: (year: number) => void;
+  activeDaXian?: DaXian;
 }
 
 const BRANCH_GRID_POS: Record<number, [number, number]> = {
@@ -52,16 +57,36 @@ function getSanFangSiZheng(branch: number): [number, number, number, number] {
 
 const ANIMATION_ORDER = [5, 6, 7, 8, 9, 10, 11, 0, 1, 2, 3, 4];
 
-export default function ChartBoard({ chart, onStarSelect, onPalaceSelect, onSiHuaClick }: ChartBoardProps) {
+export default function ChartBoard({
+  chart,
+  onStarSelect,
+  onPalaceSelect,
+  onSiHuaClick,
+  timeView: controlledTimeView,
+  liunianYear: controlledLiunianYear,
+  onTimeViewChange,
+  onLiunianYearChange,
+  activeDaXian,
+}: ChartBoardProps) {
   const [selectedBranch, setSelectedBranch] = useState<number | null>(null);
-  const [timeView, setTimeView] = useState<TimeView>('mingpan');
-  const [liunianYear, setLiunianYear] = useState<number>(new Date().getFullYear());
+  const [internalTimeView, setInternalTimeView] = useState<TimeView>('mingpan');
+  const [internalLiunianYear, setInternalLiunianYear] = useState<number>(new Date().getFullYear());
+  const timeView = controlledTimeView ?? internalTimeView;
+  const liunianYear = controlledLiunianYear ?? internalLiunianYear;
+  const setTimeView = (view: TimeView) => {
+    setInternalTimeView(view);
+    onTimeViewChange?.(view);
+  };
+  const setLiunianYear = (year: number) => {
+    setInternalLiunianYear(year);
+    onLiunianYearChange?.(year);
+  };
 
   const palaceMap: Record<number, Palace> = {};
   chart.palaces.forEach(p => { palaceMap[p.branch] = p; });
 
   // 计算当前叠加四化数据（大限或流年）
-  const currentDx = chart.daXians[chart.currentDaXianIndex];
+  const currentDx = activeDaXian ?? chart.daXians[chart.currentDaXianIndex];
   const overlayData: Record<string, string> = (() => {
     if (timeView === 'daxian' && currentDx) {
       const dxPalace = chart.palaces.find(p => p.branch === currentDx.palaceBranch);
@@ -96,6 +121,7 @@ export default function ChartBoard({ chart, onStarSelect, onPalaceSelect, onSiHu
         liunianYear={liunianYear}
         onViewChange={setTimeView}
         onYearChange={setLiunianYear}
+        activeDaXian={currentDx}
       />
 
       {/* 命盘标题 */}
@@ -172,7 +198,7 @@ export default function ChartBoard({ chart, onStarSelect, onPalaceSelect, onSiHu
               <div className="border border-purple-500/30 rounded-lg px-3 py-1.5 text-center"
                 style={{ background: 'rgba(147,51,234,0.06)' }}>
                 <div className="text-[8px] text-purple-500/80 mb-0.5 tracking-wider">当前大限</div>
-                <div className="text-[12px] text-purple-400 font-medium tabular-nums">{dx.startAge}–{dx.endAge}岁</div>
+                <div className="text-[12px] text-purple-400 font-medium tabular-nums">{dx.startAge}-{dx.endAge}岁</div>
                 <div className="text-[9px] text-purple-500/60">{dx.palaceName}</div>
               </div>
             );
