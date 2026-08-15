@@ -1,4 +1,4 @@
-import type { SiHua } from '@/lib/ziwei/types';
+import type { SiHua, Star, ZiweiChart } from '@/lib/ziwei/types';
 
 export const RELATIONSHIP_TYPES = [
   'romantic',
@@ -25,9 +25,11 @@ export function isRelationshipType(value: unknown): value is RelationshipType {
 }
 export type ChartOwner = 'A' | 'B';
 export type EvidenceOwner = ChartOwner | 'interaction';
-export type PalaceName =
-  | '命宫' | '兄弟宫' | '夫妻宫' | '子女宫' | '财帛宫' | '疾厄宫'
-  | '迁移宫' | '交友宫' | '官禄宫' | '田宅宫' | '福德宫' | '父母宫';
+export const PALACE_NAMES = [
+  '命宫', '兄弟宫', '夫妻宫', '子女宫', '财帛宫', '疾厄宫',
+  '迁移宫', '交友宫', '官禄宫', '田宅宫', '福德宫', '父母宫',
+] as const;
+export type PalaceName = typeof PALACE_NAMES[number];
 export type HemingResultLevel = 'supportive' | 'mixed' | 'challenging' | 'observe' | 'insufficient';
 export type HemingConfidence = 'low' | 'medium' | 'high';
 export type HemingEvidenceSource =
@@ -75,6 +77,40 @@ export interface HemingEvidence {
   siHua?: Array<{ star: string; type: SiHua }>;
   value?: unknown;
   confidence: HemingConfidence;
+  methodologyVersion: string;
+  chartEngineVersion: string;
+  ruleId?: string;
+  ruleVersion?: number;
+}
+
+export interface HemingPalaceFact {
+  owner: ChartOwner;
+  palace: PalaceName;
+  branchIndex: number;
+  branch: string;
+  stars: Array<Pick<Star, 'name' | 'type' | 'siHua' | 'brightness'>>;
+  isEmpty: boolean;
+}
+
+export interface HemingStageFact {
+  owner: ChartOwner;
+  palace: PalaceName;
+  branchIndex: number;
+  branch: string;
+  startAge: number;
+  endAge: number;
+}
+
+export interface HemingChartFacts {
+  owner: ChartOwner;
+  birthTimeKnown: boolean;
+  palaces: Record<PalaceName, HemingPalaceFact>;
+  currentStage: HemingStageFact | null;
+}
+
+export interface HemingFactBundle {
+  A: HemingChartFacts;
+  B: HemingChartFacts;
 }
 
 export interface HemingPalaceRef {
@@ -144,6 +180,62 @@ export interface HemingRuleDefinition {
   source: HemingRuleSource;
   conflictsWith: string[];
   enabled: boolean;
+}
+
+export type HemingResultPhase = 'natal' | 'stage' | 'safety';
+
+export interface HemingRuleResult {
+  ruleId: string;
+  ruleVersion: number;
+  ruleName: string;
+  dimensionId: string;
+  phase: HemingResultPhase;
+  level: HemingResultLevel;
+  configuredConfidence: HemingConfidence;
+  confidence: HemingConfidence;
+  priority: number;
+  evidenceIds: string[];
+  degradedByRuleIds: string[];
+  conclusion: string;
+  advice: string;
+  source: HemingRuleSource;
+}
+
+export interface HemingSuppressedRule {
+  ruleId: string;
+  suppressedByRuleId: string;
+  reason: 'conflict_priority';
+}
+
+export interface HemingDimensionResult {
+  dimensionId: string;
+  label: string;
+  description: string;
+  requiredContextFields: string[];
+  missingContextFields: string[];
+  baselineResults: HemingRuleResult[];
+  stageResults: HemingRuleResult[];
+}
+
+export interface HemingEvaluationInput {
+  chartA: ZiweiChart;
+  chartB: ZiweiChart;
+  relationshipType: RelationshipType;
+  relationshipContext?: HemingRelationshipContext | null;
+  chartEngineVersion?: string;
+}
+
+export interface HemingEvaluationResult {
+  methodologyVersion: string;
+  chartEngineVersion: string;
+  relationshipType: RelationshipType;
+  roles: { A: string; B: string };
+  facts: HemingFactBundle;
+  evidence: HemingEvidence[];
+  dimensions: HemingDimensionResult[];
+  matchedRules: HemingRuleResult[];
+  suppressedRules: HemingSuppressedRule[];
+  warnings: string[];
 }
 
 export interface HemingSchoolPolicy {
