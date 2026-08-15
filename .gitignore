@@ -6,6 +6,7 @@ node_modules/
 dist/
 *.tsbuildinfo
 next-start.*
+.codex-dev.*.log
 .DS_Store
 data/*.sqlite
 data/*.sqlite-shm
