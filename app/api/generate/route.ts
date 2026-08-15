@@ -34,6 +34,7 @@ export async function POST(request: Request) {
       province: typeof body.province === 'string' && body.province.trim() ? body.province.trim() : undefined,
       city: typeof body.city === 'string' && body.city.trim() ? body.city.trim() : undefined,
       longitude: typeof body.longitude === 'number' ? body.longitude : undefined,
+      unknownTime: body.unknownTime === true,
     };
 
     return NextResponse.json(generateChart(birthInfo));
