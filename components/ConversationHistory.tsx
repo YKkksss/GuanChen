@@ -3,20 +3,24 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ChatCircleDots, Plus, SidebarSimple } from '@phosphor-icons/react';
-import type { ConversationListItem } from '@/lib/conversations/types';
+import type { ConversationListItem, ConversationType } from '@/lib/conversations/types';
 
 interface ConversationHistoryProps {
   activeConversationId?: string | null;
   collapsed: boolean;
   onToggle: () => void;
+  conversationType?: ConversationType;
 }
 
 export default function ConversationHistory({
   activeConversationId,
   collapsed,
   onToggle,
+  conversationType = 'chart',
 }: ConversationHistoryProps) {
   const router = useRouter();
+  const basePath = conversationType === 'heming' ? '/heming' : '/chart';
+  const historyTitle = conversationType === 'heming' ? '合盘历史' : '历史对话';
   const [items, setItems] = useState<ConversationListItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -24,7 +28,7 @@ export default function ConversationHistory({
   const loadHistory = useCallback(async () => {
     try {
       setError('');
-      const response = await fetch('/api/conversations?type=chart&status=active', { cache: 'no-store' });
+      const response = await fetch(`/api/conversations?type=${conversationType}&status=active`, { cache: 'no-store' });
       if (!response.ok) throw new Error('历史记录加载失败');
       const data = await response.json() as { conversations?: ConversationListItem[] };
       setItems(data.conversations ?? []);
@@ -33,7 +37,7 @@ export default function ConversationHistory({
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [conversationType]);
 
   useEffect(() => {
     loadHistory();
@@ -57,7 +61,7 @@ export default function ConversationHistory({
     if (!window.confirm(`确定删除“${item.title}”吗？完整聊天记录将无法恢复。`)) return;
     const response = await fetch(`/api/conversations/${item.id}`, { method: 'DELETE' });
     if (!response.ok) return;
-    if (activeConversationId === item.id) router.push('/chart');
+    if (activeConversationId === item.id) router.push(basePath);
     await loadHistory();
   };
 
@@ -69,7 +73,7 @@ export default function ConversationHistory({
       >
         <div className={`min-w-0 flex-1 ${collapsed ? 'xl:hidden' : ''}`}>
           <div>
-            <div className="text-sm font-semibold" style={{ color: 'var(--t-text)' }}>历史对话</div>
+            <div className="text-sm font-semibold" style={{ color: 'var(--t-text)' }}>{historyTitle}</div>
             <div className="text-[10px] mt-1" style={{ color: 'var(--t-faint)' }}>数据仅保存在这台设备</div>
           </div>
         </div>
@@ -77,9 +81,9 @@ export default function ConversationHistory({
         <div className={`flex shrink-0 gap-1.5 ${collapsed ? 'xl:flex-col' : ''}`}>
           <button
             type="button"
-            onClick={() => router.push('/chart')}
-            title="新建命盘"
-            aria-label="新建命盘"
+            onClick={() => router.push(basePath)}
+            title={conversationType === 'heming' ? '新建合盘' : '新建命盘'}
+            aria-label={conversationType === 'heming' ? '新建合盘' : '新建命盘'}
             className={`flex h-8 items-center justify-center gap-1 rounded-lg text-[11px] transition-colors active:scale-[0.98] ${collapsed ? 'w-8 xl:px-0' : 'px-2.5'}`}
             style={{ color: 'var(--t-gold)', border: '1px solid rgba(212,168,67,0.25)' }}
           >
@@ -104,7 +108,7 @@ export default function ConversationHistory({
         {loading && <HistoryHint text={collapsed ? '…' : '正在读取历史记录…'} compact={collapsed} />}
         {!loading && error && <HistoryHint text={collapsed ? '!' : error} compact={collapsed} />}
         {!loading && !error && items.length === 0 && (
-          <HistoryHint text={collapsed ? '空' : '还没有历史对话，起一张命盘后会自动保存。'} compact={collapsed} />
+          <HistoryHint text={collapsed ? '空' : conversationType === 'heming' ? '还没有合盘记录，创建后会自动保存。' : '还没有历史对话，起一张命盘后会自动保存。'} compact={collapsed} />
         )}
 
         {items.map(item => {
@@ -122,7 +126,7 @@ export default function ConversationHistory({
                 type="button"
                 title={item.title}
                 aria-label={`打开会话：${item.title}`}
-                onClick={() => router.push(`/chart/${item.id}`)}
+                onClick={() => router.push(`${basePath}/${item.id}`)}
                 className={`mx-auto my-1 h-9 w-9 items-center justify-center rounded-lg transition-colors active:scale-[0.98] ${collapsed ? 'hidden xl:flex' : 'hidden'}`}
                 style={{ color: active ? 'var(--t-gold)' : 'var(--t-faint)' }}
               >
@@ -132,14 +136,14 @@ export default function ConversationHistory({
               <div className={collapsed ? 'xl:hidden' : ''}>
               <button
                 type="button"
-                onClick={() => router.push(`/chart/${item.id}`)}
+                onClick={() => router.push(`${basePath}/${item.id}`)}
                 className="block w-full text-left px-3 pt-2.5 pb-1"
               >
                 <div className="text-[12px] truncate" style={{ color: active ? 'var(--t-gold)' : 'var(--t-text)' }}>
                   {item.title}
                 </div>
                 <div className="text-[10px] mt-1 truncate" style={{ color: 'var(--t-faint)' }}>
-                  {item.lastMessagePreview || '等待首次解读'}
+                  {item.lastMessagePreview || (conversationType === 'heming' ? '双方命盘已保存' : '等待首次解读')}
                 </div>
               </button>
               <div className="px-3 pb-2 flex items-center justify-between text-[9px]" style={{ color: 'var(--t-faint)' }}>
