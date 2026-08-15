@@ -11,6 +11,7 @@
     "test:events": "tsx scripts/test-life-events.ts",
     "test:reports": "tsx scripts/test-reports.ts",
     "test:heming-methodology": "tsx scripts/test-heming-methodology.ts",
+    "test:heming-conversations": "tsx scripts/test-heming-conversations.ts",
     "start": "next start -p 30001",
     "build:cf": "npx @cloudflare/next-on-pages",
     "preview:cf": "npx wrangler pages dev",
