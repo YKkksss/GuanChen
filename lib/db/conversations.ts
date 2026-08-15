@@ -226,16 +226,36 @@ export function getConversation(id: string): Conversation | null {
 
 export function updateConversation(
   id: string,
-  input: { title?: string; status?: ConversationStatus },
+  input: {
+    title?: string;
+    status?: ConversationStatus;
+    relationshipType?: RelationshipType | null;
+    relationshipContext?: HemingRelationshipContext | null;
+  },
 ): Conversation | null {
   const existing = getConversation(id);
   if (!existing) return null;
 
   const title = input.title?.trim() || existing.title;
   const status = input.status ?? existing.status;
+  const relationshipType = input.relationshipType === undefined
+    ? existing.relationshipType
+    : input.relationshipType;
+  const relationshipContext = input.relationshipContext === undefined
+    ? existing.relationshipContext
+    : input.relationshipContext;
   getDatabase().prepare(`
-    UPDATE conversations SET title = ?, status = ?, updated_at = ? WHERE id = ?
-  `).run(title, status, Date.now(), id);
+    UPDATE conversations
+    SET title = ?, status = ?, relationship_type = ?, relationship_context_json = ?, updated_at = ?
+    WHERE id = ?
+  `).run(
+    title,
+    status,
+    relationshipType,
+    relationshipContext ? JSON.stringify(relationshipContext) : null,
+    Date.now(),
+    id,
+  );
   return getConversation(id);
 }
 

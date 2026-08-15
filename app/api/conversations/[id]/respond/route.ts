@@ -10,6 +10,10 @@ import {
   buildFallbackConversationContext,
 } from '@/lib/context/builder';
 import { maintainConversationContext } from '@/lib/context/maintenance';
+import {
+  buildFallbackHemingConversationContext,
+  buildHemingConversationContext,
+} from '@/lib/context/heming-builder';
 import { estimateTextTokens } from '@/lib/context/token-counter';
 import { completeContextRun, createContextRun } from '@/lib/db/context';
 import {
@@ -35,7 +39,13 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
   const { id } = await context.params;
   const conversation = getConversation(id);
   if (!conversation) return NextResponse.json({ error: '会话不存在' }, { status: 404 });
-  if (!conversation.chartSnapshot) return NextResponse.json({ error: '命盘快照缺失' }, { status: 409 });
+  if (conversation.type === 'chart' && !conversation.chartSnapshot) {
+    return NextResponse.json({ error: '命盘快照缺失' }, { status: 409 });
+  }
+  if (conversation.type === 'heming'
+    && (!conversation.chartSnapshotA || !conversation.chartSnapshotB || !conversation.relationshipType)) {
+    return NextResponse.json({ error: '双命盘快照或关系类型缺失' }, { status: 409 });
+  }
 
   let assistantId: string | null = null;
   let contextRunId: string | null = null;
@@ -81,22 +91,37 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     const provider = getProviderConfig();
     let builtContext;
     try {
-      builtContext = buildConversationContext({
-        conversationId: id,
-        currentMessageId: userMessage.id,
-        provider: provider.provider,
-        model: provider.model,
-      });
+      builtContext = conversation.type === 'heming'
+        ? buildHemingConversationContext({
+            conversationId: id,
+            currentMessageId: userMessage.id,
+            provider: provider.provider,
+            model: provider.model,
+          })
+        : buildConversationContext({
+            conversationId: id,
+            currentMessageId: userMessage.id,
+            provider: provider.provider,
+            model: provider.model,
+          });
     } catch (contextError) {
       const reason = contextError instanceof Error ? contextError.message : 'context_builder_error';
       console.warn('完整上下文构建失败，已降级到命盘事实和最近消息：', contextError);
-      builtContext = buildFallbackConversationContext({
-        conversationId: id,
-        currentMessageId: userMessage.id,
-        provider: provider.provider,
-        model: provider.model,
-        reason,
-      });
+      builtContext = conversation.type === 'heming'
+        ? buildFallbackHemingConversationContext({
+            conversationId: id,
+            currentMessageId: userMessage.id,
+            provider: provider.provider,
+            model: provider.model,
+            reason,
+          })
+        : buildFallbackConversationContext({
+            conversationId: id,
+            currentMessageId: userMessage.id,
+            provider: provider.provider,
+            model: provider.model,
+            reason,
+          });
     }
     const contextRun = createContextRun({
       conversationId: id,
@@ -117,7 +142,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     contextRunId = contextRun.id;
 
     const upstream = await createChatCompletionStream(builtContext.messages, {
-      temperature: 0.72,
+      temperature: conversation.type === 'heming' ? 0.62 : 0.72,
       maxTokens: 2000,
     });
     const clientStream = toClientSseStream(upstream);

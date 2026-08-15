@@ -269,20 +269,22 @@ function buildAnnualTransitContext(snapshot: AnnualTransitSnapshot): string {
 
 const BRANCH_LABELS = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥'];
 
-function buildSupportContext(input: {
+export function buildSupportContext(input: {
   memories: MemoryItem[];
   summary: ConversationSummary | null;
   retrieved: RetrievedMessage[];
   maxTokens: number;
+  layerStart?: number;
 }) {
   let remaining = input.maxTokens;
   const sections: string[] = [];
+  const layerStart = input.layerStart ?? 3;
 
   const memoryText = input.memories.length
     ? input.memories.map(memory => `- [${memory.category}] ${memory.content}`).join('\n')
     : '';
   const fittedMemories = fitSection(
-    '【L3 用户确认信息与历史记忆】\nprevious_interpretation 仅代表此前 AI 判断，不是用户事实。\n',
+    `【L${layerStart} 用户确认信息与历史记忆】\nprevious_interpretation 仅代表此前 AI 判断，不是用户事实。\n`,
     memoryText,
     Math.min(1_000, remaining),
   );
@@ -291,7 +293,7 @@ function buildSupportContext(input: {
 
   const summaryText = input.summary ? JSON.stringify(input.summary) : '';
   const fittedSummary = fitSection(
-    '【L4 较早对话的滚动摘要】\n',
+    `【L${layerStart + 1} 较早对话的滚动摘要】\n`,
     summaryText,
     Math.min(1_000, remaining),
   );
@@ -308,7 +310,7 @@ function buildSupportContext(input: {
     includedRetrieved.push(message);
   }
   const fittedRetrieval = fitSection(
-    '【L5 按需召回的旧消息】\n这些片段用于恢复引用关系，不得覆盖用户的新纠正。\n',
+    `【L${layerStart + 2} 按需召回的旧消息】\n这些片段用于恢复引用关系，不得覆盖用户的新纠正。\n`,
     retrievalText,
     Math.min(1_500, remaining),
   );
@@ -331,7 +333,7 @@ function fitSection(prefix: string, content: string, budget: number) {
   return { content: fitted, tokens: estimateTextTokens(fitted) + 6 };
 }
 
-function selectRecentWithinBudget(
+export function selectRecentWithinBudget(
   messages: ConversationMessage[],
   budget: number,
 ): ConversationMessage[] {
@@ -348,7 +350,7 @@ function selectRecentWithinBudget(
   return selected.flat();
 }
 
-function takeLastTurns(messages: ConversationMessage[], count: number): ConversationMessage[] {
+export function takeLastTurns(messages: ConversationMessage[], count: number): ConversationMessage[] {
   return groupTurns(messages).slice(-count).flat();
 }
 
@@ -361,18 +363,18 @@ function groupTurns(messages: ConversationMessage[]): ConversationMessage[][] {
   return turns;
 }
 
-function estimateConversationMessages(messages: ConversationMessage[]): number {
+export function estimateConversationMessages(messages: ConversationMessage[]): number {
   return messages.reduce((total, message) => total + estimateMessageTokens(toChatMessage(message)), 0);
 }
 
-function toChatMessage(message: ConversationMessage): ChatMessage {
+export function toChatMessage(message: ConversationMessage): ChatMessage {
   return {
     role: message.role === 'assistant' ? 'assistant' : 'user',
     content: message.content,
   };
 }
 
-function selectRelevantMemories(
+export function selectRelevantMemories(
   memories: MemoryItem[],
   question: string,
   terms: string[],

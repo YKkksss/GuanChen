@@ -69,7 +69,11 @@ export async function updateRollingSummary(
   if (!candidates.length) return false;
   const throughSeq = candidates[candidates.length - 1].seq;
 
-  const result = await createChatCompletion(buildSummaryPrompt(conversation.summary, candidates), {
+  const result = await createChatCompletion(buildSummaryPrompt(
+    conversation.summary,
+    candidates,
+    conversation.type === 'heming',
+  ), {
     temperature: 0,
     maxTokens: 1_200,
   });
@@ -104,6 +108,7 @@ export async function updateMemories(
   userMessageId: string,
   assistantMessageId: string,
 ): Promise<number> {
+  const conversation = getConversation(conversationId);
   const user = getMessage(userMessageId);
   const assistant = getMessage(assistantMessageId);
   if (!user || !assistant || assistant.status !== 'completed') return 0;
@@ -116,7 +121,8 @@ export async function updateMemories(
       content: `你是对话记忆提取器。只提取用户明确陈述的长期有用信息，输出严格 JSON，不要解释。
 允许分类：user_fact、confirmed_event、user_preference、correction、open_question。
 禁止把助手推断、命理结论或不确定猜测写成用户事实。没有合适信息时输出 {"items":[]}。
-每项格式：{"category":"user_fact","content":"简洁中文事实","normalized_key":"稳定键","confidence":0.95}。`,
+每项格式：{"category":"user_fact","content":"简洁中文事实","normalized_key":"稳定键","confidence":0.95}。
+${conversation?.type === 'heming' ? '这是双人合盘对话：每条人物事实必须明确写“甲方”或“乙方”，互动事实写“双方互动”；无法确认归属时不要提取，绝不能把一方事实复制给另一方。' : ''}`,
     },
     {
       role: 'user',
@@ -150,7 +156,8 @@ export async function rebuildConversationMemories(conversationId: string): Promi
   batches: number;
   memories: number;
 }> {
-  if (!getConversation(conversationId)) throw new Error('会话不存在');
+  const conversation = getConversation(conversationId);
+  if (!conversation) throw new Error('会话不存在');
   const userMessages = getCompletedMessagesBefore(conversationId, Number.MAX_SAFE_INTEGER)
     .filter(message => message.role === 'user' && message.source === 'question');
   if (!userMessages.length) {
@@ -166,7 +173,8 @@ export async function rebuildConversationMemories(conversationId: string): Promi
         content: `你是历史对话记忆提取器。只从用户原话提取长期有用的信息，输出严格 JSON：{"items":[]}。
 允许分类：user_fact、confirmed_event、user_preference、correction、open_question。
 每项格式：{"category":"user_fact","content":"简洁中文事实","normalized_key":"稳定键","confidence":0.95}。
-禁止把问题中的假设、命理结论或助手观点写成事实；相互冲突时保留用户较新的明确纠正。每批最多输出 20 项。`,
+禁止把问题中的假设、命理结论或助手观点写成事实；相互冲突时保留用户较新的明确纠正。每批最多输出 20 项。
+${conversation.type === 'heming' ? '这是双人合盘对话：每条人物事实必须明确写“甲方”或“乙方”，互动事实写“双方互动”；无法确认归属时不要提取，绝不能串用双方事实。' : ''}`,
       },
       {
         role: 'user',
@@ -191,13 +199,15 @@ export async function rebuildConversationMemories(conversationId: string): Promi
 function buildSummaryPrompt(
   oldSummary: ConversationSummary | null,
   messages: ConversationMessage[],
+  isHeming: boolean,
 ): ChatMessage[] {
   return [
     {
       role: 'system',
       content: `你是滚动对话摘要器。将旧摘要与新增消息合并成严格 JSON。
 字段必须恰好为：user_context、confirmed_events、topics_discussed、previous_conclusions、corrections、open_questions、user_preferences、disputed_or_uncertain、do_not_assume，所有值都是字符串数组。
-规则：只提取输入出现的信息；区分用户事实与助手判断；previous_conclusions 只放助手判断；用户新纠正覆盖旧事实；不要复制命盘 JSON；不要创造新命理结论；每个数组最多 12 项，每项简洁。`,
+规则：只提取输入出现的信息；区分用户事实与助手判断；previous_conclusions 只放助手判断；用户新纠正覆盖旧事实；不要复制命盘 JSON；不要创造新命理结论；每个数组最多 12 项，每项简洁。
+${isHeming ? '这是双人合盘对话：摘要中的人物事实与结论必须明确标注“甲方”“乙方”或“双方互动”；无法确认归属时放入 disputed_or_uncertain，绝不能把一方信息归到另一方。' : ''}`,
     },
     {
       role: 'user',
