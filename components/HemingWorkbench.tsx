@@ -1,7 +1,8 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { ArrowClockwise, CaretDown, CaretUp, CheckCircle, WarningCircle } from '@phosphor-icons/react';
+import { useRouter } from 'next/navigation';
+import { ArrowClockwise, CaretDown, CaretUp, CheckCircle, FileText, WarningCircle } from '@phosphor-icons/react';
 import type { Conversation, ConversationMessage } from '@/lib/conversations/types';
 import {
   HEMING_METHODOLOGY,
@@ -55,6 +56,7 @@ function PalaceColumn({ role, facts }: { role: string; facts: HemingPalaceFact[]
 }
 
 export default function HemingWorkbench({ conversation, initialMessages, onConversationUpdated }: HemingWorkbenchProps) {
+  const router = useRouter();
   const [evaluation, setEvaluation] = useState<HemingEvaluationResult | null>(null);
   const [evaluationError, setEvaluationError] = useState('');
   const [loading, setLoading] = useState(true);
@@ -145,10 +147,13 @@ export default function HemingWorkbench({ conversation, initialMessages, onConve
     <div className="grid min-w-0 gap-5 xl:grid-cols-[minmax(0,1.35fr)_minmax(340px,.65fr)]">
       <div className="min-w-0 space-y-5">
         <section className="rounded-xl p-4 card-glass">
-          <button type="button" onClick={() => setEditorOpen(value => !value)} className="flex w-full items-start justify-between gap-4 text-left">
-            <div><div className="text-sm font-semibold" style={{ color: 'var(--t-text)' }}>{conversation.title}</div><div className="mt-1 text-[10px]" style={{ color: 'var(--t-faint)' }}>{definition.label} · {context.ownerARole} / {context.ownerBRole}{context.mainConcern ? ` · 关注：${context.mainConcern}` : ''}</div></div>
-            <span className="flex shrink-0 items-center gap-1 text-[10px]" style={{ color: 'var(--t-gold)' }}>关系背景 {editorOpen ? <CaretUp size={12} /> : <CaretDown size={12} />}</span>
-          </button>
+          <div className="flex items-start justify-between gap-3">
+            <button type="button" onClick={() => setEditorOpen(value => !value)} className="flex min-w-0 flex-1 items-start justify-between gap-4 text-left">
+              <div className="min-w-0"><div className="truncate text-sm font-semibold" style={{ color: 'var(--t-text)' }}>{conversation.title}</div><div className="mt-1 text-[10px]" style={{ color: 'var(--t-faint)' }}>{definition.label} · {context.ownerARole} / {context.ownerBRole}{context.mainConcern ? ` · 关注：${context.mainConcern}` : ''}</div></div>
+              <span className="flex shrink-0 items-center gap-1 text-[10px]" style={{ color: 'var(--t-gold)' }}>关系背景 {editorOpen ? <CaretUp size={12} /> : <CaretDown size={12} />}</span>
+            </button>
+            <button type="button" onClick={() => router.push(`/heming/${conversation.id}/reports`)} className="flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-2 text-[10px]" style={{ color: 'var(--t-gold)', border: '1px solid rgba(212,168,67,.28)' }}><FileText size={13} />合盘报告</button>
+          </div>
           {editorOpen && (
             <div className="mt-4 space-y-4 border-t pt-4" style={{ borderColor: 'var(--t-border)' }}>
               <div className="grid gap-3 md:grid-cols-3">

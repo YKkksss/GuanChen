@@ -7,9 +7,11 @@ import type { ReportDetail, ReportEvidence } from '@/lib/reports/types';
 export default function ReportDetailWorkspace({
   conversationId,
   reportId,
+  conversationType = 'chart',
 }: {
   conversationId: string;
   reportId: string;
+  conversationType?: 'chart' | 'heming';
 }) {
   const router = useRouter();
   const [detail, setDetail] = useState<ReportDetail | null>(null);
@@ -73,11 +75,13 @@ export default function ReportDetailWorkspace({
       <div className="report-controls mb-5 flex flex-wrap items-center justify-between gap-3">
         <button
           type="button"
-          onClick={() => router.push(`/chart/${conversationId}/reports`)}
+          onClick={() => router.push(conversationType === 'heming'
+            ? `/heming/${conversationId}/reports`
+            : `/chart/${conversationId}/reports`)}
           className="text-xs"
           style={{ color: 'var(--t-faint)' }}
         >
-          ← 返回报告中心
+          ← 返回{conversationType === 'heming' ? '合盘' : '专题'}报告中心
         </button>
         <div className="flex flex-wrap items-center gap-2">
           <select
@@ -121,7 +125,7 @@ export default function ReportDetailWorkspace({
 
       <article className="overflow-hidden rounded-xl card-glass">
         <header className="px-6 py-8 text-center sm:px-10" style={{ borderBottom: '1px solid var(--t-border)' }}>
-          <div className="text-[10px] tracking-[.28em]" style={{ color: 'var(--t-gold)' }}>紫微斗数 · 专题报告</div>
+          <div className="text-[10px] tracking-[.28em]" style={{ color: 'var(--t-gold)' }}>紫微斗数 · {conversationType === 'heming' ? '合盘关系报告' : '专题报告'}</div>
           <h1 className="mt-4 text-2xl font-semibold" style={{ color: 'var(--t-text)' }}>{detail.report.title}</h1>
           <div className="mt-3 text-[10px]" style={{ color: 'var(--t-faint)' }}>
             版本 v{detail.version?.version ?? '-'} · {detail.version?.completedAt
@@ -151,7 +155,9 @@ export default function ReportDetailWorkspace({
                     <div className="flex flex-wrap items-center gap-2">
                       <h2 className="text-[15px] font-semibold" style={{ color: 'var(--t-text)' }}>【{section.title}】</h2>
                       <span className="rounded-full px-2 py-0.5 text-[9px]" style={{ color: section.basis === 'evidence' ? 'var(--t-gold)' : 'var(--t-faint)', background: 'rgba(212,168,67,.07)' }}>
-                        {section.basis === 'evidence' ? `${sectionEvidence.length} 条命盘依据` : '综合观察'}
+                        {section.basis === 'evidence'
+                          ? `${sectionEvidence.length} 条${conversationType === 'heming' ? '结构化' : '命盘'}依据`
+                          : '综合观察'}
                       </span>
                     </div>
                     <p className="mt-3 whitespace-pre-wrap text-[12px] leading-8" style={{ color: 'var(--t-text2)' }}>{section.content}</p>
@@ -219,6 +225,27 @@ export default function ReportDetailWorkspace({
 }
 
 function summarizeFacts(evidence: ReportEvidence): string {
+  if (evidence.kind === 'heming_palace') {
+    const stars = Array.isArray(evidence.facts.stars)
+      ? evidence.facts.stars
+        .map(item => typeof item === 'object' && item !== null && 'name' in item ? String(item.name) : '')
+        .filter(Boolean)
+        .join('、')
+      : '';
+    return `${String(evidence.facts.owner ?? '')}方 · ${String(evidence.facts.palace ?? '')}（${String(evidence.facts.branch ?? '')}）${stars ? ` · 星曜：${stars}` : ' · 空宫'}`;
+  }
+  if (evidence.kind === 'heming_rule') {
+    return `规则 ${String(evidence.facts.ruleId ?? '')} · ${String(evidence.facts.phase ?? '')} · ${String(evidence.facts.level ?? '')} · ${String(evidence.facts.confidence ?? '')}置信度`;
+  }
+  if (evidence.kind === 'heming_stage') {
+    return `${String(evidence.facts.owner ?? '')}方 · ${String(evidence.facts.startAge ?? '')}-${String(evidence.facts.endAge ?? '')} 岁 · ${String(evidence.facts.palace ?? '')}`;
+  }
+  if (evidence.kind === 'heming_context') {
+    const roles = evidence.facts.roles && typeof evidence.facts.roles === 'object'
+      ? evidence.facts.roles as Record<string, unknown>
+      : {};
+    return `${String(evidence.facts.relationshipLabel ?? '')} · 甲方：${String(roles.A ?? '')} · 乙方：${String(roles.B ?? '')}`;
+  }
   if (evidence.kind === 'palace') {
     const stars = Array.isArray(evidence.facts.stars)
       ? evidence.facts.stars
