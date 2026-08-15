@@ -106,12 +106,23 @@ function mapEvidence(row: ReportEvidenceRow): ReportEvidence {
   };
 }
 
-export function getOrCreateReport(conversationId: string, type: ReportType): Report {
+export function getOrCreateReport(
+  conversationId: string,
+  type: ReportType,
+  title = REPORT_TYPE_DEFINITIONS[type].label,
+): Report {
   const db = getDatabase();
   const existing = db.prepare(
     'SELECT * FROM reports WHERE conversation_id = ? AND type = ?',
   ).get(conversationId, type) as ReportRow | undefined;
-  if (existing) return mapReport(existing);
+  if (existing) {
+    if (existing.title !== title) {
+      db.prepare('UPDATE reports SET title = ?, updated_at = ? WHERE id = ?')
+        .run(title, Date.now(), existing.id);
+      return getReport(existing.id)!;
+    }
+    return mapReport(existing);
+  }
 
   const id = randomUUID();
   const now = Date.now();
@@ -119,7 +130,7 @@ export function getOrCreateReport(conversationId: string, type: ReportType): Rep
     INSERT INTO reports (
       id, conversation_id, type, title, active_version_id, created_at, updated_at
     ) VALUES (?, ?, ?, ?, NULL, ?, ?)
-  `).run(id, conversationId, type, REPORT_TYPE_DEFINITIONS[type].label, now, now);
+  `).run(id, conversationId, type, title, now, now);
   return getReport(id)!;
 }
 

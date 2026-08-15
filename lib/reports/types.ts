@@ -107,6 +107,20 @@ export const REPORT_TYPE_DEFINITIONS: Record<ReportType, ReportTypeDefinition> =
   },
 };
 
+export const HEMING_REPORT_DEFINITION: ReportTypeDefinition = {
+  label: '合盘关系报告',
+  description: '基于双方命盘、关系类型、规则结果和现实确认信息，整理可追溯的关系分析。',
+  sectionKeys: [
+    { key: 'relationship_baseline', title: '关系基线' },
+    { key: 'supportive_structures', title: '支持性结构' },
+    { key: 'pressure_points', title: '压力点与差异' },
+    { key: 'communication', title: '沟通与协作建议' },
+    { key: 'boundaries', title: '现实边界与待确认事项' },
+    { key: 'current_stage', title: '当前阶段影响' },
+  ],
+  palaceNames: [],
+};
+
 export interface Report {
   id: string;
   conversationId: string;
@@ -157,7 +171,16 @@ export interface ReportEvidence {
   reportVersionId: string;
   sectionKey: string;
   evidenceKey: string;
-  kind: 'chart_core' | 'palace' | 'pattern' | 'daxian' | 'confirmed_event';
+  kind:
+    | 'chart_core'
+    | 'palace'
+    | 'pattern'
+    | 'daxian'
+    | 'confirmed_event'
+    | 'heming_palace'
+    | 'heming_rule'
+    | 'heming_context'
+    | 'heming_stage';
   label: string;
   source: 'chart_snapshot' | 'rule_engine' | 'user_confirmed';
   facts: Record<string, unknown>;
