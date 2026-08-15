@@ -396,6 +396,26 @@ function migrate(db: Database.Database) {
     applyV6();
   }
 
+  if (!applied.has(7)) {
+    const applyV7 = db.transaction(() => {
+      db.exec(`
+        ALTER TABLE conversations ADD COLUMN relationship_type TEXT
+          CHECK (relationship_type IN (
+            'romantic', 'business', 'parent_child',
+            'manager_report', 'friendship', 'custom'
+          ));
+        ALTER TABLE conversations ADD COLUMN relationship_context_json TEXT;
+
+        CREATE INDEX idx_conversations_type_updated
+          ON conversations(type, status, updated_at DESC);
+      `);
+
+      db.prepare('INSERT INTO schema_migrations(version, applied_at) VALUES (?, ?)')
+        .run(7, Date.now());
+    });
+    applyV7();
+  }
+
   ensureMessageSearch(db);
 }
 

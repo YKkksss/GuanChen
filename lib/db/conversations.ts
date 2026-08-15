@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import type { BirthInfo, ZiweiChart } from '@/lib/ziwei/types';
+import type { HemingRelationshipContext, RelationshipType } from '@/lib/heming/types';
 import type {
   Conversation,
   ConversationListItem,
@@ -19,6 +20,12 @@ interface ConversationRow {
   status: ConversationStatus;
   birth_info_json: string | null;
   chart_snapshot_json: string | null;
+  birth_info_a_json: string | null;
+  birth_info_b_json: string | null;
+  chart_snapshot_a_json: string | null;
+  chart_snapshot_b_json: string | null;
+  relationship_type: RelationshipType | null;
+  relationship_context_json: string | null;
   engine_version: string;
   prompt_version: string;
   summary_json: string | null;
@@ -65,6 +72,12 @@ function mapConversation(row: ConversationRow): Conversation {
     status: row.status,
     birthInfo: parseJson<BirthInfo>(row.birth_info_json),
     chartSnapshot: parseJson<ZiweiChart>(row.chart_snapshot_json),
+    birthInfoA: parseJson<BirthInfo>(row.birth_info_a_json),
+    birthInfoB: parseJson<BirthInfo>(row.birth_info_b_json),
+    chartSnapshotA: parseJson<ZiweiChart>(row.chart_snapshot_a_json),
+    chartSnapshotB: parseJson<ZiweiChart>(row.chart_snapshot_b_json),
+    relationshipType: row.relationship_type,
+    relationshipContext: parseJson<HemingRelationshipContext>(row.relationship_context_json),
     engineVersion: row.engine_version,
     promptVersion: row.prompt_version,
     summary: parseJson<ConversationSummary>(row.summary_json),
@@ -102,6 +115,12 @@ export function createConversation(input: {
   title: string;
   birthInfo?: BirthInfo | null;
   chartSnapshot?: ZiweiChart | null;
+  birthInfoA?: BirthInfo | null;
+  birthInfoB?: BirthInfo | null;
+  chartSnapshotA?: ZiweiChart | null;
+  chartSnapshotB?: ZiweiChart | null;
+  relationshipType?: RelationshipType | null;
+  relationshipContext?: HemingRelationshipContext | null;
 }): Conversation {
   const db = getDatabase();
   const id = randomUUID();
@@ -110,14 +129,23 @@ export function createConversation(input: {
   db.prepare(`
     INSERT INTO conversations (
       id, type, title, status, birth_info_json, chart_snapshot_json,
+      birth_info_a_json, birth_info_b_json, chart_snapshot_a_json, chart_snapshot_b_json,
+      relationship_type, relationship_context_json,
       engine_version, prompt_version, created_at, updated_at
-    ) VALUES (?, ?, ?, 'active', ?, ?, 'ziwei-v1', 'interpret-v1', ?, ?)
+    ) VALUES (?, ?, ?, 'active', ?, ?, ?, ?, ?, ?, ?, ?, 'ziwei-v1', ?, ?, ?)
   `).run(
     id,
     input.type,
     input.title,
     input.birthInfo ? JSON.stringify(input.birthInfo) : null,
     input.chartSnapshot ? JSON.stringify(input.chartSnapshot) : null,
+    input.birthInfoA ? JSON.stringify(input.birthInfoA) : null,
+    input.birthInfoB ? JSON.stringify(input.birthInfoB) : null,
+    input.chartSnapshotA ? JSON.stringify(input.chartSnapshotA) : null,
+    input.chartSnapshotB ? JSON.stringify(input.chartSnapshotB) : null,
+    input.relationshipType ?? null,
+    input.relationshipContext ? JSON.stringify(input.relationshipContext) : null,
+    input.type === 'heming' ? 'heming-v1' : 'interpret-v1',
     now,
     now,
   );

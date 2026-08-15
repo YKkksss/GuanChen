@@ -10,6 +10,19 @@ export const RELATIONSHIP_TYPES = [
 ] as const;
 
 export type RelationshipType = typeof RELATIONSHIP_TYPES[number];
+
+/** 用户在创建合盘时确认的现实关系背景。 */
+export interface HemingRelationshipContext {
+  ownerARole: string;
+  ownerBRole: string;
+  customRelationshipLabel: string | null;
+  mainConcern: string | null;
+  confirmedFacts: Record<string, string>;
+}
+
+export function isRelationshipType(value: unknown): value is RelationshipType {
+  return typeof value === 'string' && (RELATIONSHIP_TYPES as readonly string[]).includes(value);
+}
 export type ChartOwner = 'A' | 'B';
 export type EvidenceOwner = ChartOwner | 'interaction';
 export type PalaceName =

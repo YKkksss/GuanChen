@@ -44,6 +44,7 @@ export function formToBirthInfo(form: BirthFormState): BirthInfo {
     province: form.province || undefined,
     city: form.city || undefined,
     longitude: form.province ? form.longitude : undefined,
+    unknownTime: form.unknownTime,
   };
 }
 

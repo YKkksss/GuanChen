@@ -1,4 +1,5 @@
 import type { BirthInfo, ZiweiChart } from '@/lib/ziwei/types';
+import type { HemingRelationshipContext, RelationshipType } from '@/lib/heming/types';
 
 export type ConversationType = 'chart' | 'heming';
 export type ConversationStatus = 'active' | 'archived';
@@ -33,6 +34,12 @@ export interface Conversation {
   status: ConversationStatus;
   birthInfo: BirthInfo | null;
   chartSnapshot: ZiweiChart | null;
+  birthInfoA: BirthInfo | null;
+  birthInfoB: BirthInfo | null;
+  chartSnapshotA: ZiweiChart | null;
+  chartSnapshotB: ZiweiChart | null;
+  relationshipType: RelationshipType | null;
+  relationshipContext: HemingRelationshipContext | null;
   engineVersion: string;
   promptVersion: string;
   summary: ConversationSummary | null;

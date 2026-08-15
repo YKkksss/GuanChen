@@ -8,6 +8,7 @@ export interface BirthInfo {
   province?: string;   // 出生省份
   city?: string;       // 出生城市
   longitude?: number;  // 出生地经度（用于真太阳时校正）
+  unknownTime?: boolean; // 是否未知出生时辰，用于合盘置信度降级
 }
 
 export interface LunarInfo {
