@@ -1,11 +1,13 @@
 'use client';
-import { useState, useCallback, useEffect, useRef } from 'react';
+
+import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import BirthForm, { type BirthFormState } from '@/components/BirthForm';
 import ConversationHistory from '@/components/ConversationHistory';
+import HemingWorkbench from '@/components/HemingWorkbench';
 import { formToBirthInfo } from '@/lib/ziwei/share';
 import type { BirthInfo, ZiweiChart } from '@/lib/ziwei/types';
-import type { Conversation } from '@/lib/conversations/types';
+import type { Conversation, ConversationMessage } from '@/lib/conversations/types';
 import {
   HEMING_METHODOLOGY,
   getRelationshipDefinition,
@@ -14,521 +16,137 @@ import {
 } from '@/lib/heming';
 import { useTheme } from '@/components/ThemeProvider';
 
-// ─── AiContent 渲染器（与 InsightPanel 一致）────────────────
-function AiContent({ text, streaming }: { text: string; streaming?: boolean }) {
-  const lines = text.split('\n');
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-      {lines.map((line, i) => {
-        const sectionMatch = line.match(/^\*\*【(.+?)】\*\*$/);
-        if (sectionMatch) {
-          return (
-            <div key={i} style={{ paddingTop: i === 0 ? 0 : '14px', paddingBottom: '4px' }}>
-              <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--ac)', letterSpacing: '0.04em' }}>
-                【{sectionMatch[1]}】
-              </span>
-            </div>
-          );
-        }
-        if (line.trim() === '') return <div key={i} style={{ height: '4px' }} />;
-        const parts = line.split(/\*\*(.+?)\*\*/);
-        return (
-          <div key={i} style={{ fontSize: '13px', lineHeight: 1.75, color: 'var(--tx-2)' }}>
-            {parts.map((part, j) =>
-              j % 2 === 0
-                ? part
-                : <strong key={j} style={{ fontWeight: 500, color: 'var(--tx-0)' }}>{part}</strong>
-            )}
-          </div>
-        );
-      })}
-      {streaming && (
-        <span style={{
-          display: 'inline-block', width: '7px', height: '13px',
-          background: 'var(--ac)', opacity: 0.5, borderRadius: '2px',
-          animation: 'pulse 1s ease-in-out infinite',
-          verticalAlign: 'middle', marginLeft: '2px',
-        }} />
-      )}
-    </div>
-  );
-}
-
-interface HemingWorkspaceProps {
-  conversationId?: string;
-}
-
-function SavedPartyCard({ chart, role }: { chart: ZiweiChart; role: string }) {
-  const birth = chart.birthInfo;
-  const location = [birth.province, birth.city].filter(Boolean).join(' · ');
-  return (
-    <div className="rounded-xl p-5" style={{ border: '1px solid var(--bdr)', background: 'var(--bg-card)' }}>
-      <div className="mb-3 text-[10px] tracking-[0.3em]" style={{ color: 'var(--ac)' }}>{role}</div>
-      <div className="text-base font-semibold" style={{ color: 'var(--tx-0)' }}>{birth.name || '未命名'}</div>
-      <div className="mt-2 text-xs leading-6" style={{ color: 'var(--tx-3)' }}>
-        {birth.year} 年 {birth.month} 月 {birth.day} 日 · {birth.gender === 'male' ? '男' : '女'}
-        <br />
-        {birth.unknownTime ? '出生时辰未知' : `时辰索引 ${birth.hour}`}{location ? ` · ${location}` : ''}
-        <br />
-        {chart.wuxingJuName} · 命宫地支索引 {chart.mingGongBranch} · 身宫地支索引 {chart.shenGongBranch}
-      </div>
-    </div>
-  );
-}
+interface HemingWorkspaceProps { conversationId?: string }
 
 export default function HemingWorkspace({ conversationId }: HemingWorkspaceProps) {
   const router = useRouter();
   const { theme } = useTheme();
   const isDark = theme === 'dark';
   const [historyCollapsed, setHistoryCollapsed] = useState(false);
-  const [loadingConversation, setLoadingConversation] = useState(!!conversationId);
+  const [loadingConversation, setLoadingConversation] = useState(Boolean(conversationId));
   const [loadError, setLoadError] = useState('');
   const [conversation, setConversation] = useState<Conversation | null>(null);
+  const [messages, setMessages] = useState<ConversationMessage[]>([]);
   const [relationshipType, setRelationshipType] = useState<RelationshipType>('romantic');
   const [mainConcern, setMainConcern] = useState('');
   const [customRelationshipLabel, setCustomRelationshipLabel] = useState('');
-
-  // ─── 双方命盘状态 ─────────────────────────────────────────
-  const [chartA, setChartA] = useState<ZiweiChart | null>(null);
-  const [chartB, setChartB] = useState<ZiweiChart | null>(null);
-  // 双方表单状态由 BirthForm onFormSave 同步到此处，统一按钮触发起盘
   const [formA, setFormA] = useState<BirthFormState | null>(null);
   const [formB, setFormB] = useState<BirthFormState | null>(null);
-
-  // ─── AI 合盘分析状态 ─────────────────────────────────────
-  const [analysis, setAnalysis] = useState('');
-  const [analyzing, setAnalyzing] = useState(false);
-  const [question, setQuestion] = useState('');
-  const [analysisError, setAnalysisError] = useState(false);
+  const [creating, setCreating] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
-  const analysisRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!conversationId) {
-      setLoadingConversation(false);
-      return;
-    }
+    if (!conversationId) { setLoadingConversation(false); return; }
     let cancelled = false;
     setLoadingConversation(true);
     setLoadError('');
     fetch(`/api/conversations/${conversationId}`, { cache: 'no-store' })
       .then(async response => {
         if (!response.ok) throw new Error(response.status === 404 ? '合盘记录不存在或已删除' : '合盘记录加载失败');
-        return response.json() as Promise<{ conversation: Conversation }>;
+        return response.json() as Promise<{ conversation: Conversation; messages: ConversationMessage[] }>;
       })
       .then(data => {
         if (cancelled) return;
-        if (data.conversation.type !== 'heming' || !data.conversation.chartSnapshotA || !data.conversation.chartSnapshotB) {
-          throw new Error('这条记录不是有效的合盘会话');
-        }
+        if (data.conversation.type !== 'heming' || !data.conversation.chartSnapshotA || !data.conversation.chartSnapshotB) throw new Error('这条记录不是有效的合盘会话');
         setConversation(data.conversation);
-        setChartA(data.conversation.chartSnapshotA);
-        setChartB(data.conversation.chartSnapshotB);
-        setRelationshipType(data.conversation.relationshipType ?? 'custom');
-        setMainConcern(data.conversation.relationshipContext?.mainConcern ?? '');
+        setMessages(data.messages);
       })
-      .catch(error => {
-        if (!cancelled) setLoadError(error instanceof Error ? error.message : '合盘记录加载失败');
-      })
-      .finally(() => {
-        if (!cancelled) setLoadingConversation(false);
-      });
+      .catch(error => { if (!cancelled) setLoadError(error instanceof Error ? error.message : '合盘记录加载失败'); })
+      .finally(() => { if (!cancelled) setLoadingConversation(false); });
     return () => { cancelled = true; };
   }, [conversationId]);
 
-  // ─── 起盘（单次调用，返回 chart 给统一流程使用）──────────
   const generateChart = useCallback(async (info: BirthInfo): Promise<ZiweiChart | null> => {
     try {
-      const res = await fetch('/api/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(info),
-      });
-      if (!res.ok) return null;
-      return await res.json();
-    } catch {
-      return null;
-    }
+      const response = await fetch('/api/generate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(info) });
+      return response.ok ? await response.json() as ZiweiChart : null;
+    } catch { return null; }
   }, []);
 
-  // 表单是否填齐
-  const isFormReady = (f: BirthFormState | null): boolean =>
-    !!(f && f.year && f.month && f.day && f.gender && (f.unknownTime || (f.clockHour !== '' && f.clockMinute !== '')));
+  const isFormReady = (form: BirthFormState | null): boolean => Boolean(form && form.year && form.month && form.day && form.gender && (form.unknownTime || (form.clockHour !== '' && form.clockMinute !== '')));
 
-  // ─── 新建合盘：先固化双命盘快照，再进入可恢复页面 ──────────
   const createHemingConversation = useCallback(async () => {
     setFormError(null);
-    setAnalysisError(false);
-    if (!isFormReady(formA) || !isFormReady(formB)) {
-      setFormError('请先填写双方完整出生信息');
-      return;
-    }
-    if (relationshipType === 'custom' && !customRelationshipLabel.trim()) {
-      setFormError('请填写自定义关系名称');
-      return;
-    }
-
-    setAnalyzing(true);
+    if (!isFormReady(formA) || !isFormReady(formB)) { setFormError('请先填写双方完整出生信息'); return; }
+    if (relationshipType === 'custom' && !customRelationshipLabel.trim()) { setFormError('请填写自定义关系名称'); return; }
+    setCreating(true);
     try {
       const birthInfoA = formToBirthInfo(formA!);
       const birthInfoB = formToBirthInfo(formB!);
-      const [newChartA, newChartB] = await Promise.all([
-        generateChart(birthInfoA),
-        generateChart(birthInfoB),
-      ]);
-      if (!newChartA || !newChartB) throw new Error('双方命盘生成失败，请稍后重试');
-
+      const [chartSnapshotA, chartSnapshotB] = await Promise.all([generateChart(birthInfoA), generateChart(birthInfoB)]);
+      if (!chartSnapshotA || !chartSnapshotB) throw new Error('双方命盘生成失败，请稍后重试');
       const definition = getRelationshipDefinition(relationshipType);
       const relationshipContext: HemingRelationshipContext = {
-        ownerARole: definition.roles[0].label,
-        ownerBRole: definition.roles[1].label,
+        ownerARole: definition.roles[0].label, ownerBRole: definition.roles[1].label,
         customRelationshipLabel: relationshipType === 'custom' ? customRelationshipLabel.trim() : null,
-        mainConcern: mainConcern.trim() || null,
-        confirmedFacts: {},
+        mainConcern: mainConcern.trim() || null, confirmedFacts: {},
       };
       const response = await fetch('/api/conversations', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          type: 'heming',
-          birthInfoA,
-          birthInfoB,
-          chartSnapshotA: newChartA,
-          chartSnapshotB: newChartB,
-          relationshipType,
-          relationshipContext,
-        }),
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'heming', birthInfoA, birthInfoB, chartSnapshotA, chartSnapshotB, relationshipType, relationshipContext }),
       });
       const data = await response.json() as { conversation?: Conversation; error?: string };
       if (!response.ok || !data.conversation) throw new Error(data.error || '合盘记录保存失败');
-
       window.dispatchEvent(new Event('conversation-updated'));
       router.push(`/heming/${data.conversation.id}`);
-    } catch (error) {
-      setFormError(error instanceof Error ? error.message : '合盘记录创建失败');
-    } finally {
-      setAnalyzing(false);
-    }
+    } catch (error) { setFormError(error instanceof Error ? error.message : '合盘记录创建失败'); }
+    finally { setCreating(false); }
   }, [customRelationshipLabel, formA, formB, generateChart, mainConcern, relationshipType, router]);
-
-  // ─── 已保存合盘的即时 AI 分析（消息持久化在 M4-3 接入）──────
-  const runAnalysis = useCallback(async (q?: string) => {
-    setFormError(null);
-    if (!conversationId || !chartA || !chartB) {
-      setFormError('请先创建并保存合盘记录');
-      return;
-    }
-    setAnalyzing(true);
-    setAnalysis('');
-    setAnalysisError(false);
-
-    try {
-      const res = await fetch('/api/heming', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ conversationId, question: q ?? undefined }),
-      });
-      if (!res.ok || !res.body) throw new Error();
-
-      const reader = res.body.getReader();
-      const decoder = new TextDecoder();
-      let text = '';
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        const chunk = decoder.decode(value, { stream: true });
-        for (const line of chunk.split('\n')) {
-          if (!line.startsWith('data: ')) continue;
-          const data = line.slice(6);
-          if (data === '[DONE]') break;
-          try {
-            const delta = JSON.parse(data).delta?.text ?? '';
-            text += delta;
-            setAnalysis(text);
-          } catch { /* skip */ }
-        }
-      }
-      // scroll to analysis
-      setTimeout(() => analysisRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
-    } catch {
-      setAnalysisError(true);
-    } finally {
-      setAnalyzing(false);
-    }
-  }, [chartA, chartB, conversationId]);
 
   const cardStyle = {
     background: isDark ? 'rgba(255,255,255,0.04)' : 'rgba(255,255,255,0.9)',
     border: `1px solid ${isDark ? 'rgba(255,255,255,0.1)' : 'rgba(200,160,60,0.2)'}`,
-    borderRadius: '16px',
-    padding: '24px',
+    borderRadius: '16px', padding: '24px',
   };
-
-  const labelStyle = {
-    fontSize: '10px', letterSpacing: '0.4em', color: 'var(--ac)', opacity: 0.7,
-    marginBottom: '16px', display: 'block',
-  };
+  const labelStyle = { fontSize: '10px', letterSpacing: '0.4em', color: 'var(--ac)', opacity: 0.7, marginBottom: '16px', display: 'block' };
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg-0)' }}>
-      {/* 顶栏 */}
-      <header style={{
-        position: 'sticky', top: 0, zIndex: 50,
-        background: isDark ? 'rgba(2,8,16,0.88)' : 'rgba(250,245,235,0.92)',
-        backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
-        borderBottom: '1px solid var(--bdr)',
-        display: 'flex', alignItems: 'center', padding: '0 24px', height: '52px', gap: '16px',
-      }}>
-        <button
-          onClick={() => router.push('/')}
-          style={{
-            display: 'flex', alignItems: 'center', gap: '4px', fontSize: '13px',
-            color: 'var(--tx-3)', background: 'none', border: 'none', cursor: 'pointer',
-          }}
-        >
-          <span style={{ fontSize: '16px' }}>‹</span>
-          <span>返回</span>
-        </button>
+      <header style={{ position: 'sticky', top: 0, zIndex: 50, background: isDark ? 'rgba(2,8,16,.88)' : 'rgba(250,245,235,.92)', backdropFilter: 'blur(20px)', borderBottom: '1px solid var(--bdr)', display: 'flex', alignItems: 'center', padding: '0 24px', height: '52px', gap: '16px' }}>
+        <button onClick={() => router.push('/')} style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '13px', color: 'var(--tx-3)', background: 'none', border: 'none', cursor: 'pointer' }}><span style={{ fontSize: '16px' }}>‹</span><span>返回</span></button>
         <div style={{ width: '1px', height: '20px', background: 'var(--bdr-med)' }} />
-        <span style={{ fontSize: '12px', color: 'var(--ac)', letterSpacing: '0.2em' }}>合盘分析</span>
-        <div style={{ flex: 1 }} />
-        <span style={{ fontSize: '11px', color: 'var(--tx-3)' }}>感情 · 合伙 · 亲子 · 朋友</span>
+        <span style={{ fontSize: '12px', color: 'var(--ac)', letterSpacing: '0.2em' }}>合盘分析</span><div style={{ flex: 1 }} />
+        <span style={{ fontSize: '11px', color: 'var(--tx-3)' }}>双盘隔离 · 规则可追溯 · 对话可恢复</span>
       </header>
 
-      {/* 主体 */}
-      <div
-        className={`heming-shell ${historyCollapsed ? 'history-collapsed' : ''}`}
-        style={{ maxWidth: '1440px', margin: '0 auto', padding: '24px 24px 80px' }}
-      >
-        <ConversationHistory
-          conversationType="heming"
-          activeConversationId={conversationId}
-          collapsed={historyCollapsed}
-          onToggle={() => setHistoryCollapsed(value => !value)}
-        />
+      <div className={`heming-shell ${historyCollapsed ? 'history-collapsed' : ''}`} style={{ maxWidth: '1600px', margin: '0 auto', padding: '20px 20px 72px' }}>
+        <ConversationHistory conversationType="heming" activeConversationId={conversationId} collapsed={historyCollapsed} onToggle={() => setHistoryCollapsed(value => !value)} />
         <main style={{ minWidth: 0 }}>
-
-        {/* 标题 */}
-        <div style={{ textAlign: 'center', marginBottom: '36px' }}>
-          <div style={{ fontSize: '28px', color: 'var(--ac)', opacity: 0.15, marginBottom: '12px' }}>☯</div>
-          <h1 style={{ fontSize: '22px', fontWeight: 600, letterSpacing: '0.15em', color: 'var(--tx-0)', marginBottom: '8px' }}>
-            紫微合盘
-          </h1>
-          <p style={{ fontSize: '13px', color: 'var(--tx-3)', lineHeight: 1.6 }}>
-            保存双方命盘与关系背景，刷新页面后仍可继续查看和分析
-          </p>
-        </div>
-
-        {loadingConversation && <div style={{ ...cardStyle, textAlign: 'center', marginBottom: '24px', color: 'var(--tx-3)' }}>正在恢复双方命盘…</div>}
-        {loadError && (
-          <div style={{ ...cardStyle, textAlign: 'center', marginBottom: '24px', color: '#dc2626' }}>
-            {loadError}
-            <div><button type="button" onClick={() => router.push('/heming')} style={{ marginTop: '14px', color: 'var(--ac)', background: 'none', border: 0, cursor: 'pointer' }}>新建合盘</button></div>
-          </div>
-        )}
-
-        {!conversationId && (
-          <>
-            <div style={{ ...cardStyle, marginBottom: '20px' }}>
-              <span style={labelStyle}>关系背景</span>
-              <div className="heming-relation-grid">
-                <label style={{ fontSize: '12px', color: 'var(--tx-2)' }}>
-                  关系类型
-                  <select className="input-base" value={relationshipType} onChange={event => setRelationshipType(event.target.value as RelationshipType)} style={{ display: 'block', width: '100%', marginTop: '8px' }}>
-                    {HEMING_METHODOLOGY.relationships.map(item => <option key={item.type} value={item.type}>{item.label}</option>)}
-                  </select>
-                </label>
-                <label style={{ fontSize: '12px', color: 'var(--tx-2)' }}>
-                  当前最关注的问题（可选）
-                  <input className="input-base" value={mainConcern} maxLength={300} onChange={event => setMainConcern(event.target.value)} placeholder="例如：沟通冲突、合作分工、亲子互动" style={{ display: 'block', width: '100%', marginTop: '8px' }} />
-                </label>
-              </div>
-              {relationshipType === 'custom' && (
-                <label style={{ display: 'block', marginTop: '14px', fontSize: '12px', color: 'var(--tx-2)' }}>
-                  自定义关系名称
-                  <input className="input-base" value={customRelationshipLabel} maxLength={40} onChange={event => setCustomRelationshipLabel(event.target.value)} placeholder="例如：师生、长期室友" style={{ display: 'block', width: '100%', marginTop: '8px' }} />
-                </label>
-              )}
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '24px' }} className="heming-grid">
-              <div style={cardStyle}>
-                <span style={labelStyle}>{getRelationshipDefinition(relationshipType).roles[0].label} — A</span>
-                <BirthForm hideSubmit onSubmit={() => {}} onFormSave={setFormA} />
-              </div>
-              <div style={cardStyle}>
-                <span style={labelStyle}>{getRelationshipDefinition(relationshipType).roles[1].label} — B</span>
-                <BirthForm hideSubmit onSubmit={() => {}} onFormSave={setFormB} />
-              </div>
-            </div>
-          </>
-        )}
-
-        {conversation && chartA && chartB && (
-          <div style={{ ...cardStyle, marginBottom: '24px' }}>
-            <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
-              <div>
-                <div className="text-sm font-semibold" style={{ color: 'var(--tx-0)' }}>{conversation.title}</div>
-                <div className="mt-1 text-[11px]" style={{ color: 'var(--tx-3)' }}>{getRelationshipDefinition(relationshipType).label}{mainConcern ? ` · 关注：${mainConcern}` : ''}</div>
-              </div>
-              <span className="rounded-full px-3 py-1 text-[10px]" style={{ color: 'var(--ac)', border: '1px solid var(--ac-bdr)' }}>已保存 · 可刷新恢复</span>
-            </div>
-            <div className="heming-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
-              <SavedPartyCard chart={chartA} role={conversation.relationshipContext?.ownerARole || '甲方'} />
-              <SavedPartyCard chart={chartB} role={conversation.relationshipContext?.ownerBRole || '乙方'} />
-            </div>
-          </div>
-        )}
-
-        {/* ═══ 大合盘分析框（视觉中心，始终显示）════════════════ */}
-        <div ref={analysisRef} style={{
-          ...cardStyle,
-          minHeight: '320px',
-          padding: '32px',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: (!analysis && !analyzing) ? 'center' : 'flex-start',
-          opacity: loadError ? 0.55 : 1,
-        }}>
-          {/* 区块标题 */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: (analysis || analyzing) ? '20px' : '24px' }}>
-            <span style={{ color: 'var(--ac)', opacity: 0.6 }}>◉</span>
-            <span style={{ fontSize: '11px', letterSpacing: '0.3em', color: 'var(--tx-3)' }}>合盘分析 · HEMING</span>
-          </div>
-
-          {/* 状态分支 */}
-          {!analysis && !analyzing && (
-            <div style={{ textAlign: 'center', padding: '32px 0' }}>
-              <div style={{ fontSize: '13px', color: 'var(--tx-3)', marginBottom: '24px', lineHeight: 1.7 }}>
-                {conversationId ? '双方命盘已经从本地记录恢复' : '先填写关系背景与双方出生信息'}<br />
-                {conversationId ? '可以直接开始本次合盘分析' : '创建后将自动保存，刷新或退出都不会丢失'}
-              </div>
-              <button
-                onClick={() => conversationId ? runAnalysis() : createHemingConversation()}
-                disabled={!!loadError || loadingConversation}
-                style={{
-                  padding: '14px 40px', borderRadius: 'var(--r-pill)', border: 'none',
-                  background: 'linear-gradient(135deg, #9a6210, #c88020)',
-                  color: '#fff8e8', fontSize: '14px', fontWeight: 600,
-                  letterSpacing: '0.15em', cursor: loadError || loadingConversation ? 'not-allowed' : 'pointer',
-                  boxShadow: '0 4px 16px rgba(140,100,20,0.25)',
-                  transition: 'transform 0.15s',
-                }}
-                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.transform = 'translateY(-1px)'; }}
-                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.transform = 'translateY(0)'; }}
-              >
-                {conversationId ? '开始合盘分析' : '创建并保存合盘'}
-              </button>
-              {formError && (
-                <div style={{ marginTop: '20px', fontSize: '13px', color: '#dc2626' }}>
-                  {formError}
+          {!conversationId && (
+            <>
+              <div className="mb-7 text-center"><div className="mb-2 text-3xl opacity-15" style={{ color: 'var(--ac)' }}>☯</div><h1 className="mb-2 text-[22px] font-semibold tracking-[.15em]" style={{ color: 'var(--tx-0)' }}>紫微合盘</h1><p className="text-[13px]" style={{ color: 'var(--tx-3)' }}>先确认关系背景并保存双方命盘，再进入可持续追问的合盘工作台</p></div>
+              <div style={{ ...cardStyle, marginBottom: '20px' }}>
+                <span style={labelStyle}>关系背景</span>
+                <div className="heming-relation-grid">
+                  <label className="text-xs" style={{ color: 'var(--tx-2)' }}>关系类型<select className="input-base mt-2 block w-full" value={relationshipType} onChange={event => setRelationshipType(event.target.value as RelationshipType)}>{HEMING_METHODOLOGY.relationships.map(item => <option key={item.type} value={item.type}>{item.label}</option>)}</select></label>
+                  <label className="text-xs" style={{ color: 'var(--tx-2)' }}>当前最关注的问题（可选）<input className="input-base mt-2 block w-full" value={mainConcern} maxLength={300} onChange={event => setMainConcern(event.target.value)} placeholder="例如：沟通冲突、合作分工、亲子互动" /></label>
                 </div>
-              )}
-            </div>
+                {relationshipType === 'custom' && <label className="mt-3.5 block text-xs" style={{ color: 'var(--tx-2)' }}>自定义关系名称<input className="input-base mt-2 block w-full" value={customRelationshipLabel} maxLength={40} onChange={event => setCustomRelationshipLabel(event.target.value)} placeholder="例如：师生、长期室友" /></label>}
+              </div>
+              <div className="heming-grid mb-5 grid grid-cols-2 gap-5">
+                <div style={cardStyle}><span style={labelStyle}>{getRelationshipDefinition(relationshipType).roles[0].label} — A</span><BirthForm hideSubmit onSubmit={() => {}} onFormSave={setFormA} /></div>
+                <div style={cardStyle}><span style={labelStyle}>{getRelationshipDefinition(relationshipType).roles[1].label} — B</span><BirthForm hideSubmit onSubmit={() => {}} onFormSave={setFormB} /></div>
+              </div>
+              <div className="rounded-2xl p-7 text-center" style={cardStyle}>
+                <p className="mb-5 text-[12px] leading-relaxed" style={{ color: 'var(--tx-3)' }}>创建时会固化双方命盘快照。之后刷新页面、退出再进入，都能恢复规则评估与完整聊天记录。</p>
+                <button onClick={() => void createHemingConversation()} disabled={creating} className="rounded-full px-10 py-3.5 text-sm font-semibold tracking-[.15em] disabled:opacity-50" style={{ border: 'none', background: 'linear-gradient(135deg,#9a6210,#c88020)', color: '#fff8e8', boxShadow: '0 4px 16px rgba(140,100,20,.25)' }}>{creating ? '正在生成并保存…' : '创建并保存合盘'}</button>
+                {formError && <div className="mt-4 text-[13px] text-red-600">{formError}</div>}
+              </div>
+            </>
           )}
 
-          {analyzing && !analysis && (
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', padding: '40px 0', color: 'var(--tx-3)', fontSize: '13px' }}>
-              <div style={{
-                width: '14px', height: '14px',
-                border: '2px solid var(--bdr-med)', borderTopColor: 'var(--ac)',
-                borderRadius: '50%', animation: 'spin 0.8s linear infinite',
-              }} />
-              {conversationId ? '正在对比双方命盘…' : '正在生成并保存双方命盘…'}
-            </div>
-          )}
-
-          {analysis && <AiContent text={analysis} streaming={analyzing} />}
-
-          {analysisError && (
-            <div style={{ padding: '12px 16px', borderRadius: '10px', border: '1px solid var(--bdr)', background: 'var(--bg-card)', fontSize: '13px', color: 'var(--tx-2)', marginTop: '12px' }}>
-              分析暂时不可用，请重试。
-            </div>
-          )}
-        </div>
-
-        {/* ═══ 针对合盘的追问聊天框（仅分析完成后显示）═══════════ */}
-        {analysis && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '16px' }}>
-            <div style={{ fontSize: '11px', letterSpacing: '0.2em', color: 'var(--tx-3)', marginBottom: '4px' }}>
-              针对此次合盘继续追问
-            </div>
-
-            {/* 快捷问题 */}
-            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-              {[
-                '感情匹配度如何？',
-                '适合合伙创业吗？',
-                '两人结婚是否合适？',
-                '哪方面最容易产生矛盾？',
-                '财运是否互补？',
-              ].map(q => (
-                <button
-                  key={q}
-                  onClick={() => { setQuestion(q); runAnalysis(q); }}
-                  disabled={analyzing}
-                  style={{
-                    fontSize: '12px', padding: '6px 14px',
-                    borderRadius: 'var(--r-pill)',
-                    border: '1px solid var(--bdr-med)',
-                    background: 'transparent', color: 'var(--tx-2)',
-                    cursor: analyzing ? 'not-allowed' : 'pointer',
-                    opacity: analyzing ? 0.5 : 1,
-                    transition: 'border-color 0.15s',
-                  }}
-                  onMouseEnter={e => { if (!analyzing) (e.currentTarget as HTMLElement).style.borderColor = 'var(--ac-bdr)'; }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--bdr-med)'; }}
-                >
-                  {q}
-                </button>
-              ))}
-            </div>
-
-            {/* 输入框 + 追问按钮 */}
-            <div style={{ display: 'flex', gap: '8px' }}>
-              <input
-                type="text"
-                value={question}
-                onChange={e => setQuestion(e.target.value)}
-                onKeyDown={e => { if (e.key === 'Enter' && !analyzing) runAnalysis(question || undefined); }}
-                placeholder="继续追问，如：哪几年是两人感情关键期？"
-                disabled={analyzing}
-                className="input-base"
-                style={{ fontSize: '13px', flex: 1 }}
-              />
-              <button
-                onClick={() => runAnalysis(question || undefined)}
-                disabled={analyzing}
-                style={{
-                  padding: '10px 20px', borderRadius: 'var(--r-sm)', border: 'none',
-                  background: analyzing ? 'var(--bg-2)' : 'var(--tx-0)',
-                  color: analyzing ? 'var(--tx-3)' : 'white',
-                  fontSize: '13px', fontWeight: 500,
-                  cursor: analyzing ? 'not-allowed' : 'pointer',
-                  transition: 'all 0.15s', whiteSpace: 'nowrap',
-                }}
-              >
-                {analyzing ? '分析中…' : '继续追问'}
-              </button>
-            </div>
-          </div>
-        )}
+          {loadingConversation && <div className="rounded-xl p-8 text-center card-glass" style={{ color: 'var(--tx-3)' }}>正在恢复合盘工作台…</div>}
+          {loadError && <div className="rounded-xl p-8 text-center card-glass" style={{ color: '#dc2626' }}>{loadError}<div><button onClick={() => router.push('/heming')} className="mt-4" style={{ color: 'var(--ac)' }}>新建合盘</button></div></div>}
+          {conversation && <HemingWorkbench conversation={conversation} initialMessages={messages} onConversationUpdated={setConversation} />}
         </main>
       </div>
 
       <style>{`
-        .heming-shell { display: grid; grid-template-columns: 260px minmax(0, 1fr); gap: 20px; }
-        .heming-shell.history-collapsed { grid-template-columns: 56px minmax(0, 1fr); }
-        .heming-relation-grid { display: grid; grid-template-columns: minmax(180px, 0.55fr) minmax(260px, 1.45fr); gap: 14px; }
-        @media (max-width: 1100px) {
-          .heming-shell, .heming-shell.history-collapsed { grid-template-columns: 1fr; }
-        }
-        @media (max-width: 680px) {
-          .heming-grid { grid-template-columns: 1fr !important; }
-          .heming-relation-grid { grid-template-columns: 1fr; }
-          .heming-shell { padding-left: 12px !important; padding-right: 12px !important; }
-        }
+        .heming-shell { display:grid; grid-template-columns:260px minmax(0,1fr); gap:20px; transition:grid-template-columns .2s ease; }
+        .heming-shell.history-collapsed { grid-template-columns:56px minmax(0,1fr); }
+        .heming-relation-grid { display:grid; grid-template-columns:minmax(180px,.55fr) minmax(260px,1.45fr); gap:14px; }
+        @media (max-width:1100px) { .heming-shell,.heming-shell.history-collapsed { grid-template-columns:1fr; } }
+        @media (max-width:680px) { .heming-grid,.heming-relation-grid { grid-template-columns:1fr !important; } .heming-shell { padding-left:12px !important; padding-right:12px !important; } }
       `}</style>
     </div>
   );
