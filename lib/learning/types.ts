@@ -86,3 +86,112 @@ export interface LearningLessonResponse {
 }
 
 export type LearningPalace = Pick<Palace, 'branch' | 'name'>;
+
+export type LearningLessonStatus = 'not_started' | 'in_progress' | 'completed';
+export type LearningQuizQuestionType = 'single_choice' | 'true_false';
+
+export interface LearningLessonSection {
+  id: string;
+  title: string;
+  paragraphs: string[];
+  keyPoints: string[];
+}
+
+export interface LearningQuizOption {
+  id: string;
+  label: string;
+}
+
+export interface LearningQuizQuestion {
+  id: string;
+  type: LearningQuizQuestionType;
+  prompt: string;
+  options: LearningQuizOption[];
+  correctOptionId: string;
+  explanation: string;
+  sourceIds: string[];
+}
+
+export interface LearningCourseLesson {
+  id: string;
+  slug: string;
+  order: number;
+  title: string;
+  summary: string;
+  durationMinutes: number;
+  knowledgePointIds: string[];
+  prerequisiteLessonIds: string[];
+  objectives: string[];
+  sections: LearningLessonSection[];
+  commonMistakes: string[];
+  sourceIds: string[];
+  passScore: number;
+  quiz: LearningQuizQuestion[];
+}
+
+export interface LearningCourse {
+  schemaVersion: 1;
+  id: string;
+  slug: string;
+  version: string;
+  title: string;
+  subtitle: string;
+  description: string;
+  level: 'beginner';
+  estimatedMinutes: number;
+  methodologyVersion: string;
+  knowledgeVersion: string;
+  lessons: LearningCourseLesson[];
+  sourceIds: string[];
+  boundary: string;
+}
+
+export interface LearningLessonProgress {
+  id: string;
+  courseId: string;
+  lessonId: string;
+  status: Exclude<LearningLessonStatus, 'not_started'>;
+  bestScore: number;
+  attemptsCount: number;
+  latestAnswers: Record<string, string>;
+  startedAt: number;
+  completedAt: number | null;
+  updatedAt: number;
+}
+
+export interface LearningCourseProgress {
+  courseId: string;
+  totalLessons: number;
+  startedLessons: number;
+  completedLessons: number;
+  completionPercent: number;
+  lastLessonId: string | null;
+  lessons: LearningLessonProgress[];
+}
+
+export interface LearningQuizResultItem {
+  questionId: string;
+  selectedOptionId: string | null;
+  correctOptionId: string;
+  correct: boolean;
+  explanation: string;
+}
+
+export interface LearningQuizGrade {
+  score: number;
+  passed: boolean;
+  correctCount: number;
+  totalCount: number;
+  results: LearningQuizResultItem[];
+}
+
+export interface LearningAttempt {
+  id: string;
+  courseId: string;
+  lessonId: string;
+  score: number;
+  passed: boolean;
+  answers: Record<string, string>;
+  grade: LearningQuizGrade;
+  createdAt: number;
+}

@@ -824,6 +824,46 @@ function migrate(db: Database.Database) {
     applyV14();
   }
 
+  if (!applied.has(15)) {
+    const applyV15 = db.transaction(() => {
+      db.exec(`
+        CREATE TABLE learning_progress (
+          id TEXT PRIMARY KEY,
+          course_id TEXT NOT NULL,
+          lesson_id TEXT NOT NULL,
+          status TEXT NOT NULL CHECK (status IN ('in_progress', 'completed')),
+          best_score INTEGER NOT NULL DEFAULT 0 CHECK (best_score BETWEEN 0 AND 100),
+          attempts_count INTEGER NOT NULL DEFAULT 0 CHECK (attempts_count >= 0),
+          latest_answers_json TEXT NOT NULL DEFAULT '{}',
+          started_at INTEGER NOT NULL,
+          completed_at INTEGER,
+          updated_at INTEGER NOT NULL,
+
+          UNIQUE (course_id, lesson_id)
+        );
+
+        CREATE TABLE learning_attempts (
+          id TEXT PRIMARY KEY,
+          course_id TEXT NOT NULL,
+          lesson_id TEXT NOT NULL,
+          score INTEGER NOT NULL CHECK (score BETWEEN 0 AND 100),
+          passed INTEGER NOT NULL CHECK (passed IN (0, 1)),
+          answers_json TEXT NOT NULL,
+          result_json TEXT NOT NULL,
+          created_at INTEGER NOT NULL
+        );
+
+        CREATE INDEX idx_learning_progress_course_updated
+          ON learning_progress(course_id, updated_at DESC);
+        CREATE INDEX idx_learning_attempts_course_lesson_created
+          ON learning_attempts(course_id, lesson_id, created_at DESC);
+      `);
+      db.prepare('INSERT INTO schema_migrations(version, applied_at) VALUES (?, ?)')
+        .run(15, Date.now());
+    });
+    applyV15();
+  }
+
   ensureMessageSearch(db);
 }
 

@@ -489,6 +489,13 @@ export default function HomePage() {
           <ThemeToggle />
           <motion.button
             whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}
+            onClick={() => router.push('/learn')}
+            className="hidden text-[11px] sm:inline-flex sm:text-xs px-2.5 sm:px-4 py-1 sm:py-1.5 rounded-full transition-all duration-300"
+            style={{ border: `1px solid ${c.navBorder}`, color: c.textMuted }}>
+            学习
+          </motion.button>
+          <motion.button
+            whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}
             onClick={() => router.push('/rectification')}
             className="text-[11px] sm:text-xs px-2.5 sm:px-4 py-1 sm:py-1.5 rounded-full transition-all duration-300"
             style={{ border: `1px solid ${c.navBorder}`, color: c.textMuted }}>
@@ -1043,6 +1050,18 @@ export default function HomePage() {
             免费起盘
           </motion.button>
           <div className="mt-4 flex flex-wrap gap-3 justify-center">
+            <motion.a
+              href="/learn"
+              whileHover={{ scale: 1.02 }}
+              className="text-xs tracking-[0.2em] inline-flex items-center gap-2 px-4 py-2 rounded-full"
+              style={{
+                color: c.goldSolid,
+                border: `1px solid ${c.goldLine}`,
+                background: 'transparent',
+                textDecoration: 'none',
+              }}>
+              ◇ 紫微学习中心 →
+            </motion.a>
             <motion.a
               href="/knowledge"
               whileHover={{ scale: 1.02 }}

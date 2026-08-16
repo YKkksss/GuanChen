@@ -155,6 +155,14 @@ export default function ChartWorkspace({ conversationId }: ChartWorkspaceProps) 
                 <div className="flex flex-wrap items-center justify-end gap-2">
                   <button
                     type="button"
+                    onClick={() => router.push('/learn')}
+                    className="whitespace-nowrap rounded-lg px-3 py-1.5 text-[11px]"
+                    style={{ color: 'var(--t-text)', border: '1px solid var(--t-border)' }}
+                  >
+                    学习中心
+                  </button>
+                  <button
+                    type="button"
                     onClick={toggleLearningMode}
                     className="whitespace-nowrap rounded-lg px-3 py-1.5 text-[11px]"
                     style={{ color: learningMode ? '#fff8e8' : 'var(--t-gold)', border: '1px solid rgba(212,168,67,0.35)', background: learningMode ? 'linear-gradient(135deg,#9a6210,#c88020)' : 'rgba(212,168,67,.04)' }}
