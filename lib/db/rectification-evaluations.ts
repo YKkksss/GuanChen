@@ -38,6 +38,13 @@ export function getLatestRectificationEvaluation(sessionId: string): Rectificati
   return row ? mapEvaluation(row) : null;
 }
 
+export function getRectificationEvaluation(id: string): RectificationEvaluation | null {
+  const row = getDatabase().prepare(`
+    SELECT * FROM rectification_evaluations WHERE id = ?
+  `).get(id) as RectificationEvaluationRow | undefined;
+  return row ? mapEvaluation(row) : null;
+}
+
 export function listRectificationEvaluations(sessionId: string): RectificationEvaluation[] {
   const rows = getDatabase().prepare(`
     SELECT * FROM rectification_evaluations

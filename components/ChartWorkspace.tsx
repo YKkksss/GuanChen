@@ -165,6 +165,14 @@ export default function ChartWorkspace({ conversationId }: ChartWorkspaceProps) 
                   >
                     年度分析 →
                   </button>
+                  <button
+                    type="button"
+                    onClick={() => router.push(`/rectification?conversationId=${conversationId}`)}
+                    className="rounded-lg px-3 py-1.5 text-[11px]"
+                    style={{ color: 'var(--t-gold)', border: '1px solid rgba(212,168,67,0.28)' }}
+                  >
+                    校正时辰
+                  </button>
                   <span className="text-[10px]" style={{ color: 'var(--t-faint)' }}>
                     已自动保存到本地历史
                   </span>

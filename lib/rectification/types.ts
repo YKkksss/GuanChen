@@ -401,3 +401,25 @@ export interface RectificationEvaluationState {
   evaluation: RectificationEvaluation | null;
   isCurrent: boolean;
 }
+
+export interface RectificationSelection {
+  id: string;
+  sessionId: string;
+  candidateId: string;
+  evaluationId: string;
+  evaluationVersion: number;
+  rank: number;
+  relativeEvidenceIndex: number;
+  confidence: RectificationConfidence;
+  stable: boolean;
+  acknowledgedLimitations: boolean;
+  note: string | null;
+  createdAt: number;
+}
+
+export interface SelectRectificationCandidateInput {
+  candidateId: string;
+  evaluationId: string;
+  acknowledgedLimitations?: boolean;
+  note?: string | null;
+}

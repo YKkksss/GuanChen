@@ -6,3 +6,4 @@ export * from './service';
 export * from './event-service';
 export * from './evaluation-engine';
 export * from './evaluation-service';
+export * from './selection-service';

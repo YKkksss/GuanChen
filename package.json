@@ -20,6 +20,7 @@
     "test:rectification-sessions": "tsx scripts/test-rectification-sessions.ts",
     "test:rectification-events": "tsx scripts/test-rectification-events.ts",
     "test:rectification-evaluation": "tsx scripts/test-rectification-evaluation.ts",
+    "test:rectification-workbench": "tsx scripts/test-rectification-workbench.ts",
     "start": "next start -p 30001",
     "build:cf": "npx @cloudflare/next-on-pages",
     "preview:cf": "npx wrangler pages dev",

@@ -141,9 +141,30 @@ body {
 
 /* 原生下拉面板统一使用高对比度浅色配色，避免暗色模式下白字白底。 */
 .birth-form select option,
-.birth-form select optgroup {
+.birth-form select optgroup,
+.rectification-form select option,
+.rectification-form select optgroup {
   background-color: #ffffff !important;
   color: #111111 !important;
+}
+
+.rectification-input {
+  width: 100%;
+  border: 1px solid var(--bdr-med);
+  border-radius: var(--r-sm);
+  background: var(--bg-1);
+  color: var(--tx-1);
+  padding: 10px 12px;
+  font-size: 14px;
+  line-height: 1.4;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+.rectification-input::placeholder { color: var(--tx-3); }
+.rectification-input:focus {
+  border-color: var(--ac);
+  background: var(--bg-card);
+  box-shadow: 0 0 0 3px var(--ac-bg);
 }
 
 /* ─── 工具类 ─────────────────────────────────────────────── */

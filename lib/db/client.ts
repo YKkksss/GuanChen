@@ -654,6 +654,45 @@ function migrate(db: Database.Database) {
     applyV11();
   }
 
+  if (!applied.has(12)) {
+    const applyV12 = db.transaction(() => {
+      db.exec(`
+        CREATE TABLE rectification_selections (
+          id TEXT PRIMARY KEY,
+          session_id TEXT NOT NULL,
+          candidate_id TEXT NOT NULL,
+          evaluation_id TEXT NOT NULL,
+          evaluation_version INTEGER NOT NULL,
+          rank INTEGER NOT NULL,
+          relative_evidence_index REAL NOT NULL,
+          confidence TEXT NOT NULL
+            CHECK (confidence IN ('low', 'medium', 'high')),
+          stable INTEGER NOT NULL CHECK (stable IN (0, 1)),
+          acknowledged_limitations INTEGER NOT NULL CHECK (acknowledged_limitations IN (0, 1)),
+          note TEXT,
+          created_at INTEGER NOT NULL,
+
+          FOREIGN KEY (session_id)
+            REFERENCES rectification_sessions(id)
+            ON DELETE CASCADE,
+          FOREIGN KEY (candidate_id)
+            REFERENCES rectification_candidates(id)
+            ON DELETE CASCADE,
+          FOREIGN KEY (evaluation_id)
+            REFERENCES rectification_evaluations(id)
+            ON DELETE CASCADE
+        );
+
+        CREATE INDEX idx_rectification_selections_session_created
+          ON rectification_selections(session_id, created_at DESC);
+      `);
+
+      db.prepare('INSERT INTO schema_migrations(version, applied_at) VALUES (?, ?)')
+        .run(12, Date.now());
+    });
+    applyV12();
+  }
+
   ensureMessageSearch(db);
 }
 
