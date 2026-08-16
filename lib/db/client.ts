@@ -693,6 +693,137 @@ function migrate(db: Database.Database) {
     applyV12();
   }
 
+  if (!applied.has(13)) {
+    const applyV13 = db.transaction(() => {
+      db.exec(`
+        CREATE TABLE rectification_reports (
+          id TEXT PRIMARY KEY,
+          session_id TEXT NOT NULL UNIQUE,
+          title TEXT NOT NULL,
+          active_version_id TEXT,
+          created_at INTEGER NOT NULL,
+          updated_at INTEGER NOT NULL,
+
+          FOREIGN KEY (session_id)
+            REFERENCES rectification_sessions(id)
+            ON DELETE CASCADE
+        );
+
+        CREATE TABLE rectification_report_versions (
+          id TEXT PRIMARY KEY,
+          report_id TEXT NOT NULL,
+          session_id TEXT NOT NULL,
+          evaluation_id TEXT NOT NULL,
+          selection_id TEXT,
+          version INTEGER NOT NULL,
+          input_fingerprint TEXT NOT NULL,
+          methodology_version TEXT NOT NULL,
+          evaluation_engine_version TEXT NOT NULL,
+          prompt_version TEXT NOT NULL,
+          provider TEXT NOT NULL,
+          model TEXT NOT NULL,
+          content_json TEXT,
+          status TEXT NOT NULL CHECK (status IN ('generating', 'completed', 'failed')),
+          error_code TEXT,
+          input_tokens INTEGER,
+          output_tokens INTEGER,
+          created_at INTEGER NOT NULL,
+          completed_at INTEGER,
+
+          UNIQUE (report_id, version),
+          FOREIGN KEY (report_id)
+            REFERENCES rectification_reports(id)
+            ON DELETE CASCADE,
+          FOREIGN KEY (session_id)
+            REFERENCES rectification_sessions(id)
+            ON DELETE CASCADE,
+          FOREIGN KEY (evaluation_id)
+            REFERENCES rectification_evaluations(id)
+            ON DELETE CASCADE,
+          FOREIGN KEY (selection_id)
+            REFERENCES rectification_selections(id)
+            ON DELETE SET NULL
+        );
+
+        CREATE TABLE rectification_report_evidence (
+          id TEXT PRIMARY KEY,
+          report_version_id TEXT NOT NULL,
+          section_key TEXT NOT NULL,
+          evidence_key TEXT NOT NULL,
+          kind TEXT NOT NULL,
+          label TEXT NOT NULL,
+          facts_json TEXT NOT NULL,
+          created_at INTEGER NOT NULL,
+
+          UNIQUE (report_version_id, section_key, evidence_key),
+          FOREIGN KEY (report_version_id)
+            REFERENCES rectification_report_versions(id)
+            ON DELETE CASCADE
+        );
+
+        CREATE TABLE rectification_conversation_links (
+          id TEXT PRIMARY KEY,
+          session_id TEXT NOT NULL,
+          selection_id TEXT NOT NULL UNIQUE,
+          conversation_id TEXT NOT NULL UNIQUE,
+          created_at INTEGER NOT NULL,
+
+          FOREIGN KEY (session_id)
+            REFERENCES rectification_sessions(id)
+            ON DELETE CASCADE,
+          FOREIGN KEY (selection_id)
+            REFERENCES rectification_selections(id)
+            ON DELETE CASCADE,
+          FOREIGN KEY (conversation_id)
+            REFERENCES conversations(id)
+            ON DELETE CASCADE
+        );
+
+        CREATE INDEX idx_rectification_reports_session
+          ON rectification_reports(session_id, updated_at DESC);
+        CREATE INDEX idx_rectification_report_versions_report
+          ON rectification_report_versions(report_id, version DESC);
+        CREATE INDEX idx_rectification_report_versions_input
+          ON rectification_report_versions(session_id, input_fingerprint, status);
+        CREATE INDEX idx_rectification_report_evidence_version
+          ON rectification_report_evidence(report_version_id, section_key);
+        CREATE INDEX idx_rectification_conversation_links_session
+          ON rectification_conversation_links(session_id, created_at DESC);
+      `);
+
+      db.prepare('INSERT INTO schema_migrations(version, applied_at) VALUES (?, ?)')
+        .run(13, Date.now());
+    });
+    applyV13();
+  }
+
+  if (!applied.has(14)) {
+    const applyV14 = db.transaction(() => {
+      db.exec(`
+        CREATE TABLE learning_notes (
+          id TEXT PRIMARY KEY,
+          conversation_id TEXT NOT NULL,
+          knowledge_point_id TEXT NOT NULL,
+          palace_branch INTEGER NOT NULL CHECK (palace_branch BETWEEN 0 AND 11),
+          content TEXT NOT NULL,
+          created_at INTEGER NOT NULL,
+          updated_at INTEGER NOT NULL,
+
+          UNIQUE (conversation_id, knowledge_point_id, palace_branch),
+          FOREIGN KEY (conversation_id)
+            REFERENCES conversations(id)
+            ON DELETE CASCADE
+        );
+
+        CREATE INDEX idx_learning_notes_conversation_updated
+          ON learning_notes(conversation_id, updated_at DESC);
+      `);
+      db.prepare('INSERT INTO schema_migrations(version, applied_at) VALUES (?, ?)')
+        .run(14, Date.now());
+    });
+    applyV14();
+  }
+
   ensureMessageSearch(db);
 }
 

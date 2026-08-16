@@ -9,7 +9,8 @@ import TimeNav, { type TimeView, getYearStemIndex, buildSiHuaOverlay } from './T
 interface ChartBoardProps {
   chart: ZiweiChart;
   onStarSelect?: (star: Star, palace: Palace) => void;
-  onPalaceSelect?: (palace: Palace) => void;
+  onPalaceSelect?: (palace: Palace | null) => void;
+  selectedBranch?: number | null;
   onSiHuaClick?: (starName: string, siHua: string, view: TimeView) => void;
   timeView?: TimeView;
   liunianYear?: number;
@@ -61,6 +62,7 @@ export default function ChartBoard({
   chart,
   onStarSelect,
   onPalaceSelect,
+  selectedBranch: controlledSelectedBranch,
   onSiHuaClick,
   timeView: controlledTimeView,
   liunianYear: controlledLiunianYear,
@@ -68,7 +70,8 @@ export default function ChartBoard({
   onLiunianYearChange,
   activeDaXian,
 }: ChartBoardProps) {
-  const [selectedBranch, setSelectedBranch] = useState<number | null>(null);
+  const [internalSelectedBranch, setInternalSelectedBranch] = useState<number | null>(null);
+  const selectedBranch = controlledSelectedBranch === undefined ? internalSelectedBranch : controlledSelectedBranch;
   const [internalTimeView, setInternalTimeView] = useState<TimeView>('mingpan');
   const [internalLiunianYear, setInternalLiunianYear] = useState<number>(new Date().getFullYear());
   const timeView = controlledTimeView ?? internalTimeView;
@@ -101,11 +104,9 @@ export default function ChartBoard({
 
   const handlePalaceClick = (branch: number) => {
     const isDeselecting = selectedBranch === branch;
-    setSelectedBranch(prev => prev === branch ? null : branch);
-    if (!isDeselecting) {
-      const palace = palaceMap[branch];
-      if (palace) onPalaceSelect?.(palace);
-    }
+    setInternalSelectedBranch(isDeselecting ? null : branch);
+    const palace = palaceMap[branch];
+    onPalaceSelect?.(isDeselecting ? null : palace ?? null);
   };
 
   // 三方四正

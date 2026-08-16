@@ -6,6 +6,7 @@ import BirthForm from '@/components/BirthForm';
 import ChartBoard from '@/components/ChartBoard';
 import ConversationHistory from '@/components/ConversationHistory';
 import InsightPanel from '@/components/InsightPanel';
+import LearningPanel from '@/components/LearningPanel';
 import { generateChart } from '@/lib/ziwei/algorithm';
 import type { Conversation, ConversationMessage } from '@/lib/conversations/types';
 import type { BirthInfo, Palace, ZiweiChart } from '@/lib/ziwei/types';
@@ -23,6 +24,7 @@ export default function ChartWorkspace({ conversationId }: ChartWorkspaceProps) 
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState('');
   const [historyCollapsed, setHistoryCollapsed] = useState(false);
+  const [learningMode, setLearningMode] = useState(false);
 
   useEffect(() => {
     setHistoryCollapsed(window.localStorage.getItem('ziwei-history-collapsed') === 'true');
@@ -61,6 +63,7 @@ export default function ChartWorkspace({ conversationId }: ChartWorkspaceProps) 
       .then(data => {
         if (!data.conversation.chartSnapshot) throw new Error('该会话缺少命盘快照');
         setChart(data.conversation.chartSnapshot);
+        setSelectedPalace(null);
         setMessages(data.messages);
       })
       .catch(loadError => {
@@ -90,6 +93,14 @@ export default function ChartWorkspace({ conversationId }: ChartWorkspaceProps) 
     } finally {
       setCreating(false);
     }
+  };
+
+  const toggleLearningMode = () => {
+    setLearningMode(current => {
+      const next = !current;
+      if (next && chart) setSelectedPalace(chart.palaces.find(palace => palace.branch === chart.mingGongBranch) ?? null);
+      return next;
+    });
   };
 
   return (
@@ -129,10 +140,11 @@ export default function ChartWorkspace({ conversationId }: ChartWorkspaceProps) 
 
           {!loading && chart && conversationId && (
             <>
-              <div className="mb-4 flex items-center justify-between gap-4">
+              <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
                 <button
                   type="button"
                   onClick={() => router.push('/chart')}
+                  className="whitespace-nowrap"
                   style={{
                     padding: '6px 14px', cursor: 'pointer', border: '1px solid #ccc',
                     borderRadius: 8, background: 'transparent',
@@ -140,11 +152,19 @@ export default function ChartWorkspace({ conversationId }: ChartWorkspaceProps) 
                 >
                   ← 重新起盘
                 </button>
-                <div className="flex items-center gap-3">
+                <div className="flex flex-wrap items-center justify-end gap-2">
+                  <button
+                    type="button"
+                    onClick={toggleLearningMode}
+                    className="whitespace-nowrap rounded-lg px-3 py-1.5 text-[11px]"
+                    style={{ color: learningMode ? '#fff8e8' : 'var(--t-gold)', border: '1px solid rgba(212,168,67,0.35)', background: learningMode ? 'linear-gradient(135deg,#9a6210,#c88020)' : 'rgba(212,168,67,.04)' }}
+                  >
+                    {learningMode ? '退出学习模式' : '学习模式'}
+                  </button>
                   <button
                     type="button"
                     onClick={() => router.push(`/chart/${conversationId}/reports`)}
-                    className="rounded-lg px-3 py-1.5 text-[11px]"
+                    className="whitespace-nowrap rounded-lg px-3 py-1.5 text-[11px]"
                     style={{ color: 'var(--t-text)', border: '1px solid var(--t-border)' }}
                   >
                     专题报告
@@ -152,7 +172,7 @@ export default function ChartWorkspace({ conversationId }: ChartWorkspaceProps) 
                   <button
                     type="button"
                     onClick={() => router.push(`/chart/${conversationId}/events`)}
-                    className="rounded-lg px-3 py-1.5 text-[11px]"
+                    className="whitespace-nowrap rounded-lg px-3 py-1.5 text-[11px]"
                     style={{ color: 'var(--t-text)', border: '1px solid var(--t-border)' }}
                   >
                     人生事件
@@ -160,7 +180,7 @@ export default function ChartWorkspace({ conversationId }: ChartWorkspaceProps) 
                   <button
                     type="button"
                     onClick={() => router.push(`/chart/${conversationId}/timeline`)}
-                    className="rounded-lg px-3 py-1.5 text-[11px]"
+                    className="whitespace-nowrap rounded-lg px-3 py-1.5 text-[11px]"
                     style={{ color: 'var(--t-gold)', border: '1px solid rgba(212,168,67,0.28)' }}
                   >
                     年度分析 →
@@ -168,27 +188,35 @@ export default function ChartWorkspace({ conversationId }: ChartWorkspaceProps) 
                   <button
                     type="button"
                     onClick={() => router.push(`/rectification?conversationId=${conversationId}`)}
-                    className="rounded-lg px-3 py-1.5 text-[11px]"
+                    className="whitespace-nowrap rounded-lg px-3 py-1.5 text-[11px]"
                     style={{ color: 'var(--t-gold)', border: '1px solid rgba(212,168,67,0.28)' }}
                   >
                     校正时辰
                   </button>
-                  <span className="text-[10px]" style={{ color: 'var(--t-faint)' }}>
+                  <span className="whitespace-nowrap text-[10px]" style={{ color: 'var(--t-faint)' }}>
                     已自动保存到本地历史
                   </span>
                 </div>
               </div>
 
-              <div className="mt-4 grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(340px,390px)]">
-                <ChartBoard chart={chart} onPalaceSelect={setSelectedPalace} />
+              <div className={`mt-4 grid items-start gap-4 ${learningMode ? 'lg:grid-cols-[minmax(0,1fr)_minmax(380px,440px)]' : 'lg:grid-cols-[minmax(0,1fr)_minmax(340px,390px)]'}`}>
+                <ChartBoard chart={chart} selectedBranch={selectedPalace?.branch ?? null} onPalaceSelect={setSelectedPalace} />
                 <div className="min-w-0 lg:sticky lg:top-4">
-                  <InsightPanel
-                    key={conversationId}
-                    chart={chart}
-                    conversationId={conversationId}
-                    initialMessages={messages}
-                    selectedPalace={selectedPalace}
-                  />
+                  {learningMode && selectedPalace ? (
+                    <LearningPanel
+                      conversationId={conversationId}
+                      branch={selectedPalace.branch}
+                      onNavigate={branch => setSelectedPalace(chart.palaces.find(palace => palace.branch === branch) ?? null)}
+                    />
+                  ) : (
+                    <InsightPanel
+                      key={conversationId}
+                      chart={chart}
+                      conversationId={conversationId}
+                      initialMessages={messages}
+                      selectedPalace={selectedPalace}
+                    />
+                  )}
                 </div>
               </div>
             </>

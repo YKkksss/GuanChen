@@ -8,6 +8,7 @@ import {
   Check,
   Clock,
   FloppyDisk,
+  FileText,
   Plus,
   Scales,
   Trash,
@@ -277,6 +278,9 @@ export default function RectificationWorkbench({ sessionId }: { sessionId: strin
             </div>
           </div>
           <div className="flex items-center gap-2">
+            <button type="button" className="btn-ghost !px-4 !py-2" onClick={() => router.push(`/rectification/${sessionId}/reports`)}>
+              <FileText size={15} weight="bold" /> 结论报告
+            </button>
             <button type="button" className="btn-ghost !px-4 !py-2" onClick={() => setShowEventForm(true)}>
               <Plus size={15} weight="bold" /> 添加事件
             </button>
