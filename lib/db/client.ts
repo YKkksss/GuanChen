@@ -449,6 +449,78 @@ function migrate(db: Database.Database) {
     applyV8();
   }
 
+  if (!applied.has(9)) {
+    const applyV9 = db.transaction(() => {
+      db.exec(`
+        CREATE TABLE rectification_sessions (
+          id TEXT PRIMARY KEY,
+          source_conversation_id TEXT,
+          title TEXT NOT NULL,
+          status TEXT NOT NULL DEFAULT 'draft'
+            CHECK (status IN ('draft', 'ready', 'evaluated', 'confirmed', 'archived')),
+          base_birth_info_json TEXT NOT NULL,
+          reported_time_evidence_json TEXT NOT NULL,
+          time_conversion_json TEXT,
+          methodology_version TEXT NOT NULL,
+          time_policy_version TEXT NOT NULL,
+          chart_engine_version TEXT NOT NULL,
+          transit_engine_version TEXT NOT NULL,
+          selected_candidate_id TEXT,
+          created_at INTEGER NOT NULL,
+          updated_at INTEGER NOT NULL,
+
+          FOREIGN KEY (source_conversation_id)
+            REFERENCES conversations(id)
+            ON DELETE SET NULL
+        );
+
+        CREATE TABLE rectification_candidates (
+          id TEXT PRIMARY KEY,
+          session_id TEXT NOT NULL,
+          slot_key TEXT NOT NULL
+            CHECK (slot_key IN (
+              'early_zi', 'chou', 'yin', 'mao', 'chen', 'si', 'wu',
+              'wei', 'shen', 'you', 'xu', 'hai', 'late_zi'
+            )),
+          branch_index INTEGER NOT NULL CHECK (branch_index BETWEEN 0 AND 11),
+          engine_time_index INTEGER NOT NULL CHECK (engine_time_index BETWEEN 0 AND 12),
+          chart_date TEXT NOT NULL,
+          day_offset INTEGER NOT NULL DEFAULT 0 CHECK (day_offset BETWEEN -1 AND 1),
+          chart_fingerprint TEXT NOT NULL,
+          chart_snapshot_json TEXT NOT NULL,
+          duplicate_of_candidate_id TEXT,
+          relative_evidence_index REAL,
+          rank INTEGER,
+          confidence TEXT NOT NULL DEFAULT 'low'
+            CHECK (confidence IN ('low', 'medium', 'high')),
+          created_at INTEGER NOT NULL,
+          updated_at INTEGER NOT NULL,
+
+          UNIQUE (session_id, slot_key),
+          FOREIGN KEY (session_id)
+            REFERENCES rectification_sessions(id)
+            ON DELETE CASCADE,
+          FOREIGN KEY (duplicate_of_candidate_id)
+            REFERENCES rectification_candidates(id)
+            ON DELETE SET NULL
+        );
+
+        CREATE INDEX idx_rectification_sessions_updated
+          ON rectification_sessions(status, updated_at DESC);
+        CREATE INDEX idx_rectification_sessions_conversation
+          ON rectification_sessions(source_conversation_id, updated_at DESC);
+        CREATE INDEX idx_rectification_candidates_session
+          ON rectification_candidates(session_id, engine_time_index);
+        CREATE INDEX idx_rectification_candidates_fingerprint
+          ON rectification_candidates(session_id, chart_fingerprint);
+      `);
+
+      db.prepare('INSERT INTO schema_migrations(version, applied_at) VALUES (?, ?)')
+        .run(9, Date.now());
+    });
+    applyV9();
+  }
+
   ensureMessageSearch(db);
 }
 

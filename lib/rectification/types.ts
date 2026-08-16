@@ -38,6 +38,8 @@ export type RectificationEventEvidenceQuality =
   | 'conversation_extracted'
   | 'unconfirmed';
 
+export type RectificationReportedTimePrecision = 'exact' | 'approximate' | 'range' | 'period' | 'unknown';
+
 export interface RectificationSourceReference {
   id: string;
   title: string;
@@ -71,12 +73,48 @@ export interface RectificationTimePolicy {
 
 export interface RectificationReportedTimeEvidence {
   source: ReportedTimeSource;
+  precision: RectificationReportedTimePrecision;
   reportedStartLocal: string | null;
   reportedEndLocal: string | null;
   timezoneId: string | null;
   longitude: number | null;
   latitude: number | null;
   notes: string | null;
+}
+
+export type RectificationLocalTimeStatus = 'unique' | 'ambiguous';
+
+export interface RectificationUtcCandidate {
+  utcIso: string;
+  utcOffsetMinutes: number;
+}
+
+/**
+ * 民用时间到视太阳时的不可变换算快照。
+ * 保存实际使用的历史时区偏移和算法版本，避免 tzdb 更新后静默改变旧会话。
+ */
+export interface RectificationTimeConversionSnapshot {
+  sourceDate: string;
+  sourceTime: string;
+  timeZoneId: string;
+  longitude: number;
+  localTimeStatus: RectificationLocalTimeStatus;
+  utcCandidates: RectificationUtcCandidate[];
+  selectedUtcIso: string;
+  selectedUtcOffsetMinutes: number;
+  equationOfTimeMinutes: number;
+  longitudeCorrectionMinutes: number;
+  totalCorrectionMinutes: number;
+  apparentSolarDate: string;
+  apparentSolarTime: string;
+  apparentSolarMinutes: number;
+  dayOffset: number;
+  slotKey: RectificationTimeSlotKey;
+  branchIndex: number;
+  engineTimeIndex: number;
+  timePolicyVersion: string;
+  timezoneDatabaseVersion: string | null;
+  warnings: string[];
 }
 
 export interface RectificationEventEvidenceInput {
@@ -152,10 +190,12 @@ export interface RectificationMethodology {
 
 export interface RectificationSession {
   id: string;
+  sourceConversationId: string | null;
   title: string;
   status: RectificationStatus;
   baseBirthInfo: Omit<BirthInfo, 'hour' | 'unknownTime'>;
   reportedTimeEvidence: RectificationReportedTimeEvidence;
+  timeConversion: RectificationTimeConversionSnapshot | null;
   methodologyVersion: string;
   timePolicyVersion: string;
   chartEngineVersion: string;
@@ -171,12 +211,33 @@ export interface RectificationCandidate {
   slotKey: RectificationTimeSlotKey;
   branchIndex: number;
   engineTimeIndex: number;
+  chartDate: string;
+  dayOffset: number;
   chartFingerprint: string;
   chartSnapshot: ZiweiChart;
   duplicateOfCandidateId: string | null;
   relativeEvidenceIndex: number | null;
   rank: number | null;
   confidence: RectificationConfidence;
+  createdAt: number;
+  updatedAt: number;
+}
+
+export interface RectificationSessionDetail extends RectificationSession {
+  candidates: RectificationCandidate[];
+}
+
+export interface RectificationSessionListItem extends RectificationSession {
+  candidateCount: number;
+}
+
+export interface CreateRectificationSessionInput {
+  sourceConversationId?: string | null;
+  title?: string;
+  baseBirthInfo: Omit<BirthInfo, 'hour' | 'unknownTime'>;
+  reportedTimeEvidence?: Partial<RectificationReportedTimeEvidence>;
+  candidateSlotKeys?: RectificationTimeSlotKey[];
+  preferredUtcOffsetMinutes?: number;
 }
 
 export interface RectificationRuleHit {
