@@ -18,6 +18,7 @@
     "test:heming-transits": "tsx scripts/test-heming-transits.ts",
     "test:rectification-methodology": "tsx scripts/test-rectification-methodology.ts",
     "test:rectification-sessions": "tsx scripts/test-rectification-sessions.ts",
+    "test:rectification-events": "tsx scripts/test-rectification-events.ts",
     "start": "next start -p 30001",
     "build:cf": "npx @cloudflare/next-on-pages",
     "preview:cf": "npx wrangler pages dev",

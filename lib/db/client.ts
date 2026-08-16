@@ -521,6 +521,76 @@ function migrate(db: Database.Database) {
     applyV9();
   }
 
+  if (!applied.has(10)) {
+    const applyV10 = db.transaction(() => {
+      db.exec(`
+        CREATE TABLE rectification_event_evidence (
+          id TEXT PRIMARY KEY,
+          session_id TEXT NOT NULL,
+          life_event_id TEXT,
+          deduplication_key TEXT NOT NULL,
+          event_snapshot_json TEXT NOT NULL,
+          evidence_quality TEXT NOT NULL
+            CHECK (evidence_quality IN (
+              'documented', 'corroborated_memory', 'single_person_memory',
+              'conversation_extracted', 'unconfirmed'
+            )),
+          user_confirmed INTEGER NOT NULL CHECK (user_confirmed IN (0, 1)),
+          score_eligible INTEGER NOT NULL CHECK (score_eligible IN (0, 1)),
+          methodology_version TEXT NOT NULL,
+          source_event_updated_at INTEGER,
+          created_at INTEGER NOT NULL,
+          updated_at INTEGER NOT NULL,
+
+          UNIQUE (session_id, deduplication_key),
+          FOREIGN KEY (session_id)
+            REFERENCES rectification_sessions(id)
+            ON DELETE CASCADE,
+          FOREIGN KEY (life_event_id)
+            REFERENCES life_events(id)
+            ON DELETE SET NULL
+        );
+
+        CREATE TABLE rectification_candidate_event_facts (
+          id TEXT PRIMARY KEY,
+          session_event_id TEXT NOT NULL,
+          candidate_id TEXT NOT NULL,
+          event_year INTEGER NOT NULL,
+          relationship TEXT NOT NULL
+            CHECK (relationship IN ('occurs_in', 'starts_in', 'continues_in', 'ends_in')),
+          candidate_chart_fingerprint TEXT NOT NULL,
+          transit_engine_version TEXT NOT NULL,
+          methodology_version TEXT NOT NULL,
+          input_fingerprint TEXT NOT NULL,
+          snapshot_json TEXT NOT NULL,
+          created_at INTEGER NOT NULL,
+          updated_at INTEGER NOT NULL,
+
+          UNIQUE (session_event_id, candidate_id, event_year),
+          FOREIGN KEY (session_event_id)
+            REFERENCES rectification_event_evidence(id)
+            ON DELETE CASCADE,
+          FOREIGN KEY (candidate_id)
+            REFERENCES rectification_candidates(id)
+            ON DELETE CASCADE
+        );
+
+        CREATE INDEX idx_rectification_events_session
+          ON rectification_event_evidence(session_id, created_at ASC);
+        CREATE INDEX idx_rectification_events_source
+          ON rectification_event_evidence(life_event_id);
+        CREATE INDEX idx_rectification_facts_event_candidate
+          ON rectification_candidate_event_facts(session_event_id, candidate_id, event_year);
+        CREATE INDEX idx_rectification_facts_candidate_year
+          ON rectification_candidate_event_facts(candidate_id, event_year);
+      `);
+
+      db.prepare('INSERT INTO schema_migrations(version, applied_at) VALUES (?, ?)')
+        .run(10, Date.now());
+    });
+    applyV10();
+  }
+
   ensureMessageSearch(db);
 }
 

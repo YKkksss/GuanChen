@@ -1,5 +1,11 @@
-import type { LifeEventCategory, LifeEventDatePrecision } from '@/lib/events/types';
+import type {
+  LifeEventCategory,
+  LifeEventDatePrecision,
+  LifeEventInput,
+  LifeEventSource,
+} from '@/lib/events/types';
 import type { PalaceName } from '@/lib/heming/types';
+import type { AnnualTransitSnapshot } from '@/lib/transits/types';
 import type { BirthInfo, ZiweiChart } from '@/lib/ziwei/types';
 
 export const RECTIFICATION_TIME_SLOT_KEYS = [
@@ -122,6 +128,103 @@ export interface RectificationEventEvidenceInput {
   evidenceQuality: RectificationEventEvidenceQuality;
   datePrecision: LifeEventDatePrecision;
   userConfirmed: boolean;
+}
+
+export type RectificationEventYearRelationship = 'occurs_in' | 'starts_in' | 'continues_in' | 'ends_in';
+
+export interface RectificationEventSnapshot {
+  title: string;
+  category: LifeEventCategory;
+  customCategory: string | null;
+  startDate: string;
+  endDate: string | null;
+  datePrecision: LifeEventDatePrecision;
+  description: string | null;
+  impactLevel: 1 | 2 | 3 | 4 | 5;
+  source: LifeEventSource;
+}
+
+export interface RectificationEventEvidence {
+  id: string;
+  sessionId: string;
+  lifeEventId: string | null;
+  deduplicationKey: string;
+  snapshot: RectificationEventSnapshot;
+  evidenceQuality: RectificationEventEvidenceQuality;
+  userConfirmed: boolean;
+  scoreEligible: boolean;
+  methodologyVersion: string;
+  sourceEventUpdatedAt: number | null;
+  createdAt: number;
+  updatedAt: number;
+}
+
+export interface RectificationTopicFact {
+  category: LifeEventCategory;
+  scoreable: boolean;
+  primaryPalaces: PalaceName[];
+  secondaryPalaces: PalaceName[];
+  decadalMatches: PalaceName[];
+  annualFlowMatches: PalaceName[];
+  annualKeyPalaceMatches: PalaceName[];
+  annualTransformationMatches: Array<{
+    palace: PalaceName;
+    starName: string;
+    type: '禄' | '权' | '科' | '忌';
+  }>;
+}
+
+export interface RectificationCandidateEventFactSnapshot {
+  eventYear: number;
+  relationship: RectificationEventYearRelationship;
+  annualTransit: AnnualTransitSnapshot;
+  topicFact: RectificationTopicFact;
+}
+
+export interface RectificationCandidateEventFact {
+  id: string;
+  sessionEventId: string;
+  candidateId: string;
+  eventYear: number;
+  relationship: RectificationEventYearRelationship;
+  candidateChartFingerprint: string;
+  transitEngineVersion: string;
+  methodologyVersion: string;
+  inputFingerprint: string;
+  snapshot: RectificationCandidateEventFactSnapshot;
+  createdAt: number;
+  updatedAt: number;
+}
+
+export interface RectificationEventWithFacts extends RectificationEventEvidence {
+  facts: RectificationCandidateEventFact[];
+}
+
+export interface RectificationEvidenceReadiness {
+  totalEvents: number;
+  confirmedEligibleEvents: number;
+  distinctScoreableCategories: number;
+  minimumRequiredEvents: number;
+  minimumRequiredCategories: number;
+  recommendedEvents: number;
+  recommendedCategories: number;
+  meetsMinimum: boolean;
+  meetsRecommended: boolean;
+  warnings: string[];
+}
+
+export interface RectificationEventMatrix {
+  sessionId: string;
+  methodologyVersion: string;
+  readiness: RectificationEvidenceReadiness;
+  events: RectificationEventWithFacts[];
+}
+
+export interface AttachRectificationEventInput {
+  lifeEventId?: string;
+  event?: LifeEventInput;
+  evidenceQuality: RectificationEventEvidenceQuality;
+  userConfirmed?: boolean;
 }
 
 export interface RectificationTopicMapping {

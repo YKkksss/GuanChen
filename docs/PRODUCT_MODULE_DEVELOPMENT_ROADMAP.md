@@ -668,7 +668,7 @@ AI 可以从用户话语中提取候选事件：
 
 ## 12. M5：出生时辰校正
 
-> 实施状态（2026-08-16）：M5-0 与 M5-1 已完成。现已具备版本化历史时区／真太阳时换算、夏令时歧义保护、2 至 13 个早晚子候选、稳定指纹、SQLite 校时会话和基础接口；下一步进入 M5-2 已确认人生事件证据与候选年度事实矩阵。
+> 实施状态（2026-08-16）：M5-0 至 M5-2 已完成。现已具备历史时区／真太阳时换算、2 至 13 个候选命盘、SQLite 校时会话、不可变人生事件证据、输入门槛检查，以及候选 × 事件年份的年度事实矩阵；下一步进入 M5-3 可审计规则评估、相对证据指数与稳定性排序。
 
 ### 12.1 产品目标
 
@@ -734,6 +734,8 @@ AI 可以从用户话语中提取候选事件：
 
 - `rectification_sessions`
 - `rectification_candidates`
+- `rectification_event_evidence`
+- `rectification_candidate_event_facts`
 - `rectification_event_scores`
 - `rectification_rule_hits`
 
