@@ -416,6 +416,39 @@ function migrate(db: Database.Database) {
     applyV7();
   }
 
+  if (!applied.has(8)) {
+    const applyV8 = db.transaction(() => {
+      db.exec(`
+        CREATE TABLE heming_transit_snapshots (
+          id TEXT PRIMARY KEY,
+          conversation_id TEXT NOT NULL,
+          selected_year INTEGER NOT NULL,
+          chart_engine_version TEXT NOT NULL,
+          transit_engine_version TEXT NOT NULL,
+          methodology_version TEXT NOT NULL,
+          snapshot_json TEXT NOT NULL,
+          created_at INTEGER NOT NULL,
+          updated_at INTEGER NOT NULL,
+
+          UNIQUE (
+            conversation_id, selected_year, chart_engine_version,
+            transit_engine_version, methodology_version
+          ),
+          FOREIGN KEY (conversation_id)
+            REFERENCES conversations(id)
+            ON DELETE CASCADE
+        );
+
+        CREATE INDEX idx_heming_transits_conversation_year
+          ON heming_transit_snapshots(conversation_id, selected_year DESC);
+      `);
+
+      db.prepare('INSERT INTO schema_migrations(version, applied_at) VALUES (?, ?)')
+        .run(8, Date.now());
+    });
+    applyV8();
+  }
+
   ensureMessageSearch(db);
 }
 

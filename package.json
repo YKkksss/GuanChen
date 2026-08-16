@@ -15,6 +15,7 @@
     "test:heming-engine": "tsx scripts/test-heming-engine.ts",
     "test:heming-context": "tsx scripts/test-heming-context.ts",
     "test:heming-reports": "tsx scripts/test-heming-reports.ts",
+    "test:heming-transits": "tsx scripts/test-heming-transits.ts",
     "start": "next start -p 30001",
     "build:cf": "npx @cloudflare/next-on-pages",
     "preview:cf": "npx wrangler pages dev",

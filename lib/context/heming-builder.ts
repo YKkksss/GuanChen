@@ -1,6 +1,8 @@
 import type { ChatMessage } from '@/lib/ai/deepseek';
 import { getRelationshipDefinition } from '@/lib/heming/methodology';
 import { evaluateHemingConversation } from '@/lib/heming/service';
+import { getOrCreateHemingAnnualTransit } from '@/lib/heming/transit-service';
+import type { HemingAnnualTransitSnapshot } from '@/lib/heming/transit-types';
 import type {
   HemingEvaluationResult,
   HemingPalaceFact,
@@ -65,10 +67,19 @@ export function buildHemingConversationContext(input: {
   const hardInputBudget = profile.contextLimit - profile.outputReserve - profile.safetyMargin;
   const evaluation = evaluateHemingConversation(conversation.id);
   const authorityText = buildHemingAuthorityContext(evaluation, conversation.relationshipContext);
+  const annualTransit = getHemingAnnualTransitFromMessage(conversation.id, current);
   const systemMessage: ChatMessage = { role: 'system', content: HEMING_SYSTEM_PROMPT };
   const authorityMessage: ChatMessage = { role: 'user', content: authorityText };
+  const annualMessage: ChatMessage | null = annualTransit
+    ? { role: 'user', content: buildHemingAnnualTransitContext(annualTransit) }
+    : null;
   const currentMessage: ChatMessage = { role: 'user', content: current.content };
-  const essentialMessages = [systemMessage, authorityMessage, currentMessage];
+  const essentialMessages = [
+    systemMessage,
+    authorityMessage,
+    ...(annualMessage ? [annualMessage] : []),
+    currentMessage,
+  ];
   const essentialTokens = estimateMessagesTokens(essentialMessages);
   if (essentialTokens > hardInputBudget) {
     throw new Error('当前问题和双命盘权威事实超过模型上下文上限');
@@ -102,7 +113,7 @@ export function buildHemingConversationContext(input: {
     summary: conversation.summary,
     retrieved,
     maxTokens: supportBudget,
-    layerStart: 4,
+    layerStart: annualMessage ? 5 : 4,
   });
   const supportMessage = support.content
     ? { role: 'user' as const, content: support.content }
@@ -113,6 +124,7 @@ export function buildHemingConversationContext(input: {
   const messages = [
     systemMessage,
     authorityMessage,
+    ...(annualMessage ? [annualMessage] : []),
     ...(supportMessage ? [supportMessage] : []),
     ...recent.map(toChatMessage),
     currentMessage,
@@ -141,6 +153,11 @@ export function buildHemingConversationContext(input: {
         chartB: { included: true, palaceCount: countAuthorityPalaces(evaluation, 'B') },
         rules: { count: evaluation.matchedRules.length, evidenceCount: evaluation.evidence.length },
         realityContext: { included: Boolean(conversation.relationshipContext) },
+        annualTransit: {
+          included: Boolean(annualTransit),
+          year: annualTransit?.selectedYear ?? null,
+          tokens: annualMessage ? estimateMessageTokens(annualMessage) : 0,
+        },
         memories: { count: support.memoryCount, tokens: support.memoryTokens },
         summary: { included: support.summaryIncluded, tokens: support.summaryTokens },
         retrieval: { count: support.retrievedIds.length, tokens: support.retrievalTokens },
@@ -170,6 +187,7 @@ export function buildFallbackHemingConversationContext(input: {
     throw new Error('无法构建基础合盘上下文');
   }
   const evaluation = evaluateHemingConversation(conversation.id);
+  const annualTransit = getHemingAnnualTransitFromMessage(conversation.id, current);
   const profile = getModelProfile(input.provider, input.model);
   const inputBudget = profile.contextLimit - profile.outputReserve - profile.safetyMargin;
   const system: ChatMessage = { role: 'system', content: HEMING_SYSTEM_PROMPT };
@@ -178,14 +196,23 @@ export function buildFallbackHemingConversationContext(input: {
     Math.max(Math.floor(inputBudget * 0.55), 1_000),
   );
   const authority: ChatMessage = { role: 'user', content: compactAuthority };
+  const annual: ChatMessage | null = annualTransit
+    ? {
+        role: 'user',
+        content: truncateTextToTokens(
+          buildHemingAnnualTransitContext(annualTransit),
+          Math.max(Math.floor(inputBudget * 0.2), 600),
+        ),
+      }
+    : null;
   const currentChat: ChatMessage = { role: 'user', content: current.content };
   const history = takeLastTurns(
     getCompletedMessagesBefore(conversation.id, current.seq),
     MIN_RECENT_TURNS,
   );
-  const fixedTokens = estimateMessagesTokens([system, authority, currentChat]);
+  const fixedTokens = estimateMessagesTokens([system, authority, ...(annual ? [annual] : []), currentChat]);
   const recent = selectRecentWithinBudget(history, Math.max(inputBudget - fixedTokens, 0));
-  const messages = [system, authority, ...recent.map(toChatMessage), currentChat];
+  const messages = [system, authority, ...(annual ? [annual] : []), ...recent.map(toChatMessage), currentChat];
   const estimatedInputTokens = estimateMessagesTokens(messages);
   if (estimatedInputTokens > inputBudget) throw new Error('基础合盘上下文仍超过模型输入上限');
 
@@ -208,12 +235,57 @@ export function buildFallbackHemingConversationContext(input: {
       layers: {
         system: { included: true },
         authority: { included: true },
+        annualTransit: { included: Boolean(annualTransit), year: annualTransit?.selectedYear ?? null },
         recent: { count: recent.length },
         current: { included: true },
       },
       estimatedInputTokens,
     },
   };
+}
+
+function getHemingAnnualTransitFromMessage(
+  conversationId: string,
+  message: { metadata: Record<string, unknown> | null },
+): HemingAnnualTransitSnapshot | null {
+  const rawTransit = message.metadata?.transit;
+  if (!rawTransit || typeof rawTransit !== 'object') return null;
+  const transit = rawTransit as { level?: unknown; targetDate?: unknown };
+  if (transit.level !== 'year' || typeof transit.targetDate !== 'string') return null;
+  const year = Number.parseInt(transit.targetDate, 10);
+  if (!Number.isInteger(year)) return null;
+  return getOrCreateHemingAnnualTransit(conversationId, year).snapshot;
+}
+
+function buildHemingAnnualTransitContext(snapshot: HemingAnnualTransitSnapshot): string {
+  const compactOwner = (owner: HemingAnnualTransitSnapshot['ownerA']) => ({
+    owner: owner.owner,
+    role: owner.role,
+    yearGanZhi: owner.transit.year.ganZhi,
+    nominalAge: owner.transit.nominalAge,
+    daXian: owner.transit.decadal,
+    flowYear: owner.transit.flowYear,
+    transformations: owner.transit.transformations,
+    activatedPalaces: owner.activatedPalaces,
+  });
+  return [
+    `【L4 ${snapshot.selectedYear} 年双人确定性运限】以下由程序计算，不得改写成必然事件。`,
+    JSON.stringify({
+      ownerA: compactOwner(snapshot.ownerA),
+      ownerB: compactOwner(snapshot.ownerB),
+      dimensions: snapshot.dimensions,
+      stageResults: snapshot.stageResults.map(result => ({
+        ruleId: result.ruleId,
+        phase: result.phase,
+        level: result.level,
+        confidence: result.confidence,
+        conclusion: result.conclusion,
+        evidenceIds: result.evidenceIds,
+      })),
+      warnings: snapshot.warnings,
+    }),
+    '回答必须区分本命关系基线、双方大限阶段和该年度触发；年度激活只代表值得观察，不代表结婚、分手、签约、投资或其他事件一定发生。',
+  ].join('\n');
 }
 
 function buildHemingAuthorityContext(

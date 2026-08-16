@@ -18,6 +18,7 @@ interface HemingChatPanelProps {
   conversationId: string;
   initialMessages: ConversationMessage[];
   relationshipType: RelationshipType;
+  transitYear?: number;
 }
 
 const QUICK_PROMPTS: Record<RelationshipType, string[]> = {
@@ -75,6 +76,7 @@ export default function HemingChatPanel({
   conversationId,
   initialMessages,
   relationshipType,
+  transitYear,
 }: HemingChatPanelProps) {
   const [messages, setMessages] = useState<DisplayMessage[]>(() => initialMessages
     .filter(message => message.role !== 'system' && Boolean(message.content))
@@ -100,7 +102,13 @@ export default function HemingChatPanel({
       const response = await fetch(`/api/conversations/${conversationId}/respond`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: text, source, topic: source === 'auto' ? 'heming_overview' : null }),
+        body: JSON.stringify({
+          message: text,
+          source,
+          topic: source === 'auto' ? 'heming_overview' : transitYear ? 'heming_transit' : null,
+          transitLevel: transitYear ? 'year' : null,
+          targetDate: transitYear ? String(transitYear) : null,
+        }),
       });
       if (!response.ok) {
         const payload = await response.json().catch(() => ({})) as { error?: string };
@@ -164,14 +172,18 @@ export default function HemingChatPanel({
       <div className="flex shrink-0 items-center justify-between gap-3 px-3.5 py-3" style={{ borderBottom: '1px solid var(--t-border)' }}>
         <div className="flex min-w-0 items-center gap-2">
           <span className="flex h-7 w-7 items-center justify-center rounded-lg" style={{ color: 'var(--t-gold)', background: 'rgba(212,168,67,.10)' }}><ChatCircleDots size={16} weight="fill" /></span>
-          <div><div className="text-[12px] font-medium" style={{ color: 'var(--t-text)' }}>AI 合盘对话</div><div className="text-[9px]" style={{ color: 'var(--t-faint)' }}>消息、摘要与记忆自动保存</div></div>
+          <div><div className="text-[12px] font-medium" style={{ color: 'var(--t-text)' }}>{transitYear ? `${transitYear} 年双人运限对话` : 'AI 合盘对话'}</div><div className="text-[9px]" style={{ color: 'var(--t-faint)' }}>消息、摘要与记忆自动保存</div></div>
         </div>
         <button onClick={() => setMemoryOpen(true)} className="flex items-center gap-1 rounded-md px-2 py-1 text-[9px]" style={{ color: 'var(--t-faint)', border: '1px solid var(--t-border)' }}><Brain size={12} />记忆</button>
       </div>
 
       <div className="shrink-0 overflow-x-auto px-2 py-2" style={{ borderBottom: '1px solid var(--t-border)' }}>
         <div className="flex min-w-max gap-1.5">
-          {QUICK_PROMPTS[relationshipType].map(prompt => (
+          {(transitYear ? [
+            `分析 ${transitYear} 年双方节奏是否同步`,
+            `解释 ${transitYear} 年被共同激活的关系主题`,
+            `这一年双方分别应注意哪些现实边界`,
+          ] : QUICK_PROMPTS[relationshipType]).map(prompt => (
             <button key={prompt} disabled={loading} onClick={() => sendMessage(prompt, { hidden: true, source: 'topic' })} className="rounded-lg px-2.5 py-1.5 text-[9px] disabled:opacity-40" style={{ color: 'var(--t-faint)', border: '1px solid var(--t-border)' }}>{prompt}</button>
           ))}
         </div>

@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowClockwise, CaretDown, CaretUp, CheckCircle, FileText, WarningCircle } from '@phosphor-icons/react';
+import { ArrowClockwise, CalendarDots, CaretDown, CaretUp, CheckCircle, FileText, WarningCircle } from '@phosphor-icons/react';
 import type { Conversation, ConversationMessage } from '@/lib/conversations/types';
 import {
   HEMING_METHODOLOGY,
@@ -152,7 +152,10 @@ export default function HemingWorkbench({ conversation, initialMessages, onConve
               <div className="min-w-0"><div className="truncate text-sm font-semibold" style={{ color: 'var(--t-text)' }}>{conversation.title}</div><div className="mt-1 text-[10px]" style={{ color: 'var(--t-faint)' }}>{definition.label} · {context.ownerARole} / {context.ownerBRole}{context.mainConcern ? ` · 关注：${context.mainConcern}` : ''}</div></div>
               <span className="flex shrink-0 items-center gap-1 text-[10px]" style={{ color: 'var(--t-gold)' }}>关系背景 {editorOpen ? <CaretUp size={12} /> : <CaretDown size={12} />}</span>
             </button>
-            <button type="button" onClick={() => router.push(`/heming/${conversation.id}/reports`)} className="flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-2 text-[10px]" style={{ color: 'var(--t-gold)', border: '1px solid rgba(212,168,67,.28)' }}><FileText size={13} />合盘报告</button>
+            <div className="flex shrink-0 flex-wrap justify-end gap-2">
+              <button type="button" onClick={() => router.push(`/heming/${conversation.id}/timeline`)} className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-[10px]" style={{ color: 'var(--t-gold)', border: '1px solid rgba(212,168,67,.28)' }}><CalendarDots size={13} />双人运限</button>
+              <button type="button" onClick={() => router.push(`/heming/${conversation.id}/reports`)} className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-[10px]" style={{ color: 'var(--t-gold)', border: '1px solid rgba(212,168,67,.28)' }}><FileText size={13} />合盘报告</button>
+            </div>
           </div>
           {editorOpen && (
             <div className="mt-4 space-y-4 border-t pt-4" style={{ borderColor: 'var(--t-border)' }}>
