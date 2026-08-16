@@ -78,6 +78,7 @@ export const RECTIFICATION_METHODOLOGY: RectificationMethodology = {
       unconfirmed: 0,
     },
     datePrecisionWeights: { day: 1, month: 0.9, year: 0.75, range: 0.6, unknown: 0 },
+    rangeYearDecayFloor: 0.35,
     impactMultipliers: { 1: 0.8, 2: 0.9, 3: 1, 4: 1.1, 5: 1.2 },
     outcomeScores: { support: 1, weak_support: 0.5, neutral: 0, conflict: -1, insufficient: 0 },
     perEventAbsoluteCap: 1.5,

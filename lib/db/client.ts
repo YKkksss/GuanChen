@@ -591,6 +591,69 @@ function migrate(db: Database.Database) {
     applyV10();
   }
 
+  if (!applied.has(11)) {
+    const applyV11 = db.transaction(() => {
+      db.exec(`
+        CREATE TABLE rectification_evaluations (
+          id TEXT PRIMARY KEY,
+          session_id TEXT NOT NULL,
+          version INTEGER NOT NULL,
+          input_fingerprint TEXT NOT NULL,
+          methodology_version TEXT NOT NULL,
+          evaluation_engine_version TEXT NOT NULL,
+          evaluation_json TEXT NOT NULL,
+          stable INTEGER NOT NULL CHECK (stable IN (0, 1)),
+          top_margin_ratio REAL,
+          created_at INTEGER NOT NULL,
+
+          UNIQUE (session_id, version),
+          UNIQUE (session_id, input_fingerprint, methodology_version),
+          FOREIGN KEY (session_id)
+            REFERENCES rectification_sessions(id)
+            ON DELETE CASCADE
+        );
+
+        CREATE TABLE rectification_rule_hits (
+          id TEXT PRIMARY KEY,
+          evaluation_id TEXT NOT NULL,
+          session_id TEXT NOT NULL,
+          candidate_id TEXT NOT NULL,
+          session_event_id TEXT,
+          life_event_id TEXT,
+          category TEXT,
+          rule_id TEXT NOT NULL,
+          rule_version INTEGER NOT NULL,
+          outcome TEXT NOT NULL
+            CHECK (outcome IN ('support', 'weak_support', 'neutral', 'conflict', 'insufficient')),
+          raw_weight REAL NOT NULL,
+          adjusted_weight REAL NOT NULL,
+          discriminating INTEGER NOT NULL CHECK (discriminating IN (0, 1)),
+          evidence_json TEXT NOT NULL,
+          methodology_version TEXT NOT NULL,
+          created_at INTEGER NOT NULL,
+
+          FOREIGN KEY (evaluation_id)
+            REFERENCES rectification_evaluations(id)
+            ON DELETE CASCADE,
+          FOREIGN KEY (session_id)
+            REFERENCES rectification_sessions(id)
+            ON DELETE CASCADE
+        );
+
+        CREATE INDEX idx_rectification_evaluations_session_version
+          ON rectification_evaluations(session_id, version DESC);
+        CREATE INDEX idx_rectification_hits_evaluation_candidate
+          ON rectification_rule_hits(evaluation_id, candidate_id, session_event_id);
+        CREATE INDEX idx_rectification_hits_rule
+          ON rectification_rule_hits(evaluation_id, rule_id, discriminating);
+      `);
+
+      db.prepare('INSERT INTO schema_migrations(version, applied_at) VALUES (?, ?)')
+        .run(11, Date.now());
+    });
+    applyV11();
+  }
+
   ensureMessageSearch(db);
 }
 

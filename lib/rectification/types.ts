@@ -261,6 +261,7 @@ export interface RectificationScorePolicy {
   recommendedDistinctCategories: number;
   eventQualityWeights: Record<RectificationEventEvidenceQuality, number>;
   datePrecisionWeights: Record<LifeEventDatePrecision, number>;
+  rangeYearDecayFloor: number;
   impactMultipliers: Record<1 | 2 | 3 | 4 | 5, number>;
   outcomeScores: Record<RectificationEvidenceOutcome, number>;
   perEventAbsoluteCap: number;
@@ -345,9 +346,12 @@ export interface CreateRectificationSessionInput {
 
 export interface RectificationRuleHit {
   id: string;
+  evaluationId: string;
   sessionId: string;
   candidateId: string;
+  sessionEventId: string | null;
   lifeEventId: string | null;
+  category: LifeEventCategory | null;
   ruleId: string;
   ruleVersion: number;
   outcome: RectificationEvidenceOutcome;
@@ -356,11 +360,14 @@ export interface RectificationRuleHit {
   discriminating: boolean;
   evidence: Record<string, unknown>;
   methodologyVersion: string;
+  createdAt: number;
 }
 
 export interface RectificationCandidateEvaluation {
   candidateId: string;
+  equivalentToCandidateId: string | null;
   rank: number;
+  tiedForRank: boolean;
   rawScore: number;
   relativeEvidenceIndex: number;
   confidence: RectificationConfidence;
@@ -368,16 +375,29 @@ export interface RectificationCandidateEvaluation {
   conflictCount: number;
   insufficientCount: number;
   leaveOneEventOutTopRate: number | null;
+  eventContributions: Record<string, number>;
+  categoryContributions: Partial<Record<LifeEventCategory, number>>;
   ruleHits: RectificationRuleHit[];
 }
 
 export interface RectificationEvaluation {
+  id: string;
   sessionId: string;
+  version: number;
+  inputFingerprint: string;
   methodologyVersion: string;
+  evaluationEngineVersion: string;
   evaluatedAt: number;
   candidates: RectificationCandidateEvaluation[];
+  readiness: RectificationEvidenceReadiness;
+  discriminatingRuleCount: number;
   topMarginRatio: number | null;
   stable: boolean;
   warnings: string[];
   disclaimer: string;
+}
+
+export interface RectificationEvaluationState {
+  evaluation: RectificationEvaluation | null;
+  isCurrent: boolean;
 }

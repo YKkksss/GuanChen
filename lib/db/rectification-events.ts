@@ -105,8 +105,7 @@ export function insertRectificationEventWithFacts(input: {
         fact.inputFingerprint, JSON.stringify(fact.snapshot), fact.createdAt, fact.updatedAt,
       );
     }
-    db.prepare('UPDATE rectification_sessions SET updated_at = ? WHERE id = ?')
-      .run(event.updatedAt, event.sessionId);
+    invalidateCurrentEvaluation(db, event.sessionId, event.updatedAt);
   })();
   return getRectificationEvent(input.event.sessionId, input.event.id)!;
 }
@@ -160,7 +159,7 @@ export function updateRectificationEventEvidence(input: {
     input.sessionId,
   );
   if (!result.changes) return null;
-  db.prepare('UPDATE rectification_sessions SET updated_at = ? WHERE id = ?').run(now, input.sessionId);
+  invalidateCurrentEvaluation(db, input.sessionId, now);
   return getRectificationEvent(input.sessionId, input.eventId);
 }
 
@@ -170,8 +169,7 @@ export function deleteRectificationEvent(sessionId: string, eventId: string): bo
     DELETE FROM rectification_event_evidence WHERE id = ? AND session_id = ?
   `).run(eventId, sessionId);
   if (result.changes) {
-    db.prepare('UPDATE rectification_sessions SET updated_at = ? WHERE id = ?')
-      .run(Date.now(), sessionId);
+    invalidateCurrentEvaluation(db, sessionId, Date.now());
   }
   return result.changes > 0;
 }
@@ -182,4 +180,19 @@ function listFacts(sessionEventId: string): RectificationCandidateEventFact[] {
     WHERE session_event_id = ? ORDER BY event_year ASC, candidate_id ASC
   `).all(sessionEventId) as RectificationCandidateEventFactRow[];
   return rows.map(mapFact);
+}
+
+function invalidateCurrentEvaluation(
+  db: ReturnType<typeof getDatabase>,
+  sessionId: string,
+  now: number,
+) {
+  db.prepare(`
+    UPDATE rectification_sessions SET status = 'ready', updated_at = ? WHERE id = ?
+  `).run(now, sessionId);
+  db.prepare(`
+    UPDATE rectification_candidates
+    SET relative_evidence_index = NULL, rank = NULL, confidence = 'low', updated_at = ?
+    WHERE session_id = ?
+  `).run(now, sessionId);
 }

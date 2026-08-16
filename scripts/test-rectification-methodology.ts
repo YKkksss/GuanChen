@@ -28,6 +28,7 @@ function main() {
   assert.equal(RECTIFICATION_METHODOLOGY.scorePolicy.displayLabel, '相对证据指数');
   assert.equal(RECTIFICATION_METHODOLOGY.scorePolicy.eventQualityWeights.unconfirmed, 0);
   assert.equal(RECTIFICATION_METHODOLOGY.scorePolicy.datePrecisionWeights.unknown, 0);
+  assert.equal(RECTIFICATION_METHODOLOGY.scorePolicy.rangeYearDecayFloor, 0.35);
   assert.equal(RECTIFICATION_METHODOLOGY.scorePolicy.nonDiscriminatingEvidenceWeight, 0);
 
   assert.deepEqual(

@@ -55,6 +55,7 @@ function validateScorePolicy(methodology: RectificationMethodology, errors: stri
   if (policy.recommendedDistinctCategories < policy.minimumDistinctCategories) errors.push('推荐类别数不能小于最低类别数');
   validateUnitWeights('事件质量', Object.values(policy.eventQualityWeights), errors);
   validateUnitWeights('日期精度', Object.values(policy.datePrecisionWeights), errors);
+  if (policy.rangeYearDecayFloor <= 0 || policy.rangeYearDecayFloor > 1) errors.push('范围年份衰减下限必须在 0-1 之间');
   if (policy.eventQualityWeights.unconfirmed !== 0) errors.push('未确认事件权重必须为 0');
   if (policy.datePrecisionWeights.unknown !== 0) errors.push('日期不详事件权重必须为 0');
   if (policy.nonDiscriminatingEvidenceWeight !== 0) errors.push('无区分度证据权重必须为 0');
