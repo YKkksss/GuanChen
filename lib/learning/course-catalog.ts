@@ -236,7 +236,15 @@ export function gradeLearningQuiz(
   lessonItem: LearningCourseLesson,
   answers: Record<string, string>,
 ): LearningQuizGrade {
-  const results = lessonItem.quiz.map(item => {
+  return gradeLearningQuestions(lessonItem.quiz, lessonItem.passScore, answers);
+}
+
+export function gradeLearningQuestions(
+  questions: LearningQuizQuestion[],
+  passScore: number,
+  answers: Record<string, string>,
+): LearningQuizGrade {
+  const results = questions.map(item => {
     const selectedOptionId = typeof answers[item.id] === 'string' ? answers[item.id] : null;
     return {
       questionId: item.id,
@@ -248,7 +256,7 @@ export function gradeLearningQuiz(
   });
   const correctCount = results.filter(item => item.correct).length;
   const score = results.length ? Math.round((correctCount / results.length) * 100) : 0;
-  return { score, passed: score >= lessonItem.passScore, correctCount, totalCount: results.length, results };
+  return { score, passed: score >= passScore, correctCount, totalCount: results.length, results };
 }
 
 function lesson(input: Omit<LearningCourseLesson, 'slug' | 'prerequisiteLessonIds' | 'passScore'>): LearningCourseLesson {
@@ -256,6 +264,10 @@ function lesson(input: Omit<LearningCourseLesson, 'slug' | 'prerequisiteLessonId
   if (knowledgePoints.some(item => !item)) throw new Error(`课程章节 ${input.id} 引用了不存在的知识点`);
   return {
     ...input,
+    quiz: input.quiz.map(item => ({
+      ...item,
+      knowledgePointIds: item.knowledgePointIds.length ? item.knowledgePointIds : input.knowledgePointIds,
+    })),
     slug: input.id,
     prerequisiteLessonIds: input.order > 1 ? [LESSON_IDS[input.order - 2]] : [],
     passScore: 100,
@@ -275,5 +287,14 @@ function question(
   explanation: string,
   sourceIds: string[],
 ): LearningQuizQuestion {
-  return { id, type, prompt, options: options.map(([optionId, label]) => ({ id: optionId, label })), correctOptionId, explanation, sourceIds };
+  return {
+    id,
+    type,
+    prompt,
+    options: options.map(([optionId, label]) => ({ id: optionId, label })),
+    correctOptionId,
+    explanation,
+    knowledgePointIds: [],
+    sourceIds,
+  };
 }

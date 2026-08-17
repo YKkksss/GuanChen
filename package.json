@@ -24,6 +24,7 @@
     "test:rectification-report": "tsx scripts/test-rectification-report.ts",
     "test:learning-foundation": "tsx scripts/test-learning-foundation.ts",
     "test:learning-courses": "tsx scripts/test-learning-courses.ts",
+    "test:learning-practice": "tsx scripts/test-learning-practice.ts",
     "start": "next start -p 30001",
     "build:cf": "npx @cloudflare/next-on-pages",
     "preview:cf": "npx wrangler pages dev",

@@ -42,11 +42,11 @@ export default function LearningCenterWorkspace() {
           </p>
         </div>
         <Link
-          href="/chart"
+          href="/practice"
           className="rounded-lg px-4 py-2.5 text-xs"
           style={{ color: 'var(--t-gold)', border: '1px solid var(--t-border-acc)', background: 'var(--ac-bg)' }}
         >
-          打开我的命盘 →
+          进入练习中心 →
         </Link>
       </header>
 
@@ -110,6 +110,9 @@ export default function LearningCenterWorkspace() {
                 <li>4. 通过后自动解锁下一章。</li>
               </ol>
             </div>
+            <Link href="/chart" className="block rounded-xl p-5 text-xs" style={{ color: 'var(--t-gold)', border: '1px solid var(--t-border-acc)', background: 'var(--ac-bg)' }}>
+              打开我的命盘学习模式 →
+            </Link>
             <div className="rounded-xl p-5 text-[10px] leading-6" style={{ color: 'var(--t-faint)', border: '1px solid var(--t-border)' }}>
               本阶段只做固定答案小测，不使用 AI 自由批改。后续开放综合题时，将先定义标准答案要点和评分规则。
             </div>

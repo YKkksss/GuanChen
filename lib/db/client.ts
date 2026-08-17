@@ -864,6 +864,67 @@ function migrate(db: Database.Database) {
     applyV15();
   }
 
+  if (!applied.has(16)) {
+    const applyV16 = db.transaction(() => {
+      db.exec(`
+        CREATE TABLE learning_practice_attempts (
+          id TEXT PRIMARY KEY,
+          practice_set_id TEXT NOT NULL,
+          conversation_id TEXT,
+          score INTEGER NOT NULL CHECK (score BETWEEN 0 AND 100),
+          passed INTEGER NOT NULL CHECK (passed IN (0, 1)),
+          answers_json TEXT NOT NULL,
+          result_json TEXT NOT NULL,
+          question_snapshot_json TEXT NOT NULL,
+          created_at INTEGER NOT NULL,
+
+          FOREIGN KEY (conversation_id)
+            REFERENCES conversations(id)
+            ON DELETE SET NULL
+        );
+
+        CREATE TABLE learning_knowledge_progress (
+          knowledge_point_id TEXT PRIMARY KEY,
+          attempts_count INTEGER NOT NULL DEFAULT 0 CHECK (attempts_count >= 0),
+          correct_count INTEGER NOT NULL DEFAULT 0 CHECK (correct_count >= 0),
+          wrong_count INTEGER NOT NULL DEFAULT 0 CHECK (wrong_count >= 0),
+          mastery_score INTEGER NOT NULL DEFAULT 0 CHECK (mastery_score BETWEEN 0 AND 100),
+          status TEXT NOT NULL CHECK (status IN ('learning', 'reviewing', 'mastered')),
+          updated_at INTEGER NOT NULL
+        );
+
+        CREATE TABLE learning_review_items (
+          id TEXT PRIMARY KEY,
+          question_key TEXT NOT NULL UNIQUE,
+          source_type TEXT NOT NULL CHECK (source_type IN ('lesson_quiz', 'practice')),
+          source_ref TEXT NOT NULL,
+          question_json TEXT NOT NULL,
+          latest_wrong_answer TEXT,
+          status TEXT NOT NULL CHECK (status IN ('due', 'reviewing', 'mastered')),
+          wrong_count INTEGER NOT NULL DEFAULT 1 CHECK (wrong_count >= 1),
+          correct_streak INTEGER NOT NULL DEFAULT 0 CHECK (correct_streak >= 0),
+          next_review_at INTEGER NOT NULL,
+          last_wrong_at INTEGER NOT NULL,
+          mastered_at INTEGER,
+          created_at INTEGER NOT NULL,
+          updated_at INTEGER NOT NULL
+        );
+
+        CREATE INDEX idx_learning_practice_attempts_set_created
+          ON learning_practice_attempts(practice_set_id, created_at DESC);
+        CREATE INDEX idx_learning_practice_attempts_conversation
+          ON learning_practice_attempts(conversation_id, created_at DESC);
+        CREATE INDEX idx_learning_knowledge_progress_status
+          ON learning_knowledge_progress(status, mastery_score ASC);
+        CREATE INDEX idx_learning_review_items_status_next
+          ON learning_review_items(status, next_review_at ASC);
+      `);
+      db.prepare('INSERT INTO schema_migrations(version, applied_at) VALUES (?, ?)')
+        .run(16, Date.now());
+    });
+    applyV16();
+  }
+
   ensureMessageSearch(db);
 }
 

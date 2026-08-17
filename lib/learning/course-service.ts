@@ -4,6 +4,7 @@ import {
   saveLearningAttempt,
   startLearningLesson,
 } from '@/lib/db/learning-courses';
+import { recordQuestionOutcomes } from '@/lib/db/learning-practice';
 import {
   LEARNING_COURSES,
   getLearningCourse,
@@ -55,6 +56,12 @@ export function submitCourseLessonAttempt(
   const normalizedAnswers = normalizeAnswers(lesson.quiz.map(item => item.id), answers);
   const grade = gradeLearningQuiz(lesson, normalizedAnswers);
   const saved = saveLearningAttempt({ courseId: course.id, lessonId: lesson.id, answers: normalizedAnswers, grade });
+  recordQuestionOutcomes({
+    sourceType: 'lesson_quiz',
+    sourceRef: `${course.id}/${lesson.id}`,
+    questions: lesson.quiz,
+    grade,
+  });
   return { ...saved, grade, courseProgress: buildCourseProgress(course) };
 }
 

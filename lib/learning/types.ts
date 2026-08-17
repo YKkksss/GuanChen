@@ -109,6 +109,7 @@ export interface LearningQuizQuestion {
   options: LearningQuizOption[];
   correctOptionId: string;
   explanation: string;
+  knowledgePointIds: string[];
   sourceIds: string[];
 }
 
@@ -194,4 +195,78 @@ export interface LearningAttempt {
   answers: Record<string, string>;
   grade: LearningQuizGrade;
   createdAt: number;
+}
+
+export type LearningPracticeKind = 'foundation_review' | 'chart_structure';
+export type LearningReviewStatus = 'due' | 'reviewing' | 'mastered';
+export type LearningKnowledgeStatus = 'learning' | 'reviewing' | 'mastered';
+
+export interface LearningPracticeSet {
+  schemaVersion: 1;
+  id: string;
+  kind: LearningPracticeKind;
+  title: string;
+  description: string;
+  version: string;
+  passScore: number;
+  estimatedMinutes: number;
+  conversationId: string | null;
+  conversationTitle: string | null;
+  questions: LearningQuizQuestion[];
+  sourceIds: string[];
+  boundary: string;
+}
+
+export interface LearningPracticeAttempt {
+  id: string;
+  practiceSetId: string;
+  conversationId: string | null;
+  score: number;
+  passed: boolean;
+  answers: Record<string, string>;
+  grade: LearningQuizGrade;
+  questions: LearningQuizQuestion[];
+  createdAt: number;
+}
+
+export interface LearningKnowledgeProgress {
+  knowledgePointId: string;
+  title: string;
+  attemptsCount: number;
+  correctCount: number;
+  wrongCount: number;
+  masteryScore: number;
+  status: LearningKnowledgeStatus;
+  updatedAt: number;
+}
+
+export interface LearningReviewItem {
+  id: string;
+  questionKey: string;
+  sourceType: 'lesson_quiz' | 'practice';
+  sourceRef: string;
+  question: LearningQuizQuestion;
+  latestWrongAnswer: string | null;
+  status: LearningReviewStatus;
+  wrongCount: number;
+  correctStreak: number;
+  nextReviewAt: number;
+  lastWrongAt: number;
+  masteredAt: number | null;
+  createdAt: number;
+  updatedAt: number;
+}
+
+export interface LearningReviewSummary {
+  due: number;
+  reviewing: number;
+  mastered: number;
+  total: number;
+}
+
+export interface LearningPracticeOverview {
+  knowledge: LearningKnowledgeProgress[];
+  review: LearningReviewSummary;
+  practiceAttempts: number;
+  latestPracticeAt: number | null;
 }
