@@ -36,7 +36,7 @@ export default function PracticeCenterWorkspace() {
           <Link href="/learn" className="text-xs" style={{ color: 'var(--t-faint)' }}>← 返回学习中心</Link>
           <div className="mt-5 text-[10px] font-medium tracking-[.28em]" style={{ color: 'var(--t-gold)' }}>PRACTICE & REVIEW</div>
           <h1 className="mt-2 text-2xl font-semibold sm:text-3xl" style={{ color: 'var(--t-text)' }}>结构化练习中心</h1>
-          <p className="mt-3 max-w-2xl text-xs leading-7" style={{ color: 'var(--t-text2)' }}>通过跨章节练习和真实命盘识别巩固结构知识；错误会进入复习队列，连续答对后自动转为已掌握。</p>
+          <p className="mt-3 max-w-2xl text-xs leading-7" style={{ color: 'var(--t-text2)' }}>先用客观题巩固盘面结构，再用开放式解盘题训练完整表达；程序负责事实与量表评分，AI 只解释反馈。</p>
         </div>
         <Link href="/practice/review" className="rounded-lg px-4 py-2.5 text-xs" style={{ color: 'var(--t-gold)', border: '1px solid var(--t-border-acc)', background: 'var(--ac-bg)' }}>
           错题本 {overview?.review.due ? `· ${overview.review.due} 题待复习` : ''} →
@@ -45,14 +45,15 @@ export default function PracticeCenterWorkspace() {
 
       {error && <div className="mb-5 rounded-lg px-4 py-3 text-xs text-red-500" style={{ border: '1px solid rgba(239,68,68,.25)' }}>{error}</div>}
 
-      <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Metric label="练习次数" value={overview?.practiceAttempts ?? 0} suffix="次" />
+      <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+        <Metric label="客观题练习" value={overview?.practiceAttempts ?? 0} suffix="次" />
+        <Metric label="开放题练习" value={overview?.openPracticeAttempts ?? 0} suffix="次" />
         <Metric label="待复习" value={overview?.review.due ?? 0} suffix="题" />
         <Metric label="复习中" value={overview?.review.reviewing ?? 0} suffix="题" />
         <Metric label="已掌握错题" value={overview?.review.mastered ?? 0} suffix="题" />
       </section>
 
-      <section className="mt-6 grid gap-5 md:grid-cols-2">
+      <section className="mt-6 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
         <article className="flex min-h-[260px] flex-col rounded-2xl card-glass p-6">
           <div className="text-[10px] tracking-[.2em]" style={{ color: 'var(--t-gold)' }}>CROSS-LESSON</div>
           <h2 className="mt-3 text-lg font-semibold" style={{ color: 'var(--t-text)' }}>命盘结构跨章节复习</h2>
@@ -67,6 +68,14 @@ export default function PracticeCenterWorkspace() {
           <p className="mt-3 flex-1 text-xs leading-7" style={{ color: 'var(--t-text2)' }}>选择一份已保存命盘，程序根据快照生成命宫、身宫、主星、三方四正、四化和空宫来源题。</p>
           <div className="mb-4 text-[10px]" style={{ color: 'var(--t-faint)' }}>{charts.length ? `检测到 ${charts.length} 份可用单人命盘` : '暂无命盘，可先完成起盘'}</div>
           <Link href={charts.length ? '/practice/chart-structure' : '/chart'} className="rounded-lg px-5 py-3 text-center text-xs" style={{ color: 'var(--t-gold)', border: '1px solid var(--t-border-acc)', background: 'var(--ac-bg)' }}>{charts.length ? '选择命盘开始' : '先去起盘'}</Link>
+        </article>
+
+        <article className="flex min-h-[260px] flex-col rounded-2xl p-6" style={{ border: '1px solid var(--t-border-acc)', background: 'linear-gradient(145deg,var(--ac-bg),var(--t-card))' }}>
+          <div className="text-[10px] tracking-[.2em]" style={{ color: 'var(--t-gold)' }}>OPEN-ENDED + AI FEEDBACK</div>
+          <h2 className="mt-3 text-lg font-semibold" style={{ color: 'var(--t-text)' }}>开放式命盘解读训练</h2>
+          <p className="mt-3 flex-1 text-xs leading-7" style={{ color: 'var(--t-text2)' }}>选择真实命盘完成结构化解读。程序按公开量表评分，AI 根据确定结果解释遗漏、事实问题和修改顺序。</p>
+          <div className="mb-4 text-[10px]" style={{ color: 'var(--t-faint)' }}>{charts.length ? `3 类题型 · 已完成 ${overview?.openPracticeAttempts ?? 0} 次` : '需要先保存一份单人命盘'}</div>
+          <Link href={charts.length ? '/practice/open-ended' : '/chart'} className="rounded-lg px-5 py-3 text-center text-xs" style={{ color: '#fff8e8', background: 'linear-gradient(135deg,#9a6210,#c88020)' }}>{charts.length ? '开始开放式训练' : '先去起盘'}</Link>
         </article>
       </section>
 

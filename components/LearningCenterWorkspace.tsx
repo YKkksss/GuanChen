@@ -114,7 +114,7 @@ export default function LearningCenterWorkspace() {
               打开我的命盘学习模式 →
             </Link>
             <div className="rounded-xl p-5 text-[10px] leading-6" style={{ color: 'var(--t-faint)', border: '1px solid var(--t-border)' }}>
-              本阶段只做固定答案小测，不使用 AI 自由批改。后续开放综合题时，将先定义标准答案要点和评分规则。
+              客观题采用确定性答案；开放式解盘题先由程序按公开量表评分，再由 AI 在评分规则内解释遗漏和改进方向。
             </div>
           </aside>
         </section>

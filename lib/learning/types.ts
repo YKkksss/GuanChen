@@ -269,4 +269,132 @@ export interface LearningPracticeOverview {
   review: LearningReviewSummary;
   practiceAttempts: number;
   latestPracticeAt: number | null;
+  openPracticeAttempts: number;
+  latestOpenPracticeAt: number | null;
+}
+
+export type LearningOpenExerciseTemplateId = 'ming-structure' | 'sanfang-synthesis' | 'analysis-boundary';
+export type LearningOpenAttemptStatus = 'pending_feedback' | 'completed' | 'feedback_failed';
+
+export interface LearningOpenExerciseTemplateSummary {
+  id: LearningOpenExerciseTemplateId;
+  title: string;
+  description: string;
+  estimatedMinutes: number;
+}
+
+export interface LearningOpenEvidencePoint {
+  id: string;
+  label: string;
+  fact: string;
+  acceptedExpressions: string[];
+  sourceIds: string[];
+}
+
+export interface LearningOpenRubricCriterion {
+  id: string;
+  title: string;
+  description: string;
+  maxScore: number;
+  evidencePointIds: string[];
+  knowledgePointIds: string[];
+}
+
+export interface LearningOpenCommonErrorRule {
+  id: string;
+  title: string;
+  description: string;
+  deduction: number;
+}
+
+export interface LearningOpenExercise {
+  schemaVersion: 1;
+  id: string;
+  templateId: LearningOpenExerciseTemplateId;
+  title: string;
+  description: string;
+  prompt: string;
+  conversationId: string;
+  conversationTitle: string;
+  estimatedMinutes: number;
+  recommendedLength: string;
+  passScore: number;
+  rubricVersion: string;
+  promptVersion: string;
+  evidencePoints: LearningOpenEvidencePoint[];
+  rubric: LearningOpenRubricCriterion[];
+  commonErrors: LearningOpenCommonErrorRule[];
+  sourceIds: string[];
+  boundary: string;
+}
+
+export interface LearningOpenCriterionGrade {
+  criterionId: string;
+  title: string;
+  score: number;
+  maxScore: number;
+  coveredEvidencePointIds: string[];
+  missingEvidencePointIds: string[];
+}
+
+export interface LearningOpenDetectedIssue {
+  ruleId: string;
+  title: string;
+  detail: string;
+  deduction: number;
+}
+
+export interface LearningOpenGrade {
+  score: number;
+  rawScore: number;
+  passScore: number;
+  passed: boolean;
+  wordCount: number;
+  criteria: LearningOpenCriterionGrade[];
+  detectedIssues: LearningOpenDetectedIssue[];
+  coveredEvidencePointIds: string[];
+  missingEvidencePointIds: string[];
+}
+
+export interface LearningOpenCriterionComment {
+  criterionId: string;
+  comment: string;
+  evidencePointIds: string[];
+}
+
+export interface LearningOpenAiFeedback {
+  schemaVersion: 1;
+  summary: string;
+  strengths: string[];
+  omissions: string[];
+  factIssues: string[];
+  reasoningSuggestions: string[];
+  expressionSuggestions: string[];
+  nextRevisionFocus: string[];
+  criterionComments: LearningOpenCriterionComment[];
+  disclaimer: string;
+}
+
+export interface LearningOpenPracticeAttempt {
+  id: string;
+  exerciseId: string;
+  exerciseTemplateId: LearningOpenExerciseTemplateId;
+  conversationId: string | null;
+  parentAttemptId: string | null;
+  answer: string;
+  score: number;
+  passed: boolean;
+  rubricVersion: string;
+  promptVersion: string;
+  provider: string | null;
+  model: string | null;
+  status: LearningOpenAttemptStatus;
+  grade: LearningOpenGrade;
+  exercise: LearningOpenExercise;
+  feedback: LearningOpenAiFeedback | null;
+  errorCode: string | null;
+  inputTokens: number | null;
+  outputTokens: number | null;
+  createdAt: number;
+  completedAt: number | null;
 }

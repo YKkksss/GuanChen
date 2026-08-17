@@ -1,4 +1,5 @@
 import { getConversation } from '@/lib/db/conversations';
+import { getOpenPracticeAttemptStats } from '@/lib/db/learning-open-practice';
 import {
   getPracticeAttemptStats,
   getReviewSummary,
@@ -18,6 +19,7 @@ import type {
 
 export function getLearningPracticeOverview(): LearningPracticeOverview {
   const stats = getPracticeAttemptStats();
+  const openStats = getOpenPracticeAttemptStats();
   return {
     knowledge: listKnowledgeProgress().map(item => ({
       ...item,
@@ -26,6 +28,8 @@ export function getLearningPracticeOverview(): LearningPracticeOverview {
     review: getReviewSummary(),
     practiceAttempts: stats.count,
     latestPracticeAt: stats.latestAt,
+    openPracticeAttempts: openStats.count,
+    latestOpenPracticeAt: openStats.latestAt,
   };
 }
 

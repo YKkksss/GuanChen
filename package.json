@@ -25,6 +25,7 @@
     "test:learning-foundation": "tsx scripts/test-learning-foundation.ts",
     "test:learning-courses": "tsx scripts/test-learning-courses.ts",
     "test:learning-practice": "tsx scripts/test-learning-practice.ts",
+    "test:learning-open-practice": "tsx scripts/test-learning-open-practice.ts",
     "start": "next start -p 30001",
     "build:cf": "npx @cloudflare/next-on-pages",
     "preview:cf": "npx wrangler pages dev",

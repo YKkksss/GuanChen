@@ -763,7 +763,7 @@ AI 可以从用户话语中提取候选事件：
 
 ## 13. M6：紫微学习模式
 
-> 实施状态（2026-08-17）：M6-0 至 M6-3 已完成。现已具备学习内容契约、真实命盘七步结构讲解、来源追溯、宫位笔记、七章入门课程、章节前置解锁、确定性小测，以及跨章节练习、真实命盘识别题、知识点掌握度、错题本和复习队列。下一步进入 M6-4 开放式解盘题与基于评分规则的 AI 反馈。
+> 实施状态（2026-08-17）：M6-0 至 M6-4 已完成。现已具备学习内容契约、真实命盘七步结构讲解、来源追溯、宫位笔记、七章入门课程、章节前置解锁、确定性小测、跨章节练习、真实命盘识别题、知识点掌握度、错题本、复习队列，以及三类开放式解盘题、程序评分、受限 AI 反馈和修订历史。M6 学习闭环已完成，下一步进入 M7 匿名案例库与命盘对比。
 
 ### 13.1 产品目标
 
@@ -814,6 +814,10 @@ AI 批改必须基于标准答案要点，而不是自由评价。
 - `learning_attempts`
 - `learning_progress`
 - `learning_notes`
+- `learning_practice_attempts`
+- `learning_knowledge_progress`
+- `learning_review_items`
+- `learning_open_practice_attempts`
 
 静态课程内容可以先保存在 TypeScript 或 Markdown 中，学习记录再放入 SQLite。
 
@@ -823,7 +827,10 @@ AI 批改必须基于标准答案要点，而不是自由评价。
 - `/learn/[course]`
 - `/learn/[course]/[lesson]`
 - `/practice`
-- `/practice/[caseId]`
+- `/practice/foundation-review`
+- `/practice/chart-structure`
+- `/practice/review`
+- `/practice/open-ended`
 
 ### 13.7 验收标准
 

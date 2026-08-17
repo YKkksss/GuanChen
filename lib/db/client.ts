@@ -925,6 +925,54 @@ function migrate(db: Database.Database) {
     applyV16();
   }
 
+  if (!applied.has(17)) {
+    const applyV17 = db.transaction(() => {
+      db.exec(`
+        CREATE TABLE learning_open_practice_attempts (
+          id TEXT PRIMARY KEY,
+          exercise_id TEXT NOT NULL,
+          exercise_template_id TEXT NOT NULL,
+          conversation_id TEXT,
+          parent_attempt_id TEXT,
+          answer TEXT NOT NULL,
+          score INTEGER NOT NULL CHECK (score BETWEEN 0 AND 100),
+          passed INTEGER NOT NULL CHECK (passed IN (0, 1)),
+          rubric_version TEXT NOT NULL,
+          prompt_version TEXT NOT NULL,
+          provider TEXT,
+          model TEXT,
+          status TEXT NOT NULL
+            CHECK (status IN ('pending_feedback', 'completed', 'feedback_failed')),
+          grade_json TEXT NOT NULL,
+          exercise_snapshot_json TEXT NOT NULL,
+          feedback_json TEXT,
+          error_code TEXT,
+          input_tokens INTEGER,
+          output_tokens INTEGER,
+          created_at INTEGER NOT NULL,
+          completed_at INTEGER,
+
+          FOREIGN KEY (conversation_id)
+            REFERENCES conversations(id)
+            ON DELETE SET NULL,
+          FOREIGN KEY (parent_attempt_id)
+            REFERENCES learning_open_practice_attempts(id)
+            ON DELETE SET NULL
+        );
+
+        CREATE INDEX idx_learning_open_attempts_conversation
+          ON learning_open_practice_attempts(conversation_id, created_at DESC);
+        CREATE INDEX idx_learning_open_attempts_template
+          ON learning_open_practice_attempts(exercise_template_id, created_at DESC);
+        CREATE INDEX idx_learning_open_attempts_parent
+          ON learning_open_practice_attempts(parent_attempt_id, created_at ASC);
+      `);
+      db.prepare('INSERT INTO schema_migrations(version, applied_at) VALUES (?, ?)')
+        .run(17, Date.now());
+    });
+    applyV17();
+  }
+
   ensureMessageSearch(db);
 }
 

@@ -90,7 +90,7 @@ export function getLearningProgress(courseId: string, lessonId: string): Learnin
 export function startLearningLesson(courseId: string, lessonId: string): LearningLessonProgress {
   const db = getDatabase();
   const existing = getLearningProgress(courseId, lessonId);
-  const now = Date.now();
+  const now = nextCourseTimestamp(courseId);
   if (existing) {
     db.prepare('UPDATE learning_progress SET updated_at = ? WHERE id = ?').run(now, existing.id);
     return getLearningProgress(courseId, lessonId)!;
@@ -115,7 +115,7 @@ export function saveLearningAttempt(input: {
   return db.transaction(() => {
     const existing = getLearningProgress(input.courseId, input.lessonId)
       ?? startLearningLesson(input.courseId, input.lessonId);
-    const now = Date.now();
+    const now = nextCourseTimestamp(input.courseId);
     const attemptId = randomUUID();
     db.prepare(`
       INSERT INTO learning_attempts (
@@ -159,4 +159,11 @@ export function listLearningAttempts(courseId: string, lessonId: string): Learni
     WHERE course_id = ? AND lesson_id = ?
     ORDER BY created_at DESC
   `).all(courseId, lessonId) as LearningAttemptRow[]).map(mapAttempt);
+}
+
+function nextCourseTimestamp(courseId: string) {
+  const row = getDatabase().prepare(`
+    SELECT MAX(updated_at) AS latest_at FROM learning_progress WHERE course_id = ?
+  `).get(courseId) as { latest_at: number | null };
+  return Math.max(Date.now(), (row.latest_at ?? 0) + 1);
 }
