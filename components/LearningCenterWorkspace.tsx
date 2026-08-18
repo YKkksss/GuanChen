@@ -41,13 +41,16 @@ export default function LearningCenterWorkspace() {
             从结构事实开始学习，再进入传统解释。课程、题目与来源随代码版本发布，学习进度保存在本地 SQLite。
           </p>
         </div>
-        <Link
-          href="/practice"
-          className="rounded-lg px-4 py-2.5 text-xs"
-          style={{ color: 'var(--t-gold)', border: '1px solid var(--t-border-acc)', background: 'var(--ac-bg)' }}
-        >
-          进入练习中心 →
-        </Link>
+        <div className="flex flex-wrap gap-2">
+          <Link href="/cases" className="rounded-lg px-4 py-2.5 text-xs" style={{ color: 'var(--t-text2)', border: '1px solid var(--t-border)' }}>匿名案例库</Link>
+          <Link
+            href="/practice"
+            className="rounded-lg px-4 py-2.5 text-xs"
+            style={{ color: 'var(--t-gold)', border: '1px solid var(--t-border-acc)', background: 'var(--ac-bg)' }}
+          >
+            进入练习中心 →
+          </Link>
+        </div>
       </header>
 
       {loading && <PageState text="正在恢复学习进度…" />}

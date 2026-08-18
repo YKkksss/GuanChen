@@ -143,7 +143,9 @@ body {
 .birth-form select option,
 .birth-form select optgroup,
 .rectification-form select option,
-.rectification-form select optgroup {
+.rectification-form select optgroup,
+.case-form select option,
+.case-form select optgroup {
   background-color: #ffffff !important;
   color: #111111 !important;
 }

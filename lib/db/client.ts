@@ -973,6 +973,110 @@ function migrate(db: Database.Database) {
     applyV17();
   }
 
+  if (!applied.has(18)) {
+    const applyV18 = db.transaction(() => {
+      db.exec(`
+        CREATE TABLE case_records (
+          id TEXT PRIMARY KEY,
+          case_code TEXT NOT NULL UNIQUE,
+          source_conversation_id TEXT,
+          title TEXT NOT NULL,
+          status TEXT NOT NULL DEFAULT 'draft'
+            CHECK (status IN ('draft', 'reviewed', 'archived')),
+          confidence TEXT NOT NULL DEFAULT 'medium'
+            CHECK (confidence IN ('low', 'medium', 'high')),
+          chart_snapshot_json TEXT NOT NULL,
+          anonymization_version TEXT NOT NULL,
+          created_at INTEGER NOT NULL,
+          updated_at INTEGER NOT NULL,
+          reviewed_at INTEGER,
+
+          FOREIGN KEY (source_conversation_id)
+            REFERENCES conversations(id)
+            ON DELETE SET NULL
+        );
+
+        CREATE TABLE case_sources (
+          id TEXT PRIMARY KEY,
+          case_id TEXT NOT NULL,
+          source_type TEXT NOT NULL
+            CHECK (source_type IN ('local_chart', 'public_record', 'authorized_teaching', 'historical_record')),
+          citation TEXT,
+          note TEXT,
+          reliability TEXT NOT NULL DEFAULT 'medium'
+            CHECK (reliability IN ('low', 'medium', 'high')),
+          created_at INTEGER NOT NULL,
+
+          FOREIGN KEY (case_id)
+            REFERENCES case_records(id)
+            ON DELETE CASCADE
+        );
+
+        CREATE TABLE case_consents (
+          id TEXT PRIMARY KEY,
+          case_id TEXT NOT NULL,
+          scope TEXT NOT NULL
+            CHECK (scope IN ('local_only', 'teaching', 'anonymous_export', 'public_release')),
+          status TEXT NOT NULL
+            CHECK (status IN ('active', 'revoked')),
+          consent_version TEXT NOT NULL,
+          confirmed_at INTEGER NOT NULL,
+          revoked_at INTEGER,
+          updated_at INTEGER NOT NULL,
+
+          UNIQUE (case_id, scope),
+          FOREIGN KEY (case_id)
+            REFERENCES case_records(id)
+            ON DELETE CASCADE
+        );
+
+        CREATE TABLE case_event_snapshots (
+          id TEXT PRIMARY KEY,
+          case_id TEXT NOT NULL,
+          category TEXT NOT NULL,
+          age_band TEXT,
+          date_precision TEXT NOT NULL
+            CHECK (date_precision IN ('year', 'range', 'unknown')),
+          impact_level INTEGER NOT NULL CHECK (impact_level BETWEEN 1 AND 5),
+          source_kind TEXT NOT NULL DEFAULT 'user_confirmed',
+          created_at INTEGER NOT NULL,
+
+          FOREIGN KEY (case_id)
+            REFERENCES case_records(id)
+            ON DELETE CASCADE
+        );
+
+        CREATE TABLE case_audit_logs (
+          id TEXT PRIMARY KEY,
+          case_id TEXT NOT NULL,
+          action TEXT NOT NULL,
+          metadata_json TEXT,
+          created_at INTEGER NOT NULL,
+
+          FOREIGN KEY (case_id)
+            REFERENCES case_records(id)
+            ON DELETE CASCADE
+        );
+
+        CREATE INDEX idx_case_records_status_updated
+          ON case_records(status, updated_at DESC);
+        CREATE INDEX idx_case_records_source_conversation
+          ON case_records(source_conversation_id, updated_at DESC);
+        CREATE INDEX idx_case_sources_case
+          ON case_sources(case_id, created_at ASC);
+        CREATE INDEX idx_case_consents_case_status
+          ON case_consents(case_id, status, scope);
+        CREATE INDEX idx_case_events_case_category
+          ON case_event_snapshots(case_id, category);
+        CREATE INDEX idx_case_audits_case_created
+          ON case_audit_logs(case_id, created_at DESC);
+      `);
+      db.prepare('INSERT INTO schema_migrations(version, applied_at) VALUES (?, ?)')
+        .run(18, Date.now());
+    });
+    applyV18();
+  }
+
   ensureMessageSearch(db);
 }
 
