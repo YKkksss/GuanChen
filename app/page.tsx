@@ -444,6 +444,7 @@ export default function HomePage() {
   const router = useRouter();
   const { theme } = useTheme();
   const c = useColors(theme);
+  const [dueReminderCount, setDueReminderCount] = useState(0);
 
   const heroRef = useRef(null);
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ['start start', 'end start'] });
@@ -460,6 +461,25 @@ export default function HomePage() {
       document.body.style.background = '';
     };
   }, [c.bgBase]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function refreshDueReminderCount() {
+      try {
+        const materializeResponse = await fetch('/api/reminders/materialize', { method: 'POST' });
+        if (!materializeResponse.ok) return;
+        const response = await fetch('/api/reminder-instances?dueOnly=true&limit=100', { cache: 'no-store' });
+        const data = await response.json() as { instances?: unknown[] };
+        if (!cancelled && response.ok) setDueReminderCount(data.instances?.length ?? 0);
+      } catch {
+        // 提醒入口不应阻塞首页；服务暂不可用时保持为 0。
+      }
+    }
+
+    void refreshDueReminderCount();
+    return () => { cancelled = true; };
+  }, []);
 
   return (
     <div style={{ background: c.bgBase, transition: 'background 0.35s ease' }} className="overflow-x-hidden">
@@ -487,6 +507,14 @@ export default function HomePage() {
         </div>
         <div className="flex items-center gap-1.5 sm:gap-3 flex-shrink-0">
           <ThemeToggle />
+          <motion.button
+            whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}
+            onClick={() => router.push('/reminders')}
+            className="relative hidden text-[11px] lg:inline-flex sm:text-xs px-2.5 sm:px-4 py-1 sm:py-1.5 rounded-full transition-all duration-300"
+            style={{ border: `1px solid ${c.navBorder}`, color: c.textMuted }}>
+            提醒
+            {dueReminderCount > 0 && <span className="absolute -right-1.5 -top-1.5 flex min-w-4 items-center justify-center rounded-full bg-amber-500 px-1 text-[8px] leading-4 text-white">{dueReminderCount > 99 ? '99+' : dueReminderCount}</span>}
+          </motion.button>
           <motion.button
             whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}
             onClick={() => router.push('/learn')}
@@ -517,6 +545,16 @@ export default function HomePage() {
           </motion.button>
         </div>
       </nav>
+
+      <motion.button
+        whileTap={{ scale: 0.94 }}
+        onClick={() => router.push('/reminders')}
+        aria-label={dueReminderCount ? `打开提醒中心，${dueReminderCount} 条提醒到期` : '打开提醒中心'}
+        className="fixed bottom-5 right-5 z-40 flex h-12 items-center justify-center rounded-full px-4 text-xs shadow-lg lg:hidden"
+        style={{ color: c.bgBase, background: c.goldSolid, boxShadow: `0 10px 30px ${c.glowTint}` }}>
+        提醒
+        {dueReminderCount > 0 && <span className="ml-2 flex min-w-5 items-center justify-center rounded-full bg-red-500 px-1 text-[9px] leading-5 text-white">{dueReminderCount > 99 ? '99+' : dueReminderCount}</span>}
+      </motion.button>
 
       {/* ══ HERO ══════════════════════════════════════════ */}
       <section ref={heroRef} className="relative min-h-[82svh] lg:min-h-[92vh] flex flex-col items-center justify-center px-6 z-10 pb-24 pt-10">
