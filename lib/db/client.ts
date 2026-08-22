@@ -1153,6 +1153,73 @@ function migrate(db: Database.Database) {
     applyV20();
   }
 
+  if (!applied.has(21)) {
+    const applyV21 = db.transaction(() => {
+      db.exec(`
+        CREATE TABLE reminder_rules (
+          id TEXT PRIMARY KEY,
+          title TEXT NOT NULL,
+          kind TEXT NOT NULL CHECK (kind IN (
+            'monthly_review', 'birthday_review', 'transit_change',
+            'event_anniversary', 'custom'
+          )),
+          status TEXT NOT NULL DEFAULT 'enabled'
+            CHECK (status IN ('enabled', 'disabled', 'archived')),
+          conversation_id TEXT,
+          event_id TEXT,
+          timezone TEXT NOT NULL DEFAULT 'Asia/Shanghai',
+          config_json TEXT NOT NULL,
+          engine_version TEXT NOT NULL,
+          last_materialized_at INTEGER,
+          created_at INTEGER NOT NULL,
+          updated_at INTEGER NOT NULL,
+
+          FOREIGN KEY (conversation_id)
+            REFERENCES conversations(id)
+            ON DELETE CASCADE,
+          FOREIGN KEY (event_id)
+            REFERENCES life_events(id)
+            ON DELETE CASCADE
+        );
+
+        CREATE TABLE reminder_instances (
+          id TEXT PRIMARY KEY,
+          rule_id TEXT NOT NULL,
+          occurrence_key TEXT NOT NULL,
+          scheduled_for TEXT NOT NULL,
+          due_at INTEGER NOT NULL,
+          title TEXT NOT NULL,
+          payload_json TEXT NOT NULL,
+          status TEXT NOT NULL DEFAULT 'pending'
+            CHECK (status IN ('pending', 'completed', 'dismissed')),
+          completed_at INTEGER,
+          dismissed_at INTEGER,
+          created_at INTEGER NOT NULL,
+          updated_at INTEGER NOT NULL,
+
+          UNIQUE (rule_id, occurrence_key),
+          FOREIGN KEY (rule_id)
+            REFERENCES reminder_rules(id)
+            ON DELETE CASCADE
+        );
+
+        CREATE INDEX idx_reminder_rules_status_kind
+          ON reminder_rules(status, kind, updated_at DESC);
+        CREATE INDEX idx_reminder_rules_conversation
+          ON reminder_rules(conversation_id, status, updated_at DESC);
+        CREATE INDEX idx_reminder_rules_event
+          ON reminder_rules(event_id, status, updated_at DESC);
+        CREATE INDEX idx_reminder_instances_status_due
+          ON reminder_instances(status, due_at ASC);
+        CREATE INDEX idx_reminder_instances_rule_due
+          ON reminder_instances(rule_id, due_at ASC);
+      `);
+      db.prepare('INSERT INTO schema_migrations(version, applied_at) VALUES (?, ?)')
+        .run(21, Date.now());
+    });
+    applyV21();
+  }
+
   ensureMessageSearch(db);
 }
 
