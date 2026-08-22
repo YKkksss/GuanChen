@@ -7,6 +7,7 @@ dist/
 *.tsbuildinfo
 next-start.*
 .codex-dev.*.log
+.codex-dev-server.log
 .DS_Store
 data/*.sqlite
 data/*.sqlite-shm

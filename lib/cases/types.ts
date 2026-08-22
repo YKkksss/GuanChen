@@ -184,6 +184,84 @@ export interface CaseTeachingDetail {
   boundaryNotice: string;
 }
 
+export type CaseComparisonMode = 'chart_to_chart' | 'daxian_to_daxian';
+export type CaseComparisonStatus = 'active' | 'archived';
+export type CaseComparisonDimensionStatus = 'common' | 'different' | 'unavailable';
+export type CaseComparisonCategory = 'core' | 'ming_structure' | 'sihua' | 'pattern' | 'event' | 'daxian';
+
+export interface CaseComparisonSide {
+  caseId: string;
+  caseCode: string;
+  title: string;
+  stageKey: string | null;
+  stageLabel: string | null;
+}
+
+export interface CaseComparisonEvidence {
+  side: 'left' | 'right';
+  caseCode: string;
+  source: 'anonymous_chart' | 'pattern_engine' | 'confirmed_events' | 'daxian_snapshot';
+  path: string;
+  value: string;
+}
+
+export interface CaseComparisonDimension {
+  id: string;
+  category: CaseComparisonCategory;
+  title: string;
+  status: CaseComparisonDimensionStatus;
+  leftValue: string;
+  rightValue: string;
+  summary: string;
+  evidence: CaseComparisonEvidence[];
+}
+
+export interface CaseComparisonResult {
+  schemaVersion: 1;
+  engineVersion: string;
+  mode: CaseComparisonMode;
+  left: CaseComparisonSide;
+  right: CaseComparisonSide;
+  dimensions: CaseComparisonDimension[];
+  counts: {
+    common: number;
+    different: number;
+    unavailable: number;
+  };
+  boundaryNotice: string;
+  generatedAt: number;
+}
+
+export interface CaseComparison {
+  id: string;
+  comparisonCode: string;
+  mode: CaseComparisonMode;
+  title: string;
+  status: CaseComparisonStatus;
+  leftCaseId: string;
+  rightCaseId: string;
+  leftStageKey: string | null;
+  rightStageKey: string | null;
+  engineVersion: string;
+  result: CaseComparisonResult;
+  leftCaseUpdatedAt: number;
+  rightCaseUpdatedAt: number;
+  createdAt: number;
+  updatedAt: number;
+}
+
+export interface CaseComparisonListItem {
+  id: string;
+  comparisonCode: string;
+  mode: CaseComparisonMode;
+  title: string;
+  status: CaseComparisonStatus;
+  leftLabel: string;
+  rightLabel: string;
+  counts: CaseComparisonResult['counts'];
+  updatedAt: number;
+}
+
 export interface PrivacyPreviewItem {
   key: string;
   label: string;

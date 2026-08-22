@@ -28,6 +28,7 @@
     "test:learning-open-practice": "tsx scripts/test-learning-open-practice.ts",
     "test:cases": "tsx scripts/test-case-library.ts",
     "test:case-search": "tsx scripts/test-case-search.ts",
+    "test:case-comparisons": "tsx scripts/test-case-comparisons.ts",
     "start": "next start -p 30001",
     "build:cf": "npx @cloudflare/next-on-pages",
     "preview:cf": "npx wrangler pages dev",

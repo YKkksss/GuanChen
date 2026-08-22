@@ -76,7 +76,10 @@ export default function CaseLibraryWorkspace() {
           <h1 className="mt-2 text-2xl font-semibold sm:text-3xl" style={{ color: 'var(--t-text)' }}>匿名案例库</h1>
           <p className="mt-3 max-w-3xl text-xs leading-7" style={{ color: 'var(--t-text2)' }}>用匿名命盘练习结构识别和证据回看。教学检索只展示已复核且仍有教学授权的案例；本地管理视图用于处理草稿、授权和归档。</p>
         </div>
-        <Link href="/cases/new" className="rounded-lg px-5 py-3 text-xs" style={{ color: '#fff8e8', background: 'linear-gradient(135deg,#9a6210,#c88020)' }}>创建匿名案例</Link>
+        <div className="flex flex-wrap gap-2">
+          <Link href="/cases/compare" className="rounded-lg px-5 py-3 text-xs" style={{ color: 'var(--t-gold)', border: '1px solid var(--t-border-acc)', background: 'var(--ac-bg)' }}>命盘对比</Link>
+          <Link href="/cases/new" className="rounded-lg px-5 py-3 text-xs" style={{ color: '#fff8e8', background: 'linear-gradient(135deg,#9a6210,#c88020)' }}>创建匿名案例</Link>
+        </div>
       </header>
 
       <section className="mb-5 flex rounded-xl p-1" style={{ border: '1px solid var(--t-border)', background: 'var(--t-card)' }}>

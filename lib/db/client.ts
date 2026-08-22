@@ -1110,6 +1110,49 @@ function migrate(db: Database.Database) {
     applyV19();
   }
 
+  if (!applied.has(20)) {
+    const applyV20 = db.transaction(() => {
+      db.exec(`
+        CREATE TABLE case_comparisons (
+          id TEXT PRIMARY KEY,
+          comparison_code TEXT NOT NULL UNIQUE,
+          comparison_key TEXT NOT NULL UNIQUE,
+          mode TEXT NOT NULL CHECK (mode IN ('chart_to_chart', 'daxian_to_daxian')),
+          title TEXT NOT NULL,
+          status TEXT NOT NULL DEFAULT 'active'
+            CHECK (status IN ('active', 'archived')),
+          left_case_id TEXT NOT NULL,
+          right_case_id TEXT NOT NULL,
+          left_stage_key TEXT,
+          right_stage_key TEXT,
+          engine_version TEXT NOT NULL,
+          result_json TEXT NOT NULL,
+          left_case_updated_at INTEGER NOT NULL,
+          right_case_updated_at INTEGER NOT NULL,
+          created_at INTEGER NOT NULL,
+          updated_at INTEGER NOT NULL,
+
+          FOREIGN KEY (left_case_id)
+            REFERENCES case_records(id)
+            ON DELETE CASCADE,
+          FOREIGN KEY (right_case_id)
+            REFERENCES case_records(id)
+            ON DELETE CASCADE
+        );
+
+        CREATE INDEX idx_case_comparisons_status_updated
+          ON case_comparisons(status, updated_at DESC);
+        CREATE INDEX idx_case_comparisons_left_case
+          ON case_comparisons(left_case_id, updated_at DESC);
+        CREATE INDEX idx_case_comparisons_right_case
+          ON case_comparisons(right_case_id, updated_at DESC);
+      `);
+      db.prepare('INSERT INTO schema_migrations(version, applied_at) VALUES (?, ?)')
+        .run(20, Date.now());
+    });
+    applyV20();
+  }
+
   ensureMessageSearch(db);
 }
 

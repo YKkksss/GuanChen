@@ -42,7 +42,10 @@ export default function CaseTeachingWorkspace({ caseId }: { caseId: string }) {
           <h1 className="mt-2 text-2xl font-semibold sm:text-3xl" style={{ color: 'var(--t-text)' }}>{detail.title}</h1>
           <p className="mt-3 max-w-3xl text-xs leading-7" style={{ color: 'var(--t-text2)' }}>{detail.sourceSummary}</p>
         </div>
-        <Link href={`/cases/${caseId}`} className="rounded-lg px-4 py-2.5 text-xs" style={{ color: 'var(--t-text2)', border: '1px solid var(--t-border)' }}>案例授权与管理</Link>
+        <div className="flex flex-wrap gap-2">
+          <Link href={`/cases/compare?left=${caseId}`} className="rounded-lg px-4 py-2.5 text-xs" style={{ color: 'var(--t-gold)', border: '1px solid var(--t-border-acc)', background: 'var(--ac-bg)' }}>加入命盘对比</Link>
+          <Link href={`/cases/${caseId}`} className="rounded-lg px-4 py-2.5 text-xs" style={{ color: 'var(--t-text2)', border: '1px solid var(--t-border)' }}>案例授权与管理</Link>
+        </div>
       </header>
 
       <section className="mb-6 rounded-2xl p-5 sm:p-6" style={{ border: '1px solid var(--t-border-acc)', background: 'linear-gradient(145deg,var(--ac-bg),var(--t-card))' }}>
