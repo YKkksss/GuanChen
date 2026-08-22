@@ -1077,6 +1077,39 @@ function migrate(db: Database.Database) {
     applyV18();
   }
 
+  if (!applied.has(19)) {
+    const applyV19 = db.transaction(() => {
+      db.exec(`
+        ALTER TABLE case_records ADD COLUMN search_index_version INTEGER NOT NULL DEFAULT 0;
+
+        CREATE TABLE case_search_facets (
+          id TEXT PRIMARY KEY,
+          case_id TEXT NOT NULL,
+          facet_type TEXT NOT NULL CHECK (facet_type IN (
+            'ming_branch', 'ming_major_star', 'sihua',
+            'pattern', 'wuxing_ju', 'event_category'
+          )),
+          facet_value TEXT NOT NULL,
+          facet_label TEXT NOT NULL,
+          created_at INTEGER NOT NULL,
+
+          UNIQUE (case_id, facet_type, facet_value),
+          FOREIGN KEY (case_id)
+            REFERENCES case_records(id)
+            ON DELETE CASCADE
+        );
+
+        CREATE INDEX idx_case_facets_type_value
+          ON case_search_facets(facet_type, facet_value, case_id);
+        CREATE INDEX idx_case_facets_case
+          ON case_search_facets(case_id, facet_type);
+      `);
+      db.prepare('INSERT INTO schema_migrations(version, applied_at) VALUES (?, ?)')
+        .run(19, Date.now());
+    });
+    applyV19();
+  }
+
   ensureMessageSearch(db);
 }
 
