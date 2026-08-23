@@ -1220,6 +1220,59 @@ function migrate(db: Database.Database) {
     applyV21();
   }
 
+  if (!applied.has(22)) {
+    const applyV22 = db.transaction(() => {
+      db.exec(`
+        CREATE TABLE monthly_reviews (
+          id TEXT PRIMARY KEY,
+          conversation_id TEXT NOT NULL,
+          reminder_instance_id TEXT,
+          review_month TEXT NOT NULL,
+          status TEXT NOT NULL DEFAULT 'draft'
+            CHECK (status IN ('draft', 'confirmed')),
+          important_events TEXT NOT NULL DEFAULT '',
+          scores_json TEXT NOT NULL DEFAULT '{}',
+          prior_prediction TEXT NOT NULL DEFAULT '',
+          actual_outcome TEXT NOT NULL DEFAULT '',
+          prediction_match TEXT NOT NULL DEFAULT 'not_reviewed'
+            CHECK (prediction_match IN ('not_reviewed', 'matched', 'partial', 'not_matched')),
+          corrections TEXT NOT NULL DEFAULT '',
+          next_focus TEXT NOT NULL DEFAULT '',
+          generated_event_id TEXT,
+          generated_memory_id TEXT,
+          confirmed_at INTEGER,
+          created_at INTEGER NOT NULL,
+          updated_at INTEGER NOT NULL,
+
+          UNIQUE (conversation_id, review_month),
+          FOREIGN KEY (conversation_id)
+            REFERENCES conversations(id)
+            ON DELETE CASCADE,
+          FOREIGN KEY (reminder_instance_id)
+            REFERENCES reminder_instances(id)
+            ON DELETE SET NULL,
+          FOREIGN KEY (generated_event_id)
+            REFERENCES life_events(id)
+            ON DELETE SET NULL,
+          FOREIGN KEY (generated_memory_id)
+            REFERENCES memory_items(id)
+            ON DELETE SET NULL
+        );
+
+        CREATE UNIQUE INDEX idx_monthly_reviews_reminder
+          ON monthly_reviews(reminder_instance_id)
+          WHERE reminder_instance_id IS NOT NULL;
+        CREATE INDEX idx_monthly_reviews_conversation_month
+          ON monthly_reviews(conversation_id, review_month DESC);
+        CREATE INDEX idx_monthly_reviews_status_updated
+          ON monthly_reviews(status, updated_at DESC);
+      `);
+      db.prepare('INSERT INTO schema_migrations(version, applied_at) VALUES (?, ?)')
+        .run(22, Date.now());
+    });
+    applyV22();
+  }
+
   ensureMessageSearch(db);
 }
 
