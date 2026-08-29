@@ -2,6 +2,7 @@ import type { ChatMessage } from '@/lib/ai/deepseek';
 import type { BaziConversationSummary, BuiltBaziContext } from '@/lib/bazi/conversation-types';
 import type { BaziCalculationResult, BaziPillar } from '@/lib/bazi/types';
 import type { BaziInterpretationResult } from '@/lib/bazi/interpretation-types';
+import type { BaziLuckCycleResult } from '@/lib/bazi/luck-cycle-types';
 import {
   getBaziConversation,
   getBaziMessage,
@@ -12,17 +13,17 @@ import { estimateMessagesTokens, estimateTextTokens, truncateTextToTokens } from
 
 const MAX_RECENT_TURNS = 10;
 const MIN_RECENT_TURNS = 4;
-const FACTS_TOKEN_CAP = 6_500;
+const FACTS_TOKEN_CAP = 8_000;
 const SUMMARY_TOKEN_CAP = 1_800;
 
 export const BAZI_CHAT_SYSTEM_PROMPT = `你是本地八字规则证据的解释助手。你只能解释程序提供的确定性排盘事实和版本化证据审计，不能自行重新排盘、补算规则或修改结论。
 
 必须遵守：
-1. 可以解释四柱基础事实，以及程序给出的旺衰证据分布、格局候选和分方法取用候选。
+1. 可以解释四柱基础事实、程序给出的旺衰证据分布、格局候选、分方法取用候选，以及大运顺逆、所取节、起运间隔、交运日期和干支排期事实。
 2. 五行结构计数只是表层字符与藏干出现次数，不代表旺衰、喜忌或用神。
 3. 旺衰只能使用“生扶证据较明确”“泄耗制证据较明确”“证据并见”或“证据不足”等快照原词，禁止改写成最终身强身弱。
 4. 格局只能称为候选，禁止宣告成格、破格、格局高低；用神必须区分月令格局、扶抑、调候和通关病药语义，禁止把候选元素说成最终用神、喜神或忌神。
-5. 当前仍禁止大运流年、具体吉凶和未来事件，也不得给出医疗、投资、婚姻等决定性建议。
+5. 大运只能解释排期事实，禁止解释某步大运的旺衰作用、喜忌、吉凶或事件；流年、流月和未来事件仍未开放，也不得给出医疗、投资、婚姻等决定性建议。
 6. 若用户询问超出范围的内容，明确说明当前证据版本尚未启用该结论，不要猜测。
 7. 不得混入紫微斗数的星曜、宫位、四化等术语。
 8. 区分【排盘事实】【证据解释】【当前边界】。事实必须逐字服从下方权威快照；解释使用审慎表达，不把传统术语包装成科学结论。
@@ -45,6 +46,7 @@ export function buildBaziConversationContext(input: {
   const facts = truncateTextToTokens([
     buildBaziFactsSnapshot(conversation.chart.result),
     conversation.analysis ? buildBaziInterpretationSnapshot(conversation.analysis.result) : '',
+    conversation.luckCycles ? buildBaziLuckCycleSnapshot(conversation.luckCycles.result) : '',
   ].filter(Boolean).join('\n\n'), FACTS_TOKEN_CAP);
   const system: ChatMessage = { role: 'system', content: BAZI_CHAT_SYSTEM_PROMPT };
   const factMessage: ChatMessage = { role: 'system', content: facts };
@@ -88,6 +90,8 @@ export function buildBaziConversationContext(input: {
       chartFingerprint: conversation.chart.chartFingerprint,
       analysisVersionId: conversation.analysisVersionId,
       analysisFingerprint: conversation.analysis?.analysisFingerprint ?? null,
+      luckCycleVersionId: conversation.luckCycleVersionId,
+      luckCycleFingerprint: conversation.luckCycles?.luckCycleFingerprint ?? null,
       methodologyVersion: conversation.methodologyVersion,
       engineVersion: conversation.engineVersion,
       promptVersion: conversation.promptVersion,
@@ -95,8 +99,8 @@ export function buildBaziConversationContext(input: {
       summaryThroughSeq: conversation.summaryThroughSeq,
       recentMessageIds: selected.map(message => message.id),
       currentMessageId: current.id,
-      allowedCapabilities: ['strength_evidence_audit', 'pattern_candidates', 'useful_god_method_separation'],
-      prohibitedCapabilities: ['final_strength', 'pattern_success_failure', 'final_useful_god', 'luck_cycles', 'prediction', 'ziwei_terms'],
+      allowedCapabilities: ['strength_evidence_audit', 'pattern_candidates', 'useful_god_method_separation', 'luck_cycle_schedule'],
+      prohibitedCapabilities: ['final_strength', 'pattern_success_failure', 'final_useful_god', 'luck_cycle_interpretation', 'annual_prediction', 'event_prediction', 'ziwei_terms'],
     },
   };
 }
@@ -117,6 +121,7 @@ export function buildFallbackBaziConversationContext(input: {
     { role: 'system', content: truncateTextToTokens([
       buildBaziFactsSnapshot(conversation.chart.result),
       conversation.analysis ? buildBaziInterpretationSnapshot(conversation.analysis.result) : '',
+      conversation.luckCycles ? buildBaziLuckCycleSnapshot(conversation.luckCycles.result) : '',
     ].filter(Boolean).join('\n\n'), FACTS_TOKEN_CAP) },
     { role: 'user', content: truncateTextToTokens(current.content, Math.max(profile.targetInputTokens - FACTS_TOKEN_CAP - 1_000, 500)) },
   ];
@@ -157,7 +162,7 @@ ${pillars}
 完整性：${result.completeness === 'complete' ? '四柱完整' : '时柱未知，仅有三柱'}
 已应用规则：${result.rulesApplied.join('；') || '无'}
 警告：${result.warnings.join('；') || '无'}
-事实约束：以上快照不可改写；五行结构计数不等于旺衰；当前没有身强身弱、格局、用神、大运或流年结果。`;
+事实约束：以上快照不可改写；五行结构计数不等于旺衰；基础盘本身不包含最终身强身弱、成格破格、最终用神或流年结果；大运只能采用独立排期快照。`;
 }
 
 export function buildBaziInterpretationSnapshot(result: BaziInterpretationResult): string {
@@ -186,6 +191,31 @@ ${methods}
 最终选择：无。程序明确未输出最终身强身弱、成格破格或最终用神。`;
 }
 
+export function buildBaziLuckCycleSnapshot(result: BaziLuckCycleResult): string {
+  const cycles = result.cycles.map(item => {
+    const interval = item.startAt && item.endAtExclusive
+      ? `${item.startAt} 起，至 ${item.endAtExclusive} 前；名义年份 ${item.nominalStartYear}-${item.nominalEndYear}，名义年龄 ${item.nominalStartAge}-${item.nominalEndAge}`
+      : '仅有暂定干支序列，精确日期已撤回';
+    return `第${item.index}步 ${item.ganZhi}：${interval}`;
+  }).join('\n');
+  const reference = result.referenceJie
+    ? `${result.referenceJie.relation === 'next' ? '下一个节' : '上一个节'}“${result.referenceJie.name}” ${result.referenceJie.at}，相差 ${result.referenceJie.elapsedMinutes} 分钟`
+    : '未生成；见警告';
+  return `【权威八字大运排期快照】
+方法版本：${result.methodologyVersion}
+引擎版本：${result.engineVersion}
+排期状态：${result.status}
+顺逆：${result.direction.label}；依据：${result.direction.basis}
+所取节：${reference}
+起运间隔：${result.startOffset?.label ?? '未生成'}
+交运时刻：${result.startAt ?? '未生成'}
+大运干支与区间：
+${cycles}
+已应用规则：${result.rulesApplied.join('；')}
+警告：${result.warnings.join('；') || '无'}
+排期边界：${result.boundary}`;
+}
+
 export function findBaziOutputViolations(text: string): string[] {
   const checks: Array<[string, RegExp]> = [
     ['混入紫微斗数术语', /(命宫|夫妻宫|官禄宫|财帛宫|紫微星|天府星|四化|化禄|化权|化科|化忌)/],
@@ -193,6 +223,7 @@ export function findBaziOutputViolations(text: string): string[] {
     ['越权指定用神喜忌', /(?:用神|喜神|忌神|喜用).{0,6}(?:是|为|取|宜|属)/],
     ['越权判断格局', /(?:属于|构成|形成|定为).{0,10}(?:格局|格$)/m],
     ['越权预测具体吉凶', /(?:必然|注定|一定会).{0,18}(?:发财|破财|结婚|离婚|生病|升职|失业|灾)/],
+    ['越权解释大运吉凶', /(?:大运|运中).{0,18}(?:会发财|会破财|容易结婚|容易离婚|容易生病|事业上升|事业受阻|财运好|财运差)/],
   ];
   return checks.filter(([, pattern]) => pattern.test(text)).map(([label]) => label);
 }

@@ -61,7 +61,7 @@ export async function POST(request: Request, context: RouteContext) {
     const completion = await createChatCompletion(built.messages, { temperature: 0.25, maxTokens: 1_600 });
     const violations = findBaziOutputViolations(completion.content);
     const answer = violations.length
-      ? `【当前边界】\n刚才的生成内容触及了当前基础版尚未启用的方法（${violations.join('、')}），因此系统没有展示该结论。你可以继续询问四柱、日主、藏干、十神、纳音、十二长生、旬空或时间计算口径。`
+      ? `【当前边界】\n刚才的生成内容触及了尚未启用的方法（${violations.join('、')}），因此系统没有展示该结论。你可以继续询问四柱基础事实、旺衰证据、格局候选、分方法取用方向，以及大运顺逆、起运间隔、交运日期和干支排期。`
       : completion.content.trim();
     const outputTokens = completion.usage.outputTokens ?? estimateTextTokens(answer);
     updateBaziMessage(assistant.id, {

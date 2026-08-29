@@ -103,7 +103,7 @@ async function main() {
     }));
     const conversation = (await json<{ conversation: { id: string; analysisVersionId: string; promptVersion: string } }>(conversationResponse)).conversation;
     assert.equal(conversation.analysisVersionId, createdAnalysis.id);
-    assert.equal(conversation.promptVersion, 'bazi-chat-interpretation-audit-v2');
+    assert.equal(conversation.promptVersion, 'bazi-chat-luck-cycle-schedule-v3');
     const question = appendBaziMessage({ conversationId: conversation.id, role: 'user', content: '解释旺衰证据和格局候选。' });
     const built = buildBaziConversationContext({
       conversationId: conversation.id, currentMessageId: question.id,
@@ -111,7 +111,9 @@ async function main() {
     });
     assert.ok(built.messages.some(message => message.content.includes('权威八字解释证据快照')));
     assert.equal(built.manifest.analysisVersionId, createdAnalysis.id);
-    assert.deepEqual(built.manifest.allowedCapabilities, ['strength_evidence_audit', 'pattern_candidates', 'useful_god_method_separation']);
+    assert.deepEqual(built.manifest.allowedCapabilities, [
+      'strength_evidence_audit', 'pattern_candidates', 'useful_god_method_separation', 'luck_cycle_schedule',
+    ]);
 
     assert.ok(getDatabase().prepare('SELECT 1 FROM schema_migrations WHERE version = 25').get());
     assert.equal(deleteBaziChartVersion(chartId), true);

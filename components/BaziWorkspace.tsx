@@ -27,6 +27,8 @@ import type {
 } from '@/lib/bazi/types';
 import { analyzeBaziInterpretation } from '@/lib/bazi/interpretation-engine';
 import type { BaziInterpretationResult } from '@/lib/bazi/interpretation-types';
+import { calculateBaziLuckCycles } from '@/lib/bazi/luck-cycle-engine';
+import type { BaziLuckCycleResult } from '@/lib/bazi/luck-cycle-types';
 
 interface FormState {
   displayName: string;
@@ -96,12 +98,18 @@ export default function BaziWorkspace() {
   useEffect(() => { void loadProfiles(); }, [loadProfiles]);
   useEffect(() => {
     if (!currentChartId) return;
-    void fetch(`/api/bazi/charts/${currentChartId}/analysis`, { method: 'POST' })
-      .catch(() => undefined);
+    void Promise.all([
+      fetch(`/api/bazi/charts/${currentChartId}/analysis`, { method: 'POST' }),
+      fetch(`/api/bazi/charts/${currentChartId}/luck-cycles`, { method: 'POST' }),
+    ]).catch(() => undefined);
   }, [currentChartId]);
 
   const interpretation = useMemo(
     () => result ? analyzeBaziInterpretation(result) : null,
+    [result],
+  );
+  const luckCycles = useMemo(
+    () => result ? calculateBaziLuckCycles(result) : null,
     [result],
   );
 
@@ -287,7 +295,7 @@ export default function BaziWorkspace() {
           </button>
           <div className="text-right">
             <h1 className="text-lg font-semibold tracking-wide">八字确定性排盘</h1>
-            <p className="text-xs" style={{ color: 'var(--tx-3)' }}>M9-3 · 旺衰、格局与用神证据审计</p>
+            <p className="text-xs" style={{ color: 'var(--tx-3)' }}>M9-4 · 大运确定性排期</p>
           </div>
         </div>
       </header>
@@ -392,6 +400,7 @@ export default function BaziWorkspace() {
           {!result ? <EmptyState /> : <>
             <BaziResult result={result} />
             {interpretation && <BaziInterpretationPanel result={interpretation} />}
+            {luckCycles && <BaziLuckCyclePanel result={luckCycles} />}
           </>}
         </section>
       </div>
@@ -531,7 +540,7 @@ function BaziResult({ result }: { result: BaziCalculationResult }) {
 
     <section className="flex gap-3 rounded-xl border p-4" style={{ borderColor: 'var(--bdr)', background: 'var(--bg-1)' }}>
       <Info className="mt-0.5 shrink-0" size={18} style={{ color: 'var(--ac-dim)' }} />
-      <p className="text-xs leading-5" style={{ color: 'var(--tx-3)' }}>当前为 M9-3 证据审计：旺衰只展示证据分布，格局只展示候选，用神按格局、扶抑、调候与通关分别记录。最终强弱、成格破格、最终用神、大运和流年仍未开放。</p>
+      <p className="text-xs leading-5" style={{ color: 'var(--tx-3)' }}>当前已开放 M9-4 大运排期：只计算顺逆、起运间隔、交运日期和十年干支区间。最终强弱、成格破格、最终用神、大运吉凶、流年和具体事件仍未开放。</p>
     </section>
   </div>;
 }
@@ -570,6 +579,56 @@ function BaziInterpretationPanel({ result }: { result: BaziInterpretationResult 
     </div>
 
     <div className="mt-4 rounded-lg border p-3" style={{ borderColor: 'rgba(180,125,35,.25)', background: 'rgba(180,125,35,.06)' }}><div className="flex items-start gap-2"><Warning size={15} className="mt-0.5 shrink-0" style={{ color: 'var(--ac-dim)' }} /><div><p className="text-[10px] leading-5">{result.usefulGod.terminologyWarning}</p><p className="mt-1 text-[9px] leading-4" style={{ color: 'var(--tx-3)' }}>{result.warnings.join(' ')}</p></div></div></div>
+  </section>;
+}
+
+function BaziLuckCyclePanel({ result }: { result: BaziLuckCycleResult }) {
+  const complete = result.status === 'complete';
+  return <section className="mt-5 rounded-xl border p-5 md:p-6" style={{ borderColor: 'var(--t-border-acc)', background: 'var(--bg-card)' }}>
+    <div className="flex flex-wrap items-start justify-between gap-3">
+      <div className="flex items-start gap-3">
+        <div className="rounded-lg p-2" style={{ color: 'var(--ac-dim)', background: 'var(--ac-bg)' }}><CalendarDots size={19} /></div>
+        <div>
+          <p className="text-[10px] tracking-[.18em]" style={{ color: 'var(--ac-dim)' }}>M9-4 · 确定性排期</p>
+          <h2 className="mt-1 text-lg font-semibold">大运顺逆、起运与交运边界</h2>
+          <p className="mt-1 text-xs leading-5" style={{ color: 'var(--tx-3)' }}>逐项公开顺逆依据、所取节和折算过程；排期不等同于运势判断。</p>
+        </div>
+      </div>
+      <span className="rounded-full px-3 py-1 text-[10px]" style={{ color: complete ? 'var(--lu)' : 'var(--ac-dim)', background: 'var(--bg-1)' }}>{complete ? '精确排期已建立' : '精确日期已降级'}</span>
+    </div>
+
+    <div className="mt-5 grid gap-3 md:grid-cols-3">
+      <div className="rounded-xl border p-4" style={{ borderColor: 'var(--bdr)', background: 'var(--bg-1)' }}>
+        <p className="text-[10px] tracking-wider" style={{ color: 'var(--tx-3)' }}>顺逆依据</p>
+        <p className="mt-2 text-xl font-semibold">{result.direction.label}</p>
+        <p className="mt-2 text-xs leading-5" style={{ color: 'var(--tx-3)' }}>{result.direction.basis}</p>
+      </div>
+      <div className="rounded-xl border p-4" style={{ borderColor: 'var(--bdr)', background: 'var(--bg-1)' }}>
+        <p className="text-[10px] tracking-wider" style={{ color: 'var(--tx-3)' }}>{result.direction.value === 'forward' ? '顺取下一个节' : '逆取上一个节'}</p>
+        <p className="mt-2 text-base font-semibold">{result.referenceJie ? `${result.referenceJie.name} · ${result.referenceJie.elapsedMinutes} 分钟` : '条件不足，暂不生成'}</p>
+        <p className="mt-2 font-mono text-[10px]" style={{ color: 'var(--tx-3)' }}>{result.referenceJie?.at ?? '需要准确时辰与已校准时区'}</p>
+      </div>
+      <div className="rounded-xl border p-4" style={{ borderColor: 'var(--bdr)', background: 'var(--bg-1)' }}>
+        <p className="text-[10px] tracking-wider" style={{ color: 'var(--tx-3)' }}>起运间隔与交运时刻</p>
+        <p className="mt-2 text-base font-semibold">{result.startOffset?.label ?? '未生成精确间隔'}</p>
+        <p className="mt-2 font-mono text-[10px]" style={{ color: 'var(--tx-3)' }}>{result.startAt ?? '未生成精确交运时刻'}</p>
+      </div>
+    </div>
+
+    <div className="mt-5 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+      {result.cycles.map(item => <article key={item.index} className="rounded-xl border p-3" style={{ borderColor: item.scheduleStatus === 'established' ? 'var(--ac-bdr)' : 'var(--bdr)', background: 'var(--bg-1)' }}>
+        <div className="flex items-center justify-between gap-2"><span className="text-[10px]" style={{ color: 'var(--tx-3)' }}>第 {item.index} 步</span><span className="font-serif text-xl font-semibold" style={{ color: 'var(--ac-dim)' }}>{item.ganZhi}</span></div>
+        {item.startAt ? <>
+          <p className="mt-3 font-mono text-[10px]">{item.startAt.slice(0, 10)} 起</p>
+          <p className="mt-1 text-[10px]" style={{ color: 'var(--tx-3)' }}>{item.nominalStartYear}-{item.nominalEndYear} · 名义 {item.nominalStartAge}-{item.nominalEndAge} 岁</p>
+        </> : <p className="mt-3 text-[10px] leading-5" style={{ color: 'var(--tx-3)' }}>暂定干支序列；不显示年龄和日期</p>}
+      </article>)}
+    </div>
+
+    {result.warnings.length > 0 && <div className="mt-4 rounded-lg border p-3" style={{ borderColor: 'rgba(168,120,35,.3)', background: 'rgba(168,120,35,.06)' }}>
+      {result.warnings.map(warning => <p key={warning} className="text-xs leading-5" style={{ color: 'var(--tx-3)' }}>◇ {warning}</p>)}
+    </div>}
+    <p className="mt-4 text-[10px] leading-5" style={{ color: 'var(--tx-3)' }}>{result.boundary} · {result.methodologyVersion}</p>
   </section>;
 }
 

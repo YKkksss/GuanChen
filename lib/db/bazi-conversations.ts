@@ -13,12 +13,14 @@ import type {
 } from '@/lib/bazi/conversation-types';
 import { getBaziBirthProfile, getBaziChartVersion } from './bazi';
 import { ensureBaziAnalysisVersion, getBaziAnalysisVersion } from './bazi-analysis';
+import { ensureBaziLuckCycleVersion, getBaziLuckCycleVersion } from './bazi-luck-cycles';
 import { getDatabase } from './client';
 
-export const BAZI_CHAT_PROMPT_VERSION = 'bazi-chat-interpretation-audit-v2';
+export const BAZI_CHAT_PROMPT_VERSION = 'bazi-chat-luck-cycle-schedule-v3';
 
 interface ConversationRow {
-  id: string; chart_version_id: string; analysis_version_id: string | null; title: string; status: BaziConversationStatus;
+  id: string; chart_version_id: string; analysis_version_id: string | null; luck_cycle_version_id: string | null;
+  title: string; status: BaziConversationStatus;
   methodology_version: string; engine_version: string; prompt_version: string;
   summary_json: string | null; summary_through_seq: number; summary_version: number;
   summary_updated_at: number | null; last_message_seq: number; created_at: number; updated_at: number;
@@ -49,6 +51,7 @@ export function createBaziConversation(input: {
   const profile = getBaziBirthProfile(chart.birthProfileId);
   if (!profile) throw new Error('八字出生档案不存在');
   const analysis = ensureBaziAnalysisVersion(chart.id);
+  const luckCycles = ensureBaziLuckCycleVersion(chart.id);
 
   if (!input.forceNew) {
     const existing = getDatabase().prepare(`
@@ -64,10 +67,10 @@ export function createBaziConversation(input: {
   const title = input.title?.trim().slice(0, 120) || `${profile.displayName} · 八字基础解读`;
   getDatabase().prepare(`
     INSERT INTO bazi_conversations (
-      id, chart_version_id, analysis_version_id, title, status, methodology_version, engine_version,
+      id, chart_version_id, analysis_version_id, luck_cycle_version_id, title, status, methodology_version, engine_version,
       prompt_version, created_at, updated_at
-    ) VALUES (?, ?, ?, ?, 'active', ?, ?, ?, ?, ?)
-  `).run(id, chart.id, analysis.id, title, chart.methodologyVersion, chart.engineVersion, BAZI_CHAT_PROMPT_VERSION, now, now);
+    ) VALUES (?, ?, ?, ?, ?, 'active', ?, ?, ?, ?, ?)
+  `).run(id, chart.id, analysis.id, luckCycles.id, title, chart.methodologyVersion, chart.engineVersion, BAZI_CHAT_PROMPT_VERSION, now, now);
   return getBaziConversation(id)!;
 }
 
@@ -75,13 +78,14 @@ export function getBaziConversation(id: string): BaziConversationDetail | null {
   let row = getDatabase().prepare('SELECT * FROM bazi_conversations WHERE id = ?')
     .get(id) as ConversationRow | undefined;
   if (!row) return null;
-  if (!row.analysis_version_id || row.prompt_version !== BAZI_CHAT_PROMPT_VERSION) {
+  if (!row.analysis_version_id || !row.luck_cycle_version_id || row.prompt_version !== BAZI_CHAT_PROMPT_VERSION) {
     const analysis = ensureBaziAnalysisVersion(row.chart_version_id);
+    const luckCycles = ensureBaziLuckCycleVersion(row.chart_version_id);
     getDatabase().prepare(`
       UPDATE bazi_conversations
-      SET analysis_version_id = ?, prompt_version = ?, updated_at = ?
+      SET analysis_version_id = ?, luck_cycle_version_id = ?, prompt_version = ?, updated_at = ?
       WHERE id = ?
-    `).run(analysis.id, BAZI_CHAT_PROMPT_VERSION, Date.now(), id);
+    `).run(analysis.id, luckCycles.id, BAZI_CHAT_PROMPT_VERSION, Date.now(), id);
     row = getDatabase().prepare('SELECT * FROM bazi_conversations WHERE id = ?')
       .get(id) as ConversationRow;
   }
@@ -93,7 +97,10 @@ export function getBaziConversation(id: string): BaziConversationDetail | null {
   const analysis = conversation.analysisVersionId
     ? getBaziAnalysisVersion(conversation.analysisVersionId)
     : null;
-  return { ...conversation, chart, profile, analysis };
+  const luckCycles = conversation.luckCycleVersionId
+    ? getBaziLuckCycleVersion(conversation.luckCycleVersionId)
+    : null;
+  return { ...conversation, chart, profile, analysis, luckCycles };
 }
 
 export function listBaziConversations(input: {
@@ -280,6 +287,7 @@ export function listBaziContextRuns(conversationId: string, limit = 20): BaziCon
 function mapConversation(row: ConversationRow): BaziConversation {
   return {
     id: row.id, chartVersionId: row.chart_version_id, analysisVersionId: row.analysis_version_id,
+    luckCycleVersionId: row.luck_cycle_version_id,
     title: row.title, status: row.status,
     methodologyVersion: row.methodology_version, engineVersion: row.engine_version,
     promptVersion: row.prompt_version, summary: parseJson<BaziConversationSummary>(row.summary_json),

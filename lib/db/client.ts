@@ -1474,6 +1474,44 @@ function migrate(db: Database.Database) {
     applyV25();
   }
 
+  if (!applied.has(26)) {
+    const applyV26 = db.transaction(() => {
+      db.exec(`
+        CREATE TABLE bazi_luck_cycle_versions (
+          id TEXT PRIMARY KEY,
+          chart_version_id TEXT NOT NULL,
+          methodology_version TEXT NOT NULL,
+          engine_version TEXT NOT NULL,
+          chart_fingerprint TEXT NOT NULL,
+          luck_cycle_fingerprint TEXT NOT NULL,
+          result_json TEXT NOT NULL,
+          created_at INTEGER NOT NULL,
+          updated_at INTEGER NOT NULL,
+
+          UNIQUE (chart_version_id, methodology_version, engine_version),
+          FOREIGN KEY (chart_version_id)
+            REFERENCES bazi_chart_versions(id)
+            ON DELETE CASCADE
+        );
+
+        ALTER TABLE bazi_conversations
+          ADD COLUMN luck_cycle_version_id TEXT
+          REFERENCES bazi_luck_cycle_versions(id)
+          ON DELETE SET NULL;
+
+        CREATE INDEX idx_bazi_luck_cycles_chart_updated
+          ON bazi_luck_cycle_versions(chart_version_id, updated_at DESC);
+        CREATE INDEX idx_bazi_luck_cycles_fingerprint
+          ON bazi_luck_cycle_versions(luck_cycle_fingerprint);
+        CREATE INDEX idx_bazi_conversations_luck_cycles
+          ON bazi_conversations(luck_cycle_version_id, updated_at DESC);
+      `);
+      db.prepare('INSERT INTO schema_migrations(version, applied_at) VALUES (?, ?)')
+        .run(26, Date.now());
+    });
+    applyV26();
+  }
+
   ensureMessageSearch(db);
 }
 
