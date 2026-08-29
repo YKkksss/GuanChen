@@ -150,6 +150,12 @@ body {
   color: #111111 !important;
 }
 
+.bazi-form select option,
+.bazi-form select optgroup {
+  background-color: #ffffff !important;
+  color: #111111 !important;
+}
+
 .rectification-input {
   width: 100%;
   border: 1px solid var(--bdr-med);

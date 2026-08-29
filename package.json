@@ -32,6 +32,7 @@
     "test:reminder-foundation": "tsx scripts/test-reminder-foundation.ts",
     "test:reminder-center": "tsx scripts/test-reminder-center.ts",
     "test:monthly-reviews": "tsx scripts/test-monthly-reviews.ts",
+    "test:bazi-foundation": "tsx scripts/test-bazi-foundation.ts",
     "start": "next start -p 30001",
     "build:cf": "npx @cloudflare/next-on-pages",
     "preview:cf": "npx wrangler pages dev",

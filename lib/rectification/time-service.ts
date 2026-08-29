@@ -170,9 +170,14 @@ function calculateEquationOfTime(local: LocalDateTimeParts): number {
   const yearStart = Date.UTC(local.year, 0, 1);
   const dayOfYear = Math.floor((current - yearStart) / 86_400_000) + 1;
   const hour = local.hour + local.minute / 60 + local.second / 3600;
-  const gamma = 2 * Math.PI / 365 * (dayOfYear - 1 + (hour - 12) / 24);
+  const daysInYear = isLeapYear(local.year) ? 366 : 365;
+  const gamma = 2 * Math.PI / daysInYear * (dayOfYear - 1 + (hour - 12) / 24);
   return 229.18 * (0.000075 + 0.001868 * Math.cos(gamma) - 0.032077 * Math.sin(gamma)
     - 0.014615 * Math.cos(2 * gamma) - 0.040849 * Math.sin(2 * gamma));
+}
+
+function isLeapYear(year: number): boolean {
+  return year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);
 }
 
 function formatDate(year: number, month: number, day: number): string {
