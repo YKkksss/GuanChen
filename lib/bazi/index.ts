@@ -51,9 +51,20 @@ export {
   assertValidBaziRelationAdjudicationMethodology,
   validateBaziRelationAdjudicationMethodology,
 } from './relation-adjudication-validator';
+export { auditBaziDynamicTenGods, resolveBaziTenGod } from './dynamic-ten-god-engine';
+export {
+  BAZI_DYNAMIC_TEN_GOD_ENGINE_VERSION,
+  BAZI_DYNAMIC_TEN_GOD_METHODOLOGY,
+  BAZI_DYNAMIC_TEN_GOD_METHODOLOGY_VERSION,
+} from './dynamic-ten-god-methodology';
+export {
+  assertValidBaziDynamicTenGodMethodology,
+  validateBaziDynamicTenGodMethodology,
+} from './dynamic-ten-god-validator';
 export * from './types';
 export * from './interpretation-types';
 export * from './luck-cycle-types';
 export * from './annual-timeline-types';
 export * from './relation-audit-types';
 export * from './relation-adjudication-types';
+export * from './dynamic-ten-god-types';

@@ -40,6 +40,7 @@
     "test:bazi-annual-timeline": "tsx scripts/test-bazi-annual-timeline.ts",
     "test:bazi-relation-audit": "tsx scripts/test-bazi-relation-audit.ts",
     "test:bazi-relation-adjudication": "tsx scripts/test-bazi-relation-adjudication.ts",
+    "test:bazi-dynamic-ten-gods": "tsx scripts/test-bazi-dynamic-ten-gods.ts",
     "start": "next start -p 30001",
     "build:cf": "npx @cloudflare/next-on-pages",
     "preview:cf": "npx wrangler pages dev",

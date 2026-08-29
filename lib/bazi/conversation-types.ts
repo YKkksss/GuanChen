@@ -5,6 +5,7 @@ import type { BaziLuckCycleVersion } from './luck-cycle-types';
 import type { BaziAnnualTimelineVersion } from './annual-timeline-types';
 import type { BaziRelationAuditVersion } from './relation-audit-types';
 import type { BaziRelationAdjudicationVersion } from './relation-adjudication-types';
+import type { BaziDynamicTenGodVersion } from './dynamic-ten-god-types';
 
 export type BaziConversationStatus = 'active' | 'archived';
 export type BaziMessageRole = 'user' | 'assistant' | 'system';
@@ -29,6 +30,7 @@ export interface BaziConversation {
   annualTimelineVersionId: string | null;
   relationAuditVersionId: string | null;
   relationAdjudicationVersionId: string | null;
+  dynamicTenGodVersionId: string | null;
   title: string;
   status: BaziConversationStatus;
   methodologyVersion: string;
@@ -51,6 +53,7 @@ export interface BaziConversationDetail extends BaziConversation {
   annualTimeline: BaziAnnualTimelineVersion | null;
   relationAudit: BaziRelationAuditVersion | null;
   relationAdjudication: BaziRelationAdjudicationVersion | null;
+  dynamicTenGod: BaziDynamicTenGodVersion | null;
 }
 
 export interface BaziConversationListItem extends BaziConversation {

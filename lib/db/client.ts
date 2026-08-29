@@ -1646,6 +1646,62 @@ function migrate(db: Database.Database) {
     applyV29();
   }
 
+  if (!applied.has(30)) {
+    const applyV30 = db.transaction(() => {
+      db.exec(`
+        CREATE TABLE bazi_dynamic_ten_god_versions (
+          id TEXT PRIMARY KEY,
+          chart_version_id TEXT NOT NULL,
+          annual_timeline_version_id TEXT NOT NULL,
+          relation_audit_version_id TEXT NOT NULL,
+          relation_adjudication_version_id TEXT NOT NULL,
+          methodology_version TEXT NOT NULL,
+          engine_version TEXT NOT NULL,
+          chart_fingerprint TEXT NOT NULL,
+          annual_timeline_fingerprint TEXT NOT NULL,
+          relation_audit_fingerprint TEXT NOT NULL,
+          relation_adjudication_fingerprint TEXT NOT NULL,
+          dynamic_ten_god_fingerprint TEXT NOT NULL,
+          result_json TEXT NOT NULL,
+          created_at INTEGER NOT NULL,
+          updated_at INTEGER NOT NULL,
+
+          UNIQUE (
+            chart_version_id, annual_timeline_version_id, relation_audit_version_id,
+            relation_adjudication_version_id, methodology_version, engine_version
+          ),
+          FOREIGN KEY (chart_version_id)
+            REFERENCES bazi_chart_versions(id)
+            ON DELETE CASCADE,
+          FOREIGN KEY (annual_timeline_version_id)
+            REFERENCES bazi_annual_timeline_versions(id)
+            ON DELETE CASCADE,
+          FOREIGN KEY (relation_audit_version_id)
+            REFERENCES bazi_relation_audit_versions(id)
+            ON DELETE CASCADE,
+          FOREIGN KEY (relation_adjudication_version_id)
+            REFERENCES bazi_relation_adjudication_versions(id)
+            ON DELETE CASCADE
+        );
+
+        ALTER TABLE bazi_conversations
+          ADD COLUMN dynamic_ten_god_version_id TEXT
+          REFERENCES bazi_dynamic_ten_god_versions(id)
+          ON DELETE SET NULL;
+
+        CREATE INDEX idx_bazi_dynamic_ten_god_chart_updated
+          ON bazi_dynamic_ten_god_versions(chart_version_id, updated_at DESC);
+        CREATE INDEX idx_bazi_dynamic_ten_god_fingerprint
+          ON bazi_dynamic_ten_god_versions(dynamic_ten_god_fingerprint);
+        CREATE INDEX idx_bazi_conversations_dynamic_ten_god
+          ON bazi_conversations(dynamic_ten_god_version_id, updated_at DESC);
+      `);
+      db.prepare('INSERT INTO schema_migrations(version, applied_at) VALUES (?, ?)')
+        .run(30, Date.now());
+    });
+    applyV30();
+  }
+
   ensureMessageSearch(db);
 }
 

@@ -40,6 +40,12 @@ import type {
   BaziRelationConditionCheck,
   BaziRelationConditionDecision,
 } from '@/lib/bazi/relation-adjudication-types';
+import { auditBaziDynamicTenGods } from '@/lib/bazi/dynamic-ten-god-engine';
+import type {
+  BaziDynamicDirectionLink,
+  BaziDynamicTenGodLayerSnapshot,
+  BaziDynamicTenGodResult,
+} from '@/lib/bazi/dynamic-ten-god-types';
 
 interface FormState {
   displayName: string;
@@ -116,6 +122,7 @@ export default function BaziWorkspace() {
       fetch(`/api/bazi/charts/${currentChartId}/annual-timeline`, { method: 'POST' }),
       fetch(`/api/bazi/charts/${currentChartId}/relation-audit`, { method: 'POST' }),
       fetch(`/api/bazi/charts/${currentChartId}/relation-adjudication`, { method: 'POST' }),
+      fetch(`/api/bazi/charts/${currentChartId}/dynamic-ten-gods`, { method: 'POST' }),
     ]).catch(() => undefined);
   }, [currentChartId]);
 
@@ -140,6 +147,12 @@ export default function BaziWorkspace() {
   const relationAdjudication = useMemo(
     () => result && relationAudit ? adjudicateBaziRelations(result, relationAudit) : null,
     [result, relationAudit],
+  );
+  const dynamicTenGod = useMemo(
+    () => result && relationAudit && relationAdjudication
+      ? auditBaziDynamicTenGods(result, relationAudit, relationAdjudication)
+      : null,
+    [result, relationAudit, relationAdjudication],
   );
   useEffect(() => {
     if (!annualTimeline) return;
@@ -328,7 +341,7 @@ export default function BaziWorkspace() {
           </button>
           <div className="text-right">
             <h1 className="text-lg font-semibold tracking-wide">八字确定性排盘</h1>
-            <p className="text-xs" style={{ color: 'var(--tx-3)' }}>M9-7 · 关系条件与冲突审计</p>
+            <p className="text-xs" style={{ color: 'var(--tx-3)' }}>M9-8 · 动态十神与作用方向证据审计</p>
           </div>
         </div>
       </header>
@@ -437,6 +450,7 @@ export default function BaziWorkspace() {
             {annualTimeline && <BaziAnnualTimelinePanel result={annualTimeline} selectedYear={selectedAnnualYear} onSelectYear={setSelectedAnnualYear} />}
             {relationAudit && <BaziRelationAuditPanel result={relationAudit} selectedYear={selectedAnnualYear} />}
             {relationAdjudication && <BaziRelationAdjudicationPanel result={relationAdjudication} selectedYear={selectedAnnualYear} />}
+            {dynamicTenGod && <BaziDynamicTenGodPanel result={dynamicTenGod} selectedYear={selectedAnnualYear} />}
           </>}
         </section>
       </div>
@@ -576,7 +590,7 @@ function BaziResult({ result }: { result: BaziCalculationResult }) {
 
     <section className="flex gap-3 rounded-xl border p-4" style={{ borderColor: 'var(--bdr)', background: 'var(--bg-1)' }}>
       <Info className="mt-0.5 shrink-0" size={18} style={{ color: 'var(--ac-dim)' }} />
-      <p className="text-xs leading-5" style={{ color: 'var(--tx-3)' }}>当前已开放 M9-7 条件与冲突审计：除跨层干支关系外，还可查看条件齐备、条件缺失、关系并见和暂缓裁决状态。合化、关系优先级、强弱作用、吉凶和具体事件仍未开放。</p>
+      <p className="text-xs leading-5" style={{ color: 'var(--tx-3)' }}>当前已开放至 M9-8：除跨层关系和条件冲突外，还可查看大运、流年的表层／藏干十神，以及有上游证据的原局柱位指向。藏干引动、合化、关系优先级、强弱作用、吉凶和具体事件仍未开放。</p>
     </section>
   </div>;
 }
@@ -849,6 +863,79 @@ function ConditionCheckRow({ check }: { check: BaziRelationConditionCheck }) {
   const label = ({ met: '通过', missing: '缺失', conflict: '冲突', deferred: '暂缓', not_applicable: '不适用' } as Record<string, string>)[check.result] ?? check.result;
   const color = check.result === 'met' ? 'var(--lu)' : check.result === 'conflict' ? 'var(--ji)' : check.result === 'missing' ? 'var(--ac-dim)' : 'var(--tx-3)';
   return <p className="text-[9px] leading-4" style={{ color: 'var(--tx-3)' }}><span style={{ color }}>{check.label} · {label}</span>：{check.detail}</p>;
+}
+
+function BaziDynamicTenGodPanel({ result, selectedYear }: { result: BaziDynamicTenGodResult; selectedYear: number }) {
+  const year = result.years.find(item => item.year === selectedYear) ?? result.years[0];
+  if (!year) return null;
+  return <section data-testid="bazi-dynamic-ten-god-audit" className="mt-5 rounded-xl border p-5 md:p-6" style={{ borderColor: 'var(--t-border-acc)', background: 'var(--bg-card)' }}>
+    <div className="flex flex-wrap items-start justify-between gap-4">
+      <div className="flex items-start gap-3">
+        <div className="rounded-lg p-2" style={{ color: 'var(--ac-dim)', background: 'var(--ac-bg)' }}><Sparkle size={19} /></div>
+        <div>
+          <p className="text-[10px] tracking-[.18em]" style={{ color: 'var(--ac-dim)' }}>M9-8 · 动态角色与证据指向</p>
+          <h2 className="mt-1 text-lg font-semibold">{year.year} {year.annualGanZhi} · 动态十神与作用方向审计</h2>
+          <p className="mt-1 text-xs leading-5" style={{ color: 'var(--tx-3)' }}>十神统一以日主{result.dayMaster.stem}为参照；原局指向只来自已有关系证据，不代表力量或结果。</p>
+        </div>
+      </div>
+      <div className="flex flex-wrap gap-2 text-[9px]">
+        <span className="rounded-full px-2.5 py-1" style={{ color: 'var(--ac-dim)', background: 'var(--bg-1)' }}>{year.roleCount} 个角色</span>
+        <span className="rounded-full px-2.5 py-1" style={{ color: 'var(--lu)', background: 'var(--bg-1)' }}>{year.natalDirectionLinkCount} 条原局指向</span>
+      </div>
+    </div>
+
+    <div className="mt-5 space-y-4">
+      {year.segments.map(segment => <article key={segment.segmentIndex} data-testid="dynamic-ten-god-segment" className="rounded-xl border p-4" style={{ borderColor: 'var(--bdr)', background: 'var(--bg-1)' }}>
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div><h3 className="text-sm font-semibold">片段 {segment.segmentIndex} · {segment.label}</h3><p className="mt-1 font-mono text-[9px]" style={{ color: 'var(--tx-3)' }}>{segment.startAt ?? '起点未生成'} — {segment.endAtExclusive ? `${segment.endAtExclusive} 前` : '终点未生成'}</p></div>
+          <span className="text-[9px]" style={{ color: 'var(--tx-3)' }}>角色 {segment.counts.roles} · 藏干 {segment.counts.hiddenStemRoles} · 指向 {segment.counts.natalDirectionLinks}</span>
+        </div>
+        <div className="mt-3 grid gap-3 lg:grid-cols-2">
+          <DynamicTenGodLayerCard layer={segment.annual} />
+          {segment.luckCycle
+            ? <DynamicTenGodLayerCard layer={segment.luckCycle} />
+            : <div className="rounded-lg border border-dashed p-4 text-xs leading-5" style={{ borderColor: 'var(--bdr)', color: 'var(--tx-3)' }}>该片段尚未进入大运，只有流年动态角色。</div>}
+        </div>
+      </article>)}
+    </div>
+
+    <div className="mt-4 rounded-lg border p-3" style={{ borderColor: 'rgba(168,120,35,.3)', background: 'rgba(168,120,35,.06)' }}>
+      <p className="text-[10px] leading-5" style={{ color: 'var(--tx-3)' }}>藏干只列本气、中气、余气与十神角色，不宣告透出或引动；指向只表示证据关联，不等于作用结果。</p>
+      <p className="mt-1 text-[9px]" style={{ color: 'var(--tx-3)' }}>{result.boundary} · {result.methodologyVersion}</p>
+    </div>
+  </section>;
+}
+
+function DynamicTenGodLayerCard({ layer }: { layer: BaziDynamicTenGodLayerSnapshot }) {
+  const surface = layer.roles.find(role => role.sourceKind === 'surface_stem');
+  const hidden = layer.roles.filter(role => role.sourceKind === 'branch_hidden_stem');
+  return <div data-testid="dynamic-ten-god-role" data-dynamic-layer={layer.layer} className="rounded-lg border p-4" style={{ borderColor: layer.layer === 'annual' ? 'var(--ac-bdr)' : 'var(--bdr)', background: 'var(--bg-card)' }}>
+    <div className="flex items-start justify-between gap-3">
+      <div><p className="text-[9px] tracking-wider" style={{ color: 'var(--tx-3)' }}>{layer.layer === 'annual' ? '流年' : '大运'}动态节点</p><p className="mt-1 text-sm font-semibold">{layer.label} · <span className="font-serif text-lg" style={{ color: 'var(--ac-dim)' }}>{layer.ganZhi}</span></p></div>
+      <span className="rounded-full px-2 py-1 text-[9px]" style={{ color: 'var(--lu)', background: 'var(--bg-1)' }}>{layer.directions.length} 条指向</span>
+    </div>
+    <div className="mt-3 rounded-lg border p-3" style={{ borderColor: 'var(--bdr)', background: 'var(--bg-1)' }}>
+      <p className="text-[9px]" style={{ color: 'var(--tx-3)' }}>表层天干</p>
+      <p className="mt-1 text-xs"><span className="font-serif text-base">{layer.stem}</span> · {surface?.element} · <span style={{ color: 'var(--ac-dim)' }}>{surface?.tenGod}</span></p>
+      <p className="mt-2 text-[9px]" style={{ color: 'var(--tx-3)' }}>地支 {layer.branch} 藏干</p>
+      <div className="mt-1 flex flex-wrap gap-1.5">
+        {hidden.map(role => <span key={role.id} className="rounded px-2 py-1 text-[9px]" style={{ color: 'var(--tx-2)', background: 'var(--bg-card)' }}>{role.hiddenQiLabel} {role.stem} · {role.tenGod}</span>)}
+      </div>
+    </div>
+    <div className="mt-3 space-y-2">
+      <p className="text-[9px] font-medium" style={{ color: 'var(--tx-3)' }}>指向原局的关系证据</p>
+      {layer.directions.map(direction => <DynamicDirectionRow key={direction.id} direction={direction} />)}
+      {layer.directions.length === 0 && <p className="rounded-lg border border-dashed p-3 text-[9px] leading-4" style={{ borderColor: 'var(--bdr)', color: 'var(--tx-3)' }}>当前片段没有 M9-6 证据把该动态节点指向原局柱位。</p>}
+    </div>
+  </div>;
+}
+
+function DynamicDirectionRow({ direction }: { direction: BaziDynamicDirectionLink }) {
+  return <div data-testid="dynamic-ten-god-direction" className="rounded-lg border p-3" style={{ borderColor: 'var(--bdr)', background: 'var(--bg-1)' }}>
+    <div className="flex flex-wrap items-center gap-2 text-[9px]"><span className="rounded-full px-2 py-0.5" style={{ color: direction.sourceDomain === 'stem' ? 'var(--ac-dim)' : 'var(--lu)', background: 'var(--bg-card)' }}>{direction.sourceDomain === 'stem' ? '天干' : '地支'}</span>{direction.conditionStateLabel && <span style={{ color: direction.conditionState === 'relations_coexist' ? 'var(--ji)' : 'var(--tx-3)' }}>{direction.conditionStateLabel}</span>}</div>
+    <p className="mt-1.5 text-[10px] leading-5"><span style={{ color: 'var(--ac-dim)' }}>{direction.sourceSymbol}</span> → {direction.targetPillarLabel}{direction.targetSymbol}</p>
+    <p className="text-[9px] leading-4" style={{ color: 'var(--tx-3)' }}>{direction.relationLabel}</p>
+  </div>;
 }
 
 function relationText(relation: string): string {

@@ -113,7 +113,7 @@ async function main() {
     }));
     const conversation = (await json<{ conversation: { id: string; luckCycleVersionId: string; promptVersion: string } }>(conversationResponse)).conversation;
     assert.equal(conversation.luckCycleVersionId, first.id);
-    assert.equal(conversation.promptVersion, 'bazi-chat-relation-adjudication-v6');
+    assert.equal(conversation.promptVersion, 'bazi-chat-dynamic-ten-god-v7');
     const question = appendBaziMessage({ conversationId: conversation.id, role: 'user', content: '为什么顺排，什么时候交运？' });
     const built = buildBaziConversationContext({
       conversationId: conversation.id, currentMessageId: question.id,

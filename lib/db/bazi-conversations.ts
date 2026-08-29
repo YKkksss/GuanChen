@@ -20,15 +20,17 @@ import {
   ensureBaziRelationAdjudicationVersion,
   getBaziRelationAdjudicationVersion,
 } from './bazi-relation-adjudications';
+import { ensureBaziDynamicTenGodVersion, getBaziDynamicTenGodVersion } from './bazi-dynamic-ten-gods';
 import { getDatabase } from './client';
 
-export const BAZI_CHAT_PROMPT_VERSION = 'bazi-chat-relation-adjudication-v6';
+export const BAZI_CHAT_PROMPT_VERSION = 'bazi-chat-dynamic-ten-god-v7';
 
 interface ConversationRow {
   id: string; chart_version_id: string; analysis_version_id: string | null; luck_cycle_version_id: string | null;
   annual_timeline_version_id: string | null;
   relation_audit_version_id: string | null;
   relation_adjudication_version_id: string | null;
+  dynamic_ten_god_version_id: string | null;
   title: string; status: BaziConversationStatus;
   methodology_version: string; engine_version: string; prompt_version: string;
   summary_json: string | null; summary_through_seq: number; summary_version: number;
@@ -64,6 +66,7 @@ export function createBaziConversation(input: {
   const annualTimeline = ensureBaziAnnualTimelineVersion(chart.id);
   const relationAudit = ensureBaziRelationAuditVersion(chart.id);
   const relationAdjudication = ensureBaziRelationAdjudicationVersion(chart.id);
+  const dynamicTenGod = ensureBaziDynamicTenGodVersion(chart.id);
 
   if (!input.forceNew) {
     const existing = getDatabase().prepare(`
@@ -80,12 +83,12 @@ export function createBaziConversation(input: {
   getDatabase().prepare(`
     INSERT INTO bazi_conversations (
       id, chart_version_id, analysis_version_id, luck_cycle_version_id, annual_timeline_version_id, relation_audit_version_id,
-      relation_adjudication_version_id,
+      relation_adjudication_version_id, dynamic_ten_god_version_id,
       title, status, methodology_version, engine_version,
       prompt_version, created_at, updated_at
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'active', ?, ?, ?, ?, ?)
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', ?, ?, ?, ?, ?)
   `).run(
-    id, chart.id, analysis.id, luckCycles.id, annualTimeline.id, relationAudit.id, relationAdjudication.id, title,
+    id, chart.id, analysis.id, luckCycles.id, annualTimeline.id, relationAudit.id, relationAdjudication.id, dynamicTenGod.id, title,
     chart.methodologyVersion, chart.engineVersion, BAZI_CHAT_PROMPT_VERSION, now, now,
   );
   return getBaziConversation(id)!;
@@ -95,18 +98,19 @@ export function getBaziConversation(id: string): BaziConversationDetail | null {
   let row = getDatabase().prepare('SELECT * FROM bazi_conversations WHERE id = ?')
     .get(id) as ConversationRow | undefined;
   if (!row) return null;
-  if (!row.analysis_version_id || !row.luck_cycle_version_id || !row.annual_timeline_version_id || !row.relation_audit_version_id || !row.relation_adjudication_version_id || row.prompt_version !== BAZI_CHAT_PROMPT_VERSION) {
+  if (!row.analysis_version_id || !row.luck_cycle_version_id || !row.annual_timeline_version_id || !row.relation_audit_version_id || !row.relation_adjudication_version_id || !row.dynamic_ten_god_version_id || row.prompt_version !== BAZI_CHAT_PROMPT_VERSION) {
     const analysis = ensureBaziAnalysisVersion(row.chart_version_id);
     const luckCycles = ensureBaziLuckCycleVersion(row.chart_version_id);
     const annualTimeline = ensureBaziAnnualTimelineVersion(row.chart_version_id);
     const relationAudit = ensureBaziRelationAuditVersion(row.chart_version_id);
     const relationAdjudication = ensureBaziRelationAdjudicationVersion(row.chart_version_id);
+    const dynamicTenGod = ensureBaziDynamicTenGodVersion(row.chart_version_id);
     getDatabase().prepare(`
       UPDATE bazi_conversations
       SET analysis_version_id = ?, luck_cycle_version_id = ?, annual_timeline_version_id = ?, relation_audit_version_id = ?,
-          relation_adjudication_version_id = ?, prompt_version = ?, updated_at = ?
+          relation_adjudication_version_id = ?, dynamic_ten_god_version_id = ?, prompt_version = ?, updated_at = ?
       WHERE id = ?
-    `).run(analysis.id, luckCycles.id, annualTimeline.id, relationAudit.id, relationAdjudication.id, BAZI_CHAT_PROMPT_VERSION, Date.now(), id);
+    `).run(analysis.id, luckCycles.id, annualTimeline.id, relationAudit.id, relationAdjudication.id, dynamicTenGod.id, BAZI_CHAT_PROMPT_VERSION, Date.now(), id);
     row = getDatabase().prepare('SELECT * FROM bazi_conversations WHERE id = ?')
       .get(id) as ConversationRow;
   }
@@ -130,7 +134,10 @@ export function getBaziConversation(id: string): BaziConversationDetail | null {
   const relationAdjudication = conversation.relationAdjudicationVersionId
     ? getBaziRelationAdjudicationVersion(conversation.relationAdjudicationVersionId)
     : null;
-  return { ...conversation, chart, profile, analysis, luckCycles, annualTimeline, relationAudit, relationAdjudication };
+  const dynamicTenGod = conversation.dynamicTenGodVersionId
+    ? getBaziDynamicTenGodVersion(conversation.dynamicTenGodVersionId)
+    : null;
+  return { ...conversation, chart, profile, analysis, luckCycles, annualTimeline, relationAudit, relationAdjudication, dynamicTenGod };
 }
 
 export function listBaziConversations(input: {
@@ -321,6 +328,7 @@ function mapConversation(row: ConversationRow): BaziConversation {
     annualTimelineVersionId: row.annual_timeline_version_id,
     relationAuditVersionId: row.relation_audit_version_id,
     relationAdjudicationVersionId: row.relation_adjudication_version_id,
+    dynamicTenGodVersionId: row.dynamic_ten_god_version_id,
     title: row.title, status: row.status,
     methodologyVersion: row.methodology_version, engineVersion: row.engine_version,
     promptVersion: row.prompt_version, summary: parseJson<BaziConversationSummary>(row.summary_json),
