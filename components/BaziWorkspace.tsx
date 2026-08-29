@@ -32,6 +32,8 @@ import { calculateBaziLuckCycles } from '@/lib/bazi/luck-cycle-engine';
 import type { BaziLuckCycleResult } from '@/lib/bazi/luck-cycle-types';
 import { calculateBaziAnnualTimeline } from '@/lib/bazi/annual-timeline-engine';
 import type { BaziAnnualTimelineResult } from '@/lib/bazi/annual-timeline-types';
+import { calculateBaziMonthDayTimeline } from '@/lib/bazi/month-day-timeline-engine';
+import type { BaziMonthDayTimelineResult } from '@/lib/bazi/month-day-timeline-types';
 import { auditBaziRelations } from '@/lib/bazi/relation-audit-engine';
 import type { BaziRelationAuditResult, BaziRelationEvidence } from '@/lib/bazi/relation-audit-types';
 import { adjudicateBaziRelations } from '@/lib/bazi/relation-adjudication-engine';
@@ -173,6 +175,14 @@ export default function BaziWorkspace() {
     () => result && luckCycles ? calculateBaziAnnualTimeline(result, luckCycles) : null,
     [result, luckCycles],
   );
+  const monthDayTimeline = useMemo(() => {
+    if (!result || !annualTimeline) return null;
+    const targetYear = Math.min(
+      Math.max(selectedAnnualYear, annualTimeline.range.startYear),
+      annualTimeline.range.endYear,
+    );
+    return calculateBaziMonthDayTimeline(result, annualTimeline, targetYear);
+  }, [result, annualTimeline, selectedAnnualYear]);
   const relationAudit = useMemo(
     () => result && luckCycles && annualTimeline
       ? auditBaziRelations(result, luckCycles, annualTimeline)
@@ -225,6 +235,14 @@ export default function BaziWorkspace() {
     if (!annualTimeline) return;
     setSelectedAnnualYear(value => Math.min(Math.max(value, annualTimeline.range.startYear), annualTimeline.range.endYear));
   }, [annualTimeline]);
+  useEffect(() => {
+    if (!currentChartId || !monthDayTimeline) return;
+    void fetch(`/api/bazi/charts/${currentChartId}/month-day-timeline`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ targetYear: monthDayTimeline.source.targetYear }),
+    }).catch(() => undefined);
+  }, [currentChartId, monthDayTimeline?.source.targetYear]);
 
   const update = <K extends keyof FormState>(key: K, value: FormState[K]) => {
     setForm(current => ({ ...current, [key]: value }));
@@ -515,6 +533,7 @@ export default function BaziWorkspace() {
             {interpretation && <BaziInterpretationPanel result={interpretation} />}
             {luckCycles && <BaziLuckCyclePanel result={luckCycles} />}
             {annualTimeline && <BaziAnnualTimelinePanel result={annualTimeline} selectedYear={selectedAnnualYear} onSelectYear={setSelectedAnnualYear} />}
+            {monthDayTimeline && <BaziMonthDayTimelinePanel result={monthDayTimeline} />}
             {relationAudit && <BaziRelationAuditPanel result={relationAudit} selectedYear={selectedAnnualYear} />}
             {relationAdjudication && <BaziRelationAdjudicationPanel result={relationAdjudication} selectedYear={selectedAnnualYear} />}
             {dynamicTenGod && <BaziDynamicTenGodPanel result={dynamicTenGod} selectedYear={selectedAnnualYear} />}
@@ -812,6 +831,76 @@ function BaziAnnualTimelinePanel({
       <p className="text-[10px] leading-5" style={{ color: 'var(--tx-3)' }}>{result.boundary} · {result.methodologyVersion}</p>
     </div>
   </section>;
+}
+
+function BaziMonthDayTimelinePanel({ result }: { result: BaziMonthDayTimelineResult }) {
+  const initialDate = resolveInitialFlowDate(result);
+  const [selectedDate, setSelectedDate] = useState(initialDate);
+  useEffect(() => { setSelectedDate(resolveInitialFlowDate(result)); }, [result.source.targetYear, result.source.lateZiPolicy]);
+  const day = result.days.find(item => item.effectiveDate === selectedDate) ?? result.days[0];
+  const firstDate = result.days[0]?.effectiveDate;
+  const lastDate = result.days.at(-1)?.effectiveDate;
+  return <section data-testid="bazi-month-day-timeline" className="mt-5 rounded-xl border p-5 md:p-6" style={{ borderColor: 'var(--t-border-acc)', background: 'var(--bg-card)' }}>
+    <div className="flex flex-wrap items-start justify-between gap-4">
+      <div className="flex items-start gap-3">
+        <div className="rounded-lg p-2" style={{ color: 'var(--ac-dim)', background: 'var(--ac-bg)' }}><Clock size={19} /></div>
+        <div>
+          <p className="text-[10px] tracking-[.18em]" style={{ color: 'var(--ac-dim)' }}>M9-14 · 精确节界与晚子时换日</p>
+          <h2 className="mt-1 text-lg font-semibold">{result.source.targetYear} {result.source.targetYearGanZhi} · 流月流日确定性时间轴</h2>
+          <p className="mt-1 text-xs leading-5" style={{ color: 'var(--tx-3)' }}>流月按“节”的精确时刻交接；流日沿用排盘时保存的晚子时规则，只展示时间归属。</p>
+        </div>
+      </div>
+      <div className="flex flex-wrap gap-2 text-[9px]">
+        <span className="rounded-full px-2.5 py-1" style={{ color: 'var(--lu)', background: 'var(--bg-1)' }}>{result.counts.months} 个流月</span>
+        <span className="rounded-full px-2.5 py-1" style={{ color: 'var(--ac-dim)', background: 'var(--bg-1)' }}>{result.counts.days} 个有效流日</span>
+      </div>
+    </div>
+
+    <div className="mt-5 grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
+      {result.months.map(month => <article key={month.index} data-testid="flow-month-item" className="rounded-xl border p-3" style={{ borderColor: month.crossesLuckCycleBoundary ? 'var(--ac-bdr)' : 'var(--bdr)', background: 'var(--bg-1)' }}>
+        <div className="flex items-start justify-between gap-3"><div><p className="text-[9px]" style={{ color: 'var(--tx-3)' }}>第 {month.index} 流月 · {month.jieName}交接</p><p className="mt-1 font-serif text-xl font-semibold" style={{ color: 'var(--ac-dim)' }}>{month.ganZhi}</p></div>{month.crossesLuckCycleBoundary && <span className="rounded-full px-2 py-1 text-[8px]" style={{ color: 'var(--lu)', background: 'var(--bg-card)' }}>月内跨运</span>}</div>
+        <p className="mt-2 font-mono text-[9px] leading-4" style={{ color: 'var(--tx-3)' }}>{month.startAt ?? '精确节界未生成'}<br />至 {month.endAtExclusive ? `${month.endAtExclusive} 前` : '下一节界未生成'}</p>
+        {month.segments.length > 0 && <p className="mt-2 text-[9px] leading-4" style={{ color: 'var(--tx-3)' }}>{month.segments.map(segment => segment.label).filter((label, index, labels) => labels.indexOf(label) === index).join(' → ')}</p>}
+      </article>)}
+    </div>
+
+    {result.days.length > 0 && day && <div className="mt-5 rounded-xl border p-4" style={{ borderColor: day.crossesMonthBoundary || day.crossesLuckCycleBoundary ? 'var(--ac-bdr)' : 'var(--bdr)', background: 'var(--bg-1)' }}>
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div><p className="text-[10px] tracking-wider" style={{ color: 'var(--tx-3)' }}>流日核验器</p><h3 className="mt-1 text-sm font-semibold">选择日期，查看该流日的精确归属</h3></div>
+        <input data-testid="flow-day-select" aria-label="选择流日" className="rectification-input !w-auto" type="date" min={firstDate} max={lastDate} value={day.effectiveDate} onChange={event => setSelectedDate(event.target.value)} />
+      </div>
+      <div className="mt-4 grid gap-3 lg:grid-cols-[190px_minmax(0,1fr)]">
+        <div className="rounded-lg border p-3" style={{ borderColor: 'var(--bdr)', background: 'var(--bg-card)' }}>
+          <p className="text-[9px]" style={{ color: 'var(--tx-3)' }}>{day.effectiveDate} 流日干支</p>
+          <p className="mt-1 font-serif text-2xl font-semibold" style={{ color: 'var(--ac-dim)' }}>{day.ganZhi}</p>
+          <p className="mt-2 font-mono text-[9px] leading-4" style={{ color: 'var(--tx-3)' }}>{day.startAt}<br />至 {day.endAtExclusive} 前</p>
+        </div>
+        <div className="space-y-2">
+          {day.segments.map((segment, index) => <div key={`${segment.startAt}-${index}`} data-testid="flow-day-segment" className="rounded-lg border p-3" style={{ borderColor: 'var(--bdr)', background: 'var(--bg-card)' }}>
+            <div className="flex flex-wrap items-center justify-between gap-2"><p className="text-xs font-medium">第 {segment.monthIndex} 流月 {segment.monthGanZhi}</p><span className="text-[9px]" style={{ color: 'var(--tx-3)' }}>{segment.label}</span></div>
+            <p className="mt-1 font-mono text-[9px]" style={{ color: 'var(--tx-3)' }}>{segment.startAt} — {segment.endAtExclusive} 前</p>
+          </div>)}
+        </div>
+      </div>
+      {(day.crossesMonthBoundary || day.crossesLuckCycleBoundary) && <p className="mt-3 text-[9px] leading-4" style={{ color: 'var(--ac-dim)' }}>该流日内部跨越{day.crossesMonthBoundary ? '节界' : ''}{day.crossesMonthBoundary && day.crossesLuckCycleBoundary ? '与' : ''}{day.crossesLuckCycleBoundary ? '交运边界' : ''}，因此按真实时刻保留多个归属片段。</p>}
+    </div>}
+
+    <div className="mt-4 rounded-lg border p-3" style={{ borderColor: 'rgba(168,120,35,.3)', background: 'rgba(168,120,35,.06)' }}>
+      <p className="text-[10px] leading-5" style={{ color: 'var(--tx-3)' }}>换日口径：{result.source.lateZiPolicy === 'next_day' ? '23 点起按次日' : '23 点仍按当天'}。{result.boundary}</p>
+      <p className="mt-1 text-[9px]" style={{ color: 'var(--tx-3)' }}>{result.methodologyVersion}</p>
+    </div>
+  </section>;
+}
+
+function resolveInitialFlowDate(result: BaziMonthDayTimelineResult): string {
+  const formatter = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Asia/Shanghai', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', hourCycle: 'h23',
+  });
+  const parts = Object.fromEntries(formatter.formatToParts(new Date()).map(item => [item.type, item.value]));
+  const base = new Date(Date.UTC(Number(parts.year), Number(parts.month) - 1, Number(parts.day)
+    + (result.source.lateZiPolicy === 'next_day' && Number(parts.hour) >= 23 ? 1 : 0)));
+  const today = `${base.getUTCFullYear()}-${String(base.getUTCMonth() + 1).padStart(2, '0')}-${String(base.getUTCDate()).padStart(2, '0')}`;
+  return result.days.some(item => item.effectiveDate === today) ? today : result.days[0]?.effectiveDate ?? '';
 }
 
 function BaziRelationAuditPanel({ result, selectedYear }: { result: BaziRelationAuditResult; selectedYear: number }) {

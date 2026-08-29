@@ -1956,6 +1956,49 @@ function migrate(db: Database.Database) {
     applyV35();
   }
 
+  if (!applied.has(36)) {
+    const applyV36 = db.transaction(() => {
+      db.exec(`
+        CREATE TABLE bazi_month_day_timeline_versions (
+          id TEXT PRIMARY KEY,
+          chart_version_id TEXT NOT NULL,
+          annual_timeline_version_id TEXT NOT NULL,
+          target_year INTEGER NOT NULL,
+          methodology_version TEXT NOT NULL,
+          engine_version TEXT NOT NULL,
+          chart_fingerprint TEXT NOT NULL,
+          annual_timeline_fingerprint TEXT NOT NULL,
+          month_day_timeline_fingerprint TEXT NOT NULL,
+          result_json TEXT NOT NULL,
+          created_at INTEGER NOT NULL,
+          updated_at INTEGER NOT NULL,
+
+          UNIQUE (
+            chart_version_id, annual_timeline_version_id, target_year,
+            methodology_version, engine_version
+          ),
+          FOREIGN KEY (chart_version_id) REFERENCES bazi_chart_versions(id) ON DELETE CASCADE,
+          FOREIGN KEY (annual_timeline_version_id) REFERENCES bazi_annual_timeline_versions(id) ON DELETE CASCADE
+        );
+
+        ALTER TABLE bazi_conversations
+          ADD COLUMN month_day_timeline_version_id TEXT
+          REFERENCES bazi_month_day_timeline_versions(id)
+          ON DELETE SET NULL;
+
+        CREATE INDEX idx_bazi_month_day_timeline_chart_year
+          ON bazi_month_day_timeline_versions(chart_version_id, target_year, updated_at DESC);
+        CREATE INDEX idx_bazi_month_day_timeline_fingerprint
+          ON bazi_month_day_timeline_versions(month_day_timeline_fingerprint);
+        CREATE INDEX idx_bazi_conversations_month_day_timeline
+          ON bazi_conversations(month_day_timeline_version_id);
+      `);
+      db.prepare('INSERT INTO schema_migrations(version, applied_at) VALUES (?, ?)')
+        .run(36, Date.now());
+    });
+    applyV36();
+  }
+
   ensureMessageSearch(db);
 }
 

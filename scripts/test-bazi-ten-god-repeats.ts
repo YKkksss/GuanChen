@@ -128,7 +128,7 @@ async function main() {
     }));
     const conversation = (await json<{ conversation: { id: string; tenGodRepeatVersionId: string; promptVersion: string } }>(conversationResponse)).conversation;
     assert.equal(conversation.tenGodRepeatVersionId, first.id);
-    assert.equal(conversation.promptVersion, 'bazi-chat-pattern-condition-v12');
+    assert.equal(conversation.promptVersion, 'bazi-chat-month-day-timeline-v13');
     const question = appendBaziMessage({ conversationId: conversation.id, role: 'user', content: '请解释2026年的同干和同十神重复位置' });
     const built = buildBaziConversationContext({
       conversationId: conversation.id, currentMessageId: question.id,
