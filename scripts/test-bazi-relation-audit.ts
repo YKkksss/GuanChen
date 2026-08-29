@@ -120,7 +120,7 @@ async function main() {
     }));
     const conversation = (await json<{ conversation: { id: string; relationAuditVersionId: string; promptVersion: string } }>(conversationResponse)).conversation;
     assert.equal(conversation.relationAuditVersionId, first.id);
-    assert.equal(conversation.promptVersion, 'bazi-chat-dynamic-ten-god-v7');
+    assert.equal(conversation.promptVersion, 'bazi-chat-ten-god-repeat-v8');
     const question = appendBaziMessage({ conversationId: conversation.id, role: 'user', content: '请解释2004年命中的干支关系' });
     const built = buildBaziConversationContext({
       conversationId: conversation.id, currentMessageId: question.id,

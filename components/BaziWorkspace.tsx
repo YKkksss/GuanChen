@@ -46,6 +46,13 @@ import type {
   BaziDynamicTenGodLayerSnapshot,
   BaziDynamicTenGodResult,
 } from '@/lib/bazi/dynamic-ten-god-types';
+import { auditBaziTenGodRepeats } from '@/lib/bazi/ten-god-repeat-engine';
+import type {
+  BaziStemRepeatCluster,
+  BaziTenGodOccurrence,
+  BaziTenGodRepeatResult,
+  BaziTenGodRoleRepeatCluster,
+} from '@/lib/bazi/ten-god-repeat-types';
 
 interface FormState {
   displayName: string;
@@ -123,6 +130,7 @@ export default function BaziWorkspace() {
       fetch(`/api/bazi/charts/${currentChartId}/relation-audit`, { method: 'POST' }),
       fetch(`/api/bazi/charts/${currentChartId}/relation-adjudication`, { method: 'POST' }),
       fetch(`/api/bazi/charts/${currentChartId}/dynamic-ten-gods`, { method: 'POST' }),
+      fetch(`/api/bazi/charts/${currentChartId}/ten-god-repeats`, { method: 'POST' }),
     ]).catch(() => undefined);
   }, [currentChartId]);
 
@@ -153,6 +161,12 @@ export default function BaziWorkspace() {
       ? auditBaziDynamicTenGods(result, relationAudit, relationAdjudication)
       : null,
     [result, relationAudit, relationAdjudication],
+  );
+  const tenGodRepeat = useMemo(
+    () => result && relationAudit && dynamicTenGod
+      ? auditBaziTenGodRepeats(result, dynamicTenGod, relationAudit)
+      : null,
+    [result, relationAudit, dynamicTenGod],
   );
   useEffect(() => {
     if (!annualTimeline) return;
@@ -341,7 +355,7 @@ export default function BaziWorkspace() {
           </button>
           <div className="text-right">
             <h1 className="text-lg font-semibold tracking-wide">八字确定性排盘</h1>
-            <p className="text-xs" style={{ color: 'var(--tx-3)' }}>M9-8 · 动态十神与作用方向证据审计</p>
+            <p className="text-xs" style={{ color: 'var(--tx-3)' }}>M9-9 · 岁运十神组合与显隐重复证据审计</p>
           </div>
         </div>
       </header>
@@ -451,6 +465,7 @@ export default function BaziWorkspace() {
             {relationAudit && <BaziRelationAuditPanel result={relationAudit} selectedYear={selectedAnnualYear} />}
             {relationAdjudication && <BaziRelationAdjudicationPanel result={relationAdjudication} selectedYear={selectedAnnualYear} />}
             {dynamicTenGod && <BaziDynamicTenGodPanel result={dynamicTenGod} selectedYear={selectedAnnualYear} />}
+            {tenGodRepeat && <BaziTenGodRepeatPanel result={tenGodRepeat} selectedYear={selectedAnnualYear} />}
           </>}
         </section>
       </div>
@@ -590,7 +605,7 @@ function BaziResult({ result }: { result: BaziCalculationResult }) {
 
     <section className="flex gap-3 rounded-xl border p-4" style={{ borderColor: 'var(--bdr)', background: 'var(--bg-1)' }}>
       <Info className="mt-0.5 shrink-0" size={18} style={{ color: 'var(--ac-dim)' }} />
-      <p className="text-xs leading-5" style={{ color: 'var(--tx-3)' }}>当前已开放至 M9-8：除跨层关系和条件冲突外，还可查看大运、流年的表层／藏干十神，以及有上游证据的原局柱位指向。藏干引动、合化、关系优先级、强弱作用、吉凶和具体事件仍未开放。</p>
+      <p className="text-xs leading-5" style={{ color: 'var(--tx-3)' }}>当前已开放至 M9-9：除动态十神和原局指向外，还可查看同干、同十神在原局、大运、流年的表层／藏干重复簇。重复次数只表示位置数量；透干、通根、藏干引动、强弱作用、吉凶和具体事件仍未开放。</p>
     </section>
   </div>;
 }
@@ -936,6 +951,92 @@ function DynamicDirectionRow({ direction }: { direction: BaziDynamicDirectionLin
     <p className="mt-1.5 text-[10px] leading-5"><span style={{ color: 'var(--ac-dim)' }}>{direction.sourceSymbol}</span> → {direction.targetPillarLabel}{direction.targetSymbol}</p>
     <p className="text-[9px] leading-4" style={{ color: 'var(--tx-3)' }}>{direction.relationLabel}</p>
   </div>;
+}
+
+function BaziTenGodRepeatPanel({ result, selectedYear }: { result: BaziTenGodRepeatResult; selectedYear: number }) {
+  const year = result.years.find(item => item.year === selectedYear) ?? result.years[0];
+  if (!year) return null;
+  return <section data-testid="bazi-ten-god-repeat-audit" className="mt-5 rounded-xl border p-5 md:p-6" style={{ borderColor: 'var(--t-border-acc)', background: 'var(--bg-card)' }}>
+    <div className="flex flex-wrap items-start justify-between gap-4">
+      <div className="flex items-start gap-3">
+        <div className="rounded-lg p-2" style={{ color: 'var(--ac-dim)', background: 'var(--ac-bg)' }}><GitBranch size={19} /></div>
+        <div>
+          <p className="text-[10px] tracking-[.18em]" style={{ color: 'var(--ac-dim)' }}>M9-9 · 位置组合与显隐重复</p>
+          <h2 className="mt-1 text-lg font-semibold">{year.year} {year.annualGanZhi} · 岁运十神组合与显隐重复审计</h2>
+          <p className="mt-1 text-xs leading-5" style={{ color: 'var(--tx-3)' }}>同干簇可包含日主参照；同十神簇只统计实际角色。重复次数只代表位置数量。</p>
+        </div>
+      </div>
+      <div className="flex flex-wrap gap-2 text-[9px]">
+        <span className="rounded-full px-2.5 py-1" style={{ color: 'var(--ac-dim)', background: 'var(--bg-1)' }}>{year.stemClusterCount} 个同干簇</span>
+        <span className="rounded-full px-2.5 py-1" style={{ color: 'var(--lu)', background: 'var(--bg-1)' }}>{year.connectedClusterCount} 个有证据连接</span>
+      </div>
+    </div>
+
+    <div className="mt-5 space-y-4">
+      {year.segments.map(segment => <article key={segment.segmentIndex} data-testid="ten-god-repeat-segment" className="rounded-xl border p-4" style={{ borderColor: 'var(--bdr)', background: 'var(--bg-1)' }}>
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div><h3 className="text-sm font-semibold">片段 {segment.segmentIndex} · {segment.label}</h3><p className="mt-1 font-mono text-[9px]" style={{ color: 'var(--tx-3)' }}>{segment.startAt ?? '起点未生成'} — {segment.endAtExclusive ? `${segment.endAtExclusive} 前` : '终点未生成'}</p></div>
+          <span className="text-[9px]" style={{ color: 'var(--tx-3)' }}>同干 {segment.counts.stemClusters} · 同十神 {segment.counts.tenGodClusters} · 显隐同见 {segment.counts.surfaceHiddenClusters}</span>
+        </div>
+
+        <div className="mt-4">
+          <div className="flex items-center justify-between gap-3"><h4 className="text-xs font-semibold">同干位置簇</h4><span className="text-[9px]" style={{ color: 'var(--tx-3)' }}>逐位置核对表层、藏干和日主参照</span></div>
+          <div className="mt-2 grid gap-3 lg:grid-cols-2">
+            {segment.stemClusters.map(cluster => <StemRepeatClusterCard key={cluster.id} cluster={cluster} />)}
+            {segment.stemClusters.length === 0 && <p className="rounded-lg border border-dashed p-4 text-xs" style={{ borderColor: 'var(--bdr)', color: 'var(--tx-3)' }}>本片段没有包含大运或流年的同干重复位置。</p>}
+          </div>
+        </div>
+
+        <div className="mt-4 border-t pt-4" style={{ borderColor: 'var(--bdr)' }}>
+          <div className="flex items-center justify-between gap-3"><h4 className="text-xs font-semibold">同十神角色索引</h4><span className="text-[9px]" style={{ color: 'var(--tx-3)' }}>日主参照不计入比肩</span></div>
+          <div className="mt-2 grid gap-2 md:grid-cols-2 xl:grid-cols-3">
+            {segment.tenGodClusters.map(cluster => <TenGodRoleRepeatCard key={cluster.id} cluster={cluster} />)}
+            {segment.tenGodClusters.length === 0 && <p className="rounded-lg border border-dashed p-4 text-xs" style={{ borderColor: 'var(--bdr)', color: 'var(--tx-3)' }}>本片段没有包含动态位置的同十神重复角色。</p>}
+          </div>
+        </div>
+      </article>)}
+    </div>
+
+    <div className="mt-4 rounded-lg border p-3" style={{ borderColor: 'rgba(168,120,35,.3)', background: 'rgba(168,120,35,.06)' }}>
+      <p className="text-[10px] leading-5" style={{ color: 'var(--tx-3)' }}>表层与藏干同见只表示位置共存，不等于透干、通根或引动；有关系证据连接也不等于力量增强或作用完成。</p>
+      <p className="mt-1 text-[9px]" style={{ color: 'var(--tx-3)' }}>{result.boundary} · {result.methodologyVersion}</p>
+    </div>
+  </section>;
+}
+
+function StemRepeatClusterCard({ cluster }: { cluster: BaziStemRepeatCluster }) {
+  return <div data-testid="ten-god-stem-cluster" className="rounded-lg border p-4" style={{ borderColor: cluster.connections.length ? 'var(--ac-bdr)' : 'var(--bdr)', background: 'var(--bg-card)' }}>
+    <div className="flex flex-wrap items-start justify-between gap-3">
+      <div><p className="font-serif text-xl" style={{ color: 'var(--ac-dim)' }}>{cluster.stem}</p><p className="mt-0.5 text-[9px]" style={{ color: 'var(--tx-3)' }}>动态角色：{cluster.dynamicTenGod} · {cluster.counts.total} 个位置</p></div>
+      <span className="rounded-full px-2 py-1 text-[9px]" style={{ color: cluster.connections.length ? 'var(--lu)' : 'var(--tx-3)', background: 'var(--bg-1)' }}>{cluster.connections.length ? `${cluster.connections.length} 条连接` : '无表层连接'}</span>
+    </div>
+    <div className="mt-2 flex flex-wrap gap-1.5">{cluster.patterns.map(pattern => <span key={pattern} className="rounded px-2 py-1 text-[9px]" style={{ color: pattern === 'surface_hidden_coexistence' ? 'var(--ac-dim)' : 'var(--tx-3)', background: 'var(--bg-1)' }}>{tenGodRepeatPatternLabel(pattern)}</span>)}</div>
+    <div className="mt-3 space-y-1.5">{cluster.occurrences.map(item => <TenGodOccurrenceRow key={item.id} occurrence={item} />)}</div>
+    {cluster.connections.length > 0 && <div className="mt-3 border-t pt-2" style={{ borderColor: 'var(--bdr)' }}><p className="text-[9px] font-medium" style={{ color: 'var(--lu)' }}>M9-6 表层证据连接</p>{cluster.connections.map(connection => <p key={connection.id} className="mt-1 text-[9px] leading-4" style={{ color: 'var(--tx-3)' }}>{connection.relationLabel}</p>)}</div>}
+  </div>;
+}
+
+function TenGodRoleRepeatCard({ cluster }: { cluster: BaziTenGodRoleRepeatCluster }) {
+  return <div data-testid="ten-god-role-cluster" className="rounded-lg border p-3" style={{ borderColor: 'var(--bdr)', background: 'var(--bg-card)' }}>
+    <div className="flex items-center justify-between gap-2"><p className="text-xs font-semibold" style={{ color: 'var(--ac-dim)' }}>{cluster.tenGod}</p><span className="text-[9px]" style={{ color: 'var(--tx-3)' }}>{cluster.counts.total} 处 · {cluster.stems.join('、')}</span></div>
+    <p className="mt-2 text-[9px] leading-4" style={{ color: 'var(--tx-3)' }}>{cluster.occurrences.map(item => item.label).join('；')}</p>
+    <div className="mt-2 flex flex-wrap gap-1">{cluster.patterns.map(pattern => <span key={pattern} className="rounded px-1.5 py-0.5 text-[8px]" style={{ color: 'var(--tx-3)', background: 'var(--bg-1)' }}>{tenGodRepeatPatternLabel(pattern)}</span>)}</div>
+  </div>;
+}
+
+function TenGodOccurrenceRow({ occurrence }: { occurrence: BaziTenGodOccurrence }) {
+  const layer = ({ natal: '原局', luck_cycle: '大运', annual: '流年' } as Record<string, string>)[occurrence.layer];
+  const visibility = ({ surface: '表层', hidden: occurrence.hiddenQiLabel ?? '藏干', reference: '日主参照' } as Record<string, string>)[occurrence.visibility];
+  return <div className="flex items-start gap-2 rounded-lg px-2.5 py-2 text-[9px]" style={{ background: 'var(--bg-1)' }}><span className="shrink-0 rounded px-1.5 py-0.5" style={{ color: occurrence.visibility === 'hidden' ? 'var(--tx-3)' : 'var(--ac-dim)', background: 'var(--bg-card)' }}>{layer} · {visibility}</span><span className="leading-4" style={{ color: 'var(--tx-2)' }}>{occurrence.label}{occurrence.tenGod ? ` · ${occurrence.tenGod}` : ''}</span></div>;
+}
+
+function tenGodRepeatPatternLabel(pattern: string): string {
+  return ({
+    surface_cross_layer_repeat: '跨层表层同干',
+    surface_hidden_coexistence: '表层与藏干同见',
+    hidden_cross_layer_repeat: '跨层藏干同见',
+    annual_luck_repeat: '流年与大运同见',
+  } as Record<string, string>)[pattern] ?? pattern;
 }
 
 function relationText(relation: string): string {

@@ -61,6 +61,16 @@ export {
   assertValidBaziDynamicTenGodMethodology,
   validateBaziDynamicTenGodMethodology,
 } from './dynamic-ten-god-validator';
+export { auditBaziTenGodRepeats } from './ten-god-repeat-engine';
+export {
+  BAZI_TEN_GOD_REPEAT_ENGINE_VERSION,
+  BAZI_TEN_GOD_REPEAT_METHODOLOGY,
+  BAZI_TEN_GOD_REPEAT_METHODOLOGY_VERSION,
+} from './ten-god-repeat-methodology';
+export {
+  assertValidBaziTenGodRepeatMethodology,
+  validateBaziTenGodRepeatMethodology,
+} from './ten-god-repeat-validator';
 export * from './types';
 export * from './interpretation-types';
 export * from './luck-cycle-types';
@@ -68,3 +78,4 @@ export * from './annual-timeline-types';
 export * from './relation-audit-types';
 export * from './relation-adjudication-types';
 export * from './dynamic-ten-god-types';
+export * from './ten-god-repeat-types';
