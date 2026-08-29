@@ -41,8 +41,19 @@ export {
   assertValidBaziRelationAuditMethodology,
   validateBaziRelationAuditMethodology,
 } from './relation-audit-validator';
+export { adjudicateBaziRelations } from './relation-adjudication-engine';
+export {
+  BAZI_RELATION_ADJUDICATION_ENGINE_VERSION,
+  BAZI_RELATION_ADJUDICATION_METHODOLOGY,
+  BAZI_RELATION_ADJUDICATION_METHODOLOGY_VERSION,
+} from './relation-adjudication-methodology';
+export {
+  assertValidBaziRelationAdjudicationMethodology,
+  validateBaziRelationAdjudicationMethodology,
+} from './relation-adjudication-validator';
 export * from './types';
 export * from './interpretation-types';
 export * from './luck-cycle-types';
 export * from './annual-timeline-types';
 export * from './relation-audit-types';
+export * from './relation-adjudication-types';

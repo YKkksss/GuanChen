@@ -11,6 +11,7 @@ import {
   GitBranch,
   Info,
   Plus,
+  ShieldCheck,
   Sparkle,
   Trash,
   Warning,
@@ -33,6 +34,12 @@ import { calculateBaziAnnualTimeline } from '@/lib/bazi/annual-timeline-engine';
 import type { BaziAnnualTimelineResult } from '@/lib/bazi/annual-timeline-types';
 import { auditBaziRelations } from '@/lib/bazi/relation-audit-engine';
 import type { BaziRelationAuditResult, BaziRelationEvidence } from '@/lib/bazi/relation-audit-types';
+import { adjudicateBaziRelations } from '@/lib/bazi/relation-adjudication-engine';
+import type {
+  BaziRelationAdjudicationResult,
+  BaziRelationConditionCheck,
+  BaziRelationConditionDecision,
+} from '@/lib/bazi/relation-adjudication-types';
 
 interface FormState {
   displayName: string;
@@ -108,6 +115,7 @@ export default function BaziWorkspace() {
       fetch(`/api/bazi/charts/${currentChartId}/luck-cycles`, { method: 'POST' }),
       fetch(`/api/bazi/charts/${currentChartId}/annual-timeline`, { method: 'POST' }),
       fetch(`/api/bazi/charts/${currentChartId}/relation-audit`, { method: 'POST' }),
+      fetch(`/api/bazi/charts/${currentChartId}/relation-adjudication`, { method: 'POST' }),
     ]).catch(() => undefined);
   }, [currentChartId]);
 
@@ -128,6 +136,10 @@ export default function BaziWorkspace() {
       ? auditBaziRelations(result, luckCycles, annualTimeline)
       : null,
     [result, luckCycles, annualTimeline],
+  );
+  const relationAdjudication = useMemo(
+    () => result && relationAudit ? adjudicateBaziRelations(result, relationAudit) : null,
+    [result, relationAudit],
   );
   useEffect(() => {
     if (!annualTimeline) return;
@@ -316,7 +328,7 @@ export default function BaziWorkspace() {
           </button>
           <div className="text-right">
             <h1 className="text-lg font-semibold tracking-wide">八字确定性排盘</h1>
-            <p className="text-xs" style={{ color: 'var(--tx-3)' }}>M9-6 · 干支关系证据审计</p>
+            <p className="text-xs" style={{ color: 'var(--tx-3)' }}>M9-7 · 关系条件与冲突审计</p>
           </div>
         </div>
       </header>
@@ -424,6 +436,7 @@ export default function BaziWorkspace() {
             {luckCycles && <BaziLuckCyclePanel result={luckCycles} />}
             {annualTimeline && <BaziAnnualTimelinePanel result={annualTimeline} selectedYear={selectedAnnualYear} onSelectYear={setSelectedAnnualYear} />}
             {relationAudit && <BaziRelationAuditPanel result={relationAudit} selectedYear={selectedAnnualYear} />}
+            {relationAdjudication && <BaziRelationAdjudicationPanel result={relationAdjudication} selectedYear={selectedAnnualYear} />}
           </>}
         </section>
       </div>
@@ -563,7 +576,7 @@ function BaziResult({ result }: { result: BaziCalculationResult }) {
 
     <section className="flex gap-3 rounded-xl border p-4" style={{ borderColor: 'var(--bdr)', background: 'var(--bg-1)' }}>
       <Info className="mt-0.5 shrink-0" size={18} style={{ color: 'var(--ac-dim)' }} />
-      <p className="text-xs leading-5" style={{ color: 'var(--tx-3)' }}>当前已开放 M9-6 干支关系证据：可查看原局、大运、流年之间命中的生克、五合、冲合刑害等结构。合化、强弱作用、吉凶和具体事件仍未开放。</p>
+      <p className="text-xs leading-5" style={{ color: 'var(--tx-3)' }}>当前已开放 M9-7 条件与冲突审计：除跨层干支关系外，还可查看条件齐备、条件缺失、关系并见和暂缓裁决状态。合化、关系优先级、强弱作用、吉凶和具体事件仍未开放。</p>
     </section>
   </div>;
 }
@@ -762,6 +775,80 @@ function RelationEvidenceCard({ evidence }: { evidence: BaziRelationEvidence }) 
     <p className="mt-1 text-[9px] leading-4" style={{ color: 'var(--tx-3)' }}>{evidence.participants.map(item => `${item.label}${item.symbol}`).join(' · ')}</p>
     <p className="mt-2 text-[9px] leading-4" style={{ color: 'var(--tx-3)' }}>{evidence.detail}</p>
   </div>;
+}
+
+function BaziRelationAdjudicationPanel({ result, selectedYear }: { result: BaziRelationAdjudicationResult; selectedYear: number }) {
+  const year = result.years.find(item => item.year === selectedYear) ?? result.years[0];
+  if (!year) return null;
+  return <section data-testid="bazi-relation-adjudication" className="mt-5 rounded-xl border p-5 md:p-6" style={{ borderColor: 'var(--t-border-acc)', background: 'var(--bg-card)' }}>
+    <div className="flex flex-wrap items-start justify-between gap-4">
+      <div className="flex items-start gap-3">
+        <div className="rounded-lg p-2" style={{ color: 'var(--ac-dim)', background: 'var(--ac-bg)' }}><ShieldCheck size={19} /></div>
+        <div>
+          <p className="text-[10px] tracking-[.18em]" style={{ color: 'var(--ac-dim)' }}>M9-7 · 条件门槛与关系并见</p>
+          <h2 className="mt-1 text-lg font-semibold">{year.year} {year.annualGanZhi} · 关系条件与冲突裁决审计</h2>
+          <p className="mt-1 text-xs leading-5" style={{ color: 'var(--tx-3)' }}>继续与流年选择同步；“条件齐备”只表示可核验入口通过，不代表合化或关系优先级结论。</p>
+        </div>
+      </div>
+      <div className="flex flex-wrap gap-2 text-[9px]">
+        <span className="rounded-full px-2.5 py-1" style={{ color: 'var(--lu)', background: 'var(--bg-1)' }}>{year.decisionCount} 条条件记录</span>
+        <span className="rounded-full px-2.5 py-1" style={{ color: year.conflictCount ? 'var(--ji)' : 'var(--tx-3)', background: 'var(--bg-1)' }}>{year.conflictCount} 个并见节点</span>
+      </div>
+    </div>
+
+    <div className="mt-5 space-y-4">
+      {year.segments.map(segment => <article key={segment.segmentIndex} data-testid="relation-adjudication-segment" className="rounded-xl border p-4" style={{ borderColor: 'var(--bdr)', background: 'var(--bg-1)' }}>
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div><h3 className="text-sm font-semibold">片段 {segment.segmentIndex} · {segment.label}</h3><p className="mt-1 font-mono text-[9px]" style={{ color: 'var(--tx-3)' }}>{segment.startAt ?? '起点未生成'} — {segment.endAtExclusive ? `${segment.endAtExclusive} 前` : '终点未生成'}</p></div>
+          <div className="flex flex-wrap gap-x-3 gap-y-1 text-[9px]" style={{ color: 'var(--tx-3)' }}>
+            <span>齐备 {segment.counts.conditionsMet}</span><span>缺失 {segment.counts.conditionsMissing}</span><span>并见 {segment.counts.relationsCoexist}</span><span>暂缓 {segment.counts.deferredAdjudication}</span>
+          </div>
+        </div>
+
+        {segment.conflicts.length > 0 && <div data-testid="relation-conflict-summary" className="mt-3 rounded-lg border p-3" style={{ borderColor: 'rgba(180,55,45,.28)', background: 'rgba(180,55,45,.05)' }}>
+          <p className="text-[10px] font-medium" style={{ color: 'var(--ji)' }}>关系并见节点</p>
+          {segment.conflicts.map(conflict => <p key={conflict.id} className="mt-1 text-[9px] leading-4" style={{ color: 'var(--tx-3)' }}><span style={{ color: 'var(--tx-1)' }}>{conflict.label}</span>：{conflict.detail}</p>)}
+        </div>}
+
+        <div className="mt-3 grid gap-2 lg:grid-cols-2">
+          {segment.decisions.map(decision => <RelationConditionCard key={decision.id} decision={decision} />)}
+          {segment.decisions.length === 0 && <p className="rounded-lg border border-dashed p-4 text-xs" style={{ borderColor: 'var(--bdr)', color: 'var(--tx-3)' }}>本片段没有需要条件复核的合、冲、刑、害关系，也没有三字缺一候选。</p>}
+        </div>
+      </article>)}
+    </div>
+
+    <div className="mt-4 rounded-lg border p-3" style={{ borderColor: 'rgba(168,120,35,.3)', background: 'rgba(168,120,35,.06)' }}>
+      <p className="text-[10px] leading-5" style={{ color: 'var(--tx-3)' }}>{result.boundary}</p>
+      <p className="mt-1 text-[9px]" style={{ color: 'var(--tx-3)' }}>{result.methodologyVersion}</p>
+    </div>
+  </section>;
+}
+
+function RelationConditionCard({ decision }: { decision: BaziRelationConditionDecision }) {
+  const stateColor = ({
+    conditions_met: 'var(--lu)',
+    conditions_missing: 'var(--ac-dim)',
+    relations_coexist: 'var(--ji)',
+    deferred_adjudication: 'var(--tx-3)',
+  } as Record<string, string>)[decision.state];
+  return <div data-testid="relation-condition-decision" data-condition-state={decision.state} className="rounded-lg border p-3" style={{ borderColor: decision.state === 'relations_coexist' ? 'rgba(180,55,45,.32)' : decision.state === 'conditions_met' ? 'var(--ac-bdr)' : 'var(--bdr)', background: 'var(--bg-card)' }}>
+    <div className="flex flex-wrap items-center justify-between gap-2">
+      <span className="rounded-full px-2 py-0.5 text-[9px]" style={{ color: stateColor, background: 'var(--bg-1)' }}>{decision.stateLabel}</span>
+      <span className="text-[9px]" style={{ color: 'var(--tx-3)' }}>{decision.sourceEvidenceId ? '完整关系复核' : '三字缺一候选'}</span>
+    </div>
+    <p className="mt-2 text-xs font-medium leading-5">{decision.label}</p>
+    <p className="mt-1 text-[9px] leading-4" style={{ color: 'var(--tx-3)' }}>{decision.participants.map(item => `${item.label}${item.symbol}`).join(' · ')}</p>
+    <div className="mt-2 space-y-1">
+      {decision.checks.filter(check => check.result !== 'not_applicable').map(check => <ConditionCheckRow key={`${check.code}-${check.ruleId}`} check={check} />)}
+    </div>
+    <p className="mt-2 border-t pt-2 text-[9px] leading-4" style={{ borderColor: 'var(--bdr)', color: 'var(--tx-3)' }}>{decision.boundary}</p>
+  </div>;
+}
+
+function ConditionCheckRow({ check }: { check: BaziRelationConditionCheck }) {
+  const label = ({ met: '通过', missing: '缺失', conflict: '冲突', deferred: '暂缓', not_applicable: '不适用' } as Record<string, string>)[check.result] ?? check.result;
+  const color = check.result === 'met' ? 'var(--lu)' : check.result === 'conflict' ? 'var(--ji)' : check.result === 'missing' ? 'var(--ac-dim)' : 'var(--tx-3)';
+  return <p className="text-[9px] leading-4" style={{ color: 'var(--tx-3)' }}><span style={{ color }}>{check.label} · {label}</span>：{check.detail}</p>;
 }
 
 function relationText(relation: string): string {

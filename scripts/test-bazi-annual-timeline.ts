@@ -108,7 +108,7 @@ async function main() {
     }));
     const conversation = (await json<{ conversation: { id: string; annualTimelineVersionId: string; promptVersion: string } }>(conversationResponse)).conversation;
     assert.equal(conversation.annualTimelineVersionId, first.id);
-    assert.equal(conversation.promptVersion, 'bazi-chat-relation-evidence-v5');
+    assert.equal(conversation.promptVersion, 'bazi-chat-relation-adjudication-v6');
     const question = appendBaziMessage({ conversationId: conversation.id, role: 'user', content: '请解释2030年流年的时间归属' });
     const built = buildBaziConversationContext({
       conversationId: conversation.id, currentMessageId: question.id,
