@@ -43,6 +43,7 @@
     "test:bazi-dynamic-ten-gods": "tsx scripts/test-bazi-dynamic-ten-gods.ts",
     "test:bazi-ten-god-repeats": "tsx scripts/test-bazi-ten-god-repeats.ts",
     "test:bazi-transparency-roots": "tsx scripts/test-bazi-transparency-roots.ts",
+    "test:bazi-hidden-stem-activations": "tsx scripts/test-bazi-hidden-stem-activations.ts",
     "start": "next start -p 30001",
     "build:cf": "npx @cloudflare/next-on-pages",
     "preview:cf": "npx wrangler pages dev",

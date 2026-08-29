@@ -60,6 +60,11 @@ import type {
   BaziTransparencyRootConditionCheck,
   BaziTransparencyRootResult,
 } from '@/lib/bazi/transparency-root-types';
+import { auditBaziHiddenStemActivationConditions } from '@/lib/bazi/hidden-stem-activation-engine';
+import type {
+  BaziHiddenStemActivationResult,
+  BaziHiddenStemTouchCandidate,
+} from '@/lib/bazi/hidden-stem-activation-types';
 
 interface FormState {
   displayName: string;
@@ -139,6 +144,7 @@ export default function BaziWorkspace() {
       fetch(`/api/bazi/charts/${currentChartId}/dynamic-ten-gods`, { method: 'POST' }),
       fetch(`/api/bazi/charts/${currentChartId}/ten-god-repeats`, { method: 'POST' }),
       fetch(`/api/bazi/charts/${currentChartId}/transparency-roots`, { method: 'POST' }),
+      fetch(`/api/bazi/charts/${currentChartId}/hidden-stem-activations`, { method: 'POST' }),
     ]).catch(() => undefined);
   }, [currentChartId]);
 
@@ -181,6 +187,14 @@ export default function BaziWorkspace() {
       ? auditBaziTransparencyRoots(result, dynamicTenGod, tenGodRepeat)
       : null,
     [result, dynamicTenGod, tenGodRepeat],
+  );
+  const hiddenStemActivation = useMemo(
+    () => result && relationAudit && relationAdjudication && dynamicTenGod && tenGodRepeat && transparencyRoot
+      ? auditBaziHiddenStemActivationConditions(
+        result, relationAudit, relationAdjudication, dynamicTenGod, tenGodRepeat, transparencyRoot,
+      )
+      : null,
+    [result, relationAudit, relationAdjudication, dynamicTenGod, tenGodRepeat, transparencyRoot],
   );
   useEffect(() => {
     if (!annualTimeline) return;
@@ -481,6 +495,7 @@ export default function BaziWorkspace() {
             {dynamicTenGod && <BaziDynamicTenGodPanel result={dynamicTenGod} selectedYear={selectedAnnualYear} />}
             {tenGodRepeat && <BaziTenGodRepeatPanel result={tenGodRepeat} selectedYear={selectedAnnualYear} />}
             {transparencyRoot && <BaziTransparencyRootPanel result={transparencyRoot} selectedYear={selectedAnnualYear} />}
+            {hiddenStemActivation && <BaziHiddenStemActivationPanel result={hiddenStemActivation} selectedYear={selectedAnnualYear} />}
           </>}
         </section>
       </div>
@@ -1134,6 +1149,55 @@ function RootCandidateCard({ candidate }: { candidate: BaziRootCandidate }) {
 
 function ConditionChecks({ checks }: { checks: BaziTransparencyRootConditionCheck[] }) {
   return <div className="mt-2 flex flex-wrap gap-1">{checks.map(check => <span key={check.code} title={check.detail} className="rounded px-1.5 py-0.5 text-[8px]" style={{ color: check.state === 'met' ? 'var(--lu)' : 'var(--tx-3)', background: 'var(--bg-1)' }}>{check.state === 'met' ? '✓' : check.state === 'missing' ? '—' : '·'} {check.label}</span>)}</div>;
+}
+
+function BaziHiddenStemActivationPanel({ result, selectedYear }: { result: BaziHiddenStemActivationResult; selectedYear: number }) {
+  const year = result.years.find(item => item.year === selectedYear) ?? result.years[0];
+  if (!year) return null;
+  return <section data-testid="bazi-hidden-stem-activation-audit" className="mt-5 rounded-xl border p-5 md:p-6" style={{ borderColor: 'var(--t-border-acc)', background: 'var(--bg-card)' }}>
+    <div className="flex flex-wrap items-start justify-between gap-4">
+      <div className="flex items-start gap-3">
+        <div className="rounded-lg p-2" style={{ color: 'var(--ac-dim)', background: 'var(--ac-bg)' }}><ShieldCheck size={19} /></div>
+        <div>
+          <p className="text-[10px] tracking-[.18em]" style={{ color: 'var(--ac-dim)' }}>M9-11 · 藏干引动条件证据</p>
+          <h2 className="mt-1 text-lg font-semibold">{year.year} {year.annualGanZhi} · 岁运藏干触达审计</h2>
+          <p className="mt-1 text-xs leading-5" style={{ color: 'var(--tx-3)' }}>完全同干岁运表层、同支重复、明确冲合刑害分别回指；命中不等于已经发动。</p>
+        </div>
+      </div>
+      <div className="flex flex-wrap gap-2 text-[9px]">
+        <span className="rounded-full px-2 py-1" style={{ color: 'var(--lu)', background: 'var(--bg-1)' }}>{year.counts.touchedCandidates} 个位置有触达条件</span>
+        <span className="rounded-full px-2 py-1" style={{ color: 'var(--ac-dim)', background: 'var(--ac-bg)' }}>{year.counts.multipleTouchConditions} 个多入口并见</span>
+      </div>
+    </div>
+    <div className="mt-5 space-y-4">{year.segments.map(segment => <div key={segment.segmentIndex} className="rounded-xl border p-4" style={{ borderColor: 'var(--bdr)', background: 'var(--bg-1)' }}>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div><p className="text-xs font-semibold">片段 {segment.segmentIndex} · {segment.label}</p><p className="mt-1 text-[9px]" style={{ color: 'var(--tx-3)' }}>{segment.startAt ?? '起点未知'} — {segment.endAtExclusive ?? '终点未知'}</p></div>
+        <p className="text-[9px]" style={{ color: 'var(--tx-3)' }}>同干 {segment.counts.exactSurfaceMatches} · 同支 {segment.counts.sameBranchRepeats} · 关系 {segment.counts.explicitBranchRelations}</p>
+      </div>
+      <div className="mt-3 grid gap-3 lg:grid-cols-2">{segment.candidates.map(candidate => <HiddenStemTouchCard key={candidate.id} candidate={candidate} />)}</div>
+    </div>)}</div>
+    <div className="mt-4 rounded-lg border px-3 py-2 text-[10px] leading-5" style={{ borderColor: 'var(--bdr)', color: 'var(--tx-3)', background: 'var(--bg-1)' }}><Info className="mr-1 inline" size={13} />{result.boundary}</div>
+  </section>;
+}
+
+function HiddenStemTouchCard({ candidate }: { candidate: BaziHiddenStemTouchCandidate }) {
+  const statusLabel = candidate.status === 'multiple_touch_conditions'
+    ? '多类触达并见'
+    : candidate.status === 'single_touch_condition'
+      ? '单类触达'
+      : '未命中开放条件';
+  return <div data-testid="hidden-stem-touch-candidate" className="rounded-lg border p-3" style={{ borderColor: candidate.status === 'no_touch_condition' ? 'var(--bdr)' : 'var(--ac-bdr)', background: 'var(--bg-card)' }}>
+    <div className="flex flex-wrap items-start justify-between gap-2">
+      <div><p className="text-xs font-semibold"><span className="font-serif text-base" style={{ color: 'var(--ac-dim)' }}>{candidate.hiddenOccurrence.stem}</span> · {candidate.tenGod}</p><p className="mt-1 text-[9px] leading-4" style={{ color: 'var(--tx-3)' }}>{candidate.hiddenOccurrence.label}</p></div>
+      <div className="flex flex-wrap gap-1"><span className="rounded-full px-2 py-1 text-[9px]" style={{ color: candidate.status === 'no_touch_condition' ? 'var(--tx-3)' : 'var(--lu)', background: 'var(--bg-1)' }}>{statusLabel}</span>{candidate.scope === 'month_command_hidden_stem' && <span className="rounded-full px-2 py-1 text-[9px]" style={{ color: 'var(--ac-dim)', background: 'var(--ac-bg)' }}>月令藏干</span>}</div>
+    </div>
+    <div className="mt-3 space-y-1.5">{candidate.entries.map(entry => <div key={entry.type} className="rounded-lg px-2.5 py-2" style={{ background: 'var(--bg-1)' }}>
+      <div className="flex items-center gap-1.5 text-[9px] font-medium" style={{ color: entry.state === 'matched' ? 'var(--lu)' : 'var(--tx-3)' }}><span>{entry.state === 'matched' ? '✓' : '—'}</span><span>{entry.label}</span></div>
+      <p className="mt-1 text-[9px] leading-4" style={{ color: 'var(--tx-3)' }}>{entry.detail}</p>
+      {entry.relationEvidence.map(evidence => <p key={evidence.sourceEvidenceId} className="mt-1 text-[8px]" style={{ color: 'var(--ac-dim)' }}>M9-7：{evidence.conditionStateLabel}</p>)}
+    </div>)}</div>
+    <p className="mt-2 text-[8px] leading-4" style={{ color: 'var(--tx-3)' }}>{candidate.boundary}</p>
+  </div>;
 }
 
 function relationText(relation: string): string {

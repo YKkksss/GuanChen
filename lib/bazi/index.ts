@@ -81,6 +81,16 @@ export {
   assertValidBaziTransparencyRootMethodology,
   validateBaziTransparencyRootMethodology,
 } from './transparency-root-validator';
+export { auditBaziHiddenStemActivationConditions } from './hidden-stem-activation-engine';
+export {
+  BAZI_HIDDEN_STEM_ACTIVATION_ENGINE_VERSION,
+  BAZI_HIDDEN_STEM_ACTIVATION_METHODOLOGY,
+  BAZI_HIDDEN_STEM_ACTIVATION_METHODOLOGY_VERSION,
+} from './hidden-stem-activation-methodology';
+export {
+  assertValidBaziHiddenStemActivationMethodology,
+  validateBaziHiddenStemActivationMethodology,
+} from './hidden-stem-activation-validator';
 export * from './types';
 export * from './interpretation-types';
 export * from './luck-cycle-types';
@@ -90,3 +100,4 @@ export * from './relation-adjudication-types';
 export * from './dynamic-ten-god-types';
 export * from './ten-god-repeat-types';
 export * from './transparency-root-types';
+export * from './hidden-stem-activation-types';
