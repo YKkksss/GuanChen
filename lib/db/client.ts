@@ -1753,6 +1753,57 @@ function migrate(db: Database.Database) {
     applyV31();
   }
 
+  if (!applied.has(32)) {
+    const applyV32 = db.transaction(() => {
+      db.exec(`
+        CREATE TABLE bazi_transparency_root_versions (
+          id TEXT PRIMARY KEY,
+          chart_version_id TEXT NOT NULL,
+          dynamic_ten_god_version_id TEXT NOT NULL,
+          ten_god_repeat_version_id TEXT NOT NULL,
+          methodology_version TEXT NOT NULL,
+          engine_version TEXT NOT NULL,
+          chart_fingerprint TEXT NOT NULL,
+          dynamic_ten_god_fingerprint TEXT NOT NULL,
+          ten_god_repeat_fingerprint TEXT NOT NULL,
+          transparency_root_fingerprint TEXT NOT NULL,
+          result_json TEXT NOT NULL,
+          created_at INTEGER NOT NULL,
+          updated_at INTEGER NOT NULL,
+
+          UNIQUE (
+            chart_version_id, dynamic_ten_god_version_id, ten_god_repeat_version_id,
+            methodology_version, engine_version
+          ),
+          FOREIGN KEY (chart_version_id)
+            REFERENCES bazi_chart_versions(id)
+            ON DELETE CASCADE,
+          FOREIGN KEY (dynamic_ten_god_version_id)
+            REFERENCES bazi_dynamic_ten_god_versions(id)
+            ON DELETE CASCADE,
+          FOREIGN KEY (ten_god_repeat_version_id)
+            REFERENCES bazi_ten_god_repeat_versions(id)
+            ON DELETE CASCADE
+        );
+
+        ALTER TABLE bazi_conversations
+          ADD COLUMN transparency_root_version_id TEXT
+          REFERENCES bazi_transparency_root_versions(id)
+          ON DELETE SET NULL;
+
+        CREATE INDEX idx_bazi_transparency_root_chart_updated
+          ON bazi_transparency_root_versions(chart_version_id, updated_at DESC);
+        CREATE INDEX idx_bazi_transparency_root_fingerprint
+          ON bazi_transparency_root_versions(transparency_root_fingerprint);
+        CREATE INDEX idx_bazi_conversations_transparency_root
+          ON bazi_conversations(transparency_root_version_id, updated_at DESC);
+      `);
+      db.prepare('INSERT INTO schema_migrations(version, applied_at) VALUES (?, ?)')
+        .run(32, Date.now());
+    });
+    applyV32();
+  }
+
   ensureMessageSearch(db);
 }
 

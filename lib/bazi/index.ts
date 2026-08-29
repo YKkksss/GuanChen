@@ -71,6 +71,16 @@ export {
   assertValidBaziTenGodRepeatMethodology,
   validateBaziTenGodRepeatMethodology,
 } from './ten-god-repeat-validator';
+export { auditBaziTransparencyRoots } from './transparency-root-engine';
+export {
+  BAZI_TRANSPARENCY_ROOT_ENGINE_VERSION,
+  BAZI_TRANSPARENCY_ROOT_METHODOLOGY,
+  BAZI_TRANSPARENCY_ROOT_METHODOLOGY_VERSION,
+} from './transparency-root-methodology';
+export {
+  assertValidBaziTransparencyRootMethodology,
+  validateBaziTransparencyRootMethodology,
+} from './transparency-root-validator';
 export * from './types';
 export * from './interpretation-types';
 export * from './luck-cycle-types';
@@ -79,3 +89,4 @@ export * from './relation-audit-types';
 export * from './relation-adjudication-types';
 export * from './dynamic-ten-god-types';
 export * from './ten-god-repeat-types';
+export * from './transparency-root-types';

@@ -25,7 +25,7 @@ export function auditBaziTenGodRepeats(
   dynamicTenGod: BaziDynamicTenGodResult,
   relationAudit: BaziRelationAuditResult,
 ): BaziTenGodRepeatResult {
-  const natalOccurrences = buildNatalOccurrences(chart);
+  const natalOccurrences = buildBaziNatalTenGodOccurrences(chart);
   const years = dynamicTenGod.years.map(year => {
     const relationYear = relationAudit.years.find(item => item.year === year.year);
     const segments = year.segments.map(segment => {
@@ -96,8 +96,8 @@ function buildSegment(
   relationSegment: BaziRelationAuditSegment,
 ): BaziTenGodRepeatSegment {
   const dynamicOccurrences = [
-    ...buildDynamicOccurrences(dynamicSegment.annual),
-    ...(dynamicSegment.luckCycle ? buildDynamicOccurrences(dynamicSegment.luckCycle) : []),
+    ...buildBaziDynamicTenGodOccurrences(dynamicSegment.annual),
+    ...(dynamicSegment.luckCycle ? buildBaziDynamicTenGodOccurrences(dynamicSegment.luckCycle) : []),
   ];
   const occurrences = [...natalOccurrences, ...dynamicOccurrences];
   const stemClusters = buildStemClusters(dayMasterStem, occurrences, relationSegment);
@@ -121,7 +121,7 @@ function buildSegment(
   };
 }
 
-function buildNatalOccurrences(chart: BaziCalculationResult): BaziTenGodOccurrence[] {
+export function buildBaziNatalTenGodOccurrences(chart: BaziCalculationResult): BaziTenGodOccurrence[] {
   return [chart.pillars.year, chart.pillars.month, chart.pillars.day, chart.pillars.time]
     .filter((pillar): pillar is BaziPillar => pillar !== null)
     .flatMap(pillar => {
@@ -165,7 +165,7 @@ function buildNatalOccurrences(chart: BaziCalculationResult): BaziTenGodOccurren
     });
 }
 
-function buildDynamicOccurrences(layer: BaziDynamicTenGodLayerSnapshot): BaziTenGodOccurrence[] {
+export function buildBaziDynamicTenGodOccurrences(layer: BaziDynamicTenGodLayerSnapshot): BaziTenGodOccurrence[] {
   return layer.roles.map(role => ({
     id: `${role.id}-occurrence`,
     nodeId: role.nodeId,

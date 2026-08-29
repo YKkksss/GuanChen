@@ -128,7 +128,7 @@ async function main() {
     }));
     const conversation = (await json<{ conversation: { id: string; tenGodRepeatVersionId: string; promptVersion: string } }>(conversationResponse)).conversation;
     assert.equal(conversation.tenGodRepeatVersionId, first.id);
-    assert.equal(conversation.promptVersion, 'bazi-chat-ten-god-repeat-v8');
+    assert.equal(conversation.promptVersion, 'bazi-chat-transparency-root-v9');
     const question = appendBaziMessage({ conversationId: conversation.id, role: 'user', content: '请解释2026年的同干和同十神重复位置' });
     const built = buildBaziConversationContext({
       conversationId: conversation.id, currentMessageId: question.id,
@@ -139,7 +139,7 @@ async function main() {
     assert.ok(built.messages.some(message => message.content.includes('原局日柱丙（日主参照）')));
     assert.ok(built.messages.some(message => message.content.includes('表层与藏干同见')));
     assert.ok((built.manifest.allowedCapabilities as string[]).includes('ten_god_visibility_repeat_audit'));
-    assert.ok((built.manifest.prohibitedCapabilities as string[]).includes('transparency_root_verdict'));
+    assert.ok((built.manifest.prohibitedCapabilities as string[]).includes('transparency_root_effect_verdict'));
     assert.deepEqual(findBaziOutputViolations('同干重复，所以力量增强'), ['越权把重复折算力量']);
     assert.deepEqual(findBaziOutputViolations('显隐同见说明已经通根'), ['越权宣告透干通根']);
     assert.deepEqual(findBaziOutputViolations('显隐同见不代表通根，重复也不等于力量增强'), []);

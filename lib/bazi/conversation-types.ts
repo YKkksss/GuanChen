@@ -7,6 +7,7 @@ import type { BaziRelationAuditVersion } from './relation-audit-types';
 import type { BaziRelationAdjudicationVersion } from './relation-adjudication-types';
 import type { BaziDynamicTenGodVersion } from './dynamic-ten-god-types';
 import type { BaziTenGodRepeatVersion } from './ten-god-repeat-types';
+import type { BaziTransparencyRootVersion } from './transparency-root-types';
 
 export type BaziConversationStatus = 'active' | 'archived';
 export type BaziMessageRole = 'user' | 'assistant' | 'system';
@@ -33,6 +34,7 @@ export interface BaziConversation {
   relationAdjudicationVersionId: string | null;
   dynamicTenGodVersionId: string | null;
   tenGodRepeatVersionId: string | null;
+  transparencyRootVersionId: string | null;
   title: string;
   status: BaziConversationStatus;
   methodologyVersion: string;
@@ -57,6 +59,7 @@ export interface BaziConversationDetail extends BaziConversation {
   relationAdjudication: BaziRelationAdjudicationVersion | null;
   dynamicTenGod: BaziDynamicTenGodVersion | null;
   tenGodRepeat: BaziTenGodRepeatVersion | null;
+  transparencyRoot: BaziTransparencyRootVersion | null;
 }
 
 export interface BaziConversationListItem extends BaziConversation {

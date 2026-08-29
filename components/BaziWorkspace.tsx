@@ -53,6 +53,13 @@ import type {
   BaziTenGodRepeatResult,
   BaziTenGodRoleRepeatCluster,
 } from '@/lib/bazi/ten-god-repeat-types';
+import { auditBaziTransparencyRoots } from '@/lib/bazi/transparency-root-engine';
+import type {
+  BaziRootCandidate,
+  BaziTransparencyCandidate,
+  BaziTransparencyRootConditionCheck,
+  BaziTransparencyRootResult,
+} from '@/lib/bazi/transparency-root-types';
 
 interface FormState {
   displayName: string;
@@ -131,6 +138,7 @@ export default function BaziWorkspace() {
       fetch(`/api/bazi/charts/${currentChartId}/relation-adjudication`, { method: 'POST' }),
       fetch(`/api/bazi/charts/${currentChartId}/dynamic-ten-gods`, { method: 'POST' }),
       fetch(`/api/bazi/charts/${currentChartId}/ten-god-repeats`, { method: 'POST' }),
+      fetch(`/api/bazi/charts/${currentChartId}/transparency-roots`, { method: 'POST' }),
     ]).catch(() => undefined);
   }, [currentChartId]);
 
@@ -167,6 +175,12 @@ export default function BaziWorkspace() {
       ? auditBaziTenGodRepeats(result, dynamicTenGod, relationAudit)
       : null,
     [result, relationAudit, dynamicTenGod],
+  );
+  const transparencyRoot = useMemo(
+    () => result && dynamicTenGod && tenGodRepeat
+      ? auditBaziTransparencyRoots(result, dynamicTenGod, tenGodRepeat)
+      : null,
+    [result, dynamicTenGod, tenGodRepeat],
   );
   useEffect(() => {
     if (!annualTimeline) return;
@@ -355,7 +369,7 @@ export default function BaziWorkspace() {
           </button>
           <div className="text-right">
             <h1 className="text-lg font-semibold tracking-wide">八字确定性排盘</h1>
-            <p className="text-xs" style={{ color: 'var(--tx-3)' }}>M9-9 · 岁运十神组合与显隐重复证据审计</p>
+            <p className="text-xs" style={{ color: 'var(--tx-3)' }}>M9-10 · 岁运透干与通根条件证据审计</p>
           </div>
         </div>
       </header>
@@ -466,6 +480,7 @@ export default function BaziWorkspace() {
             {relationAdjudication && <BaziRelationAdjudicationPanel result={relationAdjudication} selectedYear={selectedAnnualYear} />}
             {dynamicTenGod && <BaziDynamicTenGodPanel result={dynamicTenGod} selectedYear={selectedAnnualYear} />}
             {tenGodRepeat && <BaziTenGodRepeatPanel result={tenGodRepeat} selectedYear={selectedAnnualYear} />}
+            {transparencyRoot && <BaziTransparencyRootPanel result={transparencyRoot} selectedYear={selectedAnnualYear} />}
           </>}
         </section>
       </div>
@@ -605,7 +620,7 @@ function BaziResult({ result }: { result: BaziCalculationResult }) {
 
     <section className="flex gap-3 rounded-xl border p-4" style={{ borderColor: 'var(--bdr)', background: 'var(--bg-1)' }}>
       <Info className="mt-0.5 shrink-0" size={18} style={{ color: 'var(--ac-dim)' }} />
-      <p className="text-xs leading-5" style={{ color: 'var(--tx-3)' }}>当前已开放至 M9-9：除动态十神和原局指向外，还可查看同干、同十神在原局、大运、流年的表层／藏干重复簇。重复次数只表示位置数量；透干、通根、藏干引动、强弱作用、吉凶和具体事件仍未开放。</p>
+      <p className="text-xs leading-5" style={{ color: 'var(--tx-3)' }}>当前已开放至 M9-10：可查看同干／同十神重复簇，并继续审计藏干是否存在完全同干表层、表层是否具有严格同干根或仅同五行支持。条件匹配不等于透干有效、根气有力、藏干引动、旺衰变化、吉凶或具体事件。</p>
     </section>
   </div>;
 }
@@ -1037,6 +1052,88 @@ function tenGodRepeatPatternLabel(pattern: string): string {
     hidden_cross_layer_repeat: '跨层藏干同见',
     annual_luck_repeat: '流年与大运同见',
   } as Record<string, string>)[pattern] ?? pattern;
+}
+
+function BaziTransparencyRootPanel({ result, selectedYear }: { result: BaziTransparencyRootResult; selectedYear: number }) {
+  const year = result.years.find(item => item.year === selectedYear) ?? result.years[0];
+  if (!year) return null;
+  return <section data-testid="bazi-transparency-root-audit" className="mt-5 rounded-xl border p-5 md:p-6" style={{ borderColor: 'var(--t-border-acc)', background: 'var(--bg-card)' }}>
+    <div className="flex flex-wrap items-start justify-between gap-4">
+      <div className="flex items-start gap-3">
+        <div className="rounded-lg p-2" style={{ color: 'var(--ac-dim)', background: 'var(--ac-bg)' }}><ShieldCheck size={19} /></div>
+        <div>
+          <p className="text-[10px] tracking-[.18em]" style={{ color: 'var(--ac-dim)' }}>M9-10 · 透干与通根条件证据</p>
+          <h2 className="mt-1 text-lg font-semibold">{year.year} {year.annualGanZhi} · 岁运透干与通根条件审计</h2>
+          <p className="mt-1 text-xs leading-5" style={{ color: 'var(--tx-3)' }}>完全同干、仅同五行、月令藏干和坐支位置分别记录；条件匹配不折算力量。</p>
+        </div>
+      </div>
+      <div className="flex flex-wrap gap-2 text-[9px]">
+        <span className="rounded-full px-2.5 py-1" style={{ color: 'var(--ac-dim)', background: 'var(--bg-1)' }}>透出匹配 {year.counts.transparencyMatched}</span>
+        <span className="rounded-full px-2.5 py-1" style={{ color: 'var(--lu)', background: 'var(--bg-1)' }}>严格同干根 {year.counts.exactSameStemRoots}</span>
+        <span className="rounded-full px-2.5 py-1" style={{ color: 'var(--tx-3)', background: 'var(--bg-1)' }}>仅同五行 {year.counts.sameElementSupportOnly}</span>
+      </div>
+    </div>
+
+    <div className="mt-5 space-y-4">
+      {year.segments.map(segment => <article key={segment.segmentIndex} data-testid="transparency-root-segment" className="rounded-xl border p-4" style={{ borderColor: 'var(--bdr)', background: 'var(--bg-1)' }}>
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div><h3 className="text-sm font-semibold">片段 {segment.segmentIndex} · {segment.label}</h3><p className="mt-1 font-mono text-[9px]" style={{ color: 'var(--tx-3)' }}>{segment.startAt ?? '起点未生成'} — {segment.endAtExclusive ? `${segment.endAtExclusive} 前` : '终点未生成'}</p></div>
+          <span className="text-[9px]" style={{ color: 'var(--tx-3)' }}>月令匹配 {segment.counts.monthCommandMatched} · 坐支同干 {segment.counts.selfSeatExactRoots}</span>
+        </div>
+
+        <div className="mt-4 grid gap-4 xl:grid-cols-2">
+          <div>
+            <div className="flex items-center justify-between gap-2"><h4 className="text-xs font-semibold">藏干 → 表层：透出条件</h4><span className="text-[9px]" style={{ color: 'var(--tx-3)' }}>匹配 {segment.counts.transparencyMatched} · 缺失 {segment.counts.transparencyMissing}</span></div>
+            <div className="mt-2 space-y-2">
+              {segment.transparencyCandidates.map(candidate => <TransparencyCandidateCard key={candidate.id} candidate={candidate} />)}
+              {segment.transparencyCandidates.length === 0 && <p className="rounded-lg border border-dashed p-4 text-xs" style={{ borderColor: 'var(--bdr)', color: 'var(--tx-3)' }}>本片段没有动态相关藏干透出候选。</p>}
+            </div>
+          </div>
+          <div>
+            <div className="flex items-center justify-between gap-2"><h4 className="text-xs font-semibold">表层 → 藏干：根气条件</h4><span className="text-[9px]" style={{ color: 'var(--tx-3)' }}>同干 {segment.counts.exactSameStemRoots} · 同五行 {segment.counts.sameElementSupportOnly} · 缺失 {segment.counts.hiddenSupportMissing}</span></div>
+            <div className="mt-2 space-y-2">
+              {segment.rootCandidates.map(candidate => <RootCandidateCard key={candidate.id} candidate={candidate} />)}
+              {segment.rootCandidates.length === 0 && <p className="rounded-lg border border-dashed p-4 text-xs" style={{ borderColor: 'var(--bdr)', color: 'var(--tx-3)' }}>本片段没有动态相关表层根气候选。</p>}
+            </div>
+          </div>
+        </div>
+      </article>)}
+    </div>
+
+    <div className="mt-4 rounded-lg border p-3" style={{ borderColor: 'rgba(168,120,35,.3)', background: 'rgba(168,120,35,.06)' }}>
+      <p className="text-[10px] leading-5" style={{ color: 'var(--tx-3)' }}>“透出条件匹配”不等于透干有效；“严格同干根”“同五行支持”“坐支同干”也不等于强根、真根或旺衰增强。</p>
+      <p className="mt-1 text-[9px]" style={{ color: 'var(--tx-3)' }}>{result.boundary} · {result.methodologyVersion}</p>
+    </div>
+  </section>;
+}
+
+function TransparencyCandidateCard({ candidate }: { candidate: BaziTransparencyCandidate }) {
+  const matched = candidate.status === 'exact_surface_matched';
+  return <div data-testid="transparency-candidate" className="rounded-lg border p-3" style={{ borderColor: matched ? 'var(--ac-bdr)' : 'var(--bdr)', background: 'var(--bg-card)' }}>
+    <div className="flex flex-wrap items-start justify-between gap-2">
+      <div><p className="text-xs font-semibold"><span className="font-serif text-base" style={{ color: 'var(--ac-dim)' }}>{candidate.stem}</span> · {candidate.tenGod}</p><p className="mt-1 text-[9px] leading-4" style={{ color: 'var(--tx-3)' }}>{candidate.hiddenOccurrence.label}</p></div>
+      <span className="rounded-full px-2 py-1 text-[9px]" style={{ color: matched ? 'var(--lu)' : 'var(--tx-3)', background: 'var(--bg-1)' }}>{matched ? '完全同干已匹配' : '缺少完全同干表层'}</span>
+    </div>
+    <p className="mt-2 text-[9px] leading-4" style={{ color: 'var(--tx-2)' }}>{candidate.scope === 'month_command_hidden_stem' ? '月令藏干' : '一般藏干'} · 表层：{candidate.surfaceMatches.map(item => item.label).join('；') || '无'}</p>
+    <ConditionChecks checks={candidate.conditionChecks} />
+  </div>;
+}
+
+function RootCandidateCard({ candidate }: { candidate: BaziRootCandidate }) {
+  const label = candidate.status === 'exact_same_stem_root' ? '严格同干根候选' : candidate.status === 'same_element_support_only' ? '仅同五行支持' : '缺少藏干支持';
+  return <div data-testid="root-candidate" className="rounded-lg border p-3" style={{ borderColor: candidate.status === 'exact_same_stem_root' ? 'var(--ac-bdr)' : 'var(--bdr)', background: 'var(--bg-card)' }}>
+    <div className="flex flex-wrap items-start justify-between gap-2">
+      <div><p className="text-xs font-semibold"><span className="font-serif text-base" style={{ color: 'var(--ac-dim)' }}>{candidate.stem}</span> · {candidate.tenGod ?? '日主参照'}</p><p className="mt-1 text-[9px] leading-4" style={{ color: 'var(--tx-3)' }}>{candidate.surfaceOccurrence.label}</p></div>
+      <div className="flex flex-wrap gap-1"><span className="rounded-full px-2 py-1 text-[9px]" style={{ color: candidate.status === 'exact_same_stem_root' ? 'var(--lu)' : 'var(--tx-3)', background: 'var(--bg-1)' }}>{label}</span>{candidate.selfSeatExactRoot && <span className="rounded-full px-2 py-1 text-[9px]" style={{ color: 'var(--ac-dim)', background: 'var(--ac-bg)' }}>坐支同干</span>}</div>
+    </div>
+    <p className="mt-2 text-[9px] leading-4" style={{ color: 'var(--tx-2)' }}>完全同干：{candidate.exactRootMatches.map(item => item.label).join('；') || '无'}</p>
+    <p className="mt-1 text-[9px] leading-4" style={{ color: 'var(--tx-3)' }}>同五行不同干：{candidate.sameElementSupportMatches.map(item => item.label).join('；') || '无'}</p>
+    <ConditionChecks checks={candidate.conditionChecks} />
+  </div>;
+}
+
+function ConditionChecks({ checks }: { checks: BaziTransparencyRootConditionCheck[] }) {
+  return <div className="mt-2 flex flex-wrap gap-1">{checks.map(check => <span key={check.code} title={check.detail} className="rounded px-1.5 py-0.5 text-[8px]" style={{ color: check.state === 'met' ? 'var(--lu)' : 'var(--tx-3)', background: 'var(--bg-1)' }}>{check.state === 'met' ? '✓' : check.state === 'missing' ? '—' : '·'} {check.label}</span>)}</div>;
 }
 
 function relationText(relation: string): string {
