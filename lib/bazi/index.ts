@@ -101,6 +101,16 @@ export {
   assertValidBaziStrengthCompositeMethodology,
   validateBaziStrengthCompositeMethodology,
 } from './strength-composite-validator';
+export { auditBaziPatternConditions } from './pattern-condition-engine';
+export {
+  BAZI_PATTERN_CONDITION_ENGINE_VERSION,
+  BAZI_PATTERN_CONDITION_METHODOLOGY,
+  BAZI_PATTERN_CONDITION_METHODOLOGY_VERSION,
+} from './pattern-condition-methodology';
+export {
+  assertValidBaziPatternConditionMethodology,
+  validateBaziPatternConditionMethodology,
+} from './pattern-condition-validator';
 export * from './types';
 export * from './interpretation-types';
 export * from './luck-cycle-types';
@@ -112,3 +122,4 @@ export * from './ten-god-repeat-types';
 export * from './transparency-root-types';
 export * from './hidden-stem-activation-types';
 export * from './strength-composite-types';
+export * from './pattern-condition-types';

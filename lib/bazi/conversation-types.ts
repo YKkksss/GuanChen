@@ -10,6 +10,7 @@ import type { BaziTenGodRepeatVersion } from './ten-god-repeat-types';
 import type { BaziTransparencyRootVersion } from './transparency-root-types';
 import type { BaziHiddenStemActivationVersion } from './hidden-stem-activation-types';
 import type { BaziStrengthCompositeVersion } from './strength-composite-types';
+import type { BaziPatternConditionVersion } from './pattern-condition-types';
 
 export type BaziConversationStatus = 'active' | 'archived';
 export type BaziMessageRole = 'user' | 'assistant' | 'system';
@@ -39,6 +40,7 @@ export interface BaziConversation {
   transparencyRootVersionId: string | null;
   hiddenStemActivationVersionId: string | null;
   strengthCompositeVersionId: string | null;
+  patternConditionVersionId: string | null;
   title: string;
   status: BaziConversationStatus;
   methodologyVersion: string;
@@ -66,6 +68,7 @@ export interface BaziConversationDetail extends BaziConversation {
   transparencyRoot: BaziTransparencyRootVersion | null;
   hiddenStemActivation: BaziHiddenStemActivationVersion | null;
   strengthComposite: BaziStrengthCompositeVersion | null;
+  patternCondition: BaziPatternConditionVersion | null;
 }
 
 export interface BaziConversationListItem extends BaziConversation {

@@ -1911,6 +1911,51 @@ function migrate(db: Database.Database) {
     applyV34();
   }
 
+  if (!applied.has(35)) {
+    const applyV35 = db.transaction(() => {
+      db.exec(`
+        CREATE TABLE bazi_pattern_condition_versions (
+          id TEXT PRIMARY KEY,
+          chart_version_id TEXT NOT NULL,
+          analysis_version_id TEXT NOT NULL,
+          strength_composite_version_id TEXT NOT NULL,
+          methodology_version TEXT NOT NULL,
+          engine_version TEXT NOT NULL,
+          chart_fingerprint TEXT NOT NULL,
+          analysis_fingerprint TEXT NOT NULL,
+          strength_composite_fingerprint TEXT NOT NULL,
+          pattern_condition_fingerprint TEXT NOT NULL,
+          result_json TEXT NOT NULL,
+          created_at INTEGER NOT NULL,
+          updated_at INTEGER NOT NULL,
+
+          UNIQUE (
+            chart_version_id, analysis_version_id, strength_composite_version_id,
+            methodology_version, engine_version
+          ),
+          FOREIGN KEY (chart_version_id) REFERENCES bazi_chart_versions(id) ON DELETE CASCADE,
+          FOREIGN KEY (analysis_version_id) REFERENCES bazi_analysis_versions(id) ON DELETE CASCADE,
+          FOREIGN KEY (strength_composite_version_id) REFERENCES bazi_strength_composite_versions(id) ON DELETE CASCADE
+        );
+
+        ALTER TABLE bazi_conversations
+          ADD COLUMN pattern_condition_version_id TEXT
+          REFERENCES bazi_pattern_condition_versions(id)
+          ON DELETE SET NULL;
+
+        CREATE INDEX idx_bazi_pattern_condition_chart_updated
+          ON bazi_pattern_condition_versions(chart_version_id, updated_at DESC);
+        CREATE INDEX idx_bazi_pattern_condition_fingerprint
+          ON bazi_pattern_condition_versions(pattern_condition_fingerprint);
+        CREATE INDEX idx_bazi_conversations_pattern_condition
+          ON bazi_conversations(pattern_condition_version_id);
+      `);
+      db.prepare('INSERT INTO schema_migrations(version, applied_at) VALUES (?, ?)')
+        .run(35, Date.now());
+    });
+    applyV35();
+  }
+
   ensureMessageSearch(db);
 }
 

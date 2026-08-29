@@ -70,6 +70,12 @@ import type {
   BaziStrengthCompositeEvidence,
   BaziStrengthCompositeResult,
 } from '@/lib/bazi/strength-composite-types';
+import { auditBaziPatternConditions } from '@/lib/bazi/pattern-condition-engine';
+import type {
+  BaziPatternCandidateConditionAudit,
+  BaziPatternConditionCheck,
+  BaziPatternConditionResult,
+} from '@/lib/bazi/pattern-condition-types';
 
 interface FormState {
   displayName: string;
@@ -151,6 +157,7 @@ export default function BaziWorkspace() {
       fetch(`/api/bazi/charts/${currentChartId}/transparency-roots`, { method: 'POST' }),
       fetch(`/api/bazi/charts/${currentChartId}/hidden-stem-activations`, { method: 'POST' }),
       fetch(`/api/bazi/charts/${currentChartId}/strength-composites`, { method: 'POST' }),
+      fetch(`/api/bazi/charts/${currentChartId}/pattern-conditions`, { method: 'POST' }),
     ]).catch(() => undefined);
   }, [currentChartId]);
 
@@ -207,6 +214,12 @@ export default function BaziWorkspace() {
       ? auditBaziStrengthComposite(result, interpretation, dynamicTenGod, transparencyRoot, hiddenStemActivation)
       : null,
     [result, interpretation, dynamicTenGod, transparencyRoot, hiddenStemActivation],
+  );
+  const patternCondition = useMemo(
+    () => result && interpretation && strengthComposite
+      ? auditBaziPatternConditions(result, interpretation, strengthComposite)
+      : null,
+    [result, interpretation, strengthComposite],
   );
   useEffect(() => {
     if (!annualTimeline) return;
@@ -395,7 +408,7 @@ export default function BaziWorkspace() {
           </button>
           <div className="text-right">
             <h1 className="text-lg font-semibold tracking-wide">八字确定性排盘</h1>
-            <p className="text-xs" style={{ color: 'var(--tx-3)' }}>M9-10 · 岁运透干与通根条件证据审计</p>
+            <p className="text-xs" style={{ color: 'var(--tx-3)' }}>M9-13 · 格局成败、破格与救应条件证据审计</p>
           </div>
         </div>
       </header>
@@ -509,6 +522,7 @@ export default function BaziWorkspace() {
             {transparencyRoot && <BaziTransparencyRootPanel result={transparencyRoot} selectedYear={selectedAnnualYear} />}
             {hiddenStemActivation && <BaziHiddenStemActivationPanel result={hiddenStemActivation} selectedYear={selectedAnnualYear} />}
             {strengthComposite && <BaziStrengthCompositePanel result={strengthComposite} selectedYear={selectedAnnualYear} />}
+            {patternCondition && <BaziPatternConditionPanel result={patternCondition} />}
           </>}
         </section>
       </div>
@@ -1276,6 +1290,80 @@ function strengthReviewFlagLabel(flag: string): string {
     static_baseline_mixed: '静态基线并见', dynamic_surface_mixed: '岁运表层并见',
     month_command_touch_present: '月令触达待复核', month_command_relation_state_unresolved: '月令关系状态未决',
     day_master_root_condition_present: '日主根气条件', dynamic_hidden_position_only: '岁运藏干仅位置／条件',
+  } as Record<string, string>)[flag] ?? flag;
+}
+
+function BaziPatternConditionPanel({ result }: { result: BaziPatternConditionResult }) {
+  return <section data-testid="bazi-pattern-condition-audit" className="mt-5 rounded-xl border p-5 md:p-6" style={{ borderColor: 'var(--t-border-acc)', background: 'var(--bg-card)' }}>
+    <div className="flex flex-wrap items-start justify-between gap-4">
+      <div className="flex items-start gap-3">
+        <div className="rounded-lg p-2" style={{ color: 'var(--ac-dim)', background: 'var(--ac-bg)' }}><ShieldCheck size={19} /></div>
+        <div>
+          <p className="text-[10px] tracking-[.18em]" style={{ color: 'var(--ac-dim)' }}>M9-13 · 格局条件证据审计</p>
+          <h2 className="mt-1 text-lg font-semibold">成格支持 · 破格风险 · 救应候选</h2>
+          <p className="mt-1 text-xs leading-5" style={{ color: 'var(--tx-3)' }}>月令 {result.monthCommand.branch} · {result.monthCommand.candidateCount} 个候选 · M9-12 静态上下文：{result.strengthContext.label}</p>
+        </div>
+      </div>
+      <span className="rounded-full px-2.5 py-1 text-[9px]" style={{ color: result.status === 'complete' ? 'var(--lu)' : 'var(--ji)', background: 'var(--bg-1)' }}>{result.status === 'complete' ? '四柱条件完整' : '时柱未知，缺项降级'}</span>
+    </div>
+
+    {result.candidates.length ? <div className="mt-5 space-y-4">{result.candidates.map(candidate => <PatternCandidateCard key={candidate.id} candidate={candidate} />)}</div> : <div className="mt-5 rounded-xl border border-dashed px-4 py-8 text-center text-xs" style={{ borderColor: 'var(--bdr-heavy)', color: 'var(--tx-3)' }}>M9-3 当前没有生成可审计的月令格局候选。</div>}
+
+    <div className="mt-4 rounded-lg border px-3 py-2 text-[10px] leading-5" style={{ borderColor: 'var(--bdr)', color: 'var(--tx-3)', background: 'var(--bg-1)' }}><Info className="mr-1 inline" size={13} />{result.boundary}</div>
+  </section>;
+}
+
+function PatternCandidateCard({ candidate }: { candidate: BaziPatternCandidateConditionAudit }) {
+  return <article className="rounded-xl border p-4" style={{ borderColor: 'var(--bdr)', background: 'var(--bg-1)' }}>
+    <div className="flex flex-wrap items-start justify-between gap-3">
+      <div>
+        <div className="flex flex-wrap items-center gap-2"><h3 className="text-sm font-semibold">{candidate.label}</h3><span className="rounded px-1.5 py-0.5 text-[8px]" style={{ color: 'var(--ac-dim)', background: 'var(--ac-bg)' }}>{candidate.archetypeLabel}</span></div>
+        <p className="mt-1 text-[9px]" style={{ color: 'var(--tx-3)' }}>来源 {candidate.sourceStem} · {patternQiLabel(candidate.sourceQi)} · {candidate.transparentAt.length ? `透于${candidate.transparentAt.join('、')}` : '未见表层同干'} · 上游 {patternUpstreamStatusLabel(candidate.upstreamStatus)}</p>
+      </div>
+      <div className="flex gap-1.5 text-[8px]"><span className="rounded px-1.5 py-1" style={{ color: 'var(--lu)', background: 'var(--bg-card)' }}>支持 {candidate.counts.formationEvidencePresent}</span><span className="rounded px-1.5 py-1" style={{ color: 'var(--ji)', background: 'var(--bg-card)' }}>风险 {candidate.counts.breakingRiskEvidencePresent}</span><span className="rounded px-1.5 py-1" style={{ color: 'var(--ac-dim)', background: 'var(--bg-card)' }}>救应 {candidate.counts.rescueEvidencePresent}</span></div>
+    </div>
+    <div className="mt-3 grid gap-3 lg:grid-cols-3">
+      <PatternConditionColumn title="成格支持条件" checks={candidate.formationSupport} tone="support" />
+      <PatternConditionColumn title="破格风险条件" checks={candidate.breakingRisks} tone="risk" />
+      <PatternConditionColumn title="救应候选" checks={candidate.rescueCandidates} tone="rescue" />
+    </div>
+    <div className="mt-3 flex flex-wrap gap-1">{candidate.reviewFlags.map(flag => <span key={flag} className="rounded px-1.5 py-0.5 text-[8px]" style={{ color: 'var(--tx-3)', background: 'var(--bg-card)' }}>{patternReviewFlagLabel(flag)}</span>)}</div>
+    <p className="mt-2 text-[9px] leading-4" style={{ color: 'var(--tx-3)' }}>{candidate.boundary}</p>
+  </article>;
+}
+
+function PatternConditionColumn({ title, checks, tone }: { title: string; checks: BaziPatternConditionCheck[]; tone: 'support' | 'risk' | 'rescue' }) {
+  const color = tone === 'support' ? 'var(--lu)' : tone === 'risk' ? 'var(--ji)' : 'var(--ac-dim)';
+  return <div className="rounded-lg border p-3" style={{ borderColor: 'var(--bdr)', background: 'var(--bg-card)' }}>
+    <p className="text-[10px] font-semibold" style={{ color }}>{title}</p>
+    <div className="mt-2 space-y-1.5">{checks.map(check => <div key={check.id} title={`${check.detail} ${check.boundary}`} className="rounded-lg px-2.5 py-2" style={{ background: 'var(--bg-1)' }}>
+      <div className="flex items-start justify-between gap-2"><p className="text-[9px] font-medium" style={{ color: 'var(--tx-2)' }}>{check.label}</p><span className="shrink-0 text-[8px]" style={{ color: patternConditionStatusColor(check.status) }}>{check.statusLabel}</span></div>
+      <p className="mt-1 text-[8px] leading-4" style={{ color: 'var(--tx-3)' }}>{check.evidence.map(item => item.label).join('；') || check.detail}</p>
+    </div>)}</div>
+  </div>;
+}
+
+function patternConditionStatusColor(status: string): string {
+  if (status === 'evidence_present') return 'var(--lu)';
+  if (status === 'requires_manual_review' || status === 'unknown_due_to_missing_time') return 'var(--ac-dim)';
+  return 'var(--tx-3)';
+}
+
+function patternQiLabel(qi: string): string {
+  return ({ main_qi: '月令本气', secondary_qi: '月令中气', residual_qi: '月令余气' } as Record<string, string>)[qi] ?? qi;
+}
+
+function patternUpstreamStatusLabel(status: string): string {
+  return ({ supported_candidate: '有透出支持', candidate: '候选', review_required: '需要复核' } as Record<string, string>)[status] ?? status;
+}
+
+function patternReviewFlagLabel(flag: string): string {
+  return ({
+    unknown_time: '时柱未知', storage_month: '杂气月', multiple_month_candidates: '月令多候选',
+    upstream_candidate_review_required: '上游候选待复核', month_branch_interaction: '月支参与结构关系',
+    strength_context_not_final: '身用承载未定', hidden_role_not_surface: '仅藏未透',
+    combination_effect_unresolved: '五合效果未决', yang_blade_variant: '阳刃路径',
+    metal_water_hurting_officer_exception_pending: '金水伤官例外待校',
   } as Record<string, string>)[flag] ?? flag;
 }
 

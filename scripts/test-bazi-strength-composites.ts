@@ -127,7 +127,7 @@ async function main() {
     }));
     const conversation = (await json<{ conversation: { id: string; strengthCompositeVersionId: string; promptVersion: string } }>(conversationResponse)).conversation;
     assert.equal(conversation.strengthCompositeVersionId, first.id);
-    assert.equal(conversation.promptVersion, 'bazi-chat-strength-composite-v11');
+    assert.equal(conversation.promptVersion, 'bazi-chat-pattern-condition-v12');
     const question = appendBaziMessage({ conversationId: conversation.id, role: 'user', content: '请解释2026年月令和旺衰综合证据矩阵' });
     const built = buildBaziConversationContext({
       conversationId: conversation.id, currentMessageId: question.id,
