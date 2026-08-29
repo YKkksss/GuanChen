@@ -3,6 +3,7 @@
 import {
   ArrowLeft,
   CalendarDots,
+  ChatCircleDots,
   Clock,
   Database,
   FloppyDisk,
@@ -14,7 +15,7 @@ import {
   Trash,
   Warning,
 } from '@phosphor-icons/react';
-import { FormEvent, useCallback, useEffect, useState } from 'react';
+import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import type {
   BaziBirthProfileDetail,
@@ -24,6 +25,8 @@ import type {
   BaziElement,
   BaziPillar,
 } from '@/lib/bazi/types';
+import { analyzeBaziInterpretation } from '@/lib/bazi/interpretation-engine';
+import type { BaziInterpretationResult } from '@/lib/bazi/interpretation-types';
 
 interface FormState {
   displayName: string;
@@ -72,6 +75,7 @@ export default function BaziWorkspace() {
   const [historyLoading, setHistoryLoading] = useState(true);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [startingChat, setStartingChat] = useState(false);
   const [busyId, setBusyId] = useState('');
   const [error, setError] = useState('');
 
@@ -90,6 +94,16 @@ export default function BaziWorkspace() {
   }, []);
 
   useEffect(() => { void loadProfiles(); }, [loadProfiles]);
+  useEffect(() => {
+    if (!currentChartId) return;
+    void fetch(`/api/bazi/charts/${currentChartId}/analysis`, { method: 'POST' })
+      .catch(() => undefined);
+  }, [currentChartId]);
+
+  const interpretation = useMemo(
+    () => result ? analyzeBaziInterpretation(result) : null,
+    [result],
+  );
 
   const update = <K extends keyof FormState>(key: K, value: FormState[K]) => {
     setForm(current => ({ ...current, [key]: value }));
@@ -214,7 +228,7 @@ export default function BaziWorkspace() {
   };
 
   const deleteChart = async (chart: BaziChartVersion) => {
-    if (!window.confirm('确定删除这个排盘版本吗？出生档案和其他版本会保留。')) return;
+    if (!window.confirm('确定删除这个排盘版本吗？关联的八字解读会话和消息也会删除；出生档案及其他版本会保留。')) return;
     setBusyId(chart.id);
     try {
       const response = await fetch(`/api/bazi/charts/${chart.id}`, { method: 'DELETE' });
@@ -232,7 +246,7 @@ export default function BaziWorkspace() {
   };
 
   const deleteProfile = async (profile: BaziBirthProfileListItem) => {
-    if (!window.confirm(`确定删除出生档案“${profile.displayName}”吗？其中的全部八字版本也会删除。`)) return;
+    if (!window.confirm(`确定删除出生档案“${profile.displayName}”吗？其中的全部八字版本、解读会话和消息也会删除。`)) return;
     setBusyId(profile.id);
     try {
       const response = await fetch(`/api/bazi/profiles/${profile.id}`, { method: 'DELETE' });
@@ -246,6 +260,24 @@ export default function BaziWorkspace() {
     }
   };
 
+  const startChat = async () => {
+    if (!currentChartId || startingChat) return;
+    setStartingChat(true);
+    setError('');
+    try {
+      const response = await fetch('/api/bazi/conversations', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ chartVersionId: currentChartId }),
+      });
+      const data = await response.json() as { conversation?: { id: string }; error?: string };
+      if (!response.ok || !data.conversation) throw new Error(data.error || '八字解读会话创建失败');
+      router.push(`/bazi/chat/${data.conversation.id}`);
+    } catch (chatError) {
+      setError(chatError instanceof Error ? chatError.message : '八字解读会话创建失败');
+      setStartingChat(false);
+    }
+  };
+
   return (
     <main className="min-h-[100dvh]" style={{ background: 'var(--bg-0)', color: 'var(--tx-1)' }}>
       <header className="border-b" style={{ borderColor: 'var(--bdr)', background: 'var(--bg-card)' }}>
@@ -255,7 +287,7 @@ export default function BaziWorkspace() {
           </button>
           <div className="text-right">
             <h1 className="text-lg font-semibold tracking-wide">八字确定性排盘</h1>
-            <p className="text-xs" style={{ color: 'var(--tx-3)' }}>M9-1 · 出生档案与多版本排盘</p>
+            <p className="text-xs" style={{ color: 'var(--tx-3)' }}>M9-3 · 旺衰、格局与用神证据审计</p>
           </div>
         </div>
       </header>
@@ -346,7 +378,9 @@ export default function BaziWorkspace() {
             selectedProfile={selectedProfile}
             currentChartId={currentChartId}
             saving={saving}
+            startingChat={startingChat}
             onSave={saveCurrent}
+            onChat={startChat}
           />}
           {selectedProfile && selectedProfile.charts.length > 0 && <ChartVersionPanel
             profile={selectedProfile}
@@ -355,7 +389,10 @@ export default function BaziWorkspace() {
             onOpen={openChart}
             onDelete={deleteChart}
           />}
-          {!result ? <EmptyState /> : <BaziResult result={result} />}
+          {!result ? <EmptyState /> : <>
+            <BaziResult result={result} />
+            {interpretation && <BaziInterpretationPanel result={interpretation} />}
+          </>}
         </section>
       </div>
     </main>
@@ -394,12 +431,14 @@ function SavedProfilesPanel({
 }
 
 function PersistenceBar({
-  selectedProfile, currentChartId, saving, onSave,
+  selectedProfile, currentChartId, saving, startingChat, onSave, onChat,
 }: {
   selectedProfile: BaziBirthProfileDetail | null;
   currentChartId: string | null;
   saving: boolean;
+  startingChat: boolean;
   onSave: () => Promise<void>;
+  onChat: () => Promise<void>;
 }) {
   const saved = Boolean(currentChartId);
   return <section className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border p-4" style={{ borderColor: saved ? 'rgba(45,122,74,.3)' : 'var(--t-border-acc)', background: 'var(--bg-card)' }}>
@@ -407,7 +446,10 @@ function PersistenceBar({
       <div className="rounded-lg p-2" style={{ color: saved ? 'var(--lu)' : 'var(--ac-dim)', background: 'var(--bg-1)' }}>{saved ? <FolderOpen size={18} /> : <FloppyDisk size={18} />}</div>
       <div><p className="text-sm font-medium">{saved ? '当前版本已保存在本地' : selectedProfile ? `保存为“${selectedProfile.displayName}”的新版本` : '把当前结果保存为出生档案'}</p><p className="mt-1 text-xs" style={{ color: 'var(--tx-3)' }}>{saved ? '可从左侧历史重新打开，并保留实际计算口径。' : '相同档案与相同规则会自动复用已有版本。'}</p></div>
     </div>
-    <button type="button" disabled={saving || saved} onClick={() => void onSave()} className="btn-accent !px-5 !py-2.5 disabled:cursor-default disabled:opacity-55"><FloppyDisk size={15} /> {saving ? '正在保存…' : saved ? '已保存' : '保存当前排盘'}</button>
+    <div className="flex flex-wrap gap-2">
+      <button type="button" disabled={saving || saved} onClick={() => void onSave()} className="btn-accent !px-5 !py-2.5 disabled:cursor-default disabled:opacity-55"><FloppyDisk size={15} /> {saving ? '正在保存…' : saved ? '已保存' : '保存当前排盘'}</button>
+      {saved && <button type="button" disabled={startingChat} onClick={() => void onChat()} className="btn-accent !px-5 !py-2.5 disabled:opacity-55"><ChatCircleDots size={16} weight="fill" /> {startingChat ? '正在进入…' : '开始基础解读'}</button>}
+    </div>
   </section>;
 }
 
@@ -489,9 +531,50 @@ function BaziResult({ result }: { result: BaziCalculationResult }) {
 
     <section className="flex gap-3 rounded-xl border p-4" style={{ borderColor: 'var(--bdr)', background: 'var(--bg-1)' }}>
       <Info className="mt-0.5 shrink-0" size={18} style={{ color: 'var(--ac-dim)' }} />
-      <p className="text-xs leading-5" style={{ color: 'var(--tx-3)' }}>当前为 M9-1 可持久化基础盘：排盘事实和规则版本可保存在本地。旺衰、格局、用神、大运和流年尚未开放，后续会在规则来源与校验样例完成后分阶段加入。</p>
+      <p className="text-xs leading-5" style={{ color: 'var(--tx-3)' }}>当前为 M9-3 证据审计：旺衰只展示证据分布，格局只展示候选，用神按格局、扶抑、调候与通关分别记录。最终强弱、成格破格、最终用神、大运和流年仍未开放。</p>
     </section>
   </div>;
+}
+
+function BaziInterpretationPanel({ result }: { result: BaziInterpretationResult }) {
+  const statusLabel = (status: string) => ({
+    supported_candidate: '有透干支持', candidate: '基础候选', review_required: '需人工复核',
+    candidate_direction: '候选方向', reference_pending: '待校勘', withheld: '暂缓',
+  })[status] ?? status;
+  return <section className="mt-5 rounded-xl border p-5 md:p-6" style={{ borderColor: 'var(--t-border-acc)', background: 'var(--bg-card)' }}>
+    <div className="flex flex-wrap items-start justify-between gap-3">
+      <div className="flex items-start gap-3"><div className="rounded-lg p-2" style={{ color: 'var(--ac-dim)', background: 'var(--ac-bg)' }}><GitBranch size={19} /></div><div><p className="text-[10px] tracking-[.18em]" style={{ color: 'var(--ac-dim)' }}>M9-3 · 规则证据审计</p><h2 className="mt-1 text-lg font-semibold">旺衰、格局与用神方法分层</h2><p className="mt-1 text-xs leading-5" style={{ color: 'var(--tx-3)' }}>不使用旺衰总分；每个标签都能回看证据、规则版本和暂缓原因。</p></div></div>
+      <span className="rounded-full px-3 py-1 text-[10px]" style={{ color: 'var(--lu)', background: 'var(--bg-1)' }}>{result.methodologyVersion}</span>
+    </div>
+
+    <div className="mt-5 grid gap-4 xl:grid-cols-3">
+      <article className="rounded-xl border p-4" style={{ borderColor: 'var(--bdr)', background: 'var(--bg-1)' }}>
+        <div className="flex items-center justify-between gap-2"><h3 className="text-sm font-semibold">旺衰证据</h3><span className="rounded-full px-2 py-0.5 text-[9px]" style={{ color: 'var(--ac-dim)', background: 'var(--ac-bg)' }}>置信度 {result.strength.confidence === 'medium' ? '中' : '低'}</span></div>
+        <p className="mt-3 text-base font-semibold">{result.strength.label}</p>
+        <p className="mt-1 text-[10px]" style={{ color: 'var(--tx-3)' }}>月支 {result.strength.monthBranch} · 本气 {result.strength.monthMainQiStem} · {relationText(result.strength.monthRelation)}</p>
+        <div className="mt-3 space-y-2">{result.strength.rationale.map(item => <p key={item} className="text-[10px] leading-5" style={{ color: 'var(--tx-2)' }}>◇ {item}</p>)}</div>
+        <p className="mt-3 border-t pt-3 text-[9px] leading-5" style={{ borderColor: 'var(--bdr)', color: 'var(--tx-3)' }}>{result.strength.boundary}</p>
+      </article>
+
+      <article className="rounded-xl border p-4" style={{ borderColor: 'var(--bdr)', background: 'var(--bg-1)' }}>
+        <div className="flex items-center justify-between gap-2"><h3 className="text-sm font-semibold">月令格局候选</h3>{result.pattern.requiresManualReview && <span className="rounded-full px-2 py-0.5 text-[9px]" style={{ color: 'var(--ji)', background: 'rgba(180,55,45,.07)' }}>需要复核</span>}</div>
+        <div className="mt-3 space-y-2">{result.pattern.candidates.map(candidate => <div key={`${candidate.sourceStem}-${candidate.tenGod}`} className="rounded-lg border p-3" style={{ borderColor: 'var(--bdr)', background: 'var(--bg-card)' }}><div className="flex justify-between gap-2"><span className="text-xs font-medium">{candidate.label}</span><span className="text-[9px]" style={{ color: 'var(--ac-dim)' }}>{statusLabel(candidate.status)}</span></div><p className="mt-1 text-[9px] leading-4" style={{ color: 'var(--tx-3)' }}>{candidate.reasons.join(' ')}</p></div>)}</div>
+        {result.pattern.candidates.length === 0 && <p className="mt-4 text-xs" style={{ color: 'var(--tx-3)' }}>当前没有可自动记录的月令候选。</p>}
+        <p className="mt-3 text-[9px] leading-5" style={{ color: 'var(--tx-3)' }}>{result.pattern.boundary}</p>
+      </article>
+
+      <article className="rounded-xl border p-4" style={{ borderColor: 'var(--bdr)', background: 'var(--bg-1)' }}>
+        <h3 className="text-sm font-semibold">分方法取用</h3>
+        <div className="mt-3 space-y-2">{result.usefulGod.methods.map(method => <div key={method.method} className="rounded-lg border p-3" style={{ borderColor: 'var(--bdr)', background: 'var(--bg-card)' }}><div className="flex justify-between gap-2"><span className="text-xs font-medium">{method.label}</span><span className="text-[9px]" style={{ color: method.status === 'candidate_direction' ? 'var(--lu)' : 'var(--tx-3)' }}>{statusLabel(method.status)}</span></div><p className="mt-1 text-[9px]" style={{ color: 'var(--ac-dim)' }}>元素：{method.candidateElements.join('、') || '暂不指定'}{method.candidateRoles.length ? ` · 角色：${method.candidateRoles.join('、')}` : ''}</p><p className="mt-1 text-[9px] leading-4" style={{ color: 'var(--tx-3)' }}>{method.boundary}</p></div>)}</div>
+      </article>
+    </div>
+
+    <div className="mt-4 rounded-lg border p-3" style={{ borderColor: 'rgba(180,125,35,.25)', background: 'rgba(180,125,35,.06)' }}><div className="flex items-start gap-2"><Warning size={15} className="mt-0.5 shrink-0" style={{ color: 'var(--ac-dim)' }} /><div><p className="text-[10px] leading-5">{result.usefulGod.terminologyWarning}</p><p className="mt-1 text-[9px] leading-4" style={{ color: 'var(--tx-3)' }}>{result.warnings.join(' ')}</p></div></div></div>
+  </section>;
+}
+
+function relationText(relation: string): string {
+  return ({ peer: '同类比劫', resource: '印星生助', output: '食伤泄气', wealth: '财星耗身', officer: '官杀制身' })[relation] ?? relation;
 }
 
 function PillarCard({ pillar, isDay }: { pillar: BaziPillar; isDay: boolean }) {

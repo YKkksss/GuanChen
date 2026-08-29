@@ -1339,6 +1339,141 @@ function migrate(db: Database.Database) {
     applyV23();
   }
 
+  if (!applied.has(24)) {
+    const applyV24 = db.transaction(() => {
+      db.exec(`
+        CREATE TABLE bazi_conversations (
+          id TEXT PRIMARY KEY,
+          chart_version_id TEXT NOT NULL,
+          title TEXT NOT NULL,
+          status TEXT NOT NULL DEFAULT 'active'
+            CHECK (status IN ('active', 'archived')),
+          methodology_version TEXT NOT NULL,
+          engine_version TEXT NOT NULL,
+          prompt_version TEXT NOT NULL,
+          summary_json TEXT,
+          summary_through_seq INTEGER NOT NULL DEFAULT 0,
+          summary_version INTEGER NOT NULL DEFAULT 1,
+          summary_updated_at INTEGER,
+          last_message_seq INTEGER NOT NULL DEFAULT 0,
+          created_at INTEGER NOT NULL,
+          updated_at INTEGER NOT NULL,
+
+          FOREIGN KEY (chart_version_id)
+            REFERENCES bazi_chart_versions(id)
+            ON DELETE CASCADE
+        );
+
+        CREATE TABLE bazi_messages (
+          id TEXT PRIMARY KEY,
+          conversation_id TEXT NOT NULL,
+          seq INTEGER NOT NULL,
+          role TEXT NOT NULL CHECK (role IN ('user', 'assistant', 'system')),
+          content TEXT NOT NULL DEFAULT '',
+          source TEXT NOT NULL DEFAULT 'question',
+          status TEXT NOT NULL DEFAULT 'completed'
+            CHECK (status IN ('pending', 'streaming', 'completed', 'failed', 'cancelled')),
+          token_count INTEGER NOT NULL DEFAULT 0,
+          error_code TEXT,
+          created_at INTEGER NOT NULL,
+          updated_at INTEGER NOT NULL,
+
+          UNIQUE (conversation_id, seq),
+          FOREIGN KEY (conversation_id)
+            REFERENCES bazi_conversations(id)
+            ON DELETE CASCADE
+        );
+
+        CREATE TABLE bazi_context_runs (
+          id TEXT PRIMARY KEY,
+          conversation_id TEXT NOT NULL,
+          trigger_message_id TEXT NOT NULL,
+          assistant_message_id TEXT NOT NULL,
+          provider TEXT NOT NULL,
+          model TEXT NOT NULL,
+          context_limit INTEGER NOT NULL,
+          output_reserve INTEGER NOT NULL,
+          input_budget INTEGER NOT NULL,
+          estimated_input_tokens INTEGER NOT NULL,
+          actual_input_tokens INTEGER,
+          actual_output_tokens INTEGER,
+          cached_input_tokens INTEGER,
+          summary_version INTEGER,
+          recent_message_start_seq INTEGER,
+          recent_message_count INTEGER NOT NULL DEFAULT 0,
+          context_manifest_json TEXT NOT NULL,
+          status TEXT NOT NULL DEFAULT 'pending'
+            CHECK (status IN ('pending', 'completed', 'failed')),
+          error_code TEXT,
+          created_at INTEGER NOT NULL,
+          completed_at INTEGER,
+
+          FOREIGN KEY (conversation_id)
+            REFERENCES bazi_conversations(id)
+            ON DELETE CASCADE,
+          FOREIGN KEY (trigger_message_id)
+            REFERENCES bazi_messages(id)
+            ON DELETE CASCADE,
+          FOREIGN KEY (assistant_message_id)
+            REFERENCES bazi_messages(id)
+            ON DELETE CASCADE
+        );
+
+        CREATE INDEX idx_bazi_conversations_status_updated
+          ON bazi_conversations(status, updated_at DESC);
+        CREATE INDEX idx_bazi_conversations_chart_updated
+          ON bazi_conversations(chart_version_id, updated_at DESC);
+        CREATE INDEX idx_bazi_messages_conversation_seq
+          ON bazi_messages(conversation_id, seq);
+        CREATE INDEX idx_bazi_messages_conversation_status
+          ON bazi_messages(conversation_id, status);
+        CREATE INDEX idx_bazi_context_runs_conversation_created
+          ON bazi_context_runs(conversation_id, created_at DESC);
+      `);
+      db.prepare('INSERT INTO schema_migrations(version, applied_at) VALUES (?, ?)')
+        .run(24, Date.now());
+    });
+    applyV24();
+  }
+
+  if (!applied.has(25)) {
+    const applyV25 = db.transaction(() => {
+      db.exec(`
+        CREATE TABLE bazi_analysis_versions (
+          id TEXT PRIMARY KEY,
+          chart_version_id TEXT NOT NULL,
+          methodology_version TEXT NOT NULL,
+          engine_version TEXT NOT NULL,
+          chart_fingerprint TEXT NOT NULL,
+          analysis_fingerprint TEXT NOT NULL,
+          result_json TEXT NOT NULL,
+          created_at INTEGER NOT NULL,
+          updated_at INTEGER NOT NULL,
+
+          UNIQUE (chart_version_id, methodology_version, engine_version),
+          FOREIGN KEY (chart_version_id)
+            REFERENCES bazi_chart_versions(id)
+            ON DELETE CASCADE
+        );
+
+        ALTER TABLE bazi_conversations
+          ADD COLUMN analysis_version_id TEXT
+          REFERENCES bazi_analysis_versions(id)
+          ON DELETE SET NULL;
+
+        CREATE INDEX idx_bazi_analysis_chart_updated
+          ON bazi_analysis_versions(chart_version_id, updated_at DESC);
+        CREATE INDEX idx_bazi_analysis_fingerprint
+          ON bazi_analysis_versions(analysis_fingerprint);
+        CREATE INDEX idx_bazi_conversations_analysis
+          ON bazi_conversations(analysis_version_id, updated_at DESC);
+      `);
+      db.prepare('INSERT INTO schema_migrations(version, applied_at) VALUES (?, ?)')
+        .run(25, Date.now());
+    });
+    applyV25();
+  }
+
   ensureMessageSearch(db);
 }
 
@@ -1398,6 +1533,12 @@ function createDatabase(): Database.Database {
   // 开发服务重启或进程意外退出后，不让旧的流式消息永久停留在 streaming 状态。
   db.prepare(`
     UPDATE messages
+    SET status = 'failed', error_code = 'interrupted_by_restart', updated_at = ?
+    WHERE status = 'streaming'
+  `).run(Date.now());
+
+  db.prepare(`
+    UPDATE bazi_messages
     SET status = 'failed', error_code = 'interrupted_by_restart', updated_at = ?
     WHERE status = 'streaming'
   `).run(Date.now());

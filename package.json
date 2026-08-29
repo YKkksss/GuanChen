@@ -34,6 +34,8 @@
     "test:monthly-reviews": "tsx scripts/test-monthly-reviews.ts",
     "test:bazi-foundation": "tsx scripts/test-bazi-foundation.ts",
     "test:bazi-persistence": "tsx scripts/test-bazi-persistence.ts",
+    "test:bazi-conversations": "tsx scripts/test-bazi-conversations.ts",
+    "test:bazi-interpretation": "tsx scripts/test-bazi-interpretation.ts",
     "start": "next start -p 30001",
     "build:cf": "npx @cloudflare/next-on-pages",
     "preview:cf": "npx wrangler pages dev",
