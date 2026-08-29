@@ -120,3 +120,72 @@ export interface BaziCalculationResult {
   rulesApplied: string[];
   warnings: string[];
 }
+
+export interface BaziBirthProfileInput {
+  displayName: string;
+  birthDate: string;
+  birthTime?: string | null;
+  gender: BaziGender;
+  unknownTime?: boolean;
+  timeZoneId?: string;
+  longitude?: number | null;
+  locationLabel?: string | null;
+  notes?: string | null;
+  sourceConversationId?: string | null;
+}
+
+export interface BaziBirthProfile {
+  id: string;
+  displayName: string;
+  birthDate: string;
+  birthTime: string | null;
+  gender: BaziGender;
+  unknownTime: boolean;
+  timeZoneId: string;
+  longitude: number | null;
+  locationLabel: string | null;
+  notes: string | null;
+  sourceConversationId: string | null;
+  createdAt: number;
+  updatedAt: number;
+}
+
+export interface BaziChartVersion {
+  id: string;
+  birthProfileId: string;
+  inputFingerprint: string;
+  chartFingerprint: string;
+  timeStandard: BaziTimeStandard;
+  lateZiPolicy: BaziLateZiPolicy;
+  methodologyVersion: string;
+  engineVersion: string;
+  inputSnapshot: BaziCalculationResult['input'];
+  effectiveTimeSnapshot: BaziCalculationResult['effectiveTime'];
+  result: BaziCalculationResult;
+  createdAt: number;
+  updatedAt: number;
+}
+
+export interface BaziBirthProfileDetail extends BaziBirthProfile {
+  charts: BaziChartVersion[];
+}
+
+export interface BaziBirthProfileListItem extends BaziBirthProfile {
+  chartCount: number;
+  latestChartId: string | null;
+  latestPillars: string | null;
+  latestTimeStandard: BaziTimeStandard | null;
+  latestLateZiPolicy: BaziLateZiPolicy | null;
+}
+
+export interface CreateBaziBirthProfileInput extends BaziBirthProfileInput {
+  initialChart: {
+    timeStandard?: BaziTimeStandard;
+    lateZiPolicy?: BaziLateZiPolicy;
+  };
+}
+
+export interface CreateBaziChartVersionInput {
+  timeStandard?: BaziTimeStandard;
+  lateZiPolicy?: BaziLateZiPolicy;
+}

@@ -1,11 +1,32 @@
 'use client';
 
-import { ArrowLeft, CalendarDots, Clock, Info, Sparkle, Warning } from '@phosphor-icons/react';
-import { FormEvent, useState } from 'react';
+import {
+  ArrowLeft,
+  CalendarDots,
+  Clock,
+  Database,
+  FloppyDisk,
+  FolderOpen,
+  GitBranch,
+  Info,
+  Plus,
+  Sparkle,
+  Trash,
+  Warning,
+} from '@phosphor-icons/react';
+import { FormEvent, useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import type { BaziCalculationResult, BaziElement, BaziPillar } from '@/lib/bazi/types';
+import type {
+  BaziBirthProfileDetail,
+  BaziBirthProfileListItem,
+  BaziCalculationResult,
+  BaziChartVersion,
+  BaziElement,
+  BaziPillar,
+} from '@/lib/bazi/types';
 
 interface FormState {
+  displayName: string;
   birthDate: string;
   birthTime: string;
   gender: 'male' | 'female';
@@ -14,9 +35,12 @@ interface FormState {
   longitude: string;
   lateZiPolicy: 'same_day' | 'next_day';
   unknownTime: boolean;
+  locationLabel: string;
+  notes: string;
 }
 
 const INITIAL_FORM: FormState = {
+  displayName: '',
   birthDate: '1990-01-01',
   birthTime: '12:00',
   gender: 'male',
@@ -25,7 +49,14 @@ const INITIAL_FORM: FormState = {
   longitude: '116.4074',
   lateZiPolicy: 'same_day',
   unknownTime: false,
+  locationLabel: '',
+  notes: '',
 };
+
+const PROFILE_FIELDS = new Set<keyof FormState>([
+  'displayName', 'birthDate', 'birthTime', 'gender', 'timeZoneId',
+  'longitude', 'unknownTime', 'locationLabel', 'notes',
+]);
 
 const ELEMENT_COLORS: Record<BaziElement, string> = {
   木: '#2f855a', 火: '#c05640', 土: '#a87832', 金: '#8a7a45', 水: '#3f6d99',
@@ -35,11 +66,35 @@ export default function BaziWorkspace() {
   const router = useRouter();
   const [form, setForm] = useState<FormState>(INITIAL_FORM);
   const [result, setResult] = useState<BaziCalculationResult | null>(null);
+  const [profiles, setProfiles] = useState<BaziBirthProfileListItem[]>([]);
+  const [selectedProfile, setSelectedProfile] = useState<BaziBirthProfileDetail | null>(null);
+  const [currentChartId, setCurrentChartId] = useState<string | null>(null);
+  const [historyLoading, setHistoryLoading] = useState(true);
   const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [busyId, setBusyId] = useState('');
   const [error, setError] = useState('');
+
+  const loadProfiles = useCallback(async () => {
+    setHistoryLoading(true);
+    try {
+      const response = await fetch('/api/bazi/profiles?limit=100', { cache: 'no-store' });
+      const data = await response.json() as { profiles?: BaziBirthProfileListItem[]; error?: string };
+      if (!response.ok) throw new Error(data.error || '八字档案加载失败');
+      setProfiles(data.profiles ?? []);
+    } catch (loadError) {
+      setError(loadError instanceof Error ? loadError.message : '八字档案加载失败');
+    } finally {
+      setHistoryLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { void loadProfiles(); }, [loadProfiles]);
 
   const update = <K extends keyof FormState>(key: K, value: FormState[K]) => {
     setForm(current => ({ ...current, [key]: value }));
+    if (PROFILE_FIELDS.has(key)) setSelectedProfile(null);
+    setCurrentChartId(null);
   };
 
   const submit = async (event: FormEvent) => {
@@ -58,10 +113,136 @@ export default function BaziWorkspace() {
       const data = await response.json() as { result?: BaziCalculationResult; error?: string };
       if (!response.ok || !data.result) throw new Error(data.error || '排盘失败');
       setResult(data.result);
+      setCurrentChartId(null);
     } catch (submitError) {
       setError(submitError instanceof Error ? submitError.message : '排盘失败');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const openProfile = async (id: string) => {
+    setBusyId(id);
+    setError('');
+    try {
+      const profile = await fetchProfile(id);
+      applyProfile(profile);
+    } catch (openError) {
+      setError(openError instanceof Error ? openError.message : '出生档案读取失败');
+    } finally {
+      setBusyId('');
+    }
+  };
+
+  const applyProfile = (profile: BaziBirthProfileDetail, preferredChart?: BaziChartVersion | null) => {
+    const chart = preferredChart ?? profile.charts[0] ?? null;
+    setSelectedProfile(profile);
+    setForm({
+      displayName: profile.displayName,
+      birthDate: profile.birthDate,
+      birthTime: profile.birthTime?.slice(0, 5) ?? '12:00',
+      gender: profile.gender,
+      timeStandard: chart?.timeStandard ?? 'civil_time',
+      timeZoneId: profile.timeZoneId,
+      longitude: profile.longitude === null ? '' : String(profile.longitude),
+      lateZiPolicy: chart?.lateZiPolicy ?? 'same_day',
+      unknownTime: profile.unknownTime,
+      locationLabel: profile.locationLabel ?? '',
+      notes: profile.notes ?? '',
+    });
+    setResult(chart?.result ?? null);
+    setCurrentChartId(chart?.id ?? null);
+  };
+
+  const startNewProfile = () => {
+    setSelectedProfile(null);
+    setCurrentChartId(null);
+    setResult(null);
+    setForm(INITIAL_FORM);
+    setError('');
+  };
+
+  const saveCurrent = async () => {
+    if (!result) return;
+    if (!selectedProfile && !form.displayName.trim()) {
+      setError('保存前请填写档案名称');
+      return;
+    }
+    setSaving(true);
+    setError('');
+    try {
+      if (selectedProfile) {
+        const response = await fetch(`/api/bazi/profiles/${selectedProfile.id}/charts`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ timeStandard: form.timeStandard, lateZiPolicy: form.lateZiPolicy }),
+        });
+        const data = await response.json() as { chart?: BaziChartVersion; error?: string };
+        if (!response.ok || !data.chart) throw new Error(data.error || '八字版本保存失败');
+        const profile = await fetchProfile(selectedProfile.id);
+        applyProfile(profile, data.chart);
+      } else {
+        const response = await fetch('/api/bazi/profiles', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            displayName: form.displayName,
+            birthDate: form.birthDate,
+            birthTime: form.unknownTime ? null : form.birthTime,
+            gender: form.gender,
+            unknownTime: form.unknownTime,
+            timeZoneId: form.timeZoneId,
+            longitude: form.longitude.trim() ? Number(form.longitude) : null,
+            locationLabel: form.locationLabel,
+            notes: form.notes,
+            initialChart: { timeStandard: form.timeStandard, lateZiPolicy: form.lateZiPolicy },
+          }),
+        });
+        const data = await response.json() as { profile?: BaziBirthProfileDetail; error?: string };
+        if (!response.ok || !data.profile) throw new Error(data.error || '出生档案保存失败');
+        applyProfile(data.profile);
+      }
+      await loadProfiles();
+    } catch (saveError) {
+      setError(saveError instanceof Error ? saveError.message : '保存失败');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const openChart = (chart: BaziChartVersion) => {
+    if (!selectedProfile) return;
+    applyProfile(selectedProfile, chart);
+  };
+
+  const deleteChart = async (chart: BaziChartVersion) => {
+    if (!window.confirm('确定删除这个排盘版本吗？出生档案和其他版本会保留。')) return;
+    setBusyId(chart.id);
+    try {
+      const response = await fetch(`/api/bazi/charts/${chart.id}`, { method: 'DELETE' });
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({})) as { error?: string };
+        throw new Error(data.error || '八字版本删除失败');
+      }
+      if (selectedProfile) applyProfile(await fetchProfile(selectedProfile.id));
+      await loadProfiles();
+    } catch (deleteError) {
+      setError(deleteError instanceof Error ? deleteError.message : '八字版本删除失败');
+    } finally {
+      setBusyId('');
+    }
+  };
+
+  const deleteProfile = async (profile: BaziBirthProfileListItem) => {
+    if (!window.confirm(`确定删除出生档案“${profile.displayName}”吗？其中的全部八字版本也会删除。`)) return;
+    setBusyId(profile.id);
+    try {
+      const response = await fetch(`/api/bazi/profiles/${profile.id}`, { method: 'DELETE' });
+      if (!response.ok) throw new Error('出生档案删除失败');
+      if (selectedProfile?.id === profile.id) startNewProfile();
+      await loadProfiles();
+    } catch (deleteError) {
+      setError(deleteError instanceof Error ? deleteError.message : '出生档案删除失败');
+    } finally {
+      setBusyId('');
     }
   };
 
@@ -74,13 +255,24 @@ export default function BaziWorkspace() {
           </button>
           <div className="text-right">
             <h1 className="text-lg font-semibold tracking-wide">八字确定性排盘</h1>
-            <p className="text-xs" style={{ color: 'var(--tx-3)' }}>M9-0 · 四柱、藏干、十神与五行结构</p>
+            <p className="text-xs" style={{ color: 'var(--tx-3)' }}>M9-1 · 出生档案与多版本排盘</p>
           </div>
         </div>
       </header>
 
       <div className="mx-auto grid max-w-[1500px] gap-6 px-4 py-6 md:px-6 xl:grid-cols-[390px_minmax(0,1fr)]">
-        <section className="h-fit rounded-xl border p-5 xl:sticky xl:top-6" style={{ borderColor: 'var(--bdr)', background: 'var(--bg-card)' }}>
+        <aside className="h-fit space-y-4 xl:sticky xl:top-6">
+          <SavedProfilesPanel
+            profiles={profiles}
+            selectedId={selectedProfile?.id ?? null}
+            loading={historyLoading}
+            busyId={busyId}
+            onOpen={openProfile}
+            onDelete={deleteProfile}
+            onNew={startNewProfile}
+          />
+
+        <section className="rounded-xl border p-5" style={{ borderColor: 'var(--bdr)', background: 'var(--bg-card)' }}>
           <div className="mb-5 flex items-start gap-3">
             <div className="rounded-lg p-2" style={{ color: 'var(--ac-dim)', background: 'var(--ac-bg)' }}><CalendarDots size={20} /></div>
             <div>
@@ -90,6 +282,9 @@ export default function BaziWorkspace() {
           </div>
 
           <form className="bazi-form space-y-4" onSubmit={submit}>
+            <Field label="档案名称" hint={selectedProfile ? '修改后将另存新档案' : '保存时必填'}>
+              <input className="rectification-input" value={form.displayName} onChange={event => update('displayName', event.target.value)} placeholder="例如：我的八字档案" />
+            </Field>
             <div className="grid grid-cols-2 gap-3">
               <Field label="出生日期">
                 <input className="rectification-input" type="date" min="1900-01-01" max="2100-12-31" required value={form.birthDate} onChange={event => update('birthDate', event.target.value)} />
@@ -126,6 +321,10 @@ export default function BaziWorkspace() {
               </Field>
             </div>}
 
+            <Field label="出生地点备注" hint="选填">
+              <input className="rectification-input" value={form.locationLabel} onChange={event => update('locationLabel', event.target.value)} placeholder="例如：北京市朝阳区" />
+            </Field>
+
             <Field label="晚子时日柱规则" hint="仅影响 23:00-23:59">
               <select className="rectification-input" value={form.lateZiPolicy} onChange={event => update('lateZiPolicy', event.target.value as FormState['lateZiPolicy'])}>
                 <option value="same_day">23 点仍按当天（库默认）</option>
@@ -140,13 +339,100 @@ export default function BaziWorkspace() {
             </button>
           </form>
         </section>
+        </aside>
 
         <section className="min-w-0">
+          {result && <PersistenceBar
+            selectedProfile={selectedProfile}
+            currentChartId={currentChartId}
+            saving={saving}
+            onSave={saveCurrent}
+          />}
+          {selectedProfile && selectedProfile.charts.length > 0 && <ChartVersionPanel
+            profile={selectedProfile}
+            currentChartId={currentChartId}
+            busyId={busyId}
+            onOpen={openChart}
+            onDelete={deleteChart}
+          />}
           {!result ? <EmptyState /> : <BaziResult result={result} />}
         </section>
       </div>
     </main>
   );
+}
+
+function SavedProfilesPanel({
+  profiles, selectedId, loading, busyId, onOpen, onDelete, onNew,
+}: {
+  profiles: BaziBirthProfileListItem[];
+  selectedId: string | null;
+  loading: boolean;
+  busyId: string;
+  onOpen: (id: string) => Promise<void>;
+  onDelete: (profile: BaziBirthProfileListItem) => Promise<void>;
+  onNew: () => void;
+}) {
+  return <section className="rounded-xl border p-4" style={{ borderColor: 'var(--bdr)', background: 'var(--bg-card)' }}>
+    <div className="flex items-center justify-between gap-3">
+      <div className="flex items-center gap-2"><Database size={18} style={{ color: 'var(--ac-dim)' }} /><div><h2 className="text-sm font-semibold">已保存档案</h2><p className="text-[10px]" style={{ color: 'var(--tx-3)' }}>{profiles.length} 份本地记录</p></div></div>
+      <button type="button" onClick={onNew} className="flex items-center gap-1 rounded-lg border px-2.5 py-1.5 text-xs" style={{ borderColor: 'var(--bdr)', color: 'var(--ac-dim)' }}><Plus size={13} /> 新建</button>
+    </div>
+    <div className="mt-3 max-h-56 space-y-2 overflow-y-auto pr-1">
+      {loading && <p className="py-5 text-center text-xs" style={{ color: 'var(--tx-3)' }}>正在读取本地档案…</p>}
+      {!loading && profiles.length === 0 && <p className="rounded-lg border border-dashed px-3 py-5 text-center text-xs leading-5" style={{ borderColor: 'var(--bdr)', color: 'var(--tx-3)' }}>还没有保存记录。生成基础盘后即可建立第一份档案。</p>}
+      {!loading && profiles.map(profile => <div key={profile.id} className="group flex items-stretch rounded-lg border" style={{ borderColor: selectedId === profile.id ? 'var(--ac-bdr)' : 'var(--bdr)', background: selectedId === profile.id ? 'var(--ac-bg)' : 'var(--bg-1)' }}>
+        <button type="button" disabled={busyId === profile.id} onClick={() => void onOpen(profile.id)} className="min-w-0 flex-1 px-3 py-2.5 text-left disabled:opacity-60">
+          <span className="block truncate text-sm font-medium">{profile.displayName}</span>
+          <span className="mt-1 block truncate font-mono text-[10px]" style={{ color: 'var(--tx-3)' }}>{profile.birthDate}{profile.birthTime ? ` ${profile.birthTime.slice(0, 5)}` : ' · 时辰未知'} · {profile.chartCount} 个版本</span>
+          {profile.latestPillars && <span className="mt-1 block truncate text-[10px]" style={{ color: 'var(--ac-dim)' }}>{profile.latestPillars}</span>}
+        </button>
+        <button type="button" aria-label={`删除档案 ${profile.displayName}`} disabled={busyId === profile.id} onClick={() => void onDelete(profile)} className="px-3 opacity-60 transition-opacity hover:opacity-100 disabled:opacity-30" style={{ color: 'var(--ji)' }}><Trash size={14} /></button>
+      </div>)}
+    </div>
+  </section>;
+}
+
+function PersistenceBar({
+  selectedProfile, currentChartId, saving, onSave,
+}: {
+  selectedProfile: BaziBirthProfileDetail | null;
+  currentChartId: string | null;
+  saving: boolean;
+  onSave: () => Promise<void>;
+}) {
+  const saved = Boolean(currentChartId);
+  return <section className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border p-4" style={{ borderColor: saved ? 'rgba(45,122,74,.3)' : 'var(--t-border-acc)', background: 'var(--bg-card)' }}>
+    <div className="flex items-start gap-3">
+      <div className="rounded-lg p-2" style={{ color: saved ? 'var(--lu)' : 'var(--ac-dim)', background: 'var(--bg-1)' }}>{saved ? <FolderOpen size={18} /> : <FloppyDisk size={18} />}</div>
+      <div><p className="text-sm font-medium">{saved ? '当前版本已保存在本地' : selectedProfile ? `保存为“${selectedProfile.displayName}”的新版本` : '把当前结果保存为出生档案'}</p><p className="mt-1 text-xs" style={{ color: 'var(--tx-3)' }}>{saved ? '可从左侧历史重新打开，并保留实际计算口径。' : '相同档案与相同规则会自动复用已有版本。'}</p></div>
+    </div>
+    <button type="button" disabled={saving || saved} onClick={() => void onSave()} className="btn-accent !px-5 !py-2.5 disabled:cursor-default disabled:opacity-55"><FloppyDisk size={15} /> {saving ? '正在保存…' : saved ? '已保存' : '保存当前排盘'}</button>
+  </section>;
+}
+
+function ChartVersionPanel({
+  profile, currentChartId, busyId, onOpen, onDelete,
+}: {
+  profile: BaziBirthProfileDetail;
+  currentChartId: string | null;
+  busyId: string;
+  onOpen: (chart: BaziChartVersion) => void;
+  onDelete: (chart: BaziChartVersion) => Promise<void>;
+}) {
+  return <section className="mb-4 rounded-xl border p-4" style={{ borderColor: 'var(--bdr)', background: 'var(--bg-card)' }}>
+    <div className="flex items-center gap-2"><GitBranch size={17} style={{ color: 'var(--ac-dim)' }} /><h3 className="text-sm font-semibold">{profile.displayName} · 排盘版本</h3><span className="rounded-full px-2 py-0.5 text-[10px]" style={{ color: 'var(--tx-3)', background: 'var(--bg-1)' }}>{profile.charts.length}</span></div>
+    <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
+      {profile.charts.map(chart => <div key={chart.id} className="flex min-w-[210px] items-stretch rounded-lg border" style={{ borderColor: currentChartId === chart.id ? 'var(--ac-bdr)' : 'var(--bdr)', background: currentChartId === chart.id ? 'var(--ac-bg)' : 'var(--bg-1)' }}>
+        <button type="button" onClick={() => onOpen(chart)} className="min-w-0 flex-1 px-3 py-2 text-left">
+          <span className="block text-xs font-medium">{chart.timeStandard === 'civil_time' ? '民用时间' : '地方视太阳时'} · {chart.lateZiPolicy === 'same_day' ? '晚子按当天' : '晚子按次日'}</span>
+          <span className="mt-1 block truncate font-mono text-[10px]" style={{ color: 'var(--tx-3)' }}>{formatChartPillars(chart.result)}</span>
+          <span className="mt-1 block text-[9px]" style={{ color: 'var(--tx-3)' }}>{formatSavedTime(chart.createdAt)}</span>
+        </button>
+        <button type="button" aria-label="删除排盘版本" disabled={busyId === chart.id} onClick={() => void onDelete(chart)} className="px-2.5 opacity-55 hover:opacity-100 disabled:opacity-30" style={{ color: 'var(--ji)' }}><Trash size={13} /></button>
+      </div>)}
+    </div>
+  </section>;
 }
 
 function BaziResult({ result }: { result: BaziCalculationResult }) {
@@ -203,7 +489,7 @@ function BaziResult({ result }: { result: BaziCalculationResult }) {
 
     <section className="flex gap-3 rounded-xl border p-4" style={{ borderColor: 'var(--bdr)', background: 'var(--bg-1)' }}>
       <Info className="mt-0.5 shrink-0" size={18} style={{ color: 'var(--ac-dim)' }} />
-      <p className="text-xs leading-5" style={{ color: 'var(--tx-3)' }}>当前为 M9-0 基础盘：结果来自确定性历法引擎。旺衰、格局、用神、大运和流年尚未开放，后续会在规则来源与校验样例完成后分阶段加入。</p>
+      <p className="text-xs leading-5" style={{ color: 'var(--tx-3)' }}>当前为 M9-1 可持久化基础盘：排盘事实和规则版本可保存在本地。旺衰、格局、用神、大运和流年尚未开放，后续会在规则来源与校验样例完成后分阶段加入。</p>
     </section>
   </div>;
 }
@@ -239,4 +525,24 @@ function Field({ label, hint, children }: { label: string; hint?: string; childr
 
 function formatMinutes(value: number): string {
   return `${value >= 0 ? '+' : ''}${value.toFixed(2)} 分钟`;
+}
+
+async function fetchProfile(id: string): Promise<BaziBirthProfileDetail> {
+  const response = await fetch(`/api/bazi/profiles/${id}`, { cache: 'no-store' });
+  const data = await response.json() as { profile?: BaziBirthProfileDetail; error?: string };
+  if (!response.ok || !data.profile) throw new Error(data.error || '出生档案读取失败');
+  return data.profile;
+}
+
+function formatChartPillars(result: BaziCalculationResult): string {
+  return [result.pillars.year, result.pillars.month, result.pillars.day, result.pillars.time]
+    .filter((pillar): pillar is BaziPillar => pillar !== null)
+    .map(pillar => pillar.ganZhi)
+    .join(' ');
+}
+
+function formatSavedTime(timestamp: number): string {
+  return new Intl.DateTimeFormat('zh-CN', {
+    year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit',
+  }).format(new Date(timestamp));
 }

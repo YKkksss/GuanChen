@@ -1273,6 +1273,72 @@ function migrate(db: Database.Database) {
     applyV22();
   }
 
+  if (!applied.has(23)) {
+    const applyV23 = db.transaction(() => {
+      db.exec(`
+        CREATE TABLE bazi_birth_profiles (
+          id TEXT PRIMARY KEY,
+          display_name TEXT NOT NULL,
+          birth_date TEXT NOT NULL,
+          birth_time TEXT,
+          gender TEXT NOT NULL CHECK (gender IN ('male', 'female')),
+          unknown_time INTEGER NOT NULL DEFAULT 0 CHECK (unknown_time IN (0, 1)),
+          timezone_id TEXT NOT NULL,
+          longitude REAL,
+          location_label TEXT,
+          notes TEXT,
+          source_conversation_id TEXT,
+          created_at INTEGER NOT NULL,
+          updated_at INTEGER NOT NULL,
+
+          CHECK (
+            (unknown_time = 1 AND birth_time IS NULL)
+            OR (unknown_time = 0 AND birth_time IS NOT NULL)
+          ),
+          CHECK (longitude IS NULL OR longitude BETWEEN -180 AND 180),
+          FOREIGN KEY (source_conversation_id)
+            REFERENCES conversations(id)
+            ON DELETE SET NULL
+        );
+
+        CREATE TABLE bazi_chart_versions (
+          id TEXT PRIMARY KEY,
+          birth_profile_id TEXT NOT NULL,
+          input_fingerprint TEXT NOT NULL,
+          chart_fingerprint TEXT NOT NULL,
+          time_standard TEXT NOT NULL
+            CHECK (time_standard IN ('civil_time', 'apparent_solar_time')),
+          late_zi_policy TEXT NOT NULL
+            CHECK (late_zi_policy IN ('same_day', 'next_day')),
+          methodology_version TEXT NOT NULL,
+          engine_version TEXT NOT NULL,
+          input_snapshot_json TEXT NOT NULL,
+          effective_time_snapshot_json TEXT NOT NULL,
+          result_json TEXT NOT NULL,
+          created_at INTEGER NOT NULL,
+          updated_at INTEGER NOT NULL,
+
+          UNIQUE (birth_profile_id, input_fingerprint),
+          FOREIGN KEY (birth_profile_id)
+            REFERENCES bazi_birth_profiles(id)
+            ON DELETE CASCADE
+        );
+
+        CREATE INDEX idx_bazi_profiles_updated
+          ON bazi_birth_profiles(updated_at DESC);
+        CREATE INDEX idx_bazi_profiles_conversation
+          ON bazi_birth_profiles(source_conversation_id, updated_at DESC);
+        CREATE INDEX idx_bazi_charts_profile_updated
+          ON bazi_chart_versions(birth_profile_id, updated_at DESC);
+        CREATE INDEX idx_bazi_charts_fingerprint
+          ON bazi_chart_versions(chart_fingerprint);
+      `);
+      db.prepare('INSERT INTO schema_migrations(version, applied_at) VALUES (?, ?)')
+        .run(23, Date.now());
+    });
+    applyV23();
+  }
+
   ensureMessageSearch(db);
 }
 
