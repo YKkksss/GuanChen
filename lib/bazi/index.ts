@@ -21,6 +21,17 @@ export {
   assertValidBaziLuckCycleMethodology,
   validateBaziLuckCycleMethodology,
 } from './luck-cycle-validator';
+export { calculateBaziAnnualTimeline, getBaziAnnualBoundaryForTest } from './annual-timeline-engine';
+export {
+  BAZI_ANNUAL_TIMELINE_ENGINE_VERSION,
+  BAZI_ANNUAL_TIMELINE_METHODOLOGY,
+  BAZI_ANNUAL_TIMELINE_METHODOLOGY_VERSION,
+} from './annual-timeline-methodology';
+export {
+  assertValidBaziAnnualTimelineMethodology,
+  validateBaziAnnualTimelineMethodology,
+} from './annual-timeline-validator';
 export * from './types';
 export * from './interpretation-types';
 export * from './luck-cycle-types';
+export * from './annual-timeline-types';

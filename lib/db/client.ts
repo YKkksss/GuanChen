@@ -1512,6 +1512,49 @@ function migrate(db: Database.Database) {
     applyV26();
   }
 
+  if (!applied.has(27)) {
+    const applyV27 = db.transaction(() => {
+      db.exec(`
+        CREATE TABLE bazi_annual_timeline_versions (
+          id TEXT PRIMARY KEY,
+          chart_version_id TEXT NOT NULL,
+          luck_cycle_version_id TEXT NOT NULL,
+          methodology_version TEXT NOT NULL,
+          engine_version TEXT NOT NULL,
+          chart_fingerprint TEXT NOT NULL,
+          luck_cycle_fingerprint TEXT NOT NULL,
+          annual_timeline_fingerprint TEXT NOT NULL,
+          result_json TEXT NOT NULL,
+          created_at INTEGER NOT NULL,
+          updated_at INTEGER NOT NULL,
+
+          UNIQUE (chart_version_id, luck_cycle_version_id, methodology_version, engine_version),
+          FOREIGN KEY (chart_version_id)
+            REFERENCES bazi_chart_versions(id)
+            ON DELETE CASCADE,
+          FOREIGN KEY (luck_cycle_version_id)
+            REFERENCES bazi_luck_cycle_versions(id)
+            ON DELETE CASCADE
+        );
+
+        ALTER TABLE bazi_conversations
+          ADD COLUMN annual_timeline_version_id TEXT
+          REFERENCES bazi_annual_timeline_versions(id)
+          ON DELETE SET NULL;
+
+        CREATE INDEX idx_bazi_annual_timeline_chart_updated
+          ON bazi_annual_timeline_versions(chart_version_id, updated_at DESC);
+        CREATE INDEX idx_bazi_annual_timeline_fingerprint
+          ON bazi_annual_timeline_versions(annual_timeline_fingerprint);
+        CREATE INDEX idx_bazi_conversations_annual_timeline
+          ON bazi_conversations(annual_timeline_version_id, updated_at DESC);
+      `);
+      db.prepare('INSERT INTO schema_migrations(version, applied_at) VALUES (?, ?)')
+        .run(27, Date.now());
+    });
+    applyV27();
+  }
+
   ensureMessageSearch(db);
 }
 

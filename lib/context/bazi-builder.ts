@@ -3,6 +3,7 @@ import type { BaziConversationSummary, BuiltBaziContext } from '@/lib/bazi/conve
 import type { BaziCalculationResult, BaziPillar } from '@/lib/bazi/types';
 import type { BaziInterpretationResult } from '@/lib/bazi/interpretation-types';
 import type { BaziLuckCycleResult } from '@/lib/bazi/luck-cycle-types';
+import type { BaziAnnualTimelineResult } from '@/lib/bazi/annual-timeline-types';
 import {
   getBaziConversation,
   getBaziMessage,
@@ -19,11 +20,11 @@ const SUMMARY_TOKEN_CAP = 1_800;
 export const BAZI_CHAT_SYSTEM_PROMPT = `你是本地八字规则证据的解释助手。你只能解释程序提供的确定性排盘事实和版本化证据审计，不能自行重新排盘、补算规则或修改结论。
 
 必须遵守：
-1. 可以解释四柱基础事实、程序给出的旺衰证据分布、格局候选、分方法取用候选，以及大运顺逆、所取节、起运间隔、交运日期和干支排期事实。
+1. 可以解释四柱基础事实、程序给出的旺衰证据分布、格局候选、分方法取用候选、大运排期，以及流年立春边界和流年与大运的时间归属事实。
 2. 五行结构计数只是表层字符与藏干出现次数，不代表旺衰、喜忌或用神。
 3. 旺衰只能使用“生扶证据较明确”“泄耗制证据较明确”“证据并见”或“证据不足”等快照原词，禁止改写成最终身强身弱。
 4. 格局只能称为候选，禁止宣告成格、破格、格局高低；用神必须区分月令格局、扶抑、调候和通关病药语义，禁止把候选元素说成最终用神、喜神或忌神。
-5. 大运只能解释排期事实，禁止解释某步大运的旺衰作用、喜忌、吉凶或事件；流年、流月和未来事件仍未开放，也不得给出医疗、投资、婚姻等决定性建议。
+5. 大运和流年只能解释时间排期事实，禁止解释旺衰作用、喜忌、吉凶或事件；流月和未来事件仍未开放，也不得给出医疗、投资、婚姻等决定性建议。
 6. 若用户询问超出范围的内容，明确说明当前证据版本尚未启用该结论，不要猜测。
 7. 不得混入紫微斗数的星曜、宫位、四化等术语。
 8. 区分【排盘事实】【证据解释】【当前边界】。事实必须逐字服从下方权威快照；解释使用审慎表达，不把传统术语包装成科学结论。
@@ -47,6 +48,7 @@ export function buildBaziConversationContext(input: {
     buildBaziFactsSnapshot(conversation.chart.result),
     conversation.analysis ? buildBaziInterpretationSnapshot(conversation.analysis.result) : '',
     conversation.luckCycles ? buildBaziLuckCycleSnapshot(conversation.luckCycles.result) : '',
+    conversation.annualTimeline ? buildBaziAnnualTimelineSnapshot(conversation.annualTimeline.result, current.content) : '',
   ].filter(Boolean).join('\n\n'), FACTS_TOKEN_CAP);
   const system: ChatMessage = { role: 'system', content: BAZI_CHAT_SYSTEM_PROMPT };
   const factMessage: ChatMessage = { role: 'system', content: facts };
@@ -92,6 +94,8 @@ export function buildBaziConversationContext(input: {
       analysisFingerprint: conversation.analysis?.analysisFingerprint ?? null,
       luckCycleVersionId: conversation.luckCycleVersionId,
       luckCycleFingerprint: conversation.luckCycles?.luckCycleFingerprint ?? null,
+      annualTimelineVersionId: conversation.annualTimelineVersionId,
+      annualTimelineFingerprint: conversation.annualTimeline?.annualTimelineFingerprint ?? null,
       methodologyVersion: conversation.methodologyVersion,
       engineVersion: conversation.engineVersion,
       promptVersion: conversation.promptVersion,
@@ -99,8 +103,8 @@ export function buildBaziConversationContext(input: {
       summaryThroughSeq: conversation.summaryThroughSeq,
       recentMessageIds: selected.map(message => message.id),
       currentMessageId: current.id,
-      allowedCapabilities: ['strength_evidence_audit', 'pattern_candidates', 'useful_god_method_separation', 'luck_cycle_schedule'],
-      prohibitedCapabilities: ['final_strength', 'pattern_success_failure', 'final_useful_god', 'luck_cycle_interpretation', 'annual_prediction', 'event_prediction', 'ziwei_terms'],
+      allowedCapabilities: ['strength_evidence_audit', 'pattern_candidates', 'useful_god_method_separation', 'luck_cycle_schedule', 'annual_timeline_schedule'],
+      prohibitedCapabilities: ['final_strength', 'pattern_success_failure', 'final_useful_god', 'luck_cycle_interpretation', 'annual_interpretation', 'annual_prediction', 'event_prediction', 'ziwei_terms'],
     },
   };
 }
@@ -122,6 +126,7 @@ export function buildFallbackBaziConversationContext(input: {
       buildBaziFactsSnapshot(conversation.chart.result),
       conversation.analysis ? buildBaziInterpretationSnapshot(conversation.analysis.result) : '',
       conversation.luckCycles ? buildBaziLuckCycleSnapshot(conversation.luckCycles.result) : '',
+      conversation.annualTimeline ? buildBaziAnnualTimelineSnapshot(conversation.annualTimeline.result, current.content) : '',
     ].filter(Boolean).join('\n\n'), FACTS_TOKEN_CAP) },
     { role: 'user', content: truncateTextToTokens(current.content, Math.max(profile.targetInputTokens - FACTS_TOKEN_CAP - 1_000, 500)) },
   ];
@@ -216,6 +221,34 @@ ${cycles}
 排期边界：${result.boundary}`;
 }
 
+export function buildBaziAnnualTimelineSnapshot(result: BaziAnnualTimelineResult, question = ''): string {
+  const requestedYear = extractRequestedYear(question, result);
+  const focusYear = requestedYear ?? Math.min(Math.max(new Date().getFullYear(), result.range.startYear), result.range.endYear);
+  const selectedYears = result.years.filter(item =>
+    Math.abs(item.year - focusYear) <= 2 || item.crossesLuckCycleBoundary,
+  );
+  const rows = selectedYears.map(item => {
+    const interval = item.liChunAt && item.nextLiChunAt
+      ? `${item.liChunAt} 起，至 ${item.nextLiChunAt} 前`
+      : '精确立春时刻未生成';
+    const segments = item.segments.length
+      ? item.segments.map(segment => `${segment.startAt}—${segment.endAtExclusive}：${segment.label}`).join('；')
+      : '大运归属未生成';
+    return `${item.year} ${item.ganZhi}：${interval}；${segments}${item.crossesLuckCycleBoundary ? '；本流年跨越交运边界' : ''}`;
+  }).join('\n');
+  return `【权威八字流年时间轴快照】
+方法版本：${result.methodologyVersion}
+引擎版本：${result.engineVersion}
+时间轴状态：${result.status}
+完整范围：${result.range.startYear}-${result.range.endYear}，共 ${result.range.yearCount} 个流年
+当前问题聚焦：${requestedYear ? `${requestedYear} 流年` : `${focusYear} 流年（未识别指定年份）`}
+聚焦年份及所有跨运年份：
+${rows || '无可用年份'}
+已应用规则：${result.rulesApplied.join('；')}
+警告：${result.warnings.join('；') || '无'}
+时间轴边界：${result.boundary}`;
+}
+
 export function findBaziOutputViolations(text: string): string[] {
   const checks: Array<[string, RegExp]> = [
     ['混入紫微斗数术语', /(命宫|夫妻宫|官禄宫|财帛宫|紫微星|天府星|四化|化禄|化权|化科|化忌)/],
@@ -224,8 +257,15 @@ export function findBaziOutputViolations(text: string): string[] {
     ['越权判断格局', /(?:属于|构成|形成|定为).{0,10}(?:格局|格$)/m],
     ['越权预测具体吉凶', /(?:必然|注定|一定会).{0,18}(?:发财|破财|结婚|离婚|生病|升职|失业|灾)/],
     ['越权解释大运吉凶', /(?:大运|运中).{0,18}(?:会发财|会破财|容易结婚|容易离婚|容易生病|事业上升|事业受阻|财运好|财运差)/],
+    ['越权解释流年吉凶', /(?:流年|今年|明年|后年|\d{4}年).{0,18}(?:会发财|会破财|容易结婚|容易离婚|容易生病|事业上升|事业受阻|财运好|财运差)/],
   ];
   return checks.filter(([, pattern]) => pattern.test(text)).map(([label]) => label);
+}
+
+function extractRequestedYear(question: string, result: BaziAnnualTimelineResult): number | null {
+  const matches = question.match(/(?:18|19|20|21)\d{2}/g) ?? [];
+  const year = matches.map(Number).find(value => value >= result.range.startYear && value <= result.range.endYear);
+  return year ?? null;
 }
 
 function renderPillar(pillar: BaziPillar): string {

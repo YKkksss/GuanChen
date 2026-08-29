@@ -37,6 +37,7 @@
     "test:bazi-conversations": "tsx scripts/test-bazi-conversations.ts",
     "test:bazi-interpretation": "tsx scripts/test-bazi-interpretation.ts",
     "test:bazi-luck-cycles": "tsx scripts/test-bazi-luck-cycles.ts",
+    "test:bazi-annual-timeline": "tsx scripts/test-bazi-annual-timeline.ts",
     "start": "next start -p 30001",
     "build:cf": "npx @cloudflare/next-on-pages",
     "preview:cf": "npx wrangler pages dev",

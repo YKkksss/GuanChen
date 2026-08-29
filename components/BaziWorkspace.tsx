@@ -29,6 +29,8 @@ import { analyzeBaziInterpretation } from '@/lib/bazi/interpretation-engine';
 import type { BaziInterpretationResult } from '@/lib/bazi/interpretation-types';
 import { calculateBaziLuckCycles } from '@/lib/bazi/luck-cycle-engine';
 import type { BaziLuckCycleResult } from '@/lib/bazi/luck-cycle-types';
+import { calculateBaziAnnualTimeline } from '@/lib/bazi/annual-timeline-engine';
+import type { BaziAnnualTimelineResult } from '@/lib/bazi/annual-timeline-types';
 
 interface FormState {
   displayName: string;
@@ -101,6 +103,7 @@ export default function BaziWorkspace() {
     void Promise.all([
       fetch(`/api/bazi/charts/${currentChartId}/analysis`, { method: 'POST' }),
       fetch(`/api/bazi/charts/${currentChartId}/luck-cycles`, { method: 'POST' }),
+      fetch(`/api/bazi/charts/${currentChartId}/annual-timeline`, { method: 'POST' }),
     ]).catch(() => undefined);
   }, [currentChartId]);
 
@@ -111,6 +114,10 @@ export default function BaziWorkspace() {
   const luckCycles = useMemo(
     () => result ? calculateBaziLuckCycles(result) : null,
     [result],
+  );
+  const annualTimeline = useMemo(
+    () => result && luckCycles ? calculateBaziAnnualTimeline(result, luckCycles) : null,
+    [result, luckCycles],
   );
 
   const update = <K extends keyof FormState>(key: K, value: FormState[K]) => {
@@ -295,7 +302,7 @@ export default function BaziWorkspace() {
           </button>
           <div className="text-right">
             <h1 className="text-lg font-semibold tracking-wide">八字确定性排盘</h1>
-            <p className="text-xs" style={{ color: 'var(--tx-3)' }}>M9-4 · 大运确定性排期</p>
+            <p className="text-xs" style={{ color: 'var(--tx-3)' }}>M9-5 · 流年确定性时间轴</p>
           </div>
         </div>
       </header>
@@ -401,6 +408,7 @@ export default function BaziWorkspace() {
             <BaziResult result={result} />
             {interpretation && <BaziInterpretationPanel result={interpretation} />}
             {luckCycles && <BaziLuckCyclePanel result={luckCycles} />}
+            {annualTimeline && <BaziAnnualTimelinePanel result={annualTimeline} />}
           </>}
         </section>
       </div>
@@ -540,7 +548,7 @@ function BaziResult({ result }: { result: BaziCalculationResult }) {
 
     <section className="flex gap-3 rounded-xl border p-4" style={{ borderColor: 'var(--bdr)', background: 'var(--bg-1)' }}>
       <Info className="mt-0.5 shrink-0" size={18} style={{ color: 'var(--ac-dim)' }} />
-      <p className="text-xs leading-5" style={{ color: 'var(--tx-3)' }}>当前已开放 M9-4 大运排期：只计算顺逆、起运间隔、交运日期和十年干支区间。最终强弱、成格破格、最终用神、大运吉凶、流年和具体事件仍未开放。</p>
+      <p className="text-xs leading-5" style={{ color: 'var(--tx-3)' }}>当前已开放 M9-5 流年时间轴：可查看立春边界、流年干支及与大运的实际时间交集。最终强弱、成格破格、最终用神、大运或流年吉凶和具体事件仍未开放。</p>
     </section>
   </div>;
 }
@@ -629,6 +637,64 @@ function BaziLuckCyclePanel({ result }: { result: BaziLuckCycleResult }) {
       {result.warnings.map(warning => <p key={warning} className="text-xs leading-5" style={{ color: 'var(--tx-3)' }}>◇ {warning}</p>)}
     </div>}
     <p className="mt-4 text-[10px] leading-5" style={{ color: 'var(--tx-3)' }}>{result.boundary} · {result.methodologyVersion}</p>
+  </section>;
+}
+
+function BaziAnnualTimelinePanel({ result }: { result: BaziAnnualTimelineResult }) {
+  const now = new Date().getFullYear();
+  const initialYear = Math.min(Math.max(now, result.range.startYear), result.range.endYear);
+  const [selectedYear, setSelectedYear] = useState(initialYear);
+  useEffect(() => { setSelectedYear(initialYear); }, [initialYear, result.methodologyVersion]);
+  const item = result.years.find(value => value.year === selectedYear) ?? result.years[0];
+  if (!item) return null;
+  const canPrevious = item.year > result.range.startYear;
+  const canNext = item.year < result.range.endYear;
+  return <section data-testid="bazi-annual-timeline" className="mt-5 rounded-xl border p-5 md:p-6" style={{ borderColor: 'var(--t-border-acc)', background: 'var(--bg-card)' }}>
+    <div className="flex flex-wrap items-start justify-between gap-4">
+      <div className="flex items-start gap-3">
+        <div className="rounded-lg p-2" style={{ color: 'var(--ac-dim)', background: 'var(--ac-bg)' }}><CalendarDots size={19} /></div>
+        <div>
+          <p className="text-[10px] tracking-[.18em]" style={{ color: 'var(--ac-dim)' }}>M9-5 · 立春切年与跨运分段</p>
+          <h2 className="mt-1 text-lg font-semibold">流年确定性时间轴</h2>
+          <p className="mt-1 text-xs leading-5" style={{ color: 'var(--tx-3)' }}>查看某个流年的精确起止和实际大运归属；时间轴不等同于运势判断。</p>
+        </div>
+      </div>
+      <span className="rounded-full px-3 py-1 text-[10px]" style={{ color: result.status === 'complete' ? 'var(--lu)' : 'var(--ac-dim)', background: 'var(--bg-1)' }}>
+        {result.status === 'complete' ? '流年与大运已对齐' : result.status === 'annual_schedule_only' ? '仅建立流年边界' : '仅提供干支顺序'}
+      </span>
+    </div>
+
+    <div className="mt-5 flex flex-wrap items-center gap-2">
+      <button type="button" aria-label="上一个流年" disabled={!canPrevious} onClick={() => setSelectedYear(value => value - 1)} className="btn-ghost !px-3 !py-2 disabled:opacity-30">上一年</button>
+      <select data-testid="annual-year-select" aria-label="选择流年" className="rectification-input !w-auto min-w-40" value={item.year} onChange={event => setSelectedYear(Number(event.target.value))}>
+        {result.years.map(year => <option key={year.year} value={year.year}>{year.year} · {year.ganZhi}{year.crossesLuckCycleBoundary ? ' · 跨运' : ''}</option>)}
+      </select>
+      <button type="button" aria-label="下一个流年" disabled={!canNext} onClick={() => setSelectedYear(value => value + 1)} className="btn-ghost !px-3 !py-2 disabled:opacity-30">下一年</button>
+      <span className="text-[10px]" style={{ color: 'var(--tx-3)' }}>范围 {result.range.startYear}—{result.range.endYear} · 共 {result.range.yearCount} 个流年</span>
+    </div>
+
+    <div className="mt-4 grid gap-3 lg:grid-cols-[230px_minmax(0,1fr)]">
+      <article className="rounded-xl border p-4" style={{ borderColor: item.crossesLuckCycleBoundary ? 'var(--ac-bdr)' : 'var(--bdr)', background: 'var(--bg-1)' }}>
+        <p className="text-[10px] tracking-wider" style={{ color: 'var(--tx-3)' }}>流年干支</p>
+        <p className="mt-2 font-serif text-3xl font-semibold" style={{ color: 'var(--ac-dim)' }}>{item.ganZhi}</p>
+        <p className="mt-3 font-mono text-[10px] leading-5">{item.liChunAt ?? '立春时刻未生成'}<br />至 {item.nextLiChunAt ? `${item.nextLiChunAt} 前` : '下一边界未生成'}</p>
+        {item.startsBeforeBirth && <p className="mt-2 text-[9px] leading-4" style={{ color: 'var(--tx-3)' }}>出生发生在本流年区间内，有效区间已从出生时刻开始裁剪。</p>}
+      </article>
+      <article className="rounded-xl border p-4" style={{ borderColor: 'var(--bdr)', background: 'var(--bg-1)' }}>
+        <div className="flex flex-wrap items-center justify-between gap-2"><h3 className="text-sm font-semibold">实际大运归属</h3>{item.crossesLuckCycleBoundary && <span data-testid="annual-cross-cycle" className="rounded-full px-2 py-1 text-[9px]" style={{ color: 'var(--ac)', background: 'var(--ac-bg)' }}>本流年跨越交运边界</span>}</div>
+        <div className="mt-3 grid gap-2 sm:grid-cols-2">
+          {item.segments.map((segment, index) => <div key={`${segment.startAt}-${index}`} className="rounded-lg border p-3" style={{ borderColor: 'var(--bdr)', background: 'var(--bg-card)' }}>
+            <p className="text-xs font-medium">{segment.label}</p>
+            <p className="mt-1 font-mono text-[9px] leading-4" style={{ color: 'var(--tx-3)' }}>{segment.startAt}<br />至 {segment.endAtExclusive} 前</p>
+          </div>)}
+          {item.segments.length === 0 && <p className="text-xs leading-5" style={{ color: 'var(--tx-3)' }}>当前条件不足，暂不生成大运归属。</p>}
+        </div>
+      </article>
+    </div>
+
+    <div className="mt-4 rounded-lg border p-3" style={{ borderColor: 'rgba(168,120,35,.3)', background: 'rgba(168,120,35,.06)' }}>
+      <p className="text-[10px] leading-5" style={{ color: 'var(--tx-3)' }}>{result.boundary} · {result.methodologyVersion}</p>
+    </div>
   </section>;
 }
 

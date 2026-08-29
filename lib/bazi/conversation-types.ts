@@ -2,6 +2,7 @@ import type { ChatMessage } from '@/lib/ai/deepseek';
 import type { BaziBirthProfile, BaziChartVersion } from './types';
 import type { BaziAnalysisVersion } from './interpretation-types';
 import type { BaziLuckCycleVersion } from './luck-cycle-types';
+import type { BaziAnnualTimelineVersion } from './annual-timeline-types';
 
 export type BaziConversationStatus = 'active' | 'archived';
 export type BaziMessageRole = 'user' | 'assistant' | 'system';
@@ -23,6 +24,7 @@ export interface BaziConversation {
   chartVersionId: string;
   analysisVersionId: string | null;
   luckCycleVersionId: string | null;
+  annualTimelineVersionId: string | null;
   title: string;
   status: BaziConversationStatus;
   methodologyVersion: string;
@@ -42,6 +44,7 @@ export interface BaziConversationDetail extends BaziConversation {
   profile: BaziBirthProfile;
   analysis: BaziAnalysisVersion | null;
   luckCycles: BaziLuckCycleVersion | null;
+  annualTimeline: BaziAnnualTimelineVersion | null;
 }
 
 export interface BaziConversationListItem extends BaziConversation {
