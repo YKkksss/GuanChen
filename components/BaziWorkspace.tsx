@@ -31,6 +31,8 @@ import { calculateBaziLuckCycles } from '@/lib/bazi/luck-cycle-engine';
 import type { BaziLuckCycleResult } from '@/lib/bazi/luck-cycle-types';
 import { calculateBaziAnnualTimeline } from '@/lib/bazi/annual-timeline-engine';
 import type { BaziAnnualTimelineResult } from '@/lib/bazi/annual-timeline-types';
+import { auditBaziRelations } from '@/lib/bazi/relation-audit-engine';
+import type { BaziRelationAuditResult, BaziRelationEvidence } from '@/lib/bazi/relation-audit-types';
 
 interface FormState {
   displayName: string;
@@ -82,6 +84,7 @@ export default function BaziWorkspace() {
   const [startingChat, setStartingChat] = useState(false);
   const [busyId, setBusyId] = useState('');
   const [error, setError] = useState('');
+  const [selectedAnnualYear, setSelectedAnnualYear] = useState(new Date().getFullYear());
 
   const loadProfiles = useCallback(async () => {
     setHistoryLoading(true);
@@ -104,6 +107,7 @@ export default function BaziWorkspace() {
       fetch(`/api/bazi/charts/${currentChartId}/analysis`, { method: 'POST' }),
       fetch(`/api/bazi/charts/${currentChartId}/luck-cycles`, { method: 'POST' }),
       fetch(`/api/bazi/charts/${currentChartId}/annual-timeline`, { method: 'POST' }),
+      fetch(`/api/bazi/charts/${currentChartId}/relation-audit`, { method: 'POST' }),
     ]).catch(() => undefined);
   }, [currentChartId]);
 
@@ -119,6 +123,16 @@ export default function BaziWorkspace() {
     () => result && luckCycles ? calculateBaziAnnualTimeline(result, luckCycles) : null,
     [result, luckCycles],
   );
+  const relationAudit = useMemo(
+    () => result && luckCycles && annualTimeline
+      ? auditBaziRelations(result, luckCycles, annualTimeline)
+      : null,
+    [result, luckCycles, annualTimeline],
+  );
+  useEffect(() => {
+    if (!annualTimeline) return;
+    setSelectedAnnualYear(value => Math.min(Math.max(value, annualTimeline.range.startYear), annualTimeline.range.endYear));
+  }, [annualTimeline]);
 
   const update = <K extends keyof FormState>(key: K, value: FormState[K]) => {
     setForm(current => ({ ...current, [key]: value }));
@@ -302,7 +316,7 @@ export default function BaziWorkspace() {
           </button>
           <div className="text-right">
             <h1 className="text-lg font-semibold tracking-wide">八字确定性排盘</h1>
-            <p className="text-xs" style={{ color: 'var(--tx-3)' }}>M9-5 · 流年确定性时间轴</p>
+            <p className="text-xs" style={{ color: 'var(--tx-3)' }}>M9-6 · 干支关系证据审计</p>
           </div>
         </div>
       </header>
@@ -408,7 +422,8 @@ export default function BaziWorkspace() {
             <BaziResult result={result} />
             {interpretation && <BaziInterpretationPanel result={interpretation} />}
             {luckCycles && <BaziLuckCyclePanel result={luckCycles} />}
-            {annualTimeline && <BaziAnnualTimelinePanel result={annualTimeline} />}
+            {annualTimeline && <BaziAnnualTimelinePanel result={annualTimeline} selectedYear={selectedAnnualYear} onSelectYear={setSelectedAnnualYear} />}
+            {relationAudit && <BaziRelationAuditPanel result={relationAudit} selectedYear={selectedAnnualYear} />}
           </>}
         </section>
       </div>
@@ -548,7 +563,7 @@ function BaziResult({ result }: { result: BaziCalculationResult }) {
 
     <section className="flex gap-3 rounded-xl border p-4" style={{ borderColor: 'var(--bdr)', background: 'var(--bg-1)' }}>
       <Info className="mt-0.5 shrink-0" size={18} style={{ color: 'var(--ac-dim)' }} />
-      <p className="text-xs leading-5" style={{ color: 'var(--tx-3)' }}>当前已开放 M9-5 流年时间轴：可查看立春边界、流年干支及与大运的实际时间交集。最终强弱、成格破格、最终用神、大运或流年吉凶和具体事件仍未开放。</p>
+      <p className="text-xs leading-5" style={{ color: 'var(--tx-3)' }}>当前已开放 M9-6 干支关系证据：可查看原局、大运、流年之间命中的生克、五合、冲合刑害等结构。合化、强弱作用、吉凶和具体事件仍未开放。</p>
     </section>
   </div>;
 }
@@ -640,11 +655,13 @@ function BaziLuckCyclePanel({ result }: { result: BaziLuckCycleResult }) {
   </section>;
 }
 
-function BaziAnnualTimelinePanel({ result }: { result: BaziAnnualTimelineResult }) {
-  const now = new Date().getFullYear();
-  const initialYear = Math.min(Math.max(now, result.range.startYear), result.range.endYear);
-  const [selectedYear, setSelectedYear] = useState(initialYear);
-  useEffect(() => { setSelectedYear(initialYear); }, [initialYear, result.methodologyVersion]);
+function BaziAnnualTimelinePanel({
+  result, selectedYear, onSelectYear,
+}: {
+  result: BaziAnnualTimelineResult;
+  selectedYear: number;
+  onSelectYear: (year: number) => void;
+}) {
   const item = result.years.find(value => value.year === selectedYear) ?? result.years[0];
   if (!item) return null;
   const canPrevious = item.year > result.range.startYear;
@@ -665,11 +682,11 @@ function BaziAnnualTimelinePanel({ result }: { result: BaziAnnualTimelineResult 
     </div>
 
     <div className="mt-5 flex flex-wrap items-center gap-2">
-      <button type="button" aria-label="上一个流年" disabled={!canPrevious} onClick={() => setSelectedYear(value => value - 1)} className="btn-ghost !px-3 !py-2 disabled:opacity-30">上一年</button>
-      <select data-testid="annual-year-select" aria-label="选择流年" className="rectification-input !w-auto min-w-40" value={item.year} onChange={event => setSelectedYear(Number(event.target.value))}>
+      <button type="button" aria-label="上一个流年" disabled={!canPrevious} onClick={() => onSelectYear(item.year - 1)} className="btn-ghost !px-3 !py-2 disabled:opacity-30">上一年</button>
+      <select data-testid="annual-year-select" aria-label="选择流年" className="rectification-input !w-auto min-w-40" value={item.year} onChange={event => onSelectYear(Number(event.target.value))}>
         {result.years.map(year => <option key={year.year} value={year.year}>{year.year} · {year.ganZhi}{year.crossesLuckCycleBoundary ? ' · 跨运' : ''}</option>)}
       </select>
-      <button type="button" aria-label="下一个流年" disabled={!canNext} onClick={() => setSelectedYear(value => value + 1)} className="btn-ghost !px-3 !py-2 disabled:opacity-30">下一年</button>
+      <button type="button" aria-label="下一个流年" disabled={!canNext} onClick={() => onSelectYear(item.year + 1)} className="btn-ghost !px-3 !py-2 disabled:opacity-30">下一年</button>
       <span className="text-[10px]" style={{ color: 'var(--tx-3)' }}>范围 {result.range.startYear}—{result.range.endYear} · 共 {result.range.yearCount} 个流年</span>
     </div>
 
@@ -696,6 +713,55 @@ function BaziAnnualTimelinePanel({ result }: { result: BaziAnnualTimelineResult 
       <p className="text-[10px] leading-5" style={{ color: 'var(--tx-3)' }}>{result.boundary} · {result.methodologyVersion}</p>
     </div>
   </section>;
+}
+
+function BaziRelationAuditPanel({ result, selectedYear }: { result: BaziRelationAuditResult; selectedYear: number }) {
+  const year = result.years.find(item => item.year === selectedYear) ?? result.years[0];
+  if (!year) return null;
+  return <section data-testid="bazi-relation-audit" className="mt-5 rounded-xl border p-5 md:p-6" style={{ borderColor: 'var(--t-border-acc)', background: 'var(--bg-card)' }}>
+    <div className="flex flex-wrap items-start justify-between gap-4">
+      <div className="flex items-start gap-3">
+        <div className="rounded-lg p-2" style={{ color: 'var(--ac-dim)', background: 'var(--ac-bg)' }}><GitBranch size={19} /></div>
+        <div>
+          <p className="text-[10px] tracking-[.18em]" style={{ color: 'var(--ac-dim)' }}>M9-6 · 跨层结构证据</p>
+          <h2 className="mt-1 text-lg font-semibold">{year.year} {year.annualGanZhi} · 原局—大运—流年关系审计</h2>
+          <p className="mt-1 text-xs leading-5" style={{ color: 'var(--tx-3)' }}>与上方流年选择同步；只列命中关系、参与柱位和规则边界，不计算吉凶分数。</p>
+        </div>
+      </div>
+      <span className="rounded-full px-3 py-1 text-[10px]" style={{ color: 'var(--lu)', background: 'var(--bg-1)' }}>{year.evidenceCount} 条结构证据</span>
+    </div>
+
+    <div className="mt-5 space-y-4">
+      {year.segments.map(segment => <article key={segment.segmentIndex} data-testid="relation-audit-segment" className="rounded-xl border p-4" style={{ borderColor: 'var(--bdr)', background: 'var(--bg-1)' }}>
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div><h3 className="text-sm font-semibold">片段 {segment.segmentIndex} · {segment.label}</h3><p className="mt-1 font-mono text-[9px]" style={{ color: 'var(--tx-3)' }}>{segment.startAt ?? '起点未生成'} — {segment.endAtExclusive ? `${segment.endAtExclusive} 前` : '终点未生成'}</p></div>
+          <span className="text-[9px]" style={{ color: 'var(--tx-3)' }}>天干 {segment.counts.stem} · 地支 {segment.counts.branch}</span>
+        </div>
+        <div className="mt-3 grid gap-2 lg:grid-cols-2">
+          {segment.evidence.map(evidence => <RelationEvidenceCard key={evidence.id} evidence={evidence} />)}
+          {segment.evidence.length === 0 && <p className="rounded-lg border border-dashed p-4 text-xs" style={{ borderColor: 'var(--bdr)', color: 'var(--tx-3)' }}>本片段没有命中当前版本已开放的跨层关系规则。</p>}
+        </div>
+      </article>)}
+    </div>
+
+    <div className="mt-4 rounded-lg border p-3" style={{ borderColor: 'rgba(168,120,35,.3)', background: 'rgba(168,120,35,.06)' }}>
+      <p className="text-[10px] leading-5" style={{ color: 'var(--tx-3)' }}>{result.boundary}</p>
+      <p className="mt-1 text-[9px]" style={{ color: 'var(--tx-3)' }}>{result.methodologyVersion}</p>
+    </div>
+  </section>;
+}
+
+function RelationEvidenceCard({ evidence }: { evidence: BaziRelationEvidence }) {
+  const scope = ({
+    luck_to_natal: '大运—原局', annual_to_natal: '流年—原局',
+    annual_to_luck: '流年—大运', multi_layer: '三层共同',
+  } as Record<string, string>)[evidence.scope] ?? evidence.scope;
+  return <div data-relation-type={evidence.type} className="rounded-lg border p-3" style={{ borderColor: evidence.conclusion === 'detected_not_transformed' ? 'var(--ac-bdr)' : 'var(--bdr)', background: 'var(--bg-card)' }}>
+    <div className="flex flex-wrap items-center gap-2"><span className="rounded-full px-2 py-0.5 text-[9px]" style={{ color: evidence.domain === 'stem' ? 'var(--ac-dim)' : 'var(--lu)', background: 'var(--bg-1)' }}>{evidence.domain === 'stem' ? '天干' : '地支'}</span><span className="text-[9px]" style={{ color: 'var(--tx-3)' }}>{scope}</span></div>
+    <p className="mt-2 text-xs font-medium leading-5">{evidence.label}</p>
+    <p className="mt-1 text-[9px] leading-4" style={{ color: 'var(--tx-3)' }}>{evidence.participants.map(item => `${item.label}${item.symbol}`).join(' · ')}</p>
+    <p className="mt-2 text-[9px] leading-4" style={{ color: 'var(--tx-3)' }}>{evidence.detail}</p>
+  </div>;
 }
 
 function relationText(relation: string): string {

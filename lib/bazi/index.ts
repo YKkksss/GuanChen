@@ -31,7 +31,18 @@ export {
   assertValidBaziAnnualTimelineMethodology,
   validateBaziAnnualTimelineMethodology,
 } from './annual-timeline-validator';
+export { auditBaziRelations } from './relation-audit-engine';
+export {
+  BAZI_RELATION_AUDIT_ENGINE_VERSION,
+  BAZI_RELATION_AUDIT_METHODOLOGY,
+  BAZI_RELATION_AUDIT_METHODOLOGY_VERSION,
+} from './relation-audit-methodology';
+export {
+  assertValidBaziRelationAuditMethodology,
+  validateBaziRelationAuditMethodology,
+} from './relation-audit-validator';
 export * from './types';
 export * from './interpretation-types';
 export * from './luck-cycle-types';
 export * from './annual-timeline-types';
+export * from './relation-audit-types';

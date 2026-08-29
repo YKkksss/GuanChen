@@ -15,13 +15,15 @@ import { getBaziBirthProfile, getBaziChartVersion } from './bazi';
 import { ensureBaziAnalysisVersion, getBaziAnalysisVersion } from './bazi-analysis';
 import { ensureBaziLuckCycleVersion, getBaziLuckCycleVersion } from './bazi-luck-cycles';
 import { ensureBaziAnnualTimelineVersion, getBaziAnnualTimelineVersion } from './bazi-annual-timelines';
+import { ensureBaziRelationAuditVersion, getBaziRelationAuditVersion } from './bazi-relation-audits';
 import { getDatabase } from './client';
 
-export const BAZI_CHAT_PROMPT_VERSION = 'bazi-chat-annual-timeline-v4';
+export const BAZI_CHAT_PROMPT_VERSION = 'bazi-chat-relation-evidence-v5';
 
 interface ConversationRow {
   id: string; chart_version_id: string; analysis_version_id: string | null; luck_cycle_version_id: string | null;
   annual_timeline_version_id: string | null;
+  relation_audit_version_id: string | null;
   title: string; status: BaziConversationStatus;
   methodology_version: string; engine_version: string; prompt_version: string;
   summary_json: string | null; summary_through_seq: number; summary_version: number;
@@ -55,6 +57,7 @@ export function createBaziConversation(input: {
   const analysis = ensureBaziAnalysisVersion(chart.id);
   const luckCycles = ensureBaziLuckCycleVersion(chart.id);
   const annualTimeline = ensureBaziAnnualTimelineVersion(chart.id);
+  const relationAudit = ensureBaziRelationAuditVersion(chart.id);
 
   if (!input.forceNew) {
     const existing = getDatabase().prepare(`
@@ -70,12 +73,12 @@ export function createBaziConversation(input: {
   const title = input.title?.trim().slice(0, 120) || `${profile.displayName} · 八字基础解读`;
   getDatabase().prepare(`
     INSERT INTO bazi_conversations (
-      id, chart_version_id, analysis_version_id, luck_cycle_version_id, annual_timeline_version_id,
+      id, chart_version_id, analysis_version_id, luck_cycle_version_id, annual_timeline_version_id, relation_audit_version_id,
       title, status, methodology_version, engine_version,
       prompt_version, created_at, updated_at
-    ) VALUES (?, ?, ?, ?, ?, ?, 'active', ?, ?, ?, ?, ?)
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, 'active', ?, ?, ?, ?, ?)
   `).run(
-    id, chart.id, analysis.id, luckCycles.id, annualTimeline.id, title,
+    id, chart.id, analysis.id, luckCycles.id, annualTimeline.id, relationAudit.id, title,
     chart.methodologyVersion, chart.engineVersion, BAZI_CHAT_PROMPT_VERSION, now, now,
   );
   return getBaziConversation(id)!;
@@ -85,16 +88,17 @@ export function getBaziConversation(id: string): BaziConversationDetail | null {
   let row = getDatabase().prepare('SELECT * FROM bazi_conversations WHERE id = ?')
     .get(id) as ConversationRow | undefined;
   if (!row) return null;
-  if (!row.analysis_version_id || !row.luck_cycle_version_id || !row.annual_timeline_version_id || row.prompt_version !== BAZI_CHAT_PROMPT_VERSION) {
+  if (!row.analysis_version_id || !row.luck_cycle_version_id || !row.annual_timeline_version_id || !row.relation_audit_version_id || row.prompt_version !== BAZI_CHAT_PROMPT_VERSION) {
     const analysis = ensureBaziAnalysisVersion(row.chart_version_id);
     const luckCycles = ensureBaziLuckCycleVersion(row.chart_version_id);
     const annualTimeline = ensureBaziAnnualTimelineVersion(row.chart_version_id);
+    const relationAudit = ensureBaziRelationAuditVersion(row.chart_version_id);
     getDatabase().prepare(`
       UPDATE bazi_conversations
-      SET analysis_version_id = ?, luck_cycle_version_id = ?, annual_timeline_version_id = ?,
+      SET analysis_version_id = ?, luck_cycle_version_id = ?, annual_timeline_version_id = ?, relation_audit_version_id = ?,
           prompt_version = ?, updated_at = ?
       WHERE id = ?
-    `).run(analysis.id, luckCycles.id, annualTimeline.id, BAZI_CHAT_PROMPT_VERSION, Date.now(), id);
+    `).run(analysis.id, luckCycles.id, annualTimeline.id, relationAudit.id, BAZI_CHAT_PROMPT_VERSION, Date.now(), id);
     row = getDatabase().prepare('SELECT * FROM bazi_conversations WHERE id = ?')
       .get(id) as ConversationRow;
   }
@@ -112,7 +116,10 @@ export function getBaziConversation(id: string): BaziConversationDetail | null {
   const annualTimeline = conversation.annualTimelineVersionId
     ? getBaziAnnualTimelineVersion(conversation.annualTimelineVersionId)
     : null;
-  return { ...conversation, chart, profile, analysis, luckCycles, annualTimeline };
+  const relationAudit = conversation.relationAuditVersionId
+    ? getBaziRelationAuditVersion(conversation.relationAuditVersionId)
+    : null;
+  return { ...conversation, chart, profile, analysis, luckCycles, annualTimeline, relationAudit };
 }
 
 export function listBaziConversations(input: {
@@ -301,6 +308,7 @@ function mapConversation(row: ConversationRow): BaziConversation {
     id: row.id, chartVersionId: row.chart_version_id, analysisVersionId: row.analysis_version_id,
     luckCycleVersionId: row.luck_cycle_version_id,
     annualTimelineVersionId: row.annual_timeline_version_id,
+    relationAuditVersionId: row.relation_audit_version_id,
     title: row.title, status: row.status,
     methodologyVersion: row.methodology_version, engineVersion: row.engine_version,
     promptVersion: row.prompt_version, summary: parseJson<BaziConversationSummary>(row.summary_json),
