@@ -91,6 +91,16 @@ export {
   assertValidBaziHiddenStemActivationMethodology,
   validateBaziHiddenStemActivationMethodology,
 } from './hidden-stem-activation-validator';
+export { auditBaziStrengthComposite } from './strength-composite-engine';
+export {
+  BAZI_STRENGTH_COMPOSITE_ENGINE_VERSION,
+  BAZI_STRENGTH_COMPOSITE_METHODOLOGY,
+  BAZI_STRENGTH_COMPOSITE_METHODOLOGY_VERSION,
+} from './strength-composite-methodology';
+export {
+  assertValidBaziStrengthCompositeMethodology,
+  validateBaziStrengthCompositeMethodology,
+} from './strength-composite-validator';
 export * from './types';
 export * from './interpretation-types';
 export * from './luck-cycle-types';
@@ -101,3 +111,4 @@ export * from './dynamic-ten-god-types';
 export * from './ten-god-repeat-types';
 export * from './transparency-root-types';
 export * from './hidden-stem-activation-types';
+export * from './strength-composite-types';

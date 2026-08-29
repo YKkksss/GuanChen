@@ -1859,6 +1859,58 @@ function migrate(db: Database.Database) {
     applyV33();
   }
 
+  if (!applied.has(34)) {
+    const applyV34 = db.transaction(() => {
+      db.exec(`
+        CREATE TABLE bazi_strength_composite_versions (
+          id TEXT PRIMARY KEY,
+          chart_version_id TEXT NOT NULL,
+          analysis_version_id TEXT NOT NULL,
+          dynamic_ten_god_version_id TEXT NOT NULL,
+          transparency_root_version_id TEXT NOT NULL,
+          hidden_stem_activation_version_id TEXT NOT NULL,
+          methodology_version TEXT NOT NULL,
+          engine_version TEXT NOT NULL,
+          chart_fingerprint TEXT NOT NULL,
+          analysis_fingerprint TEXT NOT NULL,
+          dynamic_ten_god_fingerprint TEXT NOT NULL,
+          transparency_root_fingerprint TEXT NOT NULL,
+          hidden_stem_activation_fingerprint TEXT NOT NULL,
+          strength_composite_fingerprint TEXT NOT NULL,
+          result_json TEXT NOT NULL,
+          created_at INTEGER NOT NULL,
+          updated_at INTEGER NOT NULL,
+
+          UNIQUE (
+            chart_version_id, analysis_version_id, dynamic_ten_god_version_id,
+            transparency_root_version_id, hidden_stem_activation_version_id,
+            methodology_version, engine_version
+          ),
+          FOREIGN KEY (chart_version_id) REFERENCES bazi_chart_versions(id) ON DELETE CASCADE,
+          FOREIGN KEY (analysis_version_id) REFERENCES bazi_analysis_versions(id) ON DELETE CASCADE,
+          FOREIGN KEY (dynamic_ten_god_version_id) REFERENCES bazi_dynamic_ten_god_versions(id) ON DELETE CASCADE,
+          FOREIGN KEY (transparency_root_version_id) REFERENCES bazi_transparency_root_versions(id) ON DELETE CASCADE,
+          FOREIGN KEY (hidden_stem_activation_version_id) REFERENCES bazi_hidden_stem_activation_versions(id) ON DELETE CASCADE
+        );
+
+        ALTER TABLE bazi_conversations
+          ADD COLUMN strength_composite_version_id TEXT
+          REFERENCES bazi_strength_composite_versions(id)
+          ON DELETE SET NULL;
+
+        CREATE INDEX idx_bazi_strength_composite_chart_updated
+          ON bazi_strength_composite_versions(chart_version_id, updated_at DESC);
+        CREATE INDEX idx_bazi_strength_composite_fingerprint
+          ON bazi_strength_composite_versions(strength_composite_fingerprint);
+        CREATE INDEX idx_bazi_conversations_strength_composite
+          ON bazi_conversations(strength_composite_version_id);
+      `);
+      db.prepare('INSERT INTO schema_migrations(version, applied_at) VALUES (?, ?)')
+        .run(34, Date.now());
+    });
+    applyV34();
+  }
+
   ensureMessageSearch(db);
 }
 

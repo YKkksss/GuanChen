@@ -65,6 +65,11 @@ import type {
   BaziHiddenStemActivationResult,
   BaziHiddenStemTouchCandidate,
 } from '@/lib/bazi/hidden-stem-activation-types';
+import { auditBaziStrengthComposite } from '@/lib/bazi/strength-composite-engine';
+import type {
+  BaziStrengthCompositeEvidence,
+  BaziStrengthCompositeResult,
+} from '@/lib/bazi/strength-composite-types';
 
 interface FormState {
   displayName: string;
@@ -145,6 +150,7 @@ export default function BaziWorkspace() {
       fetch(`/api/bazi/charts/${currentChartId}/ten-god-repeats`, { method: 'POST' }),
       fetch(`/api/bazi/charts/${currentChartId}/transparency-roots`, { method: 'POST' }),
       fetch(`/api/bazi/charts/${currentChartId}/hidden-stem-activations`, { method: 'POST' }),
+      fetch(`/api/bazi/charts/${currentChartId}/strength-composites`, { method: 'POST' }),
     ]).catch(() => undefined);
   }, [currentChartId]);
 
@@ -195,6 +201,12 @@ export default function BaziWorkspace() {
       )
       : null,
     [result, relationAudit, relationAdjudication, dynamicTenGod, tenGodRepeat, transparencyRoot],
+  );
+  const strengthComposite = useMemo(
+    () => result && interpretation && dynamicTenGod && transparencyRoot && hiddenStemActivation
+      ? auditBaziStrengthComposite(result, interpretation, dynamicTenGod, transparencyRoot, hiddenStemActivation)
+      : null,
+    [result, interpretation, dynamicTenGod, transparencyRoot, hiddenStemActivation],
   );
   useEffect(() => {
     if (!annualTimeline) return;
@@ -496,6 +508,7 @@ export default function BaziWorkspace() {
             {tenGodRepeat && <BaziTenGodRepeatPanel result={tenGodRepeat} selectedYear={selectedAnnualYear} />}
             {transparencyRoot && <BaziTransparencyRootPanel result={transparencyRoot} selectedYear={selectedAnnualYear} />}
             {hiddenStemActivation && <BaziHiddenStemActivationPanel result={hiddenStemActivation} selectedYear={selectedAnnualYear} />}
+            {strengthComposite && <BaziStrengthCompositePanel result={strengthComposite} selectedYear={selectedAnnualYear} />}
           </>}
         </section>
       </div>
@@ -1198,6 +1211,72 @@ function HiddenStemTouchCard({ candidate }: { candidate: BaziHiddenStemTouchCand
     </div>)}</div>
     <p className="mt-2 text-[8px] leading-4" style={{ color: 'var(--tx-3)' }}>{candidate.boundary}</p>
   </div>;
+}
+
+function BaziStrengthCompositePanel({ result, selectedYear }: { result: BaziStrengthCompositeResult; selectedYear: number }) {
+  const year = result.years.find(item => item.year === selectedYear) ?? result.years[0];
+  if (!year) return null;
+  return <section data-testid="bazi-strength-composite-audit" className="mt-5 rounded-xl border p-5 md:p-6" style={{ borderColor: 'var(--t-border-acc)', background: 'var(--bg-card)' }}>
+    <div className="flex flex-wrap items-start justify-between gap-4">
+      <div className="flex items-start gap-3">
+        <div className="rounded-lg p-2" style={{ color: 'var(--ac-dim)', background: 'var(--ac-bg)' }}><GitBranch size={19} /></div>
+        <div>
+          <p className="text-[10px] tracking-[.18em]" style={{ color: 'var(--ac-dim)' }}>M9-12 · 月令与旺衰综合条件</p>
+          <h2 className="mt-1 text-lg font-semibold">{year.year} {year.annualGanZhi} · 静态与岁运证据矩阵</h2>
+          <p className="mt-1 text-xs leading-5" style={{ color: 'var(--tx-3)' }}>静态基线：{result.staticBaseline.label}。方向比较不等于身强身弱，也不折算数值分数。</p>
+        </div>
+      </div>
+      <span className="rounded-full px-2.5 py-1 text-[9px]" style={{ color: 'var(--lu)', background: 'var(--bg-1)' }}>{year.comparisonLabels.join('／')}</span>
+    </div>
+    <div className="mt-5 space-y-4">{year.segments.map(segment => {
+      const support = segment.evidence.filter(item => item.side === 'support');
+      const drain = segment.evidence.filter(item => item.side === 'drain_or_control');
+      const context = segment.evidence.filter(item => item.side === 'context');
+      return <div key={segment.segmentIndex} className="rounded-xl border p-4" style={{ borderColor: 'var(--bdr)', background: 'var(--bg-1)' }}>
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div><p className="text-xs font-semibold">片段 {segment.segmentIndex} · {segment.label}</p><p className="mt-1 text-[9px]" style={{ color: 'var(--tx-3)' }}>{segment.startAt ?? '起点未知'} — {segment.endAtExclusive ?? '终点未知'}</p></div>
+          <div className="text-right"><p className="text-[10px] font-medium" style={{ color: 'var(--ac-dim)' }}>{segment.comparisonLabel}</p><p className="mt-1 text-[9px]" style={{ color: 'var(--tx-3)' }}>{segment.dynamicSurfaceDirectionLabel}</p></div>
+        </div>
+        <div className="mt-3 rounded-lg border px-3 py-2 text-[9px] leading-4" style={{ borderColor: 'var(--bdr)', background: 'var(--bg-card)' }}>
+          <span style={{ color: 'var(--tx-3)' }}>月令 {segment.monthCommand.branch}（本气 {segment.monthCommand.mainQiStem}）：</span>
+          <span style={{ color: segment.monthCommand.touchStatus === 'no_open_touch_condition' ? 'var(--tx-2)' : 'var(--ac-dim)' }}>{monthTouchStatusLabel(segment.monthCommand.touchStatus)}</span>
+          {segment.monthCommand.relationConditionStates.length > 0 && <span style={{ color: 'var(--tx-3)' }}> · 关系状态 {segment.monthCommand.relationConditionStates.join('、')}</span>}
+        </div>
+        <div className="mt-3 grid gap-3 lg:grid-cols-3">
+          <StrengthEvidenceColumn title="生扶方向证据" items={support} tone="support" />
+          <StrengthEvidenceColumn title="泄耗制方向证据" items={drain} tone="drain" />
+          <StrengthEvidenceColumn title="条件与位置上下文" items={context} tone="context" />
+        </div>
+        <div className="mt-3 flex flex-wrap gap-1">{segment.reviewFlags.map(flag => <span key={flag} className="rounded px-1.5 py-0.5 text-[8px]" style={{ color: 'var(--tx-3)', background: 'var(--bg-card)' }}>{strengthReviewFlagLabel(flag)}</span>)}</div>
+      </div>;
+    })}</div>
+    <div className="mt-4 rounded-lg border px-3 py-2 text-[10px] leading-5" style={{ borderColor: 'var(--bdr)', color: 'var(--tx-3)', background: 'var(--bg-1)' }}><Info className="mr-1 inline" size={13} />{result.boundary}</div>
+  </section>;
+}
+
+function StrengthEvidenceColumn({ title, items, tone }: { title: string; items: BaziStrengthCompositeEvidence[]; tone: 'support' | 'drain' | 'context' }) {
+  const color = tone === 'support' ? 'var(--lu)' : tone === 'drain' ? 'var(--ji)' : 'var(--ac-dim)';
+  return <div className="rounded-lg border p-3" style={{ borderColor: 'var(--bdr)', background: 'var(--bg-card)' }}>
+    <div className="flex items-center justify-between gap-2"><p className="text-[10px] font-semibold" style={{ color }}>{title}</p><span className="text-[8px]" style={{ color: 'var(--tx-3)' }}>{items.length} 条</span></div>
+    <div className="mt-2 space-y-1.5">{items.length ? items.map(item => <div key={item.id} title={item.detail} className="rounded-lg px-2.5 py-2" style={{ background: 'var(--bg-1)' }}><p className="text-[9px] font-medium" style={{ color: 'var(--tx-2)' }}>{item.label}</p><p className="mt-1 text-[8px]" style={{ color: 'var(--tx-3)' }}>{item.familyLabel} · {item.sourceStage} · {strengthEvidenceStatusLabel(item.status)}</p></div>) : <p className="py-4 text-center text-[9px]" style={{ color: 'var(--tx-3)' }}>当前没有此类证据</p>}</div>
+  </div>;
+}
+
+function monthTouchStatusLabel(status: string): string {
+  return ({ multiple_touch_types: '多类触达条件并见', single_touch_type: '单类触达条件', no_open_touch_condition: '未命中已开放触达条件' } as Record<string, string>)[status] ?? status;
+}
+
+function strengthEvidenceStatusLabel(status: string): string {
+  return ({ upstream_label: '上游原样标签', established: '已观察证据', position_only: '仅位置', condition_only: '仅条件' } as Record<string, string>)[status] ?? status;
+}
+
+function strengthReviewFlagLabel(flag: string): string {
+  return ({
+    unknown_time: '时柱未知', static_dynamic_direction_difference: '静态动态异向',
+    static_baseline_mixed: '静态基线并见', dynamic_surface_mixed: '岁运表层并见',
+    month_command_touch_present: '月令触达待复核', month_command_relation_state_unresolved: '月令关系状态未决',
+    day_master_root_condition_present: '日主根气条件', dynamic_hidden_position_only: '岁运藏干仅位置／条件',
+  } as Record<string, string>)[flag] ?? flag;
 }
 
 function relationText(relation: string): string {

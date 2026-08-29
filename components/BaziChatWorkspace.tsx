@@ -19,6 +19,9 @@ import type {
 } from '@/lib/bazi/conversation-types';
 
 const QUICK_PROMPTS = [
+  '请比较当前年份 M9-3 静态基线与岁运表层方向，只讲同向、异向或并见，不判断身强身弱',
+  '请按生扶、泄耗制、条件上下文三列解释当前年份的综合证据矩阵',
+  '当前年份月令命中了哪些触达条件？为什么不能据此说月令增强、受损或失效？',
   '请列出当前年份哪些藏干命中了岁运表层同干、同支重复或明确关系触达，只讲条件证据',
   '请比较当前年份藏干的单类触达与多类触达并见，为什么仍不能说已经发动？',
   '哪些藏干所在支参与了冲合刑害证据？请同时说明 M9-7 条件状态',
@@ -191,6 +194,7 @@ export default function BaziChatWorkspace({ conversationId }: { conversationId: 
   const tenGodRepeat = conversation.tenGodRepeat?.result ?? null;
   const transparencyRoot = conversation.transparencyRoot?.result ?? null;
   const hiddenStemActivation = conversation.hiddenStemActivation?.result ?? null;
+  const strengthComposite = conversation.strengthComposite?.result ?? null;
   const pillars = [result.pillars.year, result.pillars.month, result.pillars.day, result.pillars.time];
 
   return (
@@ -270,14 +274,19 @@ export default function BaziChatWorkspace({ conversationId }: { conversationId: 
                 <p>触达边界：<span style={{ color: 'var(--tx-1)' }}>只记入口，不判发动结果</span></p>
                 <p>藏干版本：{hiddenStemActivation.methodologyVersion}</p>
               </>}
+              {strengthComposite && <>
+                <p>综合矩阵：<span style={{ color: 'var(--tx-1)' }}>静态基线／岁运表层／条件上下文</span></p>
+                <p>比较口径：<span style={{ color: 'var(--tx-1)' }}>同向／异向／并见，不判旺衰变化</span></p>
+                <p>矩阵版本：{strengthComposite.methodologyVersion}</p>
+              </>}
             </div>
-            <div className="mt-4 rounded-lg border p-3 text-[10px] leading-5" style={{ borderColor: 'rgba(180,125,35,.25)', color: 'var(--tx-3)', background: 'rgba(180,125,35,.06)' }}>当前可解释透出、根气和藏干触达条件；即使多类入口并见，也不等于透干有效、根气有力、藏干已经发动、旺衰变化、吉凶或具体事件。</div>
+            <div className="mt-4 rounded-lg border p-3 text-[10px] leading-5" style={{ borderColor: 'rgba(180,125,35,.25)', color: 'var(--tx-3)', background: 'rgba(180,125,35,.06)' }}>当前可解释静态与动态证据矩阵、透根和藏干触达条件；同向或多类入口并见都不等于日主变强变弱、月令受损、吉凶或具体事件。</div>
           </aside>
 
           <div className="flex min-h-0 flex-col overflow-hidden" style={{ background: 'var(--bg-card)' }}>
             <div className="shrink-0 overflow-x-auto border-b px-3 py-2" style={{ borderColor: 'var(--bdr)' }}><div className="flex min-w-max gap-2">{QUICK_PROMPTS.map(prompt => <button key={prompt} type="button" disabled={sending} onClick={() => void sendMessage(prompt, 'quick_prompt')} className="rounded-lg border px-3 py-1.5 text-[10px] disabled:opacity-40" style={{ borderColor: 'var(--bdr)', color: 'var(--tx-3)' }}>{prompt}</button>)}</div></div>
             <div ref={scrollRef} className="min-h-0 flex-1 space-y-5 overflow-y-auto overscroll-contain px-4 py-5 md:px-8">
-              {messages.length === 0 && <div className="flex h-full flex-col items-center justify-center text-center"><ChatCircleDots size={42} className="mb-4 opacity-20" /><h2 className="text-base font-semibold">从这份已保存的规则快照开始解读</h2><p className="mt-2 max-w-md text-xs leading-6" style={{ color: 'var(--tx-3)' }}>可以询问四柱、排期、动态十神、显隐重复、透根条件，以及指定年份藏干被哪些已开放条件触达。消息会保存在本地，刷新后仍可继续。</p></div>}
+              {messages.length === 0 && <div className="flex h-full flex-col items-center justify-center text-center"><ChatCircleDots size={42} className="mb-4 opacity-20" /><h2 className="text-base font-semibold">从这份已保存的规则快照开始解读</h2><p className="mt-2 max-w-md text-xs leading-6" style={{ color: 'var(--tx-3)' }}>可以询问四柱、排期、动态十神、透根与藏干触达，以及指定年份静态基线和岁运方向如何并列。消息会保存在本地，刷新后仍可继续。</p></div>}
               {messages.map((message, index) => message.role === 'user'
                 ? <div key={message.id ?? index} className="flex justify-end"><div className="max-w-[85%] rounded-2xl px-4 py-2.5 text-sm leading-6" style={{ color: 'var(--ac)', background: 'var(--ac-bg)', border: '1px solid var(--ac-bdr)' }}>{message.content}</div></div>
                 : <div key={message.id ?? index} className="max-w-3xl"><div className="mb-2 flex items-center gap-2 text-[10px] tracking-wider" style={{ color: 'var(--ac-dim)' }}><ShieldCheck size={13} /> 八字基础解读</div><AiContent text={message.content} streaming={sending && index === messages.length - 1} /></div>)}
@@ -285,7 +294,7 @@ export default function BaziChatWorkspace({ conversationId }: { conversationId: 
             <div className="shrink-0 border-t p-3 md:px-6" style={{ borderColor: 'var(--bdr)', background: 'var(--bg-card)' }}>
               {error && <p role="alert" className="mb-2 text-xs" style={{ color: 'var(--ji)' }}>{error}</p>}
               <div className="mx-auto flex max-w-4xl items-end gap-2"><textarea rows={2} value={input} disabled={sending} onChange={event => setInput(event.target.value)} onKeyDown={event => { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); void sendMessage(input); } }} placeholder="询问这份八字基础盘…" className="min-h-[54px] flex-1 resize-none rounded-xl border px-4 py-3 text-sm outline-none disabled:opacity-60" style={{ color: 'var(--tx-1)', borderColor: 'var(--bdr)', background: 'var(--bg-1)' }} /><button type="button" aria-label="发送消息" disabled={sending || !input.trim()} onClick={() => void sendMessage(input)} className="flex h-[54px] w-12 items-center justify-center rounded-xl disabled:opacity-30" style={{ color: 'var(--ac)', border: '1px solid var(--ac-bdr)', background: 'var(--ac-bg)' }}>{sending ? '…' : <PaperPlaneTilt size={18} weight="fill" />}</button></div>
-              <p className="mt-1.5 text-center text-[9px]" style={{ color: 'var(--tx-3)' }}>本地保存 · 自动压缩 · 藏干触达可追溯 · 不裁决发动、强弱及运势</p>
+              <p className="mt-1.5 text-center text-[9px]" style={{ color: 'var(--tx-3)' }}>本地保存 · 自动压缩 · 综合证据可追溯 · 不计算旺衰分数及运势</p>
             </div>
           </div>
         </section>
