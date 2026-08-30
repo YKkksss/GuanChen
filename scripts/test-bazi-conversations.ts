@@ -47,7 +47,7 @@ async function main() {
     const first = (await json<{ conversation: { id: string; promptVersion: string } }>(await create())).conversation;
     const reused = (await json<{ conversation: { id: string } }>(await create())).conversation;
     assert.equal(reused.id, first.id, '同一版本默认应恢复最近的活动会话');
-    assert.equal(first.promptVersion, 'bazi-chat-month-day-timeline-v13');
+    assert.equal(first.promptVersion, 'bazi-chat-month-day-relation-v14');
 
     const forcedResponse = await conversationsRoute.POST(new Request('http://local/api/bazi/conversations', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },

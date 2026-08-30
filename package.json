@@ -47,6 +47,7 @@
     "test:bazi-strength-composites": "tsx scripts/test-bazi-strength-composites.ts",
     "test:bazi-pattern-conditions": "tsx scripts/test-bazi-pattern-conditions.ts",
     "test:bazi-month-day-timeline": "tsx scripts/test-bazi-month-day-timeline.ts",
+    "test:bazi-month-day-relations": "tsx scripts/test-bazi-month-day-relations.ts",
     "start": "next start -p 30001",
     "build:cf": "npx @cloudflare/next-on-pages",
     "preview:cf": "npx wrangler pages dev",

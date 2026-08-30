@@ -121,7 +121,7 @@ async function main() {
     }));
     const conversation = (await json<{ conversation: { id: string; monthDayTimelineVersionId: string; promptVersion: string } }>(conversationResponse)).conversation;
     assert.ok(conversation.monthDayTimelineVersionId);
-    assert.equal(conversation.promptVersion, 'bazi-chat-month-day-timeline-v13');
+    assert.equal(conversation.promptVersion, 'bazi-chat-month-day-relation-v14');
     const question = appendBaziMessage({
       conversationId: conversation.id,
       role: 'user',

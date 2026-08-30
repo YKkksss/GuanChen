@@ -6,8 +6,19 @@ export type BaziRelationAuditStatus =
   | 'partial_unknown_time'
   | 'annual_only_without_luck_boundary';
 
-export type BaziRelationLayer = 'natal' | 'luck_cycle' | 'annual';
-export type BaziRelationScope = 'luck_to_natal' | 'annual_to_natal' | 'annual_to_luck' | 'multi_layer';
+export type BaziRelationLayer = 'natal' | 'luck_cycle' | 'annual' | 'month' | 'day';
+export type BaziRelationScope =
+  | 'luck_to_natal'
+  | 'annual_to_natal'
+  | 'annual_to_luck'
+  | 'month_to_natal'
+  | 'month_to_luck'
+  | 'month_to_annual'
+  | 'day_to_natal'
+  | 'day_to_luck'
+  | 'day_to_annual'
+  | 'day_to_month'
+  | 'multi_layer';
 export type BaziRelationDomain = 'stem' | 'branch';
 export type BaziRelationType =
   | 'stem_same_element'
@@ -62,6 +73,8 @@ export interface BaziRelationParticipant {
   element: BaziElement;
   luckCycleIndex: number | null;
   annualYear: number | null;
+  flowMonthIndex?: number | null;
+  effectiveDate?: string | null;
 }
 
 export interface BaziRelationEvidence {

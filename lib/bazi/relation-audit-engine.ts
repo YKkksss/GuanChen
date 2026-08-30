@@ -64,6 +64,54 @@ interface AuditNode {
   branchElement: BaziElement;
   luckCycleIndex: number | null;
   annualYear: number | null;
+  flowMonthIndex?: number | null;
+  effectiveDate?: string | null;
+}
+
+export interface BaziRelationNodeInput {
+  id: string;
+  layer: BaziRelationLayer;
+  label: string;
+  ganZhi: string;
+  pillarKey?: BaziPillarKey | null;
+  luckCycleIndex?: number | null;
+  annualYear?: number | null;
+  flowMonthIndex?: number | null;
+  effectiveDate?: string | null;
+}
+
+/** 供精确流日等下游模块复用 M9-6 的同一套干支关系目录。 */
+export function auditBaziRelationNodeSet(input: {
+  nodes: BaziRelationNodeInput[];
+  year: number;
+  segmentIndex: number;
+}): BaziRelationEvidence[] {
+  const nodes = input.nodes.map(node => {
+    const stem = node.ganZhi[0];
+    const branch = node.ganZhi[1];
+    const stemElement = STEM_ELEMENTS[stem];
+    const branchElement = BRANCH_ELEMENTS[branch];
+    if (!stemElement || !branchElement) throw new Error(`无法识别关系节点干支：${node.ganZhi}`);
+    return {
+      id: node.id,
+      layer: node.layer,
+      label: node.label,
+      pillarKey: node.pillarKey ?? null,
+      stem,
+      branch,
+      stemElement,
+      branchElement,
+      luckCycleIndex: node.luckCycleIndex ?? null,
+      annualYear: node.annualYear ?? null,
+      flowMonthIndex: node.flowMonthIndex ?? null,
+      effectiveDate: node.effectiveDate ?? null,
+    } satisfies AuditNode;
+  });
+  return [
+    ...detectStemRelations(nodes, input.year, input.segmentIndex),
+    ...detectBranchPairRelations(nodes, input.year, input.segmentIndex),
+    ...detectBranchSetRelations(nodes, input.year, input.segmentIndex),
+  ].sort((left, right) => `${left.domain}-${left.type}-${left.label}`.localeCompare(`${right.domain}-${right.type}-${right.label}`, 'zh-CN'));
 }
 
 export function auditBaziRelations(
@@ -272,6 +320,13 @@ function resolveElementRelation(left: AuditNode, right: AuditNode): [AuditNode, 
 function resolveScope(nodes: AuditNode[]): BaziRelationScope {
   const layers = new Set(nodes.map(node => node.layer));
   if (layers.size > 2) return 'multi_layer';
+  if (layers.has('day') && layers.has('month')) return 'day_to_month';
+  if (layers.has('day') && layers.has('annual')) return 'day_to_annual';
+  if (layers.has('day') && layers.has('luck_cycle')) return 'day_to_luck';
+  if (layers.has('day')) return 'day_to_natal';
+  if (layers.has('month') && layers.has('annual')) return 'month_to_annual';
+  if (layers.has('month') && layers.has('luck_cycle')) return 'month_to_luck';
+  if (layers.has('month')) return 'month_to_natal';
   if (layers.has('annual') && layers.has('luck_cycle')) return 'annual_to_luck';
   if (layers.has('annual')) return 'annual_to_natal';
   return 'luck_to_natal';
@@ -287,6 +342,8 @@ function toParticipant(node: AuditNode, domain: BaziRelationDomain): BaziRelatio
     element: domain === 'stem' ? node.stemElement : node.branchElement,
     luckCycleIndex: node.luckCycleIndex,
     annualYear: node.annualYear,
+    flowMonthIndex: node.flowMonthIndex ?? null,
+    effectiveDate: node.effectiveDate ?? null,
   };
 }
 

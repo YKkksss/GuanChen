@@ -19,6 +19,10 @@ import type {
 } from '@/lib/bazi/conversation-types';
 
 const QUICK_PROMPTS = [
+  '请按精确时间片段解释今天的原局、大运、流年、流月、流日五层关系，只讲证据',
+  '今天的流月和流日分别是什么十神角色？藏干也请分开列出，不要映射现实事件',
+  '今天有哪些三合、三会或三刑缺一候选？为什么不能称完整关系？',
+  '今天哪些流月流日关系存在并见？不要判断哪一种关系优先',
   '请列出当前流年的十二流月干支和精确节界，只讲时间轴事实',
   '请说明今天的流日干支、起止时刻、所属流月和大运，不要推断吉凶',
   '为什么八字流月不能直接按公历每月一日切换？',
@@ -204,6 +208,7 @@ export default function BaziChatWorkspace({ conversationId }: { conversationId: 
   const strengthComposite = conversation.strengthComposite?.result ?? null;
   const patternCondition = conversation.patternCondition?.result ?? null;
   const monthDayTimeline = conversation.monthDayTimeline?.result ?? null;
+  const monthDayRelation = conversation.monthDayRelation?.result ?? null;
   const pillars = [result.pillars.year, result.pillars.month, result.pillars.day, result.pillars.time];
 
   return (
@@ -273,6 +278,11 @@ export default function BaziChatWorkspace({ conversationId }: { conversationId: 
                 <p>换日口径：<span style={{ color: 'var(--tx-1)' }}>{monthDayTimeline.source.lateZiPolicy === 'next_day' ? '23 点起按次日' : '23 点仍按当天'}</span></p>
                 <p>流月流日版本：{monthDayTimeline.methodologyVersion}</p>
               </>}
+              {monthDayRelation && <>
+                <p>五层审计日期：<span style={{ color: 'var(--tx-1)' }}>{monthDayRelation.target.effectiveDate} · {monthDayRelation.target.dayGanZhi ?? '未生成'}</span></p>
+                <p>关系与角色：<span style={{ color: 'var(--tx-1)' }}>{monthDayRelation.counts.evidence} 条关系 / {monthDayRelation.counts.roles} 个角色</span></p>
+                <p>五层审计版本：{monthDayRelation.methodologyVersion}</p>
+              </>}
               {tenGodRepeat && <>
                 <p>显隐重复：<span style={{ color: 'var(--tx-1)' }}>同干／同十神簇已建立</span></p>
                 <p>重复口径：<span style={{ color: 'var(--tx-1)' }}>位置计数，不是力量评分</span></p>
@@ -299,13 +309,13 @@ export default function BaziChatWorkspace({ conversationId }: { conversationId: 
                 <p>格局版本：{patternCondition.methodologyVersion}</p>
               </>}
             </div>
-            <div className="mt-4 rounded-lg border p-3 text-[10px] leading-5" style={{ borderColor: 'rgba(180,125,35,.25)', color: 'var(--tx-3)', background: 'rgba(180,125,35,.06)' }}>当前可解释格局条件、静态动态证据矩阵，以及按节界和晚子时口径建立的流月流日时间事实；任何时间归属或条件并见都不等于吉凶或具体事件。</div>
+            <div className="mt-4 rounded-lg border p-3 text-[10px] leading-5" style={{ borderColor: 'rgba(180,125,35,.25)', color: 'var(--tx-3)', background: 'rgba(180,125,35,.06)' }}>当前可解释格局条件、静态动态证据矩阵、流月流日时间事实，以及指定流日的五层关系与十神角色；任何时间归属或条件并见都不等于吉凶或具体事件。</div>
           </aside>
 
           <div className="flex min-h-0 flex-col overflow-hidden" style={{ background: 'var(--bg-card)' }}>
             <div className="shrink-0 overflow-x-auto border-b px-3 py-2" style={{ borderColor: 'var(--bdr)' }}><div className="flex min-w-max gap-2">{QUICK_PROMPTS.map(prompt => <button key={prompt} type="button" disabled={sending} onClick={() => void sendMessage(prompt, 'quick_prompt')} className="rounded-lg border px-3 py-1.5 text-[10px] disabled:opacity-40" style={{ borderColor: 'var(--bdr)', color: 'var(--tx-3)' }}>{prompt}</button>)}</div></div>
             <div ref={scrollRef} className="min-h-0 flex-1 space-y-5 overflow-y-auto overscroll-contain px-4 py-5 md:px-8">
-              {messages.length === 0 && <div className="flex h-full flex-col items-center justify-center text-center"><ChatCircleDots size={42} className="mb-4 opacity-20" /><h2 className="text-base font-semibold">从这份已保存的规则快照开始解读</h2><p className="mt-2 max-w-md text-xs leading-6" style={{ color: 'var(--tx-3)' }}>可以询问四柱、格局条件、动态十神、透根与藏干触达，也可以指定年份或日期核对流月、流日的精确时间归属。消息会保存在本地，刷新后仍可继续。</p></div>}
+              {messages.length === 0 && <div className="flex h-full flex-col items-center justify-center text-center"><ChatCircleDots size={42} className="mb-4 opacity-20" /><h2 className="text-base font-semibold">从这份已保存的规则快照开始解读</h2><p className="mt-2 max-w-md text-xs leading-6" style={{ color: 'var(--tx-3)' }}>可以询问四柱、格局条件和动态十神，也可以指定日期核对原局、大运、流年、流月、流日的关系证据。消息会保存在本地，刷新后仍可继续。</p></div>}
               {messages.map((message, index) => message.role === 'user'
                 ? <div key={message.id ?? index} className="flex justify-end"><div className="max-w-[85%] rounded-2xl px-4 py-2.5 text-sm leading-6" style={{ color: 'var(--ac)', background: 'var(--ac-bg)', border: '1px solid var(--ac-bdr)' }}>{message.content}</div></div>
                 : <div key={message.id ?? index} className="max-w-3xl"><div className="mb-2 flex items-center gap-2 text-[10px] tracking-wider" style={{ color: 'var(--ac-dim)' }}><ShieldCheck size={13} /> 八字基础解读</div><AiContent text={message.content} streaming={sending && index === messages.length - 1} /></div>)}
@@ -313,7 +323,7 @@ export default function BaziChatWorkspace({ conversationId }: { conversationId: 
             <div className="shrink-0 border-t p-3 md:px-6" style={{ borderColor: 'var(--bdr)', background: 'var(--bg-card)' }}>
               {error && <p role="alert" className="mb-2 text-xs" style={{ color: 'var(--ji)' }}>{error}</p>}
               <div className="mx-auto flex max-w-4xl items-end gap-2"><textarea rows={2} value={input} disabled={sending} onChange={event => setInput(event.target.value)} onKeyDown={event => { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); void sendMessage(input); } }} placeholder="询问这份八字基础盘…" className="min-h-[54px] flex-1 resize-none rounded-xl border px-4 py-3 text-sm outline-none disabled:opacity-60" style={{ color: 'var(--tx-1)', borderColor: 'var(--bdr)', background: 'var(--bg-1)' }} /><button type="button" aria-label="发送消息" disabled={sending || !input.trim()} onClick={() => void sendMessage(input)} className="flex h-[54px] w-12 items-center justify-center rounded-xl disabled:opacity-30" style={{ color: 'var(--ac)', border: '1px solid var(--ac-bdr)', background: 'var(--ac-bg)' }}>{sending ? '…' : <PaperPlaneTilt size={18} weight="fill" />}</button></div>
-              <p className="mt-1.5 text-center text-[9px]" style={{ color: 'var(--tx-3)' }}>本地保存 · 自动压缩 · 节界与换日可追溯 · 不判成败高低及运势</p>
+              <p className="mt-1.5 text-center text-[9px]" style={{ color: 'var(--tx-3)' }}>本地保存 · 自动压缩 · 五层证据可追溯 · 不判作用结果及运势</p>
             </div>
           </div>
         </section>

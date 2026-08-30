@@ -12,6 +12,7 @@ import type { BaziHiddenStemActivationVersion } from './hidden-stem-activation-t
 import type { BaziStrengthCompositeVersion } from './strength-composite-types';
 import type { BaziPatternConditionVersion } from './pattern-condition-types';
 import type { BaziMonthDayTimelineVersion } from './month-day-timeline-types';
+import type { BaziMonthDayRelationVersion } from './month-day-relation-types';
 
 export type BaziConversationStatus = 'active' | 'archived';
 export type BaziMessageRole = 'user' | 'assistant' | 'system';
@@ -43,6 +44,7 @@ export interface BaziConversation {
   strengthCompositeVersionId: string | null;
   patternConditionVersionId: string | null;
   monthDayTimelineVersionId: string | null;
+  monthDayRelationVersionId: string | null;
   title: string;
   status: BaziConversationStatus;
   methodologyVersion: string;
@@ -72,6 +74,7 @@ export interface BaziConversationDetail extends BaziConversation {
   strengthComposite: BaziStrengthCompositeVersion | null;
   patternCondition: BaziPatternConditionVersion | null;
   monthDayTimeline: BaziMonthDayTimelineVersion | null;
+  monthDayRelation: BaziMonthDayRelationVersion | null;
 }
 
 export interface BaziConversationListItem extends BaziConversation {

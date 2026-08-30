@@ -161,7 +161,7 @@ async function main() {
     }));
     const conversation = (await json<{ conversation: { id: string; transparencyRootVersionId: string; promptVersion: string } }>(conversationResponse)).conversation;
     assert.equal(conversation.transparencyRootVersionId, first.id);
-    assert.equal(conversation.promptVersion, 'bazi-chat-month-day-timeline-v13');
+    assert.equal(conversation.promptVersion, 'bazi-chat-month-day-relation-v14');
     const question = appendBaziMessage({ conversationId: conversation.id, role: 'user', content: '请解释2026年的透干条件和严格同干根' });
     const built = buildBaziConversationContext({
       conversationId: conversation.id, currentMessageId: question.id,

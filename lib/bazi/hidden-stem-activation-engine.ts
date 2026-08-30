@@ -32,7 +32,7 @@ const RELATION_TOUCH_TYPES = new Set<BaziRelationType>([
   'branch_three_punishment',
 ]);
 
-const LAYER_ORDER = { natal: 0, luck_cycle: 1, annual: 2 } as const;
+const LAYER_ORDER = { natal: 0, luck_cycle: 1, annual: 2, month: 3, day: 4 } as const;
 
 export function auditBaziHiddenStemActivationConditions(
   chart: BaziCalculationResult,

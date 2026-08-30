@@ -17,7 +17,7 @@ import type {
 import type { BaziRelationAuditResult, BaziRelationAuditSegment, BaziRelationLayer } from './relation-audit-types';
 import type { BaziCalculationResult, BaziPillar } from './types';
 
-const LAYER_ORDER: Record<BaziRelationLayer, number> = { natal: 0, luck_cycle: 1, annual: 2 };
+const LAYER_ORDER: Record<BaziRelationLayer, number> = { natal: 0, luck_cycle: 1, annual: 2, month: 3, day: 4 };
 const QI_LABELS = { main_qi: '本气', secondary_qi: '中气', residual_qi: '余气' } as const;
 
 export function auditBaziTenGodRepeats(

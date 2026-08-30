@@ -103,7 +103,7 @@ async function main() {
     }));
     const conversation = (await json<{ conversation: { id: string; analysisVersionId: string; promptVersion: string } }>(conversationResponse)).conversation;
     assert.equal(conversation.analysisVersionId, createdAnalysis.id);
-    assert.equal(conversation.promptVersion, 'bazi-chat-month-day-timeline-v13');
+    assert.equal(conversation.promptVersion, 'bazi-chat-month-day-relation-v14');
     const question = appendBaziMessage({ conversationId: conversation.id, role: 'user', content: '解释旺衰证据和格局候选。' });
     const built = buildBaziConversationContext({
       conversationId: conversation.id, currentMessageId: question.id,
@@ -112,7 +112,7 @@ async function main() {
     assert.ok(built.messages.some(message => message.content.includes('权威八字解释证据快照')));
     assert.equal(built.manifest.analysisVersionId, createdAnalysis.id);
     assert.deepEqual(built.manifest.allowedCapabilities, [
-      'strength_evidence_audit', 'strength_composite_matrix_audit', 'pattern_candidates', 'pattern_condition_evidence_audit', 'useful_god_method_separation', 'luck_cycle_schedule', 'annual_timeline_schedule', 'month_day_timeline_schedule', 'relation_evidence_audit', 'relation_condition_conflict_audit', 'dynamic_ten_god_direction_audit', 'ten_god_visibility_repeat_audit', 'transparency_root_condition_audit', 'hidden_stem_touch_condition_audit',
+      'strength_evidence_audit', 'strength_composite_matrix_audit', 'pattern_candidates', 'pattern_condition_evidence_audit', 'useful_god_method_separation', 'luck_cycle_schedule', 'annual_timeline_schedule', 'month_day_timeline_schedule', 'month_day_relation_evidence_audit', 'relation_evidence_audit', 'relation_condition_conflict_audit', 'dynamic_ten_god_direction_audit', 'ten_god_visibility_repeat_audit', 'transparency_root_condition_audit', 'hidden_stem_touch_condition_audit',
     ]);
 
     assert.ok(getDatabase().prepare('SELECT 1 FROM schema_migrations WHERE version = 25').get());

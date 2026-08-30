@@ -20,7 +20,7 @@ import type { BaziCalculationResult, BaziElement } from './types';
 const STEM_ELEMENTS: Record<string, BaziElement> = {
   甲: '木', 乙: '木', 丙: '火', 丁: '火', 戊: '土', 己: '土', 庚: '金', 辛: '金', 壬: '水', 癸: '水',
 };
-const LAYER_ORDER = { natal: 0, luck_cycle: 1, annual: 2 } as const;
+const LAYER_ORDER = { natal: 0, luck_cycle: 1, annual: 2, month: 3, day: 4 } as const;
 
 export function auditBaziTransparencyRoots(
   chart: BaziCalculationResult,

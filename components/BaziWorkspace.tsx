@@ -34,6 +34,8 @@ import { calculateBaziAnnualTimeline } from '@/lib/bazi/annual-timeline-engine';
 import type { BaziAnnualTimelineResult } from '@/lib/bazi/annual-timeline-types';
 import { calculateBaziMonthDayTimeline } from '@/lib/bazi/month-day-timeline-engine';
 import type { BaziMonthDayTimelineResult } from '@/lib/bazi/month-day-timeline-types';
+import { auditBaziMonthDayRelations } from '@/lib/bazi/month-day-relation-engine';
+import type { BaziMonthDayRelationResult } from '@/lib/bazi/month-day-relation-types';
 import { auditBaziRelations } from '@/lib/bazi/relation-audit-engine';
 import type { BaziRelationAuditResult, BaziRelationEvidence } from '@/lib/bazi/relation-audit-types';
 import { adjudicateBaziRelations } from '@/lib/bazi/relation-adjudication-engine';
@@ -130,6 +132,7 @@ export default function BaziWorkspace() {
   const [busyId, setBusyId] = useState('');
   const [error, setError] = useState('');
   const [selectedAnnualYear, setSelectedAnnualYear] = useState(new Date().getFullYear());
+  const [selectedFlowDate, setSelectedFlowDate] = useState('');
 
   const loadProfiles = useCallback(async () => {
     setHistoryLoading(true);
@@ -183,6 +186,11 @@ export default function BaziWorkspace() {
     );
     return calculateBaziMonthDayTimeline(result, annualTimeline, targetYear);
   }, [result, annualTimeline, selectedAnnualYear]);
+  const monthDayRelation = useMemo(() => {
+    if (!result || !monthDayTimeline || !selectedFlowDate) return null;
+    if (!monthDayTimeline.days.some(item => item.effectiveDate === selectedFlowDate)) return null;
+    return auditBaziMonthDayRelations(result, monthDayTimeline, selectedFlowDate);
+  }, [result, monthDayTimeline, selectedFlowDate]);
   const relationAudit = useMemo(
     () => result && luckCycles && annualTimeline
       ? auditBaziRelations(result, luckCycles, annualTimeline)
@@ -243,6 +251,21 @@ export default function BaziWorkspace() {
       body: JSON.stringify({ targetYear: monthDayTimeline.source.targetYear }),
     }).catch(() => undefined);
   }, [currentChartId, monthDayTimeline?.source.targetYear]);
+  useEffect(() => {
+    if (!monthDayTimeline) return;
+    setSelectedFlowDate(resolveInitialFlowDate(monthDayTimeline));
+  }, [monthDayTimeline?.source.targetYear, monthDayTimeline?.source.lateZiPolicy]);
+  useEffect(() => {
+    if (!currentChartId || !monthDayRelation) return;
+    void fetch(`/api/bazi/charts/${currentChartId}/month-day-relations`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        targetDate: monthDayRelation.target.effectiveDate,
+        targetYear: monthDayRelation.source.targetYear,
+      }),
+    }).catch(() => undefined);
+  }, [currentChartId, monthDayRelation?.target.effectiveDate, monthDayRelation?.source.targetYear]);
 
   const update = <K extends keyof FormState>(key: K, value: FormState[K]) => {
     setForm(current => ({ ...current, [key]: value }));
@@ -533,7 +556,8 @@ export default function BaziWorkspace() {
             {interpretation && <BaziInterpretationPanel result={interpretation} />}
             {luckCycles && <BaziLuckCyclePanel result={luckCycles} />}
             {annualTimeline && <BaziAnnualTimelinePanel result={annualTimeline} selectedYear={selectedAnnualYear} onSelectYear={setSelectedAnnualYear} />}
-            {monthDayTimeline && <BaziMonthDayTimelinePanel result={monthDayTimeline} />}
+            {monthDayTimeline && <BaziMonthDayTimelinePanel result={monthDayTimeline} selectedDate={selectedFlowDate} onSelectDate={setSelectedFlowDate} />}
+            {monthDayRelation && <BaziMonthDayRelationPanel result={monthDayRelation} />}
             {relationAudit && <BaziRelationAuditPanel result={relationAudit} selectedYear={selectedAnnualYear} />}
             {relationAdjudication && <BaziRelationAdjudicationPanel result={relationAdjudication} selectedYear={selectedAnnualYear} />}
             {dynamicTenGod && <BaziDynamicTenGodPanel result={dynamicTenGod} selectedYear={selectedAnnualYear} />}
@@ -833,10 +857,13 @@ function BaziAnnualTimelinePanel({
   </section>;
 }
 
-function BaziMonthDayTimelinePanel({ result }: { result: BaziMonthDayTimelineResult }) {
-  const initialDate = resolveInitialFlowDate(result);
-  const [selectedDate, setSelectedDate] = useState(initialDate);
-  useEffect(() => { setSelectedDate(resolveInitialFlowDate(result)); }, [result.source.targetYear, result.source.lateZiPolicy]);
+function BaziMonthDayTimelinePanel({
+  result, selectedDate, onSelectDate,
+}: {
+  result: BaziMonthDayTimelineResult;
+  selectedDate: string;
+  onSelectDate: (date: string) => void;
+}) {
   const day = result.days.find(item => item.effectiveDate === selectedDate) ?? result.days[0];
   const firstDate = result.days[0]?.effectiveDate;
   const lastDate = result.days.at(-1)?.effectiveDate;
@@ -867,7 +894,7 @@ function BaziMonthDayTimelinePanel({ result }: { result: BaziMonthDayTimelineRes
     {result.days.length > 0 && day && <div className="mt-5 rounded-xl border p-4" style={{ borderColor: day.crossesMonthBoundary || day.crossesLuckCycleBoundary ? 'var(--ac-bdr)' : 'var(--bdr)', background: 'var(--bg-1)' }}>
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div><p className="text-[10px] tracking-wider" style={{ color: 'var(--tx-3)' }}>流日核验器</p><h3 className="mt-1 text-sm font-semibold">选择日期，查看该流日的精确归属</h3></div>
-        <input data-testid="flow-day-select" aria-label="选择流日" className="rectification-input !w-auto" type="date" min={firstDate} max={lastDate} value={day.effectiveDate} onChange={event => setSelectedDate(event.target.value)} />
+        <input data-testid="flow-day-select" aria-label="选择流日" className="rectification-input !w-auto" type="date" min={firstDate} max={lastDate} value={day.effectiveDate} onChange={event => onSelectDate(event.target.value)} />
       </div>
       <div className="mt-4 grid gap-3 lg:grid-cols-[190px_minmax(0,1fr)]">
         <div className="rounded-lg border p-3" style={{ borderColor: 'var(--bdr)', background: 'var(--bg-card)' }}>
@@ -901,6 +928,70 @@ function resolveInitialFlowDate(result: BaziMonthDayTimelineResult): string {
     + (result.source.lateZiPolicy === 'next_day' && Number(parts.hour) >= 23 ? 1 : 0)));
   const today = `${base.getUTCFullYear()}-${String(base.getUTCMonth() + 1).padStart(2, '0')}-${String(base.getUTCDate()).padStart(2, '0')}`;
   return result.days.some(item => item.effectiveDate === today) ? today : result.days[0]?.effectiveDate ?? '';
+}
+
+function BaziMonthDayRelationPanel({ result }: { result: BaziMonthDayRelationResult }) {
+  return <section data-testid="bazi-month-day-relation-audit" className="mt-5 rounded-xl border p-5 md:p-6" style={{ borderColor: 'var(--t-border-acc)', background: 'var(--bg-card)' }}>
+    <div className="flex flex-wrap items-start justify-between gap-4">
+      <div className="flex items-start gap-3">
+        <div className="rounded-lg p-2" style={{ color: 'var(--ac-dim)', background: 'var(--ac-bg)' }}><GitBranch size={19} /></div>
+        <div>
+          <p className="text-[10px] tracking-[.18em]" style={{ color: 'var(--ac-dim)' }}>M9-15 · 指定流日五层证据</p>
+          <h2 className="mt-1 text-lg font-semibold">{result.target.effectiveDate} {result.target.dayGanZhi} · 动态关系与十神审计</h2>
+          <p className="mt-1 text-xs leading-5" style={{ color: 'var(--tx-3)' }}>组合原局、大运、流年、流月和流日；只展示至少包含流月或流日参与者的关系，不解释吉凶。</p>
+        </div>
+      </div>
+      <div className="flex flex-wrap gap-2 text-[9px]">
+        <span className="rounded-full px-2.5 py-1" style={{ color: 'var(--ac-dim)', background: 'var(--bg-1)' }}>{result.counts.evidence} 条关系</span>
+        <span className="rounded-full px-2.5 py-1" style={{ color: 'var(--lu)', background: 'var(--bg-1)' }}>{result.counts.roles} 个十神角色</span>
+      </div>
+    </div>
+
+    <div className="mt-5 space-y-4">
+      {result.segments.map(segment => <article key={segment.segmentIndex} data-testid="month-day-relation-segment" className="rounded-xl border p-4" style={{ borderColor: 'var(--bdr)', background: 'var(--bg-1)' }}>
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div><h3 className="text-sm font-semibold">片段 {segment.segmentIndex} · {segment.label}</h3><p className="mt-1 font-mono text-[9px]" style={{ color: 'var(--tx-3)' }}>{segment.startAt} — {segment.endAtExclusive} 前</p></div>
+          <span className="text-[9px]" style={{ color: 'var(--tx-3)' }}>天干 {segment.counts.stemEvidence} · 地支 {segment.counts.branchEvidence} · 条件 {segment.counts.decisions}</span>
+        </div>
+
+        <div className="mt-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+          {segment.layers.map(layer => {
+            const surface = layer.roles.find(role => role.sourceKind === 'surface_stem');
+            const hidden = layer.roles.filter(role => role.sourceKind === 'branch_hidden_stem');
+            return <div key={layer.nodeId} data-testid="month-day-dynamic-layer" className="rounded-lg border p-3" style={{ borderColor: layer.layer === 'month' || layer.layer === 'day' ? 'var(--ac-bdr)' : 'var(--bdr)', background: 'var(--bg-card)' }}>
+              <div className="flex items-center justify-between gap-2"><p className="text-[9px]" style={{ color: 'var(--tx-3)' }}>{monthDayLayerLabel(layer.layer)}</p><span className="font-serif text-lg" style={{ color: 'var(--ac-dim)' }}>{layer.ganZhi}</span></div>
+              <p className="mt-2 text-[10px]">表层 {layer.stem} · <span style={{ color: 'var(--ac-dim)' }}>{surface?.tenGod}</span></p>
+              <div className="mt-2 flex flex-wrap gap-1">{hidden.map(role => <span key={role.id} className="rounded px-1.5 py-0.5 text-[8px]" style={{ color: 'var(--tx-3)', background: 'var(--bg-1)' }}>{role.hiddenQiLabel}{role.stem}·{role.tenGod}</span>)}</div>
+            </div>;
+          })}
+        </div>
+
+        <div className="mt-4">
+          <div className="flex items-center justify-between gap-2"><h4 className="text-xs font-semibold">流月／流日参与的关系证据</h4><span className="text-[9px]" style={{ color: 'var(--tx-3)' }}>证据条数不代表力量</span></div>
+          <div className="mt-2 grid gap-2 lg:grid-cols-2">
+            {segment.evidence.map(evidence => <RelationEvidenceCard key={evidence.id} evidence={evidence} />)}
+          </div>
+        </div>
+
+        <div className="mt-4 border-t pt-4" style={{ borderColor: 'var(--bdr)' }}>
+          <h4 className="text-xs font-semibold">条件状态与关系并见</h4>
+          <div className="mt-2 grid gap-2 lg:grid-cols-2">
+            {segment.decisions.map(decision => <RelationConditionCard key={decision.id} decision={decision} />)}
+            {segment.decisions.length === 0 && <p className="rounded-lg border border-dashed p-4 text-xs" style={{ borderColor: 'var(--bdr)', color: 'var(--tx-3)' }}>当前只有生克同类证据，没有需要条件复核的组合关系。</p>}
+          </div>
+        </div>
+      </article>)}
+    </div>
+
+    <div className="mt-4 rounded-lg border p-3" style={{ borderColor: 'rgba(168,120,35,.3)', background: 'rgba(168,120,35,.06)' }}>
+      <p className="text-[10px] leading-5" style={{ color: 'var(--tx-3)' }}>{result.boundary}</p>
+      <p className="mt-1 text-[9px]" style={{ color: 'var(--tx-3)' }}>{result.methodologyVersion}</p>
+    </div>
+  </section>;
+}
+
+function monthDayLayerLabel(layer: string): string {
+  return ({ luck_cycle: '大运', annual: '流年', month: '流月', day: '流日' } as Record<string, string>)[layer] ?? layer;
 }
 
 function BaziRelationAuditPanel({ result, selectedYear }: { result: BaziRelationAuditResult; selectedYear: number }) {
@@ -942,7 +1033,10 @@ function BaziRelationAuditPanel({ result, selectedYear }: { result: BaziRelation
 function RelationEvidenceCard({ evidence }: { evidence: BaziRelationEvidence }) {
   const scope = ({
     luck_to_natal: '大运—原局', annual_to_natal: '流年—原局',
-    annual_to_luck: '流年—大运', multi_layer: '三层共同',
+    annual_to_luck: '流年—大运', month_to_natal: '流月—原局',
+    month_to_luck: '流月—大运', month_to_annual: '流月—流年',
+    day_to_natal: '流日—原局', day_to_luck: '流日—大运',
+    day_to_annual: '流日—流年', day_to_month: '流日—流月', multi_layer: '多层共同',
   } as Record<string, string>)[evidence.scope] ?? evidence.scope;
   return <div data-relation-type={evidence.type} className="rounded-lg border p-3" style={{ borderColor: evidence.conclusion === 'detected_not_transformed' ? 'var(--ac-bdr)' : 'var(--bdr)', background: 'var(--bg-card)' }}>
     <div className="flex flex-wrap items-center gap-2"><span className="rounded-full px-2 py-0.5 text-[9px]" style={{ color: evidence.domain === 'stem' ? 'var(--ac-dim)' : 'var(--lu)', background: 'var(--bg-1)' }}>{evidence.domain === 'stem' ? '天干' : '地支'}</span><span className="text-[9px]" style={{ color: 'var(--tx-3)' }}>{scope}</span></div>
