@@ -11,6 +11,14 @@ export const REPORT_TYPES = [
 export type ReportType = typeof REPORT_TYPES[number];
 export type ReportVersionStatus = 'generating' | 'completed' | 'failed';
 export type ReportSectionBasis = 'evidence' | 'synthesis';
+export const REPORT_GENERATION_REASONS = [
+  'initial_generation',
+  'manual_regenerate',
+  'source_changed',
+  'template_upgraded',
+  'legacy_migration',
+] as const;
+export type ReportGenerationReason = typeof REPORT_GENERATION_REASONS[number];
 
 export interface ReportTypeDefinition {
   label: string;
@@ -157,6 +165,8 @@ export interface ReportVersion {
   promptVersion: string;
   provider: string;
   model: string;
+  generationReason: ReportGenerationReason;
+  baseVersionId: string | null;
   content: ReportContent | null;
   status: ReportVersionStatus;
   errorCode: string | null;
@@ -165,6 +175,14 @@ export interface ReportVersion {
   createdAt: number;
   completedAt: number | null;
 }
+
+export const REPORT_GENERATION_REASON_LABELS: Record<ReportGenerationReason, string> = {
+  initial_generation: '首次生成',
+  manual_regenerate: '手动重新生成',
+  source_changed: '事实依据变化',
+  template_upgraded: '模板升级',
+  legacy_migration: '历史版本迁移',
+};
 
 export interface ReportEvidence {
   id: string;

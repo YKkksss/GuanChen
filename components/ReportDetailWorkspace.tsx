@@ -2,8 +2,9 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import type { ReportDetail, ReportEvidence } from '@/lib/reports/types';
+import { REPORT_GENERATION_REASON_LABELS, type ReportDetail, type ReportEvidence } from '@/lib/reports/types';
 import ReportPdfExportButton from '@/components/ReportPdfExportButton';
+import ReportVersionComparePanel from '@/components/ReportVersionComparePanel';
 
 export default function ReportDetailWorkspace({
   conversationId,
@@ -125,6 +126,13 @@ export default function ReportDetailWorkspace({
         </div>
       </div>
 
+      <ReportVersionComparePanel
+        sourceKind={conversationType === 'heming' ? 'heming' : 'topic'}
+        reportId={reportId}
+        versions={detail.versions}
+        currentVersion={detail.version?.version}
+      />
+
       {error && (
         <div className="report-controls mb-4 rounded-lg px-4 py-3 text-xs text-red-500" style={{ border: '1px solid rgba(239,68,68,.25)' }}>
           {error}。旧版本仍然保留，可从版本列表继续查看。
@@ -140,6 +148,11 @@ export default function ReportDetailWorkspace({
               ? new Date(detail.version.completedAt).toLocaleString('zh-CN', { hour12: false })
               : '尚未完成'} · 引擎 {detail.version?.engineVersion ?? '-'}
           </div>
+          {detail.version && (
+            <div className="mt-1 text-[9px]" style={{ color: 'var(--t-faint)' }}>
+              {REPORT_GENERATION_REASON_LABELS[detail.version.generationReason]} · 模板 {detail.version.promptVersion} · {detail.version.provider}/{detail.version.model}
+            </div>
+          )}
         </header>
 
         {!content && (

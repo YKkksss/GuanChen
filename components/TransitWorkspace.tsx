@@ -9,7 +9,7 @@ import ChartBoard from '@/components/ChartBoard';
 import ConversationHistory from '@/components/ConversationHistory';
 import InsightPanel from '@/components/InsightPanel';
 import type { Conversation, ConversationMessage } from '@/lib/conversations/types';
-import type { AnnualTransitReport, AnnualTransitSnapshot, TransitSnapshotRecord } from '@/lib/transits/types';
+import type { AnnualTransitReport, AnnualTransitReportVersion, AnnualTransitSnapshot, TransitSnapshotRecord } from '@/lib/transits/types';
 import type { Palace, ZiweiChart } from '@/lib/ziwei/types';
 import type { TimeView } from '@/components/TimeNav';
 
@@ -20,6 +20,7 @@ export default function TransitWorkspace({ conversationId }: { conversationId: s
   const [messages, setMessages] = useState<ConversationMessage[]>([]);
   const [snapshot, setSnapshot] = useState<AnnualTransitSnapshot | null>(null);
   const [report, setReport] = useState<AnnualTransitReport | null>(null);
+  const [reportVersions, setReportVersions] = useState<AnnualTransitReportVersion[]>([]);
   const requestedYear = Number.parseInt(searchParams.get('year') ?? '', 10);
   const [year, setYear] = useState(Number.isInteger(requestedYear) ? requestedYear : new Date().getFullYear());
   const [timeView, setTimeView] = useState<TimeView>('liunian');
@@ -67,6 +68,7 @@ export default function TransitWorkspace({ conversationId }: { conversationId: s
     setError('');
     setSnapshot(null);
     setReport(null);
+    setReportVersions([]);
     setReportError('');
     fetch(`/api/conversations/${conversationId}/transits?level=year&date=${year}`, {
       cache: 'no-store',
@@ -95,7 +97,7 @@ export default function TransitWorkspace({ conversationId }: { conversationId: s
     setReport(null);
     setReportError('');
     setLoadingReport(true);
-    ensureAnnualReport(conversationId, year, false, controller.signal, setReport)
+    ensureAnnualReport(conversationId, year, false, controller.signal, setReport, setReportVersions)
       .then(nextReport => {
         if (!controller.signal.aborted) setReport(nextReport);
       })
@@ -131,13 +133,35 @@ export default function TransitWorkspace({ conversationId }: { conversationId: s
     reportRequestRef.current = controller;
     setReportError('');
     setLoadingReport(true);
-    ensureAnnualReport(conversationId, year, true, controller.signal, setReport)
+    ensureAnnualReport(conversationId, year, true, controller.signal, setReport, setReportVersions)
       .then(nextReport => {
         if (!controller.signal.aborted) setReport(nextReport);
       })
       .catch(loadError => {
         if (controller.signal.aborted) return;
         setReportError(loadError instanceof Error ? loadError.message : '年度报告重新生成失败');
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setLoadingReport(false);
+      });
+  };
+
+  const selectReportVersion = (version: number) => {
+    if (loadingReport || report?.version === version) return;
+    const controller = new AbortController();
+    reportRequestRef.current?.abort();
+    reportRequestRef.current = controller;
+    setReportError('');
+    setLoadingReport(true);
+    fetchAnnualReport(conversationId, year, controller.signal, version)
+      .then(detail => {
+        if (controller.signal.aborted) return;
+        setReport(detail.report);
+        setReportVersions(detail.versions);
+      })
+      .catch(loadError => {
+        if (controller.signal.aborted) return;
+        setReportError(loadError instanceof Error ? loadError.message : '年度报告版本加载失败');
       })
       .finally(() => {
         if (!controller.signal.aborted) setLoadingReport(false);
@@ -204,9 +228,11 @@ export default function TransitWorkspace({ conversationId }: { conversationId: s
                   <AnnualReportPanel
                     year={year}
                     report={report}
+                    versions={reportVersions}
                     loading={loadingReport}
                     error={reportError}
                     onRegenerate={regenerateReport}
+                    onVersionChange={selectReportVersion}
                   />
                 )}
               </div>
@@ -240,24 +266,31 @@ async function ensureAnnualReport(
   regenerate: boolean,
   signal: AbortSignal,
   onProgress: (report: AnnualTransitReport | null) => void,
+  onVersions: (versions: AnnualTransitReportVersion[]) => void,
 ): Promise<AnnualTransitReport> {
   let report: AnnualTransitReport | null = null;
   if (!regenerate) {
-    report = await fetchAnnualReport(conversationId, year, signal);
+    const detail = await fetchAnnualReport(conversationId, year, signal);
+    report = detail.report;
     onProgress(report);
+    onVersions(detail.versions);
     if (report?.status === 'completed' && report.content.trim()) return report;
   }
 
   if (!report || report.status === 'failed' || regenerate) {
-    report = await requestAnnualReport(conversationId, year, regenerate, signal);
+    const detail = await requestAnnualReport(conversationId, year, regenerate, signal);
+    report = detail.report;
     onProgress(report);
+    onVersions(detail.versions);
     if (report.status === 'completed' && report.content.trim()) return report;
   }
 
   for (let attempt = 0; attempt < 80; attempt += 1) {
     await abortableDelay(1_500, signal);
-    report = await fetchAnnualReport(conversationId, year, signal);
+    const detail = await fetchAnnualReport(conversationId, year, signal);
+    report = detail.report;
     onProgress(report);
+    onVersions(detail.versions);
     if (report?.status === 'completed' && report.content.trim()) return report;
     if (report?.status === 'failed') throw new Error('年度报告生成失败，请点击重新生成再试');
   }
@@ -268,14 +301,16 @@ async function fetchAnnualReport(
   conversationId: string,
   year: number,
   signal: AbortSignal,
-): Promise<AnnualTransitReport | null> {
+  version?: number,
+): Promise<{ report: AnnualTransitReport | null; versions: AnnualTransitReportVersion[] }> {
+  const versionQuery = version ? `&version=${version}` : '';
   const response = await fetch(
-    `/api/conversations/${conversationId}/transit-reports?level=year&date=${year}`,
+    `/api/conversations/${conversationId}/transit-reports?level=year&date=${year}${versionQuery}`,
     { cache: 'no-store', signal },
   );
-  const data = await response.json().catch(() => ({})) as { report?: AnnualTransitReport | null; error?: string };
+  const data = await response.json().catch(() => ({})) as { report?: AnnualTransitReport | null; versions?: AnnualTransitReportVersion[]; error?: string };
   if (!response.ok) throw new Error(data.error || '年度报告读取失败');
-  return data.report ?? null;
+  return { report: data.report ?? null, versions: data.versions ?? [] };
 }
 
 async function requestAnnualReport(
@@ -283,16 +318,16 @@ async function requestAnnualReport(
   year: number,
   regenerate: boolean,
   signal: AbortSignal,
-): Promise<AnnualTransitReport> {
+): Promise<{ report: AnnualTransitReport; versions: AnnualTransitReportVersion[] }> {
   const response = await fetch(`/api/conversations/${conversationId}/transit-reports`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ level: 'year', date: String(year), regenerate }),
     signal,
   });
-  const data = await response.json().catch(() => ({})) as { report?: AnnualTransitReport; error?: string };
+  const data = await response.json().catch(() => ({})) as { report?: AnnualTransitReport; versions?: AnnualTransitReportVersion[]; error?: string };
   if (!response.ok || !data.report) throw new Error(data.error || '年度报告生成失败');
-  return data.report;
+  return { report: data.report, versions: data.versions ?? [] };
 }
 
 function abortableDelay(milliseconds: number, signal: AbortSignal): Promise<void> {

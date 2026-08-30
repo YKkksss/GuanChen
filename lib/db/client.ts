@@ -2307,6 +2307,80 @@ function migrate(db: Database.Database) {
     applyV42();
   }
 
+  if (!applied.has(43)) {
+    const applyV43 = db.transaction(() => {
+      db.exec(`
+        ALTER TABLE report_versions
+          ADD COLUMN generation_reason TEXT NOT NULL DEFAULT 'legacy_migration';
+        ALTER TABLE report_versions
+          ADD COLUMN base_version_id TEXT;
+
+        ALTER TABLE rectification_report_versions
+          ADD COLUMN generation_reason TEXT NOT NULL DEFAULT 'legacy_migration';
+        ALTER TABLE rectification_report_versions
+          ADD COLUMN base_version_id TEXT;
+
+        ALTER TABLE transit_reports
+          ADD COLUMN active_version_id TEXT;
+
+        CREATE TABLE transit_report_versions (
+          id TEXT PRIMARY KEY,
+          report_id TEXT NOT NULL,
+          version INTEGER NOT NULL,
+          snapshot_id TEXT NOT NULL,
+          engine_version TEXT NOT NULL,
+          prompt_version TEXT NOT NULL,
+          provider TEXT NOT NULL,
+          model TEXT NOT NULL,
+          generation_reason TEXT NOT NULL,
+          base_version_id TEXT,
+          content TEXT NOT NULL DEFAULT '',
+          status TEXT NOT NULL CHECK (status IN ('generating', 'completed', 'failed')),
+          error_code TEXT,
+          input_tokens INTEGER,
+          output_tokens INTEGER,
+          created_at INTEGER NOT NULL,
+          completed_at INTEGER,
+
+          UNIQUE (report_id, version),
+          FOREIGN KEY (report_id)
+            REFERENCES transit_reports(id)
+            ON DELETE CASCADE,
+          FOREIGN KEY (snapshot_id)
+            REFERENCES transit_snapshots(id)
+            ON DELETE CASCADE
+        );
+
+        INSERT INTO transit_report_versions (
+          id, report_id, version, snapshot_id, engine_version, prompt_version,
+          provider, model, generation_reason, base_version_id, content, status,
+          error_code, input_tokens, output_tokens, created_at, completed_at
+        )
+        SELECT
+          id || '-legacy-v1', id, 1, snapshot_id, engine_version, prompt_version,
+          provider, model, 'legacy_migration', NULL, content, status,
+          error_code, input_tokens, output_tokens, created_at, completed_at
+        FROM transit_reports;
+
+        UPDATE transit_reports
+        SET active_version_id = id || '-legacy-v1'
+        WHERE status = 'completed' AND content <> '';
+
+        CREATE INDEX idx_transit_report_versions_report
+          ON transit_report_versions(report_id, version DESC);
+        CREATE INDEX idx_transit_report_versions_status
+          ON transit_report_versions(report_id, status, created_at DESC);
+        CREATE INDEX idx_report_versions_base
+          ON report_versions(report_id, base_version_id);
+        CREATE INDEX idx_rectification_report_versions_base
+          ON rectification_report_versions(report_id, base_version_id);
+      `);
+      db.prepare('INSERT INTO schema_migrations(version, applied_at) VALUES (?, ?)')
+        .run(43, Date.now());
+    });
+    applyV43();
+  }
+
   ensureMessageSearch(db);
 }
 

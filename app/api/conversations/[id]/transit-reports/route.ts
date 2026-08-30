@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getConversation } from '@/lib/db/conversations';
-import { findAnnualReport, generateAnnualReport } from '@/lib/transits/annual-report';
+import { getAnnualTransitReportDetail } from '@/lib/db/transit-reports';
+import { findAnnualReportDetail, generateAnnualReport } from '@/lib/transits/annual-report';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -18,7 +19,11 @@ export async function GET(request: Request, context: RouteContext) {
   const parsed = parseYear(request.url);
   if ('error' in parsed) return NextResponse.json({ error: parsed.error }, { status: 400 });
   try {
-    return NextResponse.json({ report: findAnnualReport(id, parsed.year) });
+    const detail = findAnnualReportDetail(id, parsed.year, parsed.version);
+    if (parsed.version && !detail) {
+      return NextResponse.json({ error: '年度报告版本不存在' }, { status: 404 });
+    }
+    return NextResponse.json({ report: detail?.report ?? null, versions: detail?.versions ?? [] });
   } catch (error) {
     return NextResponse.json(
       { error: error instanceof Error ? error.message : '年度报告读取失败' },
@@ -53,7 +58,7 @@ export async function POST(request: Request, context: RouteContext) {
       regenerate: body.regenerate === true,
     });
     return NextResponse.json(
-      { report },
+      { report, versions: getAnnualTransitReportDetail(report.id)?.versions ?? [] },
       { status: report.status === 'generating' ? 202 : 200 },
     );
   } catch (error) {
@@ -62,12 +67,17 @@ export async function POST(request: Request, context: RouteContext) {
   }
 }
 
-function parseYear(url: string): { year: number } | { error: string } {
+function parseYear(url: string): { year: number; version?: number } | { error: string } {
   const searchParams = new URL(url).searchParams;
   const level = searchParams.get('level') ?? 'year';
   if (level !== 'year') return { error: '第一版暂时只支持年度报告' };
   const rawDate = searchParams.get('date') ?? '';
   const year = Number.parseInt(rawDate.slice(0, 4), 10);
   if (!/^\d{4}/.test(rawDate) || !Number.isInteger(year)) return { error: '年份格式不正确' };
-  return { year };
+  const rawVersion = searchParams.get('version');
+  const version = rawVersion ? Number(rawVersion) : undefined;
+  if (rawVersion && (!Number.isInteger(version) || (version ?? 0) < 1)) {
+    return { error: '报告版本无效' };
+  }
+  return { year, version };
 }

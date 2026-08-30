@@ -1,4 +1,4 @@
-import type { ReportContent, ReportVersionStatus } from '@/lib/reports/types';
+import type { ReportContent, ReportGenerationReason, ReportVersionStatus } from '@/lib/reports/types';
 import type {
   RectificationCandidateEvaluation,
   RectificationConfidence,
@@ -44,6 +44,8 @@ export interface RectificationReportVersion {
   promptVersion: string;
   provider: string;
   model: string;
+  generationReason: ReportGenerationReason;
+  baseVersionId: string | null;
   content: ReportContent | null;
   status: ReportVersionStatus;
   errorCode: string | null;

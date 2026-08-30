@@ -4,7 +4,9 @@ import { ArrowLeft, ArrowSquareOut, Printer, SpinnerGap } from '@phosphor-icons/
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { RectificationReportDetail, RectificationReportEvidence } from '@/lib/rectification/report-types';
+import { REPORT_GENERATION_REASON_LABELS } from '@/lib/reports/types';
 import ReportPdfExportButton from '@/components/ReportPdfExportButton';
+import ReportVersionComparePanel from '@/components/ReportVersionComparePanel';
 
 export default function RectificationReportDetailWorkspace({ sessionId, reportId }: { sessionId: string; reportId: string }) {
   const router = useRouter();
@@ -70,12 +72,14 @@ export default function RectificationReportDetailWorkspace({ sessionId, reportId
             <button type="button" className="btn-accent !px-3 !py-2" disabled={Boolean(busy) || !detail.version?.selectionId} onClick={() => void openConversation()}><ArrowSquareOut size={16} /> {busy === 'conversation' ? '正在创建…' : '进入工作命盘'}</button>
           </div>
         </div>
+        <ReportVersionComparePanel sourceKind="rectification" reportId={reportId} versions={detail.versions} currentVersion={detail.version?.version} />
         {error && <div className="report-controls mt-4 rounded-lg border px-4 py-3 text-sm" style={{ borderColor: 'rgba(168,50,40,.35)', color: 'var(--ji)' }}>{error}。已完成的旧版本不会受影响。</div>}
         <article className="mt-5 overflow-hidden rounded-xl border" style={{ borderColor: 'var(--bdr)', background: 'var(--bg-card)' }}>
           <header className="border-b px-6 py-8 text-center" style={{ borderColor: 'var(--bdr)' }}>
             <p className="text-[10px] tracking-[.28em]" style={{ color: 'var(--ac-dim)' }}>紫微斗数 · 出生时辰校时</p>
             <h1 className="mt-4 text-2xl font-semibold">{detail.report.title}</h1>
             <p className="mt-3 text-[10px]" style={{ color: 'var(--tx-3)' }}>报告 v{detail.version?.version ?? '-'} · 评估版本 ID {detail.version?.evaluationId.slice(0, 8) ?? '-'} · 方法 {detail.version?.methodologyVersion ?? '-'}</p>
+            {detail.version && <p className="mt-1 text-[9px]" style={{ color: 'var(--tx-3)' }}>{REPORT_GENERATION_REASON_LABELS[detail.version.generationReason]} · 模板 {detail.version.promptVersion} · {detail.version.provider}/{detail.version.model}</p>}
           </header>
           {!content ? <div className="px-6 py-20 text-center text-sm" style={{ color: detail.version?.status === 'failed' ? 'var(--ji)' : 'var(--tx-3)' }}>{detail.version?.status === 'failed' ? '这个版本生成失败，请查看旧版本或重新生成。' : '报告正在生成。'}</div> : (
             <div className="px-6 py-8 sm:px-10">

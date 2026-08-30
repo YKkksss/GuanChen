@@ -4,9 +4,10 @@ import { BRANCHES, STEMS } from '@/lib/ziwei/constants';
 import { getConversation } from '@/lib/db/conversations';
 import {
   claimAnnualTransitReport,
-  completeAnnualTransitReport,
-  failAnnualTransitReport,
+  completeAnnualTransitReportVersion,
+  failAnnualTransitReportVersion,
   getAnnualTransitReport,
+  getAnnualTransitReportDetail,
 } from '@/lib/db/transit-reports';
 import type { ZiweiChart } from '@/lib/ziwei/types';
 import type { AnnualTransitSnapshot } from './types';
@@ -15,14 +16,20 @@ import { getOrCreateAnnualTransit } from './service';
 export const ANNUAL_REPORT_PROMPT_VERSION = 'annual-report-v2';
 const GENERATING_STALE_MS = 2 * 60 * 1000;
 
-export function findAnnualReport(conversationId: string, selectedYear: number) {
+export function findAnnualReport(conversationId: string, selectedYear: number, version?: number) {
   const transit = getOrCreateAnnualTransit(conversationId, selectedYear);
   return getAnnualTransitReport({
     conversationId,
     targetDate: String(selectedYear),
     engineVersion: transit.engineVersion,
     promptVersion: ANNUAL_REPORT_PROMPT_VERSION,
+    version,
   });
+}
+
+export function findAnnualReportDetail(conversationId: string, selectedYear: number, version?: number) {
+  const report = findAnnualReport(conversationId, selectedYear, version);
+  return report ? getAnnualTransitReportDetail(report.id, version) : null;
 }
 
 export async function generateAnnualReport(input: {
@@ -49,21 +56,20 @@ export async function generateAnnualReport(input: {
     staleAfterMs: GENERATING_STALE_MS,
   });
   if (!claim.claimed) return claim.report;
-  const pending = claim.report;
 
   try {
     const result = await createChatCompletion(
       buildAnnualReportMessages(conversation.chartSnapshot, transit.snapshot),
       { temperature: 0.35, maxTokens: 1_600, thinking: false },
     );
-    return completeAnnualTransitReport(pending.id, {
+    return completeAnnualTransitReportVersion(claim.version.id, {
       content: result.content.trim(),
       inputTokens: result.usage.inputTokens,
       outputTokens: result.usage.outputTokens,
     })!;
   } catch (error) {
-    failAnnualTransitReport(
-      pending.id,
+    failAnnualTransitReportVersion(
+      claim.version.id,
       error instanceof Error ? error.message : 'annual_report_generation_failed',
     );
     throw error;

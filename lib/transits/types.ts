@@ -79,6 +79,26 @@ export interface TransitSnapshotRecord {
 
 export type TransitReportStatus = 'generating' | 'completed' | 'failed';
 
+export interface AnnualTransitReportVersion {
+  id: string;
+  reportId: string;
+  version: number;
+  snapshotId: string;
+  engineVersion: string;
+  promptVersion: string;
+  provider: string;
+  model: string;
+  generationReason: import('@/lib/reports/types').ReportGenerationReason;
+  baseVersionId: string | null;
+  content: string;
+  status: TransitReportStatus;
+  errorCode: string | null;
+  inputTokens: number | null;
+  outputTokens: number | null;
+  createdAt: number;
+  completedAt: number | null;
+}
+
 export interface AnnualTransitReport {
   id: string;
   conversationId: string;
@@ -89,6 +109,12 @@ export interface AnnualTransitReport {
   promptVersion: string;
   provider: string;
   model: string;
+  activeVersionId: string | null;
+  versionId: string | null;
+  version: number | null;
+  versionCount: number;
+  generationReason: import('@/lib/reports/types').ReportGenerationReason;
+  baseVersionId: string | null;
   content: string;
   status: TransitReportStatus;
   errorCode: string | null;
@@ -97,4 +123,9 @@ export interface AnnualTransitReport {
   createdAt: number;
   updatedAt: number;
   completedAt: number | null;
+}
+
+export interface AnnualTransitReportDetail {
+  report: AnnualTransitReport;
+  versions: AnnualTransitReportVersion[];
 }

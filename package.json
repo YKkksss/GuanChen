@@ -12,6 +12,7 @@
     "test:event-candidates": "tsx scripts/test-life-event-candidates.ts",
     "test:reports": "tsx scripts/test-reports.ts",
     "test:report-pdf": "tsx scripts/test-report-pdf-exports.ts",
+    "test:report-comparisons": "tsx scripts/test-report-comparisons.ts",
     "test:heming-methodology": "tsx scripts/test-heming-methodology.ts",
     "test:heming-conversations": "tsx scripts/test-heming-conversations.ts",
     "test:heming-engine": "tsx scripts/test-heming-engine.ts",

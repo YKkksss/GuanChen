@@ -1,22 +1,28 @@
 'use client';
 
-import type { AnnualTransitReport } from '@/lib/transits/types';
+import type { AnnualTransitReport, AnnualTransitReportVersion } from '@/lib/transits/types';
 import ReportPdfExportButton from '@/components/ReportPdfExportButton';
+import ReportVersionComparePanel from '@/components/ReportVersionComparePanel';
+import { REPORT_GENERATION_REASON_LABELS } from '@/lib/reports/types';
 
 interface AnnualReportPanelProps {
   year: number;
   report: AnnualTransitReport | null;
+  versions: AnnualTransitReportVersion[];
   loading: boolean;
   error: string;
   onRegenerate: () => void;
+  onVersionChange: (version: number) => void;
 }
 
 export default function AnnualReportPanel({
   year,
   report,
+  versions,
   loading,
   error,
   onRegenerate,
+  onVersionChange,
 }: AnnualReportPanelProps) {
   const hasContent = Boolean(report?.content.trim());
   return (
@@ -27,12 +33,27 @@ export default function AnnualReportPanel({
             {year} 年度总结报告
           </div>
           <div className="mt-1 text-[9px]" style={{ color: 'var(--t-faint)' }}>
-            本命与当年运限的综合只读分析 · 自动保存
+            本命与当年运限的综合只读分析 · 自动保存{report?.version ? ` · v${report.version} · ${REPORT_GENERATION_REASON_LABELS[report.generationReason]}` : ''}
           </div>
         </div>
         <div className="flex items-center gap-2">
+          {versions.length > 1 && report?.version && (
+            <select
+              value={report.version}
+              onChange={event => onVersionChange(Number(event.target.value))}
+              disabled={loading}
+              className="rounded-lg px-2 py-1.5 text-[10px] disabled:opacity-40"
+              style={{ color: 'var(--t-text)', background: 'var(--t-bg2)', border: '1px solid var(--t-border)' }}
+            >
+              {versions.map(version => (
+                <option key={version.id} value={version.version}>
+                  v{version.version} · {version.status === 'completed' ? '已完成' : version.status === 'failed' ? '失败' : '生成中'}
+                </option>
+              ))}
+            </select>
+          )}
           {report?.status === 'completed' && hasContent && (
-            <ReportPdfExportButton sourceKind="annual" reportId={report.id} tone="annual" />
+            <ReportPdfExportButton sourceKind="annual" reportId={report.id} version={report.version ?? undefined} tone="annual" />
           )}
           {report?.completedAt && !loading && (
             <span className="hidden text-[9px] sm:inline" style={{ color: 'var(--t-faint)' }}>
@@ -50,6 +71,12 @@ export default function AnnualReportPanel({
           </button>
         </div>
       </div>
+
+      {report && (
+        <div className="px-4">
+          <ReportVersionComparePanel sourceKind="annual" reportId={report.id} versions={versions} currentVersion={report.version} />
+        </div>
+      )}
 
       {loading && !hasContent && (
         <div className="px-5 py-12 text-center">
@@ -81,7 +108,7 @@ export default function AnnualReportPanel({
 
       {!loading && !hasContent && !error && (
         <div className="px-5 py-10 text-center text-xs" style={{ color: 'var(--t-faint)' }}>
-          暂无年度报告，系统将自动生成。
+          {report?.status === 'failed' ? '这个年度报告版本生成失败，请切换旧版本或重新生成。' : '暂无年度报告，系统将自动生成。'}
         </div>
       )}
     </section>

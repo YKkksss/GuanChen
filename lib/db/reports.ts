@@ -5,6 +5,7 @@ import type {
   ReportDetail,
   ReportEvidence,
   ReportEvidenceDraft,
+  ReportGenerationReason,
   ReportListItem,
   ReportType,
   ReportVersion,
@@ -31,6 +32,8 @@ interface ReportVersionRow {
   prompt_version: string;
   provider: string;
   model: string;
+  generation_reason: ReportGenerationReason;
+  base_version_id: string | null;
   content_json: string | null;
   status: ReportVersionStatus;
   error_code: string | null;
@@ -82,6 +85,8 @@ function mapVersion(row: ReportVersionRow): ReportVersion {
     promptVersion: row.prompt_version,
     provider: row.provider,
     model: row.model,
+    generationReason: row.generation_reason,
+    baseVersionId: row.base_version_id,
     content: parseJson<ReportContent>(row.content_json),
     status: row.status,
     errorCode: row.error_code,
@@ -198,6 +203,7 @@ export function claimReportVersion(input: {
   provider: string;
   model: string;
   regenerate: boolean;
+  generationReason?: ReportGenerationReason;
   staleAfterMs: number;
 }): { version: ReportVersion; claimed: boolean } {
   const db = getDatabase();
@@ -222,8 +228,9 @@ export function claimReportVersion(input: {
     db.prepare(`
       INSERT INTO report_versions (
         id, report_id, version, engine_version, prompt_version, provider, model,
-        content_json, status, error_code, input_tokens, output_tokens, created_at, completed_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, NULL, 'generating', NULL, NULL, NULL, ?, NULL)
+        generation_reason, base_version_id, content_json, status, error_code,
+        input_tokens, output_tokens, created_at, completed_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, 'generating', NULL, NULL, NULL, ?, NULL)
     `).run(
       id,
       input.reportId,
@@ -232,6 +239,8 @@ export function claimReportVersion(input: {
       input.promptVersion,
       input.provider,
       input.model,
+      input.generationReason ?? (input.regenerate ? 'manual_regenerate' : 'initial_generation'),
+      active?.id ?? null,
       now,
     );
     db.prepare('UPDATE reports SET updated_at = ? WHERE id = ?').run(now, input.reportId);

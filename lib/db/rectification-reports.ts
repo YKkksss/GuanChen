@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import type { ReportContent, ReportVersionStatus } from '@/lib/reports/types';
+import type { ReportContent, ReportGenerationReason, ReportVersionStatus } from '@/lib/reports/types';
 import type {
   RectificationConversationLink,
   RectificationReport,
@@ -19,6 +19,7 @@ interface VersionRow {
   id: string; report_id: string; session_id: string; evaluation_id: string; selection_id: string | null;
   version: number; input_fingerprint: string; methodology_version: string; evaluation_engine_version: string;
   prompt_version: string; provider: string; model: string; content_json: string | null;
+  generation_reason: ReportGenerationReason; base_version_id: string | null;
   status: ReportVersionStatus; error_code: string | null; input_tokens: number | null;
   output_tokens: number | null; created_at: number; completed_at: number | null;
 }
@@ -44,6 +45,7 @@ const mapVersion = (row: VersionRow): RectificationReportVersion => ({
   selectionId: row.selection_id, version: row.version, inputFingerprint: row.input_fingerprint,
   methodologyVersion: row.methodology_version, evaluationEngineVersion: row.evaluation_engine_version,
   promptVersion: row.prompt_version, provider: row.provider, model: row.model,
+  generationReason: row.generation_reason, baseVersionId: row.base_version_id,
   content: parseJson<ReportContent>(row.content_json), status: row.status, errorCode: row.error_code,
   inputTokens: row.input_tokens, outputTokens: row.output_tokens, createdAt: row.created_at,
   completedAt: row.completed_at,
@@ -105,7 +107,8 @@ export function getRectificationReportDetail(reportId: string, versionNumber?: n
 export function claimRectificationReportVersion(input: {
   reportId: string; sessionId: string; evaluationId: string; selectionId: string | null;
   inputFingerprint: string; methodologyVersion: string; evaluationEngineVersion: string;
-  promptVersion: string; provider: string; model: string; regenerate: boolean; staleAfterMs: number;
+  promptVersion: string; provider: string; model: string; regenerate: boolean;
+  generationReason?: ReportGenerationReason; staleAfterMs: number;
 }): { version: RectificationReportVersion; claimed: boolean } {
   const db = getDatabase();
   return db.transaction(() => {
@@ -120,11 +123,14 @@ export function claimRectificationReportVersion(input: {
     db.prepare(`INSERT INTO rectification_report_versions (
       id, report_id, session_id, evaluation_id, selection_id, version, input_fingerprint,
       methodology_version, evaluation_engine_version, prompt_version, provider, model,
-      content_json, status, error_code, input_tokens, output_tokens, created_at, completed_at
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, 'generating', NULL, NULL, NULL, ?, NULL)`)
+      generation_reason, base_version_id, content_json, status, error_code,
+      input_tokens, output_tokens, created_at, completed_at
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, 'generating', NULL, NULL, NULL, ?, NULL)`)
       .run(id, input.reportId, input.sessionId, input.evaluationId, input.selectionId, version,
         input.inputFingerprint, input.methodologyVersion, input.evaluationEngineVersion,
-        input.promptVersion, input.provider, input.model, now);
+        input.promptVersion, input.provider, input.model,
+        input.generationReason ?? (input.regenerate ? 'manual_regenerate' : active ? 'source_changed' : 'initial_generation'),
+        active?.id ?? null, now);
     db.prepare('UPDATE rectification_reports SET updated_at = ? WHERE id = ?').run(now, input.reportId);
     return { version: getRectificationReportVersion(id)!, claimed: true };
   })();

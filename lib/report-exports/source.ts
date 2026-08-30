@@ -4,7 +4,7 @@ import { getRectificationReportDetail } from '@/lib/db/rectification-reports';
 import { getReportDetail } from '@/lib/db/reports';
 import { getAnnualTransitReportById } from '@/lib/db/transit-reports';
 import type { RectificationReportEvidence } from '@/lib/rectification/report-types';
-import type { ReportEvidence } from '@/lib/reports/types';
+import { REPORT_GENERATION_REASON_LABELS, type ReportEvidence } from '@/lib/reports/types';
 import type {
   EnsureReportExportInput,
   ReportExportDocument,
@@ -15,7 +15,7 @@ import type {
 const CULTURE_DISCLAIMER = '本报告属于传统文化研究与自我观察参考，不构成医疗、投资、法律、婚姻或其他专业决策建议。';
 
 export function resolveReportExportDocument(input: EnsureReportExportInput): ReportExportDocument {
-  if (input.sourceKind === 'annual') return resolveAnnualDocument(input.reportId);
+  if (input.sourceKind === 'annual') return resolveAnnualDocument(input);
   if (input.sourceKind === 'rectification') return resolveRectificationDocument(input);
   return resolveTopicDocument(input);
 }
@@ -64,6 +64,7 @@ function resolveTopicDocument(input: EnsureReportExportInput): ReportExportDocum
       { label: '规则引擎', value: version.engineVersion },
       { label: '提示词版本', value: version.promptVersion },
       { label: '生成模型', value: `${version.provider} / ${version.model}` },
+      { label: '生成原因', value: REPORT_GENERATION_REASON_LABELS[version.generationReason] },
       { label: '结构化依据', value: `${detail.evidence.length} 条` },
     ],
     summary: version.content.summary,
@@ -74,9 +75,10 @@ function resolveTopicDocument(input: EnsureReportExportInput): ReportExportDocum
   };
 }
 
-function resolveAnnualDocument(reportId: string): ReportExportDocument {
-  const report = getAnnualTransitReportById(reportId);
+function resolveAnnualDocument(input: EnsureReportExportInput): ReportExportDocument {
+  const report = getAnnualTransitReportById(input.reportId, input.version);
   if (!report) throw new Error('年度报告不存在');
+  if (input.version && !report.versionId) throw new Error('年度报告版本不存在');
   if (report.status !== 'completed' || !report.content.trim()) {
     throw new Error('只有已完成的年度报告可以导出 PDF');
   }
@@ -91,18 +93,20 @@ function resolveAnnualDocument(reportId: string): ReportExportDocument {
   return {
     sourceKind: 'annual',
     sourceReportId: report.id,
-    sourceVersionId: report.id,
+    sourceVersionId: report.versionId ?? report.id,
     sourceFingerprint,
     title: `${year} 年度总结报告`,
     categoryLabel: '紫微斗数年度运势报告',
-    versionLabel: report.engineVersion,
+    versionLabel: report.version ? `v${report.version}` : report.engineVersion,
     generatedAt: Date.now(),
     sourceCompletedAt: report.completedAt,
     metadata: [
       { label: '分析年份', value: String(year) },
+      { label: '报告版本', value: report.version ? `v${report.version}` : '历史版本' },
       { label: '规则引擎', value: report.engineVersion },
       { label: '提示词版本', value: report.promptVersion },
       { label: '生成模型', value: `${report.provider} / ${report.model}` },
+      { label: '生成原因', value: REPORT_GENERATION_REASON_LABELS[report.generationReason] },
       { label: '报告来源', value: '本地已保存命盘' },
     ],
     summary: parsed.summary,
@@ -144,6 +148,7 @@ function resolveRectificationDocument(input: EnsureReportExportInput): ReportExp
       { label: '评估引擎', value: version.evaluationEngineVersion },
       { label: '提示词版本', value: version.promptVersion },
       { label: '生成模型', value: `${version.provider} / ${version.model}` },
+      { label: '生成原因', value: REPORT_GENERATION_REASON_LABELS[version.generationReason] },
     ],
     summary: version.content.summary,
     sections: version.content.sections.map(section => ({

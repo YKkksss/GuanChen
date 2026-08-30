@@ -27,6 +27,7 @@ async function main() {
     listRectificationReports,
   } = await import('../lib/db/rectification-reports');
   const { RECTIFICATION_REPORT_SECTIONS } = await import('../lib/rectification/report-types');
+  const { compareReportVersions } = await import('../lib/report-comparisons/service');
 
   try {
     const session = createRectificationSession({
@@ -78,6 +79,11 @@ async function main() {
     const claimV2 = claimRectificationReportVersion({ reportId: report.id, sessionId: session.id, evaluationId: evaluation.id, selectionId: selection.id, inputFingerprint: fingerprint, methodologyVersion: evaluation.methodologyVersion, evaluationEngineVersion: evaluation.evaluationEngineVersion, promptVersion: 'rectification-conclusion-v1', provider: 'test', model: 'test-model', regenerate: true, staleAfterMs: 60_000 });
     failRectificationReportVersion(claimV2.version.id, '模拟失败');
     assert.equal(getRectificationReportDetail(report.id)?.version?.version, 1, '失败版本不得覆盖有效报告');
+    const claimV3 = claimRectificationReportVersion({ reportId: report.id, sessionId: session.id, evaluationId: evaluation.id, selectionId: selection.id, inputFingerprint: fingerprint, methodologyVersion: evaluation.methodologyVersion, evaluationEngineVersion: evaluation.evaluationEngineVersion, promptVersion: 'rectification-conclusion-v1', provider: 'test', model: 'test-model', regenerate: true, staleAfterMs: 60_000 });
+    completeRectificationReportVersion({ versionId: claimV3.version.id, content, evidenceBySection: content.sections.map(section => ({ sectionKey: section.key, evidence: [built.evidence.find(item => item.evidenceKey === citedId)!] })), inputTokens: 100, outputTokens: 200 });
+    const rectificationComparison = compareReportVersions({ sourceKind: 'rectification', reportId: report.id, baseVersion: 1, targetVersion: 3 });
+    assert.equal(rectificationComparison.summary.classification, 'generation_metadata_only');
+    assert.equal(rectificationComparison.target.baseVersionId, claimV1.version.id);
 
     const firstConversation = createConversationFromRectificationSelection(session.id);
     const secondConversation = createConversationFromRectificationSelection(session.id);

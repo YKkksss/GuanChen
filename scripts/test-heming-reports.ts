@@ -25,6 +25,7 @@ async function main() {
     parseAndValidateHemingReportContent,
   } = await import('../lib/reports/service');
   const { HEMING_REPORT_DEFINITION } = await import('../lib/reports/types');
+  const { compareReportVersions } = await import('../lib/report-comparisons/service');
 
   try {
     const birthInfoA = { year: 1990, month: 6, day: 15, hour: 4, gender: 'male' as const, name: '不应进入报告的甲方姓名', city: '甲方隐私城市' };
@@ -102,6 +103,9 @@ async function main() {
     completeReportVersion({ versionId: claimV3.version.id, content: { ...content, summary: '第三版合盘报告。' }, evidenceBySection: [], inputTokens: null, outputTokens: null });
     assert.equal(getReportDetail(report.id)?.version?.version, 3);
     assert.equal(listReports(conversation.id)[0].versionCount, 3);
+    const comparison = compareReportVersions({ sourceKind: 'heming', reportId: report.id, baseVersion: 1, targetVersion: 3 });
+    assert.equal(comparison.summary.classification, 'evidence_changed');
+    assert.ok(comparison.summary.removedEvidence > 0);
 
     assert.equal(deleteConversation(conversation.id), true);
     assert.equal((getDatabase().prepare('SELECT COUNT(*) AS count FROM reports WHERE conversation_id = ?').get(conversation.id) as { count: number }).count, 0);

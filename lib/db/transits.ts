@@ -44,6 +44,12 @@ export function getTransitSnapshot(input: {
   return row ? mapRow(row) : null;
 }
 
+export function getTransitSnapshotById(id: string): TransitSnapshotRecord | null {
+  const row = getDatabase().prepare('SELECT * FROM transit_snapshots WHERE id = ?')
+    .get(id) as TransitSnapshotRow | undefined;
+  return row ? mapRow(row) : null;
+}
+
 export function upsertTransitSnapshot(input: {
   conversationId: string;
   level: TransitLevel;
