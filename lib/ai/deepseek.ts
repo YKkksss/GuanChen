@@ -188,13 +188,17 @@ export function toClientSseStream(upstream: ReadableStream<Uint8Array>): Readabl
   });
 }
 
-export function sseResponse(stream: ReadableStream<Uint8Array>) {
+export function sseResponse(stream: ReadableStream<Uint8Array>, extraHeaders?: HeadersInit) {
+  const headers = new Headers({
+    'Content-Type': 'text/event-stream; charset=utf-8',
+    'Cache-Control': 'no-cache, no-transform',
+    Connection: 'keep-alive',
+  });
+  if (extraHeaders) {
+    new Headers(extraHeaders).forEach((value, key) => headers.set(key, value));
+  }
   return new Response(stream, {
-    headers: {
-      'Content-Type': 'text/event-stream; charset=utf-8',
-      'Cache-Control': 'no-cache, no-transform',
-      Connection: 'keep-alive',
-    },
+    headers,
   });
 }
 

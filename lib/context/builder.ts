@@ -15,6 +15,12 @@ import {
   getConversation,
   getMessage,
 } from '@/lib/db/conversations';
+import { listLifeEvents } from '@/lib/db/events';
+import {
+  LIFE_EVENT_CATEGORY_LABELS,
+  type LifeEventCategory,
+  type LifeEventWithTransits,
+} from '@/lib/events/types';
 import { buildCompactChartBase, buildTopicChartContext } from './chart-context';
 import { getOrCreateAnnualTransit } from '@/lib/transits/service';
 import type { AnnualTransitSnapshot } from '@/lib/transits/types';
@@ -99,6 +105,11 @@ export function buildConversationContext(input: {
 
   const earliestRecentSeq = recentCandidates[0]?.seq ?? current.seq;
   const searchTerms = extractSearchTerms(current.content);
+  const confirmedEvents = selectRelevantLifeEvents(
+    listLifeEvents({ conversationId: conversation.id }).filter(event => event.confirmedByUser),
+    current.content,
+    searchTerms,
+  );
   const retrieved = retrieveOlderMessages({
     conversationId: conversation.id,
     beforeSeq: earliestRecentSeq,
@@ -114,6 +125,7 @@ export function buildConversationContext(input: {
 
   const supportBudget = Math.max(inputBudget - essentialTokens - minimumRecentTokens, 0);
   const support = buildSupportContext({
+    confirmedEvents,
     memories,
     summary: conversation.summary,
     retrieved,
@@ -159,6 +171,11 @@ export function buildConversationContext(input: {
           tokens: estimateTextTokens(transitContext),
         },
         memories: { count: support.memoryCount, tokens: support.memoryTokens },
+        confirmedEvents: {
+          count: support.confirmedEventIds.length,
+          ids: support.confirmedEventIds,
+          tokens: support.confirmedEventTokens,
+        },
         summary: { included: support.summaryIncluded, tokens: support.summaryTokens },
         retrieval: { count: support.retrievedIds.length, tokens: support.retrievalTokens },
         recent: { count: recent.length, tokens: estimateConversationMessages(recent) },
@@ -191,6 +208,13 @@ export function buildFallbackConversationContext(input: {
   const system: ChatMessage = { role: 'system', content: ZIWEI_SYSTEM_PROMPT };
   const transitSnapshot = getAnnualTransitFromMessage(conversation.id, current);
   const transitContext = transitSnapshot ? buildAnnualTransitContext(transitSnapshot) : '';
+  const searchTerms = extractSearchTerms(current.content);
+  const confirmedEvents = selectRelevantLifeEvents(
+    listLifeEvents({ conversationId: conversation.id }).filter(event => event.confirmedByUser),
+    current.content,
+    searchTerms,
+  );
+  const confirmedEventContext = buildConfirmedEventContext(confirmedEvents);
   const chart: ChatMessage = {
     role: 'user',
     content: [
@@ -198,14 +222,17 @@ export function buildFallbackConversationContext(input: {
       transitContext,
     ].filter(Boolean).join('\n'),
   };
+  const events: ChatMessage | null = confirmedEventContext
+    ? { role: 'user', content: confirmedEventContext }
+    : null;
   const currentChat: ChatMessage = { role: 'user', content: current.content };
   const history = takeLastTurns(
     getCompletedMessagesBefore(conversation.id, current.seq),
     MIN_RECENT_TURNS,
   );
-  const fixedTokens = estimateMessagesTokens([system, chart, currentChat]);
+  const fixedTokens = estimateMessagesTokens([system, chart, ...(events ? [events] : []), currentChat]);
   const recent = selectRecentWithinBudget(history, Math.max(inputBudget - fixedTokens, 0));
-  const messages = [system, chart, ...recent.map(toChatMessage), currentChat];
+  const messages = [system, chart, ...(events ? [events] : []), ...recent.map(toChatMessage), currentChat];
   const estimatedInputTokens = estimateMessagesTokens(messages);
   if (estimatedInputTokens > inputBudget) {
     throw new Error('基础上下文仍超过模型输入上限');
@@ -228,6 +255,7 @@ export function buildFallbackConversationContext(input: {
         system: { included: true },
         chartBase: { included: true },
         transit: { included: Boolean(transitContext), year: transitSnapshot?.selectedYear ?? null },
+        confirmedEvents: { count: confirmedEvents.length, ids: confirmedEvents.map(event => event.id) },
         recent: { count: recent.length },
         current: { included: true },
       },
@@ -270,6 +298,7 @@ function buildAnnualTransitContext(snapshot: AnnualTransitSnapshot): string {
 const BRANCH_LABELS = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥'];
 
 export function buildSupportContext(input: {
+  confirmedEvents?: LifeEventWithTransits[];
   memories: MemoryItem[];
   summary: ConversationSummary | null;
   retrieved: RetrievedMessage[];
@@ -280,11 +309,17 @@ export function buildSupportContext(input: {
   const sections: string[] = [];
   const layerStart = input.layerStart ?? 3;
 
+  const confirmedEventText = buildConfirmedEventContext(input.confirmedEvents ?? [], layerStart);
+  const fittedEvents = fitSection('', confirmedEventText, Math.min(1_200, remaining));
+  if (fittedEvents.content) sections.push(fittedEvents.content);
+  remaining -= fittedEvents.tokens;
+  const memoryLayer = layerStart + (fittedEvents.content ? 1 : 0);
+
   const memoryText = input.memories.length
     ? input.memories.map(memory => `- [${memory.category}] ${memory.content}`).join('\n')
     : '';
   const fittedMemories = fitSection(
-    `【L${layerStart} 用户确认信息与历史记忆】\nprevious_interpretation 仅代表此前 AI 判断，不是用户事实。\n`,
+    `【L${memoryLayer} 用户确认信息与历史记忆】\nprevious_interpretation 仅代表此前 AI 判断，不是用户事实。\n`,
     memoryText,
     Math.min(1_000, remaining),
   );
@@ -293,7 +328,7 @@ export function buildSupportContext(input: {
 
   const summaryText = input.summary ? JSON.stringify(input.summary) : '';
   const fittedSummary = fitSection(
-    `【L${layerStart + 1} 较早对话的滚动摘要】\n`,
+    `【L${memoryLayer + 1} 较早对话的滚动摘要】\n`,
     summaryText,
     Math.min(1_000, remaining),
   );
@@ -310,7 +345,7 @@ export function buildSupportContext(input: {
     includedRetrieved.push(message);
   }
   const fittedRetrieval = fitSection(
-    `【L${layerStart + 2} 按需召回的旧消息】\n这些片段用于恢复引用关系，不得覆盖用户的新纠正。\n`,
+    `【L${memoryLayer + 2} 按需召回的旧消息】\n这些片段用于恢复引用关系，不得覆盖用户的新纠正。\n`,
     retrievalText,
     Math.min(1_500, remaining),
   );
@@ -318,6 +353,8 @@ export function buildSupportContext(input: {
 
   return {
     content: sections.join('\n\n'),
+    confirmedEventIds: fittedEvents.content ? (input.confirmedEvents ?? []).map(event => event.id) : [],
+    confirmedEventTokens: fittedEvents.tokens,
     memoryCount: fittedMemories.content ? input.memories.length : 0,
     memoryTokens: fittedMemories.tokens,
     summaryIncluded: Boolean(fittedSummary.content),
@@ -326,6 +363,56 @@ export function buildSupportContext(input: {
     retrievalTokens: fittedRetrieval.tokens,
   };
 }
+
+export function selectRelevantLifeEvents(
+  events: LifeEventWithTransits[],
+  question: string,
+  terms: string[],
+): LifeEventWithTransits[] {
+  const requestedYears = new Set(question.match(/(?:19|20)\d{2}/g) ?? []);
+  return events
+    .map(event => {
+      const categoryTerms = EVENT_CATEGORY_TERMS[event.category];
+      const eventYears = event.transitLinks.map(link => link.targetDate);
+      const score = eventYears.filter(year => requestedYears.has(year)).length * 12
+        + categoryTerms.filter(term => question.includes(term)).length * 5
+        + terms.filter(term => `${event.title}${event.description ?? ''}`.includes(term)).length * 4
+        + (question.includes(event.title.slice(0, 8)) ? 3 : 0);
+      return { event, score };
+    })
+    .sort((a, b) => b.score - a.score || b.event.updatedAt - a.event.updatedAt)
+    .slice(0, 8)
+    .map(item => item.event);
+}
+
+function buildConfirmedEventContext(events: LifeEventWithTransits[], layer = 3): string {
+  if (!events.length) return '';
+  const lines = events.map(event => {
+    const date = event.datePrecision === 'unknown'
+      ? '日期不详'
+      : event.datePrecision === 'range'
+        ? `${event.startDate}至${event.endDate}`
+        : event.startDate;
+    const category = event.category === 'custom'
+      ? event.customCategory ?? '自定义事件'
+      : LIFE_EVENT_CATEGORY_LABELS[event.category];
+    return `- [${event.id}] ${date} · ${category} · ${event.title}${event.description ? `：${event.description.slice(0, 240)}` : ''}`;
+  });
+  return `【L${layer} 用户已确认人生事件】\n以下记录来自正式事件表，可以作为现实事实；不得把未确认候选、助手推断或命理解释补写为新事件。\n${lines.join('\n')}`;
+}
+
+const EVENT_CATEGORY_TERMS: Record<LifeEventCategory, string[]> = {
+  education: ['学业', '学习', '考试', '毕业', '升学'],
+  career: ['工作', '事业', '入职', '离职', '跳槽', '创业', '晋升'],
+  finance: ['财务', '财运', '收入', '投资', '亏损', '买房'],
+  relationship: ['感情', '婚姻', '恋爱', '结婚', '离婚', '分手'],
+  children: ['孩子', '子女', '生育', '怀孕'],
+  relocation: ['搬家', '迁居', '出国', '城市'],
+  family: ['家庭', '父母', '亲人'],
+  health: ['健康', '手术', '住院', '确诊', '康复'],
+  achievement: ['成果', '获奖', '荣誉', '晋级'],
+  custom: [],
+};
 
 function fitSection(prefix: string, content: string, budget: number) {
   if (!content || budget <= estimateTextTokens(prefix) + 4) return { content: '', tokens: 0 };

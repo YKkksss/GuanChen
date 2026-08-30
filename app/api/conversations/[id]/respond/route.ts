@@ -152,7 +152,10 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
       assistantMessageId: assistant.id,
       contextRunId: contextRun.id,
       estimatedInputTokens: builtContext.estimatedInputTokens,
-    }));
+    }), {
+      'X-User-Message-Id': userMessage.id,
+      'X-Assistant-Message-Id': assistant.id,
+    });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'AI 解读失败';
     if (assistantId) {

@@ -119,7 +119,8 @@ export async function updateMemories(
     {
       role: 'system',
       content: `你是对话记忆提取器。只提取用户明确陈述的长期有用信息，输出严格 JSON，不要解释。
-允许分类：user_fact、confirmed_event、user_preference、correction、open_question。
+允许分类：user_fact、user_preference、correction、open_question。
+禁止输出 confirmed_event；用户提到的既往经历也必须先走独立候选确认流程，不能改写成 user_fact 绕过确认。
 禁止把助手推断、命理结论或不确定猜测写成用户事实。没有合适信息时输出 {"items":[]}。
 每项格式：{"category":"user_fact","content":"简洁中文事实","normalized_key":"稳定键","confidence":0.95}。
 ${conversation?.type === 'heming' ? '这是双人合盘对话：每条人物事实必须明确写“甲方”或“乙方”，互动事实写“双方互动”；无法确认归属时不要提取，绝不能把一方事实复制给另一方。' : ''}`,
@@ -171,7 +172,7 @@ export async function rebuildConversationMemories(conversationId: string): Promi
       {
         role: 'system',
         content: `你是历史对话记忆提取器。只从用户原话提取长期有用的信息，输出严格 JSON：{"items":[]}。
-允许分类：user_fact、confirmed_event、user_preference、correction、open_question。
+允许分类：user_fact、user_preference、correction、open_question。禁止输出 confirmed_event；人生事件必须经过独立候选确认流程，也不能改写成 user_fact。
 每项格式：{"category":"user_fact","content":"简洁中文事实","normalized_key":"稳定键","confidence":0.95}。
 禁止把问题中的假设、命理结论或助手观点写成事实；相互冲突时保留用户较新的明确纠正。每批最多输出 20 项。
 ${conversation.type === 'heming' ? '这是双人合盘对话：每条人物事实必须明确写“甲方”或“乙方”，互动事实写“双方互动”；无法确认归属时不要提取，绝不能串用双方事实。' : ''}`,
@@ -206,7 +207,7 @@ function buildSummaryPrompt(
       role: 'system',
       content: `你是滚动对话摘要器。将旧摘要与新增消息合并成严格 JSON。
 字段必须恰好为：user_context、confirmed_events、topics_discussed、previous_conclusions、corrections、open_questions、user_preferences、disputed_or_uncertain、do_not_assume，所有值都是字符串数组。
-规则：只提取输入出现的信息；区分用户事实与助手判断；previous_conclusions 只放助手判断；用户新纠正覆盖旧事实；不要复制命盘 JSON；不要创造新命理结论；每个数组最多 12 项，每项简洁。
+规则：只提取输入出现的信息；区分用户事实与助手判断；previous_conclusions 只放助手判断；用户新纠正覆盖旧事实；不要复制命盘 JSON；不要创造新命理结论；每个数组最多 12 项，每项简洁。confirmed_events 只能保留旧摘要中已经存在的已确认记录，不能把新聊天中的经历直接升级为已确认事件。
 ${isHeming ? '这是双人合盘对话：摘要中的人物事实与结论必须明确标注“甲方”“乙方”或“双方互动”；无法确认归属时放入 disputed_or_uncertain，绝不能把一方信息归到另一方。' : ''}`,
     },
     {
@@ -238,7 +239,7 @@ function parseSummary(content: string): ConversationSummary {
 }
 
 function parseMemoryItems(content: string): Array<{
-  category: Exclude<MemoryCategory, 'previous_interpretation'>;
+  category: Exclude<MemoryCategory, 'previous_interpretation' | 'confirmed_event'>;
   content: string;
   normalized_key: string;
   confidence: number;
@@ -246,7 +247,7 @@ function parseMemoryItems(content: string): Array<{
   const parsed = parseJsonObject(content);
   if (!Array.isArray(parsed.items)) return [];
   const allowed = new Set<MemoryCategory>([
-    'user_fact', 'confirmed_event', 'user_preference', 'correction', 'open_question',
+    'user_fact', 'user_preference', 'correction', 'open_question',
   ]);
   return parsed.items.flatMap(item => {
     if (!item || typeof item !== 'object') return [];
@@ -254,7 +255,7 @@ function parseMemoryItems(content: string): Array<{
     if (typeof value.category !== 'string' || !allowed.has(value.category as MemoryCategory)) return [];
     if (typeof value.content !== 'string' || !value.content.trim()) return [];
     return [{
-      category: value.category as Exclude<MemoryCategory, 'previous_interpretation'>,
+      category: value.category as Exclude<MemoryCategory, 'previous_interpretation' | 'confirmed_event'>,
       content: value.content.trim().slice(0, 1_000),
       normalized_key: typeof value.normalized_key === 'string'
         ? value.normalized_key.trim().slice(0, 120)

@@ -135,16 +135,11 @@ async function main() {
       normalizedKey: 'occupation',
       confidence: 0.98,
     }]), 1);
-    assert.deepEqual(listActiveMemories(conversation.id).map(item => item.content), ['用户从事软件开发。']);
-
-    upsertMemoryItem({
-      conversationId: conversation.id,
-      category: 'confirmed_event',
-      content: '用户在2022年换过工作。',
-      normalizedKey: 'career_change_2022',
-      sourceMessageId: current.id,
-      confidence: 0.99,
-    });
+    assert.deepEqual(
+      listActiveMemories(conversation.id).map(item => item.content),
+      ['用户从事软件开发。', '用户在2022年换过工作。'],
+      '重建普通记忆时必须保留用户明确确认过的人生事件',
+    );
 
     const built = buildConversationContext({
       conversationId: conversation.id,

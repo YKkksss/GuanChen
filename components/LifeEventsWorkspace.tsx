@@ -238,6 +238,9 @@ function EventCard({
             </span>
             <span className="text-[9px]" style={{ color: 'var(--t-faint)' }}>{formatEventDate(event)}</span>
             <span className="text-[9px]" style={{ color: 'var(--t-faint)' }}>影响 {event.impactLevel}/5</span>
+            <span className="text-[9px]" style={{ color: event.source === 'conversation_extracted' ? 'var(--t-gold)' : 'var(--t-faint)' }}>
+              {event.source === 'conversation_extracted' ? '来自聊天确认' : '手动记录'}
+            </span>
           </div>
           <h3 className="mt-2 text-[12px] font-medium" style={{ color: 'var(--t-text)' }}>{event.title}</h3>
           {event.description && <p className="mt-1.5 whitespace-pre-wrap text-[10px] leading-relaxed" style={{ color: 'var(--t-text2)' }}>{event.description}</p>}

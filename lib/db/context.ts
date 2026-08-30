@@ -176,7 +176,7 @@ export function replaceConversationMemories(
     const now = Date.now();
     db.prepare(`
       UPDATE memory_items SET status = 'deleted', updated_at = ?
-      WHERE conversation_id = ? AND status = 'active'
+      WHERE conversation_id = ? AND status = 'active' AND category <> 'confirmed_event'
     `).run(now, conversationId);
 
     const unique = new Map<string, (typeof items)[number]>();

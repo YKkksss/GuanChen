@@ -5,6 +5,7 @@ import { Brain, ChatCircleDots, PaperPlaneTilt } from '@phosphor-icons/react';
 import { isHiddenSource, type ConversationMessage } from '@/lib/conversations/types';
 import type { ZiweiChart, Palace } from '@/lib/ziwei/types';
 import ContextMemoryPanel from './ContextMemoryPanel';
+import LifeEventCandidateInbox from './LifeEventCandidateInbox';
 import type { TimeView } from './TimeNav';
 
 interface Message {
@@ -332,6 +333,7 @@ ${selectedSiHua.starName}化${selectedSiHua.siHua}落在【${palaceName}】，�
         throw new Error(data.error || '请求失败');
       }
       if (!res.body) throw new Error('无响应流');
+      const sourceMessageId = res.headers.get('X-User-Message-Id');
 
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
@@ -360,6 +362,17 @@ ${selectedSiHua.starName}化${selectedSiHua.siHua}落在【${palaceName}】，�
             });
           } catch { /* skip */ }
         }
+      }
+      if (sourceMessageId && (options.source ?? 'question') === 'question') {
+        void fetch(`/api/conversations/${conversationId}/event-candidates`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ sourceMessageId }),
+        }).then(response => {
+          if (response.ok) {
+            window.dispatchEvent(new CustomEvent('life-event-candidates-updated', { detail: { conversationId } }));
+          }
+        }).catch(() => undefined);
       }
     } catch {
       setMessages(prev => [...prev, { role: 'assistant', content: '解读失败，请稍后重试。' }]);
@@ -513,6 +526,8 @@ ${selectedSiHua.starName}化${selectedSiHua.siHua}落在【${palaceName}】，�
           })}
         </AnimatePresence>
       </div>
+
+      <LifeEventCandidateInbox conversationId={conversationId} />
 
       {/* ── Input ── */}
       <div className="flex-shrink-0 px-3 pb-3 pt-2.5" style={{ borderTop: '1px solid var(--t-border)', background: 'var(--t-card)' }}>

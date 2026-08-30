@@ -2189,6 +2189,74 @@ function migrate(db: Database.Database) {
     applyV40();
   }
 
+  if (!applied.has(41)) {
+    const applyV41 = db.transaction(() => {
+      db.exec(`
+        CREATE TABLE life_event_extraction_runs (
+          id TEXT PRIMARY KEY,
+          conversation_id TEXT NOT NULL,
+          source_message_id TEXT NOT NULL,
+          extractor_version TEXT NOT NULL,
+          status TEXT NOT NULL CHECK (status IN ('running', 'completed', 'skipped', 'failed')),
+          candidate_count INTEGER NOT NULL DEFAULT 0,
+          error_code TEXT,
+          created_at INTEGER NOT NULL,
+          updated_at INTEGER NOT NULL,
+          completed_at INTEGER,
+
+          UNIQUE (source_message_id, extractor_version),
+          FOREIGN KEY (conversation_id) REFERENCES conversations(id) ON DELETE CASCADE,
+          FOREIGN KEY (source_message_id) REFERENCES messages(id) ON DELETE CASCADE
+        );
+
+        CREATE TABLE life_event_candidates (
+          id TEXT PRIMARY KEY,
+          run_id TEXT NOT NULL,
+          conversation_id TEXT NOT NULL,
+          source_message_id TEXT NOT NULL,
+          candidate_key TEXT NOT NULL,
+          extraction_version TEXT NOT NULL,
+          title TEXT NOT NULL,
+          category TEXT NOT NULL CHECK (category IN (
+            'education', 'career', 'finance', 'relationship', 'children',
+            'relocation', 'family', 'health', 'achievement', 'custom'
+          )),
+          custom_category TEXT,
+          start_date TEXT NOT NULL DEFAULT '',
+          end_date TEXT,
+          date_precision TEXT NOT NULL CHECK (date_precision IN ('day', 'month', 'year', 'range', 'unknown')),
+          description TEXT,
+          impact_level INTEGER NOT NULL CHECK (impact_level BETWEEN 1 AND 5),
+          confidence REAL NOT NULL CHECK (confidence BETWEEN 0 AND 1),
+          source_excerpt TEXT NOT NULL,
+          review_notes_json TEXT NOT NULL DEFAULT '[]',
+          status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'confirmed', 'dismissed')),
+          confirmed_event_id TEXT,
+          created_at INTEGER NOT NULL,
+          updated_at INTEGER NOT NULL,
+          confirmed_at INTEGER,
+          dismissed_at INTEGER,
+
+          UNIQUE (source_message_id, candidate_key, extraction_version),
+          FOREIGN KEY (run_id) REFERENCES life_event_extraction_runs(id) ON DELETE CASCADE,
+          FOREIGN KEY (conversation_id) REFERENCES conversations(id) ON DELETE CASCADE,
+          FOREIGN KEY (source_message_id) REFERENCES messages(id) ON DELETE CASCADE,
+          FOREIGN KEY (confirmed_event_id) REFERENCES life_events(id) ON DELETE SET NULL
+        );
+
+        CREATE INDEX idx_life_event_extraction_conversation
+          ON life_event_extraction_runs(conversation_id, created_at DESC);
+        CREATE INDEX idx_life_event_candidates_conversation_status
+          ON life_event_candidates(conversation_id, status, created_at DESC);
+        CREATE INDEX idx_life_event_candidates_source_message
+          ON life_event_candidates(source_message_id, created_at ASC);
+      `);
+      db.prepare('INSERT INTO schema_migrations(version, applied_at) VALUES (?, ?)')
+        .run(41, Date.now());
+    });
+    applyV41();
+  }
+
   ensureMessageSearch(db);
 }
 

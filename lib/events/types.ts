@@ -16,6 +16,8 @@ export const LIFE_EVENT_CATEGORIES = [
 export type LifeEventCategory = typeof LIFE_EVENT_CATEGORIES[number];
 export type LifeEventDatePrecision = 'day' | 'month' | 'year' | 'range' | 'unknown';
 export type LifeEventSource = 'user_input' | 'conversation_extracted';
+export type LifeEventCandidateStatus = 'pending' | 'confirmed' | 'dismissed';
+export type LifeEventExtractionStatus = 'running' | 'completed' | 'skipped' | 'failed';
 
 export interface LifeEvent {
   id: string;
@@ -62,6 +64,48 @@ export interface LifeEventInput {
   source?: LifeEventSource;
   sourceMessageId?: string | null;
   confirmedByUser?: boolean;
+}
+
+export interface LifeEventCandidateDraft {
+  title: string;
+  category: LifeEventCategory;
+  customCategory: string | null;
+  startDate: string;
+  endDate: string | null;
+  datePrecision: LifeEventDatePrecision;
+  description: string | null;
+  impactLevel: 1 | 2 | 3 | 4 | 5;
+  confidence: number;
+  sourceExcerpt: string;
+  reviewNotes: string[];
+}
+
+export interface LifeEventCandidate extends LifeEventCandidateDraft {
+  id: string;
+  runId: string;
+  conversationId: string;
+  sourceMessageId: string;
+  candidateKey: string;
+  extractionVersion: string;
+  status: LifeEventCandidateStatus;
+  confirmedEventId: string | null;
+  createdAt: number;
+  updatedAt: number;
+  confirmedAt: number | null;
+  dismissedAt: number | null;
+}
+
+export interface LifeEventExtractionRun {
+  id: string;
+  conversationId: string;
+  sourceMessageId: string;
+  extractorVersion: string;
+  status: LifeEventExtractionStatus;
+  candidateCount: number;
+  errorCode: string | null;
+  createdAt: number;
+  updatedAt: number;
+  completedAt: number | null;
 }
 
 export const LIFE_EVENT_CATEGORY_LABELS: Record<LifeEventCategory, string> = {
