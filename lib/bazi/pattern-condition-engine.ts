@@ -18,7 +18,16 @@ import type {
 import type { BaziStrengthCompositeResult } from './strength-composite-types';
 import type { BaziCalculationResult, BaziPillar } from './types';
 
-type RoleMatchMode = 'any_role' | 'all_roles' | 'absence' | 'stem_combine' | 'month_relation_rescue';
+export type BaziPatternRuleMatchMode =
+  | 'any_role'
+  | 'all_roles'
+  | 'absence'
+  | 'stem_combine'
+  | 'month_relation_rescue'
+  | 'candidate_context'
+  | 'strength_context'
+  | 'month_interaction';
+type RoleMatchMode = Exclude<BaziPatternRuleMatchMode, 'candidate_context' | 'strength_context' | 'month_interaction'>;
 type VisibilityPolicy = 'surface_required' | 'surface_or_hidden';
 
 interface RuleDefinition {
@@ -35,6 +44,14 @@ interface RuleSet {
   formation: RuleDefinition[];
   breaking: RuleDefinition[];
   rescue: RuleDefinition[];
+}
+
+export interface BaziPatternRuleDescriptor {
+  ruleId: string;
+  matchMode: BaziPatternRuleMatchMode;
+  visibility: VisibilityPolicy | 'context_only';
+  roleGroups: BaziTenGodName[][];
+  boundary: string;
 }
 
 interface NatalRoleOccurrence extends BaziPatternConditionEvidence {
@@ -160,6 +177,43 @@ const RULES: Record<BaziPatternArchetype, RuleSet> = {
   build_prosperity: buildProsperityRules('build'),
   month_robbery: buildProsperityRules('robbery'),
 };
+
+/** 供流月流日映射复用 M9-13 的规则匹配语义，不对动态条件重做格局结论。 */
+export function describeBaziPatternConditionRule(
+  ruleId: string,
+  requiredRoles: BaziTenGodName[],
+): BaziPatternRuleDescriptor {
+  if (ruleId === 'candidate-preserved') return {
+    ruleId, matchMode: 'candidate_context', visibility: 'context_only', roleGroups: [],
+    boundary: '月令候选入口保持上游状态，不接受动态层重新取格。',
+  };
+  if (ruleId === 'strength-context-review') return {
+    ruleId, matchMode: 'strength_context', visibility: 'context_only', roleGroups: [],
+    boundary: '身用承载只引用版本化方向上下文，不裁决最终旺衰。',
+  };
+  if (ruleId === 'common-month-interaction') return {
+    ruleId, matchMode: 'month_interaction', visibility: 'context_only', roleGroups: [],
+    boundary: '只映射月支参与的明确关系证据，不裁决破格或关系优先级。',
+  };
+  const rule = Object.values(RULES).flatMap(set => [...set.formation, ...set.breaking, ...set.rescue])
+    .find(item => item.id === ruleId);
+  if (!rule) throw new Error(`未找到 M9-13 格局规则：${ruleId}`);
+  return {
+    ruleId,
+    matchMode: rule.match,
+    visibility: rule.visibility,
+    roleGroups: rule.match === 'all_roles'
+      ? normalizeRequiredRoleGroups(rule.roles)
+      : rule.roles.length ? [rule.roles] : [],
+    boundary: rule.match === 'absence'
+      ? '缺项规则只保留静态审计状态；动态角色出现不能倒改原局缺项事实。'
+      : rule.match === 'stem_combine'
+        ? '必须同时命中相关表层角色和 M9-15 明确天干五合证据，仍只称位置入口。'
+        : rule.match === 'month_relation_rescue'
+          ? '必须命中当前片段内月支参与的会合证据，仍不宣告解冲或救应完成。'
+          : '只映射当前片段可见表层角色与规则角色组的覆盖情况，不设置权重。',
+  };
+}
 
 export function auditBaziPatternConditions(
   chart: BaziCalculationResult,

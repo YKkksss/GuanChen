@@ -157,7 +157,7 @@ async function main() {
       id: string; monthDayVisibilityVersionId: string; promptVersion: string;
     } }>(conversationResponse)).conversation;
     assert.ok(conversation.monthDayVisibilityVersionId);
-    assert.equal(conversation.promptVersion, 'bazi-chat-month-day-strength-v16');
+    assert.equal(conversation.promptVersion, 'bazi-chat-month-day-pattern-v17');
     const question = appendBaziMessage({
       conversationId: conversation.id,
       role: 'user',

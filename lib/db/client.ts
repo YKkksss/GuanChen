@@ -2135,6 +2135,60 @@ function migrate(db: Database.Database) {
     applyV39();
   }
 
+  if (!applied.has(40)) {
+    const applyV40 = db.transaction(() => {
+      db.exec(`
+        CREATE TABLE bazi_month_day_pattern_versions (
+          id TEXT PRIMARY KEY,
+          chart_version_id TEXT NOT NULL,
+          pattern_condition_version_id TEXT NOT NULL,
+          month_day_relation_version_id TEXT NOT NULL,
+          month_day_visibility_version_id TEXT NOT NULL,
+          month_day_strength_version_id TEXT NOT NULL,
+          target_date TEXT NOT NULL,
+          methodology_version TEXT NOT NULL,
+          engine_version TEXT NOT NULL,
+          chart_fingerprint TEXT NOT NULL,
+          pattern_condition_fingerprint TEXT NOT NULL,
+          month_day_relation_fingerprint TEXT NOT NULL,
+          month_day_visibility_fingerprint TEXT NOT NULL,
+          month_day_strength_fingerprint TEXT NOT NULL,
+          month_day_pattern_fingerprint TEXT NOT NULL,
+          result_json TEXT NOT NULL,
+          created_at INTEGER NOT NULL,
+          updated_at INTEGER NOT NULL,
+
+          UNIQUE (
+            chart_version_id, pattern_condition_version_id,
+            month_day_relation_version_id, month_day_visibility_version_id,
+            month_day_strength_version_id, target_date,
+            methodology_version, engine_version
+          ),
+          FOREIGN KEY (chart_version_id) REFERENCES bazi_chart_versions(id) ON DELETE CASCADE,
+          FOREIGN KEY (pattern_condition_version_id) REFERENCES bazi_pattern_condition_versions(id) ON DELETE CASCADE,
+          FOREIGN KEY (month_day_relation_version_id) REFERENCES bazi_month_day_relation_versions(id) ON DELETE CASCADE,
+          FOREIGN KEY (month_day_visibility_version_id) REFERENCES bazi_month_day_visibility_versions(id) ON DELETE CASCADE,
+          FOREIGN KEY (month_day_strength_version_id) REFERENCES bazi_month_day_strength_versions(id) ON DELETE CASCADE
+        );
+
+        ALTER TABLE bazi_conversations
+          ADD COLUMN month_day_pattern_version_id TEXT
+          REFERENCES bazi_month_day_pattern_versions(id)
+          ON DELETE SET NULL;
+
+        CREATE INDEX idx_bazi_month_day_pattern_chart_date
+          ON bazi_month_day_pattern_versions(chart_version_id, target_date, updated_at DESC);
+        CREATE INDEX idx_bazi_month_day_pattern_fingerprint
+          ON bazi_month_day_pattern_versions(month_day_pattern_fingerprint);
+        CREATE INDEX idx_bazi_conversations_month_day_pattern
+          ON bazi_conversations(month_day_pattern_version_id);
+      `);
+      db.prepare('INSERT INTO schema_migrations(version, applied_at) VALUES (?, ?)')
+        .run(40, Date.now());
+    });
+    applyV40();
+  }
+
   ensureMessageSearch(db);
 }
 
