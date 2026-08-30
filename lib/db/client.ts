@@ -2257,6 +2257,56 @@ function migrate(db: Database.Database) {
     applyV41();
   }
 
+  if (!applied.has(42)) {
+    const applyV42 = db.transaction(() => {
+      db.exec(`
+        CREATE TABLE report_exports (
+          id TEXT PRIMARY KEY,
+          source_kind TEXT NOT NULL CHECK (source_kind IN ('topic', 'heming', 'annual', 'rectification')),
+          source_report_id TEXT,
+          source_transit_report_id TEXT,
+          source_rectification_report_id TEXT,
+          source_version_id TEXT NOT NULL,
+          source_fingerprint TEXT NOT NULL,
+          renderer_version TEXT NOT NULL,
+          file_name TEXT NOT NULL,
+          relative_path TEXT,
+          mime_type TEXT NOT NULL DEFAULT 'application/pdf' CHECK (mime_type = 'application/pdf'),
+          byte_size INTEGER CHECK (byte_size IS NULL OR byte_size > 0),
+          sha256 TEXT,
+          status TEXT NOT NULL CHECK (status IN ('generating', 'completed', 'failed')),
+          error_code TEXT,
+          created_at INTEGER NOT NULL,
+          updated_at INTEGER NOT NULL,
+          completed_at INTEGER,
+
+          UNIQUE (source_kind, source_version_id, source_fingerprint, renderer_version),
+          CHECK (
+            (source_report_id IS NOT NULL)
+            + (source_transit_report_id IS NOT NULL)
+            + (source_rectification_report_id IS NOT NULL) = 1
+          ),
+          CHECK (
+            (source_kind IN ('topic', 'heming') AND source_report_id IS NOT NULL)
+            OR (source_kind = 'annual' AND source_transit_report_id IS NOT NULL)
+            OR (source_kind = 'rectification' AND source_rectification_report_id IS NOT NULL)
+          ),
+          FOREIGN KEY (source_report_id) REFERENCES reports(id) ON DELETE CASCADE,
+          FOREIGN KEY (source_transit_report_id) REFERENCES transit_reports(id) ON DELETE CASCADE,
+          FOREIGN KEY (source_rectification_report_id) REFERENCES rectification_reports(id) ON DELETE CASCADE
+        );
+
+        CREATE INDEX idx_report_exports_source
+          ON report_exports(source_kind, source_version_id, created_at DESC);
+        CREATE INDEX idx_report_exports_status
+          ON report_exports(status, updated_at DESC);
+      `);
+      db.prepare('INSERT INTO schema_migrations(version, applied_at) VALUES (?, ?)')
+        .run(42, Date.now());
+    });
+    applyV42();
+  }
+
   ensureMessageSearch(db);
 }
 

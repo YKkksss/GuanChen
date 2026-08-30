@@ -4,6 +4,7 @@ import { ArrowLeft, ArrowSquareOut, Printer, SpinnerGap } from '@phosphor-icons/
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { RectificationReportDetail, RectificationReportEvidence } from '@/lib/rectification/report-types';
+import ReportPdfExportButton from '@/components/ReportPdfExportButton';
 
 export default function RectificationReportDetailWorkspace({ sessionId, reportId }: { sessionId: string; reportId: string }) {
   const router = useRouter();
@@ -63,6 +64,7 @@ export default function RectificationReportDetailWorkspace({ sessionId, reportId
             <select value={detail.version?.version ?? ''} onChange={event => void load(Number(event.target.value))} className="rectification-input !w-auto !py-2 text-xs">
               {detail.versions.map(version => <option key={version.id} value={version.version}>v{version.version} · {version.status === 'completed' ? '已完成' : version.status === 'failed' ? '失败' : '生成中'}</option>)}
             </select>
+            {detail.version?.status === 'completed' && content && <ReportPdfExportButton sourceKind="rectification" reportId={reportId} version={detail.version.version} tone="rectification" />}
             <button type="button" className="btn-ghost !px-3 !py-2" disabled={!content} onClick={() => window.print()}><Printer size={16} /> 打印 / PDF</button>
             <button type="button" className="btn-ghost !px-3 !py-2" disabled={Boolean(busy)} onClick={() => void regenerate()}>{busy === 'regenerate' ? <SpinnerGap className="animate-spin" size={16} /> : null}重新生成</button>
             <button type="button" className="btn-accent !px-3 !py-2" disabled={Boolean(busy) || !detail.version?.selectionId} onClick={() => void openConversation()}><ArrowSquareOut size={16} /> {busy === 'conversation' ? '正在创建…' : '进入工作命盘'}</button>

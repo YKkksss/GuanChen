@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import type { ReportDetail, ReportEvidence } from '@/lib/reports/types';
+import ReportPdfExportButton from '@/components/ReportPdfExportButton';
 
 export default function ReportDetailWorkspace({
   conversationId,
@@ -96,6 +97,13 @@ export default function ReportDetailWorkspace({
               </option>
             ))}
           </select>
+          {detail.version?.status === 'completed' && content && (
+            <ReportPdfExportButton
+              sourceKind={conversationType === 'heming' ? 'heming' : 'topic'}
+              reportId={reportId}
+              version={detail.version.version}
+            />
+          )}
           <button
             type="button"
             onClick={() => window.print()}

@@ -1,6 +1,7 @@
 'use client';
 
 import type { AnnualTransitReport } from '@/lib/transits/types';
+import ReportPdfExportButton from '@/components/ReportPdfExportButton';
 
 interface AnnualReportPanelProps {
   year: number;
@@ -30,6 +31,9 @@ export default function AnnualReportPanel({
           </div>
         </div>
         <div className="flex items-center gap-2">
+          {report?.status === 'completed' && hasContent && (
+            <ReportPdfExportButton sourceKind="annual" reportId={report.id} tone="annual" />
+          )}
           {report?.completedAt && !loading && (
             <span className="hidden text-[9px] sm:inline" style={{ color: 'var(--t-faint)' }}>
               {new Date(report.completedAt).toLocaleString('zh-CN', { hour12: false })}
