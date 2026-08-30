@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import Image from 'next/image';
 import type { ZiweiChart, Palace, Star, DaXian } from '@/lib/ziwei/types';
 import { BRANCHES, STEMS } from '@/lib/ziwei/constants';
 import PalaceCell from './PalaceCell';
@@ -114,7 +115,7 @@ export default function ChartBoard({
   const sanFangSet = sanFangBranches ? new Set(sanFangBranches) : null;
 
   return (
-    <div className="w-full select-none">
+    <div className="eastern-chart-board select-none">
       {/* 时间导航轴 */}
       <TimeNav
         chart={chart}
@@ -125,30 +126,27 @@ export default function ChartBoard({
         activeDaXian={currentDx}
       />
 
-      {/* 命盘标题 */}
+      {/* 命盘摘要 */}
       <motion.div
         initial={{ opacity: 0, y: -8 }}
         animate={{ opacity: 1, y: 0 }}
-        className="text-center mb-3"
+        className="eastern-chart-caption"
       >
-        <div className="text-[10px] tracking-[0.5em] uppercase mb-1" style={{ color: 'var(--t-faint)' }}>
-          Zi Wei Dou Shu
+        <div className="eastern-chart-caption-primary">
+          <span>命主：{chart.birthInfo.name || '未命名'}</span>
+          <span>{chart.birthInfo.gender === 'male' ? '男命' : '女命'}</span>
+          <span>{chart.wuxingJuName}</span>
         </div>
-        <h2 className="text-sm tracking-[0.25em] font-medium" style={{ color: 'var(--t-gold)' }}>
-          {chart.birthInfo.name ? `${chart.birthInfo.name} · ` : ''}紫微斗数命盘
-        </h2>
+        <span className="eastern-chart-caption-hint">点击宫位查看三方四正</span>
       </motion.div>
 
       {/* 4x4 命盘网格（含 SVG 叠加层） */}
       <div
-        className="grid rounded-xl overflow-hidden relative"
+        className="eastern-palace-grid grid overflow-hidden relative"
         style={{
           gridTemplateColumns: 'repeat(4, 1fr)',
-          gridTemplateRows: 'repeat(4, auto)',
+          gridTemplateRows: 'repeat(4, minmax(104px, 1fr))',
           gap: '1px',
-          background: 'var(--t-border)',
-          border: '1px solid var(--t-border)',
-          boxShadow: '0 4px 32px rgba(0,0,0,0.15)',
         }}
       >
         {ANIMATION_ORDER.map((branch, i) => {
@@ -156,7 +154,7 @@ export default function ChartBoard({
           const palace = palaceMap[branch];
           if (!palace) return null;
           return (
-            <div key={branch} style={{ gridRow: row, gridColumn: col, background: 'var(--t-bg)' }}>
+            <div key={branch} className="eastern-palace-slot" style={{ gridRow: row, gridColumn: col }}>
               <PalaceCell
                 palace={palace}
                 onClick={() => handlePalaceClick(branch)}
@@ -177,35 +175,33 @@ export default function ChartBoard({
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.5 }}
-          className="flex flex-col items-center justify-center p-4 gap-3"
-          style={{ gridRow: '2 / 4', gridColumn: '2 / 4', background: 'var(--t-bg)' }}
+          className="eastern-chart-center"
+          style={{ gridRow: '2 / 4', gridColumn: '2 / 4' }}
         >
-          <div className="text-5xl select-none leading-none" style={{ color: 'var(--t-gold)', opacity: 0.12, filter: 'drop-shadow(0 0 12px rgba(180,120,30,0.15))' }}>
-            ☯
-          </div>
+          <Image src="/assets/brand/ziwei-seal.png" alt="紫微命盘印章" width={48} height={48} />
 
-          <div className="text-center space-y-1">
-            <div className="text-[9px] tracking-[0.3em] font-medium" style={{ color: 'var(--t-gold)' }}>紫微斗数</div>
-            <div className="text-[10px] space-y-0.5" style={{ color: 'var(--t-faint)' }}>
-              <div>命宫 <span style={{ color: 'var(--t-gold)', opacity: 0.7 }}>{BRANCHES[chart.mingGongBranch]}</span></div>
-              <div>身宫 <span className="text-sky-500/70">{BRANCHES[chart.shenGongBranch]}</span></div>
-              <div className="text-[9px]" style={{ color: 'var(--t-gold)', opacity: 0.75 }}>{chart.wuxingJuName}</div>
+          <div className="eastern-chart-center-copy">
+            <div className="eastern-chart-center-kicker">紫微斗数 · 本命</div>
+            <h2>紫微命盘</h2>
+            <div className="eastern-chart-center-data">
+              <div>{chart.birthInfo.year}年{chart.birthInfo.month}月{chart.birthInfo.day}日</div>
+              <div>命宫在{BRANCHES[chart.mingGongBranch]} · 身宫在{BRANCHES[chart.shenGongBranch]}</div>
+              <div>{chart.wuxingJuName}</div>
             </div>
           </div>
 
           {chart.currentDaXianIndex >= 0 && (() => {
             const dx = chart.daXians[chart.currentDaXianIndex];
             return (
-              <div className="border border-purple-500/30 rounded-lg px-3 py-1.5 text-center"
-                style={{ background: 'rgba(147,51,234,0.06)' }}>
-                <div className="text-[8px] text-purple-500/80 mb-0.5 tracking-wider">当前大限</div>
-                <div className="text-[12px] text-purple-400 font-medium tabular-nums">{dx.startAge}-{dx.endAge}岁</div>
-                <div className="text-[9px] text-purple-500/60">{dx.palaceName}</div>
+              <div className="eastern-current-daxian">
+                <span>当前大限</span>
+                <strong>{dx.startAge}-{dx.endAge}岁</strong>
+                <small>{dx.palaceName}</small>
               </div>
             );
           })()}
 
-          <div className="text-[8px] text-center leading-relaxed font-mono" style={{ color: 'var(--t-faint)', opacity: 0.75 }}>
+          <div className="eastern-lunar-date">
             {chart.lunarInfo.lunarYear}·{chart.lunarInfo.isLeapMonth ? '闰' : ''}
             {chart.lunarInfo.lunarMonth}·{chart.lunarInfo.lunarDay}
           </div>
@@ -240,7 +236,7 @@ export default function ChartBoard({
                   const p2 = BRANCH_SVG_POS[sanFangBranches[2]]; // 三合1
                   const p3 = BRANCH_SVG_POS[sanFangBranches[3]]; // 三合2
                   const dash = "6,5";
-                  const stroke = "rgba(37,99,235,0.55)";
+                   const stroke = "var(--chart-link)";
                   const sw = "1.5";
                   return (
                     <>
@@ -276,7 +272,7 @@ export default function ChartBoard({
                           key={i}
                           cx={`${p[0]}%`} cy={`${p[1]}%`}
                           r="3"
-                          fill={i === 0 ? 'rgba(37,99,235,0.8)' : 'rgba(37,99,235,0.45)'}
+                          fill={i === 0 ? 'var(--chart-link-strong)' : 'var(--chart-link-soft)'}
                         />
                       ))}
                     </>
@@ -293,17 +289,17 @@ export default function ChartBoard({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.7 }}
-        className="mt-3 flex items-center justify-center gap-2 text-[9px] flex-wrap"
+        className="eastern-chart-legend"
       >
         {[
-          { h: '化禄', c: 'text-emerald-500 border-emerald-500/30' },
-          { h: '化权', c: 'text-blue-500 border-blue-500/30' },
-          { h: '化科', c: 'text-yellow-500 border-yellow-500/30' },
-          { h: '化忌', c: 'text-red-500 border-red-500/30' },
+          { h: '化禄', c: 'badge-lu' },
+          { h: '化权', c: 'badge-quan' },
+          { h: '化科', c: 'badge-ke' },
+          { h: '化忌', c: 'badge-ji' },
         ].map(({ h, c }) => (
-          <span key={h} className={`border px-1.5 py-0.5 rounded-full font-medium ${c}`}>{h}</span>
+          <span key={h} className={`eastern-legend-badge ${c}`}>{h}</span>
         ))}
-        <span className="px-1.5 py-0.5 rounded-full" style={{ color: 'var(--t-faint)', border: '1px solid var(--t-border)' }}>
+        <span className="eastern-legend-hint">
           点击宫位看三方四正
         </span>
       </motion.div>

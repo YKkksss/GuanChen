@@ -1,7 +1,7 @@
 'use client';
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Brain, ChatCircleDots, PaperPlaneTilt } from '@phosphor-icons/react';
+import { Brain, ChatCircleDots, PaperPlaneTilt, Sparkle } from '@phosphor-icons/react';
 import { isHiddenSource, type ConversationMessage } from '@/lib/conversations/types';
 import type { ZiweiChart, Palace } from '@/lib/ziwei/types';
 import ContextMemoryPanel from './ContextMemoryPanel';
@@ -166,26 +166,26 @@ const PALACE_ROLES: Record<string, string> = {
 function AiContent({ text, streaming }: { text: string; streaming?: boolean }) {
   const lines = text.split('\n');
   return (
-    <div className="space-y-0.5">
+    <div className="eastern-ai-content">
       {lines.map((line, i) => {
         const sectionMatch = line.match(/^\*\*【(.+?)】\*\*$/);
         if (sectionMatch) {
           return (
-            <div key={i} className="pt-3 pb-0.5 first:pt-0">
-              <span className="text-[11px] font-semibold tracking-wide" style={{ color: 'var(--t-gold)' }}>
+            <div key={i} className="eastern-ai-section">
+              <span>
                 【{sectionMatch[1]}】
               </span>
             </div>
           );
         }
-        if (line.trim() === '') return <div key={i} className="h-1" />;
+        if (line.trim() === '') return <div key={i} className="eastern-ai-spacer" />;
         const parts = line.split(/\*\*(.+?)\*\*/);
         return (
-          <div key={i} className="text-[11px] leading-relaxed" style={{ color: 'var(--t-text2)' }}>
+          <div key={i} className="eastern-ai-line">
             {parts.map((part, j) =>
               j % 2 === 0
                 ? part
-                : <strong key={j} className="font-medium" style={{ color: 'var(--t-text)' }}>{part}</strong>
+                : <strong key={j}>{part}</strong>
             )}
           </div>
         );
@@ -406,7 +406,7 @@ ${selectedSiHua.starName}化${selectedSiHua.siHua}落在【${palaceName}】，�
   };
 
   return (
-    <div className="relative flex h-[70dvh] min-h-[520px] flex-col overflow-hidden rounded-xl card-glass lg:h-[clamp(540px,calc(100dvh-8rem),820px)] lg:min-h-0">
+    <div className="eastern-insight-panel">
 
       <ContextMemoryPanel
         conversationId={conversationId}
@@ -415,36 +415,35 @@ ${selectedSiHua.starName}化${selectedSiHua.siHua}落在【${palaceName}】，�
       />
 
       {/* ── Chat header ── */}
-      <div className="flex flex-shrink-0 items-center justify-between gap-3 px-3.5 py-3" style={{ borderBottom: '1px solid var(--t-border)' }}>
-        <div className="flex min-w-0 items-center gap-2">
-          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg" style={{ color: 'var(--t-gold)', background: 'rgba(212,168,67,0.10)' }}>
+      <div className="eastern-insight-header">
+        <div className="eastern-insight-heading">
+          <span className="eastern-insight-icon">
             <ChatCircleDots size={16} weight="fill" aria-hidden="true" />
           </span>
           <div className="min-w-0">
-            <div className="truncate text-[12px] font-medium" style={{ color: 'var(--t-text)' }}>
+            <div className="eastern-insight-title">
               {transitContext ? `${transitContext.targetDate} 年 AI 解读` : 'AI 命理解读'}
             </div>
-            <div className="text-[9px]" style={{ color: 'var(--t-faint)' }}>对话内容自动保存</div>
+            <div className="eastern-insight-subtitle">融合东方智慧与结构化分析</div>
           </div>
         </div>
-        <div className="flex shrink-0 items-center gap-2">
+        <div className="eastern-insight-status">
           <button
             onClick={() => setMemoryPanelOpen(true)}
-            className="flex items-center gap-1 rounded-md px-2 py-1 text-[9px] transition-colors"
-            style={{ color: 'var(--t-faint)', border: '1px solid var(--t-border)' }}
+            className="eastern-memory-button"
             title="管理对话记忆"
           >
             <Brain size={12} />记忆
           </button>
-          <span className="text-[9px]" style={{ color: loading ? 'var(--t-gold)' : 'var(--t-faint)' }}>
+          <span className={loading ? 'is-loading' : ''}>
             {loading ? '正在生成' : '可以继续追问'}
           </span>
         </div>
       </div>
 
       {/* ── Topic buttons ── */}
-      <div className="flex-shrink-0 px-2 pt-2.5 pb-2" style={{ borderBottom: '1px solid var(--t-border)' }}>
-        <div className="grid grid-cols-6 gap-1">
+      <div className="eastern-topic-bar">
+        <div className="eastern-topic-grid">
           {TOPICS.map(t => {
             const isActive = activeTopic === t.key;
             return (
@@ -452,12 +451,7 @@ ${selectedSiHua.starName}化${selectedSiHua.siHua}落在【${palaceName}】，�
                 key={t.key}
                 onClick={() => handleTopicClick(t.key)}
                 disabled={loading}
-                className="py-1.5 text-[10px] font-medium rounded-lg transition-all duration-150 disabled:opacity-40"
-                style={{
-                  background: isActive ? 'rgba(212,168,67,0.12)' : 'transparent',
-                  border: `1px solid ${isActive ? 'rgba(212,168,67,0.3)' : 'var(--t-border)'}`,
-                  color: isActive ? 'var(--t-gold)' : 'var(--t-faint)',
-                }}
+                className={`eastern-topic-button ${isActive ? 'is-active' : ''}`}
               >
                 {t.label}
               </button>
@@ -467,13 +461,13 @@ ${selectedSiHua.starName}化${selectedSiHua.siHua}落在【${palaceName}】，�
       </div>
 
       {/* ── Messages ── */}
-      <div ref={scrollRef} className="min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-contain p-4 scroll-smooth">
+      <div ref={scrollRef} className="eastern-message-list">
 
         {/* Loading state before first message */}
         {messages.length === 0 && (
-          <div className="flex flex-col items-center justify-center h-full text-center">
-            <div className="text-4xl mb-3" style={{ color: 'var(--t-gold)', opacity: 0.1 }}>✦</div>
-            <p className="text-[10px]" style={{ color: 'var(--t-faint)' }}>
+          <div className="eastern-message-empty">
+            <Sparkle size={28} weight="duotone" aria-hidden="true" />
+            <p>
               {loading ? '命理解读生成中…' : '可从下方输入问题开始分析'}
             </p>
           </div>
@@ -492,12 +486,7 @@ ${selectedSiHua.starName}化${selectedSiHua.siHua}落在【${palaceName}】，�
                   className="flex justify-end"
                 >
                   <div
-                    className="max-w-[85%] rounded-xl px-3 py-2 text-[11px]"
-                    style={{
-                      background: 'rgba(212,168,67,0.08)',
-                      border: '1px solid rgba(212,168,67,0.18)',
-                      color: 'var(--t-gold)',
-                    }}
+                    className="eastern-user-message"
                   >
                     {msg.content}
                   </div>
@@ -512,12 +501,10 @@ ${selectedSiHua.starName}化${selectedSiHua.siHua}落在【${palaceName}】，�
                 key={i}
                 initial={{ opacity: 0, y: 6 }}
                 animate={{ opacity: 1, y: 0 }}
+                className="eastern-assistant-message"
               >
-                <div
-                  className="text-[9px] tracking-widest mb-2 flex items-center gap-1.5"
-                  style={{ color: 'var(--t-faint)' }}
-                >
-                  <span style={{ color: 'var(--t-gold)', opacity: 0.4 }}>✦</span>
+                <div className="eastern-assistant-label">
+                  <Sparkle size={12} weight="fill" aria-hidden="true" />
                   命理解读
                 </div>
                 <AiContent text={msg.content} streaming={loading && isLastMsg} />
@@ -530,8 +517,8 @@ ${selectedSiHua.starName}化${selectedSiHua.siHua}落在【${palaceName}】，�
       <LifeEventCandidateInbox conversationId={conversationId} />
 
       {/* ── Input ── */}
-      <div className="flex-shrink-0 px-3 pb-3 pt-2.5" style={{ borderTop: '1px solid var(--t-border)', background: 'var(--t-card)' }}>
-        <div className="flex items-end gap-2">
+      <div className="eastern-chat-composer">
+        <div className="eastern-chat-composer-row">
           <textarea
             rows={2}
             value={input}
@@ -544,29 +531,19 @@ ${selectedSiHua.starName}化${selectedSiHua.siHua}落在【${palaceName}】，�
             }}
             placeholder={transitContext ? `询问 ${transitContext.targetDate} 年的事业、感情或财运…` : '继续追问，如：今年适合换工作吗？'}
             disabled={loading}
-            className="min-h-[52px] flex-1 resize-none rounded-lg px-3 py-2 text-[11px] leading-relaxed transition-colors focus:outline-none disabled:opacity-60"
-            style={{
-              background: 'var(--t-card)',
-              border: '1px solid var(--t-border)',
-              color: 'var(--t-text)',
-            }}
+            className="eastern-chat-input"
           />
           <button
             onClick={handleSend}
             disabled={loading || !input.trim()}
             aria-label="发送消息"
             title="发送消息"
-            className="flex h-[52px] w-11 shrink-0 items-center justify-center rounded-lg transition-all active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-30"
-            style={{
-              background: 'rgba(212,168,67,0.15)',
-              border: '1px solid rgba(212,168,67,0.25)',
-              color: 'var(--t-gold)',
-            }}
+            className="eastern-chat-send"
           >
             {loading ? <span className="text-[11px]">…</span> : <PaperPlaneTilt size={17} weight="fill" aria-hidden="true" />}
           </button>
         </div>
-        <div className="mt-1.5 px-0.5 text-[9px]" style={{ color: 'var(--t-faint)' }}>
+        <div className="eastern-chat-hint">
           Enter 发送，Shift + Enter 换行
         </div>
       </div>

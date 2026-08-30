@@ -1,5 +1,6 @@
 'use client';
 import { motion } from 'framer-motion';
+import { CaretLeft, CaretRight } from '@phosphor-icons/react';
 import { STEMS, SI_HUA_TABLE } from '@/lib/ziwei/constants';
 import type { DaXian, ZiweiChart } from '@/lib/ziwei/types';
 
@@ -76,12 +77,9 @@ export default function TimeNav({
   const overlayInfo = getOverlayInfo();
 
   return (
-    <div className="mb-3">
+    <div className="eastern-time-navigation">
       {/* Tab 行 */}
-      <div
-        className="flex items-center rounded-xl p-1 gap-1"
-        style={{ background: 'var(--t-surface)', border: '1px solid var(--t-border)' }}
-      >
+      <div className="eastern-time-tabs">
         {/* 本命 */}
         <TabButton
           active={view === 'mingpan'}
@@ -99,46 +97,32 @@ export default function TimeNav({
         </TabButton>
 
         {/* 流年，含年份切换 */}
-        <div
-          className="relative flex-1 flex items-center justify-center rounded-lg py-1.5 gap-1 transition-all duration-200"
-          style={{
-            background: view === 'liunian'
-              ? 'rgba(212,168,67,0.12)'
-              : 'transparent',
-            border: view === 'liunian'
-              ? '1px solid rgba(212,168,67,0.25)'
-              : '1px solid transparent',
-          }}
-        >
+        <div className={`eastern-year-tab ${view === 'liunian' ? 'is-active' : ''}`}>
           <button
             onClick={() => onViewChange('liunian')}
-            className="text-[10px] font-medium flex-1 text-center"
-            style={{ color: view === 'liunian' ? 'var(--t-gold)' : 'var(--t-faint)' }}
+            className="eastern-year-label"
           >
             流年
           </button>
           {/* 年份 +/- */}
-          <div className="flex items-center gap-0.5">
+          <div className="eastern-year-control">
             <button
               onClick={e => { e.stopPropagation(); onYearChange(liunianYear - 1); if (view !== 'liunian') onViewChange('liunian'); }}
-              className="text-[9px] w-4 h-4 flex items-center justify-center rounded"
-              style={{ color: 'var(--t-faint)' }}
+              aria-label="上一年"
             >
-              ‹
+              <CaretLeft size={12} aria-hidden="true" />
             </button>
             <span
-              className="text-[10px] font-mono min-w-[28px] text-center cursor-pointer"
-              style={{ color: view === 'liunian' ? 'var(--t-gold)' : 'var(--t-faint)' }}
+              className="eastern-year-value"
               onClick={() => onViewChange('liunian')}
             >
               {liunianYear}
             </span>
             <button
               onClick={e => { e.stopPropagation(); onYearChange(liunianYear + 1); if (view !== 'liunian') onViewChange('liunian'); }}
-              className="text-[9px] w-4 h-4 flex items-center justify-center rounded"
-              style={{ color: 'var(--t-faint)' }}
+              aria-label="下一年"
             >
-              ›
+              <CaretRight size={12} aria-hidden="true" />
             </button>
           </div>
         </div>
@@ -150,16 +134,16 @@ export default function TimeNav({
           initial={{ opacity: 0, y: -4 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.2 }}
-          className="flex items-center gap-2 mt-1.5 px-1 flex-wrap"
+          className="eastern-overlay-info"
         >
-          <span className="text-[9px]" style={{ color: 'var(--t-faint)' }}>
+          <span>
             {view === 'daxian' ? '大限' : `${liunianYear}`}·{overlayInfo.stemName}年四化：
           </span>
           {(['禄', '权', '科', '忌'] as const).map(sh => {
             const starName = Object.keys(overlayInfo.overlay).find(k => overlayInfo.overlay[k] === sh);
             if (!starName) return null;
             return (
-              <span key={sh} className="text-[9px] font-medium" style={{ color: SIHUA_COLORS[sh] }}>
+              <span key={sh} className="eastern-overlay-item" style={{ color: SIHUA_COLORS[sh] }}>
                 {starName}化{sh}
               </span>
             );
@@ -182,12 +166,7 @@ function TabButton({
   return (
     <button
       onClick={onClick}
-      className="flex-1 py-1.5 text-[10px] font-medium rounded-lg transition-all duration-200"
-      style={{
-        background: active ? 'rgba(212,168,67,0.12)' : 'transparent',
-        color: active ? 'var(--t-gold)' : 'var(--t-faint)',
-        border: active ? '1px solid rgba(212,168,67,0.25)' : '1px solid transparent',
-      }}
+      className={`eastern-time-tab ${active ? 'is-active' : ''}`}
     >
       {children}
     </button>

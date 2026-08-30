@@ -2,6 +2,15 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
+import {
+  BookOpen,
+  CalendarDots,
+  ClockCounterClockwise,
+  FileText,
+  GraduationCap,
+  TrendUp,
+} from '@phosphor-icons/react';
 import BirthForm from '@/components/BirthForm';
 import ChartBoard from '@/components/ChartBoard';
 import ConversationHistory from '@/components/ConversationHistory';
@@ -104,34 +113,78 @@ export default function ChartWorkspace({ conversationId }: ChartWorkspaceProps) 
   };
 
   return (
-    <main className="mx-auto max-w-[1800px] px-3 py-4 md:px-4">
-      <div className={`grid grid-cols-1 items-start gap-4 ${historyCollapsed ? 'xl:grid-cols-[64px_minmax(0,1fr)]' : 'xl:grid-cols-[260px_minmax(0,1fr)]'}`}>
+    <main className="eastern-workbench">
+      <header className="eastern-app-header">
+        <button type="button" className="eastern-brand" onClick={() => router.push('/')} aria-label="返回首页">
+          <Image src="/assets/brand/ziwei-seal.png" alt="紫微命盘印章" width={38} height={38} priority />
+          <span className="eastern-brand-copy">
+            <strong>紫微命盘</strong>
+            <small>东方书院 · 知命而行</small>
+          </span>
+        </button>
+
+        <nav className="eastern-app-actions" aria-label="命盘功能导航">
+          <button type="button" onClick={() => router.push('/learn')}>
+            <BookOpen size={16} aria-hidden="true" />
+            <span>学习中心</span>
+          </button>
+          {chart && (
+            <button type="button" onClick={toggleLearningMode} aria-pressed={learningMode} className={learningMode ? 'is-active' : ''}>
+              <GraduationCap size={16} aria-hidden="true" />
+              <span>{learningMode ? '退出学习' : '学习模式'}</span>
+            </button>
+          )}
+          {conversationId && (
+            <>
+              <button type="button" onClick={() => router.push(`/chart/${conversationId}/reports`)}>
+                <FileText size={16} aria-hidden="true" />
+                <span>专题报告</span>
+              </button>
+              <button type="button" onClick={() => router.push(`/chart/${conversationId}/events`)}>
+                <CalendarDots size={16} aria-hidden="true" />
+                <span>人生事件</span>
+              </button>
+              <button type="button" onClick={() => router.push(`/chart/${conversationId}/timeline`)}>
+                <TrendUp size={16} aria-hidden="true" />
+                <span>年度分析</span>
+              </button>
+              <button type="button" onClick={() => router.push(`/rectification?conversationId=${conversationId}`)}>
+                <ClockCounterClockwise size={16} aria-hidden="true" />
+                <span>校正时辰</span>
+              </button>
+            </>
+          )}
+        </nav>
+      </header>
+
+      <div className={`eastern-shell ${historyCollapsed ? 'is-history-collapsed' : ''}`}>
         <ConversationHistory
           activeConversationId={conversationId}
           collapsed={historyCollapsed}
           onToggle={toggleHistory}
         />
 
-        <section className="min-w-0">
+        <section className="eastern-main">
           {loading && (
-            <div className="rounded-xl card-glass py-24 text-center text-sm" style={{ color: 'var(--t-faint)' }}>
+            <div className="eastern-state-panel">
               正在恢复命盘与聊天记录…
             </div>
           )}
 
           {!loading && error && !chart && (
-            <div className="rounded-xl card-glass py-20 px-6 text-center">
-              <div className="text-sm" style={{ color: 'var(--t-text)' }}>{error}</div>
-              <button onClick={() => router.push('/chart')} className="mt-5 text-xs" style={{ color: 'var(--t-gold)' }}>
+            <div className="eastern-state-panel">
+              <div>{error}</div>
+              <button onClick={() => router.push('/chart')} className="eastern-text-action">
                 返回并重新起盘
               </button>
             </div>
           )}
 
           {!loading && !chart && !error && (
-            <div style={{ maxWidth: 720, margin: '0 auto', padding: '24px 0 48px' }}>
-              <h1 style={{ fontSize: 28, fontWeight: 700, marginBottom: 8 }}>紫微斗数排盘</h1>
-              <p style={{ color: '#888', marginBottom: 32, fontSize: 14, lineHeight: 1.7 }}>
+            <div className="eastern-birth-panel">
+              <div className="eastern-page-kicker">建立命档</div>
+              <h1>紫微斗数排盘</h1>
+              <p>
                 输入出生信息后会建立一份本地历史会话，刷新或退出后仍可继续查看和追问。
               </p>
               <BirthForm onSubmit={createChartConversation} loading={creating} />
@@ -140,76 +193,11 @@ export default function ChartWorkspace({ conversationId }: ChartWorkspaceProps) 
 
           {!loading && chart && conversationId && (
             <>
-              <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-                <button
-                  type="button"
-                  onClick={() => router.push('/chart')}
-                  className="whitespace-nowrap"
-                  style={{
-                    padding: '6px 14px', cursor: 'pointer', border: '1px solid #ccc',
-                    borderRadius: 8, background: 'transparent',
-                  }}
-                >
-                  ← 重新起盘
-                </button>
-                <div className="flex flex-wrap items-center justify-end gap-2">
-                  <button
-                    type="button"
-                    onClick={() => router.push('/learn')}
-                    className="whitespace-nowrap rounded-lg px-3 py-1.5 text-[11px]"
-                    style={{ color: 'var(--t-text)', border: '1px solid var(--t-border)' }}
-                  >
-                    学习中心
-                  </button>
-                  <button
-                    type="button"
-                    onClick={toggleLearningMode}
-                    className="whitespace-nowrap rounded-lg px-3 py-1.5 text-[11px]"
-                    style={{ color: learningMode ? '#fff8e8' : 'var(--t-gold)', border: '1px solid rgba(212,168,67,0.35)', background: learningMode ? 'linear-gradient(135deg,#9a6210,#c88020)' : 'rgba(212,168,67,.04)' }}
-                  >
-                    {learningMode ? '退出学习模式' : '学习模式'}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => router.push(`/chart/${conversationId}/reports`)}
-                    className="whitespace-nowrap rounded-lg px-3 py-1.5 text-[11px]"
-                    style={{ color: 'var(--t-text)', border: '1px solid var(--t-border)' }}
-                  >
-                    专题报告
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => router.push(`/chart/${conversationId}/events`)}
-                    className="whitespace-nowrap rounded-lg px-3 py-1.5 text-[11px]"
-                    style={{ color: 'var(--t-text)', border: '1px solid var(--t-border)' }}
-                  >
-                    人生事件
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => router.push(`/chart/${conversationId}/timeline`)}
-                    className="whitespace-nowrap rounded-lg px-3 py-1.5 text-[11px]"
-                    style={{ color: 'var(--t-gold)', border: '1px solid rgba(212,168,67,0.28)' }}
-                  >
-                    年度分析 →
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => router.push(`/rectification?conversationId=${conversationId}`)}
-                    className="whitespace-nowrap rounded-lg px-3 py-1.5 text-[11px]"
-                    style={{ color: 'var(--t-gold)', border: '1px solid rgba(212,168,67,0.28)' }}
-                  >
-                    校正时辰
-                  </button>
-                  <span className="whitespace-nowrap text-[10px]" style={{ color: 'var(--t-faint)' }}>
-                    已自动保存到本地历史
-                  </span>
-                </div>
-              </div>
-
-              <div className={`mt-4 grid items-start gap-4 ${learningMode ? 'lg:grid-cols-[minmax(0,1fr)_minmax(380px,440px)]' : 'lg:grid-cols-[minmax(0,1fr)_minmax(340px,390px)]'}`}>
-                <ChartBoard chart={chart} selectedBranch={selectedPalace?.branch ?? null} onPalaceSelect={setSelectedPalace} />
-                <div className="min-w-0 lg:sticky lg:top-4">
+              <div className={`eastern-content-grid ${learningMode ? 'is-learning-mode' : ''}`}>
+                <section className="eastern-chart-region" aria-label="紫微斗数命盘">
+                  <ChartBoard chart={chart} selectedBranch={selectedPalace?.branch ?? null} onPalaceSelect={setSelectedPalace} />
+                </section>
+                <aside className="eastern-insight-region" aria-label={learningMode ? '学习解读' : 'AI 命理解读'}>
                   {learningMode && selectedPalace ? (
                     <LearningPanel
                       conversationId={conversationId}
@@ -225,7 +213,7 @@ export default function ChartWorkspace({ conversationId }: ChartWorkspaceProps) 
                       selectedPalace={selectedPalace}
                     />
                   )}
-                </div>
+                </aside>
               </div>
             </>
           )}

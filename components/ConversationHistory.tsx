@@ -66,29 +66,23 @@ export default function ConversationHistory({
   };
 
   return (
-    <aside className="rounded-xl card-glass overflow-hidden xl:sticky xl:top-4">
-      <div
-        className={`flex items-center gap-2 p-3 ${collapsed ? 'xl:flex-col' : 'justify-between'}`}
-        style={{ borderBottom: '1px solid var(--t-border)' }}
-      >
-        <div className={`min-w-0 flex-1 ${collapsed ? 'xl:hidden' : ''}`}>
-          <div>
-            <div className="text-sm font-semibold" style={{ color: 'var(--t-text)' }}>{historyTitle}</div>
-            <div className="text-[10px] mt-1" style={{ color: 'var(--t-faint)' }}>数据仅保存在这台设备</div>
-          </div>
+    <aside className={`eastern-history ${collapsed ? 'is-collapsed' : ''}`}>
+      <div className="eastern-history-head">
+        <div className="eastern-history-title">
+          <strong>{historyTitle}</strong>
+          <span>本地命档 · 自动保存</span>
         </div>
 
-        <div className={`flex shrink-0 gap-1.5 ${collapsed ? 'xl:flex-col' : ''}`}>
+        <div className="eastern-history-tools">
           <button
             type="button"
             onClick={() => router.push(basePath)}
             title={conversationType === 'heming' ? '新建合盘' : '新建命盘'}
             aria-label={conversationType === 'heming' ? '新建合盘' : '新建命盘'}
-            className={`flex h-8 items-center justify-center gap-1 rounded-lg text-[11px] transition-colors active:scale-[0.98] ${collapsed ? 'w-8 xl:px-0' : 'px-2.5'}`}
-            style={{ color: 'var(--t-gold)', border: '1px solid rgba(212,168,67,0.25)' }}
+            className="eastern-new-chart"
           >
             <Plus size={15} weight="bold" aria-hidden="true" />
-            <span className={collapsed ? 'xl:hidden' : ''}>新建</span>
+            <span>{conversationType === 'heming' ? '新建合盘' : '新建命盘'}</span>
           </button>
           <button
             type="button"
@@ -96,15 +90,14 @@ export default function ConversationHistory({
             title={collapsed ? '展开历史对话' : '收起历史对话'}
             aria-label={collapsed ? '展开历史对话' : '收起历史对话'}
             aria-expanded={!collapsed}
-            className="hidden h-8 w-8 items-center justify-center rounded-lg transition-colors active:scale-[0.98] xl:flex"
-            style={{ color: 'var(--t-faint)', border: '1px solid var(--t-border)' }}
+            className="eastern-history-toggle"
           >
             <SidebarSimple size={17} weight={collapsed ? 'fill' : 'regular'} aria-hidden="true" />
           </button>
         </div>
       </div>
 
-      <div className="max-h-[70vh] space-y-1.5 overflow-y-auto p-2 overscroll-contain xl:max-h-[calc(100dvh-7rem)]">
+      <div className="eastern-history-list">
         {loading && <HistoryHint text={collapsed ? '…' : '正在读取历史记录…'} compact={collapsed} />}
         {!loading && error && <HistoryHint text={collapsed ? '!' : error} compact={collapsed} />}
         {!loading && !error && items.length === 0 && (
@@ -116,41 +109,36 @@ export default function ConversationHistory({
           return (
             <div
               key={item.id}
-              className="group rounded-lg transition-colors"
-              style={{
-                background: active ? 'rgba(212,168,67,0.10)' : 'transparent',
-                border: `1px solid ${active ? 'rgba(212,168,67,0.24)' : 'transparent'}`,
-              }}
+              className={`eastern-history-item group ${active ? 'is-active' : ''}`}
             >
               <button
                 type="button"
                 title={item.title}
                 aria-label={`打开会话：${item.title}`}
                 onClick={() => router.push(`${basePath}/${item.id}`)}
-                className={`mx-auto my-1 h-9 w-9 items-center justify-center rounded-lg transition-colors active:scale-[0.98] ${collapsed ? 'hidden xl:flex' : 'hidden'}`}
-                style={{ color: active ? 'var(--t-gold)' : 'var(--t-faint)' }}
+                className="eastern-history-icon"
               >
                 <ChatCircleDots size={18} weight={active ? 'fill' : 'regular'} aria-hidden="true" />
               </button>
 
-              <div className={collapsed ? 'xl:hidden' : ''}>
+              <div className="eastern-history-copy">
               <button
                 type="button"
                 onClick={() => router.push(`${basePath}/${item.id}`)}
-                className="block w-full text-left px-3 pt-2.5 pb-1"
+                className="eastern-history-open"
               >
-                <div className="text-[12px] truncate" style={{ color: active ? 'var(--t-gold)' : 'var(--t-text)' }}>
+                <div className="eastern-history-item-title">
                   {item.title}
                 </div>
-                <div className="text-[10px] mt-1 truncate" style={{ color: 'var(--t-faint)' }}>
+                <div className="eastern-history-preview">
                   {item.lastMessagePreview || (conversationType === 'heming' ? '双方命盘已保存' : '等待首次解读')}
                 </div>
               </button>
-              <div className="px-3 pb-2 flex items-center justify-between text-[9px]" style={{ color: 'var(--t-faint)' }}>
+              <div className="eastern-history-meta">
                 <span>{formatRelativeTime(item.updatedAt)} · {item.messageCount} 条消息</span>
-                <span className="flex gap-2 opacity-70 group-hover:opacity-100">
-                  <button type="button" onClick={() => renameConversation(item)} className="hover:underline">重命名</button>
-                  <button type="button" onClick={() => removeConversation(item)} className="hover:underline">删除</button>
+                <span className="eastern-history-item-actions">
+                  <button type="button" onClick={() => renameConversation(item)}>重命名</button>
+                  <button type="button" onClick={() => removeConversation(item)}>删除</button>
                 </span>
               </div>
               </div>
@@ -164,10 +152,7 @@ export default function ConversationHistory({
 
 function HistoryHint({ text, compact }: { text: string; compact?: boolean }) {
   return (
-    <div
-      className={`text-center text-[10px] leading-relaxed ${compact ? 'xl:px-0 xl:py-5' : 'px-3 py-8'}`}
-      style={{ color: 'var(--t-faint)' }}
-    >
+    <div className={`eastern-history-hint ${compact ? 'is-compact' : ''}`}>
       {text}
     </div>
   );
