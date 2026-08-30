@@ -5,18 +5,18 @@ import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 
 export const metadata: Metadata = {
-  title: '紫微命盘 · 倪海夏正宗紫微斗数',
-  description: '基于倪海夏正宗紫微斗数体系，AI深度解读您的命盘格局、大限流年、感情事业财富健康全方位解析',
+  title: '紫微命盘 · 东方书院',
+  description: '从本命、大限到流年，以可复核的紫微斗数排盘与 AI 解读，建立一份可持续回看的本地人生档案。',
   keywords: '紫微斗数, 倪海夏, 倪海厦, 紫微斗数全集, 紫微斗数全书, 骨髓赋, 命盘, 命理, 14主星, 12宫位',
   metadataBase: new URL('https://wdyziweidoushu666.com'),
   alternates: {
     canonical: '/',
   },
   openGraph: {
-    title: '紫微命盘 · 倪海夏正宗紫微斗数',
-    description: '基于倪海夏正宗紫微斗数体系，AI深度解读您的命盘格局、大限流年、感情事业财富健康全方位解析',
+    title: '紫微命盘 · 东方书院',
+    description: '从本命、大限到流年，以可复核的紫微斗数排盘与 AI 解读，建立一份可持续回看的本地人生档案。',
     url: 'https://wdyziweidoushu666.com',
-    siteName: '紫微研究',
+    siteName: '紫微命盘 · 东方书院',
     locale: 'zh_CN',
     type: 'website',
   },

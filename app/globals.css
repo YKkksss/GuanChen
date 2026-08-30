@@ -128,6 +128,10 @@ body {
   line-height: 1.6;
 }
 
+body.eastern-home-body {
+  background: #f3eee4;
+}
+
 /* ─── 滚动条 ─────────────────────────────────────────────── */
 ::-webkit-scrollbar { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: var(--bg-1); }

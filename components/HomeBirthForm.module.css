@@ -1,0 +1,254 @@
+.form {
+  width: 100%;
+  color: #2a241f;
+}
+
+.heading {
+  margin-bottom: 26px;
+}
+
+.heading p {
+  margin: 0 0 8px;
+  color: #a43f31;
+  font-family: 'Noto Serif SC', 'Songti SC', 'STSong', 'SimSun', serif;
+  font-size: 10px;
+  letter-spacing: 0.32em;
+}
+
+.heading h2 {
+  margin: 0;
+  font-family: 'Noto Serif SC', 'Songti SC', 'STSong', 'SimSun', serif;
+  font-size: clamp(26px, 2vw, 34px);
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: 0.06em;
+}
+
+.heading > span {
+  display: block;
+  margin-top: 7px;
+  color: #8b8175;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+}
+
+.field,
+.fieldset {
+  margin: 0 0 15px;
+  padding: 0;
+  border: 0;
+}
+
+.field label,
+.fieldset legend {
+  display: block;
+  margin-bottom: 7px;
+  color: #514941;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.field label span {
+  margin-left: 5px;
+  color: #9a9084;
+  font-size: 10px;
+  font-weight: 400;
+}
+
+.control {
+  min-height: 46px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 0 13px;
+  border: 1px solid #ded3c2;
+  border-radius: 7px;
+  background: rgba(255, 253, 248, 0.78);
+  color: #918679;
+  transition: border-color 160ms ease, box-shadow 160ms ease, background 160ms ease;
+}
+
+.control:focus-within {
+  border-color: rgba(164, 63, 49, 0.55);
+  background: #fffdf8;
+  box-shadow: 0 0 0 3px rgba(164, 63, 49, 0.07);
+}
+
+.control input,
+.control select {
+  min-width: 0;
+  flex: 1;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: #2a241f;
+  font-family: inherit;
+  font-size: 13px;
+}
+
+.control input::placeholder {
+  color: #aaa095;
+}
+
+.control select {
+  width: 100%;
+  cursor: pointer;
+}
+
+.controlDisabled {
+  opacity: 0.52;
+}
+
+.genderGroup {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.gender,
+.genderActive {
+  height: 42px;
+  border: 1px solid #ded3c2;
+  border-radius: 7px;
+  background: rgba(255, 253, 248, 0.62);
+  color: #786e63;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 12px;
+  transition: color 160ms ease, border-color 160ms ease, background 160ms ease, transform 120ms ease;
+}
+
+.gender:hover,
+.genderActive:hover {
+  border-color: rgba(164, 63, 49, 0.35);
+}
+
+.gender:active,
+.genderActive:active,
+.submit:active {
+  transform: scale(0.98);
+}
+
+.genderActive {
+  border-color: rgba(164, 63, 49, 0.42);
+  background: rgba(164, 63, 49, 0.08);
+  color: #9d342a;
+  font-weight: 700;
+}
+
+.labelRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.unknownTime {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 5px;
+  margin: 0 !important;
+  color: #8b8175 !important;
+  cursor: pointer;
+  font-size: 10px !important;
+  font-weight: 400 !important;
+}
+
+.unknownTime input {
+  accent-color: #a43f31;
+}
+
+.solarTime {
+  flex: 0 0 auto;
+  color: #9a672d;
+  font-size: 9px;
+}
+
+.locationGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.locationGrid .control:last-child {
+  padding-left: 10px;
+}
+
+.error {
+  margin: -2px 0 12px;
+  color: #a43f31;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.submit {
+  width: 100%;
+  min-height: 50px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 3px;
+  border: 1px solid #923429;
+  border-radius: 7px;
+  background: #a43f31;
+  color: #fffaf4;
+  cursor: pointer;
+  font-family: 'Noto Serif SC', 'Songti SC', 'STSong', 'SimSun', serif;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  box-shadow: 0 8px 24px rgba(105, 48, 37, 0.14);
+  transition: background 160ms ease, box-shadow 160ms ease, transform 120ms ease;
+}
+
+.submit:hover {
+  background: #91372b;
+  box-shadow: 0 10px 28px rgba(105, 48, 37, 0.19);
+}
+
+.submit:disabled {
+  cursor: wait;
+  opacity: 0.62;
+}
+
+.spinner {
+  animation: form-spin 800ms linear infinite;
+}
+
+.privacy {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  margin: 10px 0 0;
+  color: #978d81;
+  font-size: 9px;
+}
+
+@keyframes form-spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (max-width: 520px) {
+  .locationGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .solarTime {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation-duration: 1.5s;
+  }
+
+  .control,
+  .gender,
+  .genderActive,
+  .submit {
+    transition: none;
+  }
+}
