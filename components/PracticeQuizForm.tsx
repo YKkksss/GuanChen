@@ -78,7 +78,7 @@ export default function PracticeQuizForm({
         </div>
       )}
 
-      <button type="button" disabled={submitting} onClick={submit} className="mt-6 w-full rounded-lg px-5 py-3 text-xs disabled:cursor-not-allowed disabled:opacity-50" style={{ color: '#fff8e8', background: 'linear-gradient(135deg,#9a6210,#c88020)' }}>
+      <button type="button" disabled={submitting} onClick={submit} className="mt-6 w-full rounded-lg px-5 py-3 text-xs disabled:cursor-not-allowed disabled:opacity-50" style={{ color: '#fffaf3', background: 'var(--ac)' }}>
         {submitting ? '正在确定性批改…' : grade ? '重新提交练习' : '提交全部答案'}
       </button>
     </>

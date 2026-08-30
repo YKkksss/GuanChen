@@ -16,6 +16,7 @@ import ChartBoard from '@/components/ChartBoard';
 import ConversationHistory from '@/components/ConversationHistory';
 import InsightPanel from '@/components/InsightPanel';
 import LearningPanel from '@/components/LearningPanel';
+import ResultNotice from '@/components/eastern/ResultNotice';
 import { generateChart } from '@/lib/ziwei/algorithm';
 import type { Conversation, ConversationMessage } from '@/lib/conversations/types';
 import type { BirthInfo, Palace, ZiweiChart } from '@/lib/ziwei/types';
@@ -165,6 +166,11 @@ export default function ChartWorkspace({ conversationId }: ChartWorkspaceProps) 
         />
 
         <section className="eastern-main">
+          {conversationId && (
+            <div className="eastern-result-notice">
+              <ResultNotice compact />
+            </div>
+          )}
           {loading && (
             <div className="eastern-state-panel">
               正在恢复命盘与聊天记录…

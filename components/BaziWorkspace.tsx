@@ -506,15 +506,15 @@ export default function BaziWorkspace() {
   };
 
   return (
-    <main className="min-h-[100dvh]" style={{ background: 'var(--bg-0)', color: 'var(--tx-1)' }}>
+    <main className="eastern-module-page min-h-[100dvh]" style={{ background: 'var(--bg-0)', color: 'var(--tx-1)' }}>
       <header className="border-b" style={{ borderColor: 'var(--bdr)', background: 'var(--bg-card)' }}>
         <div className="mx-auto flex max-w-[1500px] items-center justify-between gap-4 px-4 py-4 md:px-6">
           <button type="button" className="btn-ghost !px-4 !py-2" onClick={() => router.push('/')}>
             <ArrowLeft size={16} weight="bold" /> 返回首页
           </button>
           <div className="text-right">
-            <h1 className="text-lg font-semibold tracking-wide">八字确定性排盘</h1>
-            <p className="text-xs" style={{ color: 'var(--tx-3)' }}>M9-13 · 格局成败、破格与救应条件证据审计</p>
+            <h1 className="text-xl font-semibold tracking-[.12em]">八字分析</h1>
+            <p className="text-xs" style={{ color: 'var(--tx-3)' }}>四柱排盘 · 五行关系 · 运势结构</p>
           </div>
         </div>
       </header>

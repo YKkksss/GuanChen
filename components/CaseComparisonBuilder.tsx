@@ -127,7 +127,7 @@ export default function CaseComparisonBuilder() {
             {error && <p className="mt-4 rounded-lg p-3 text-xs text-red-500" style={{ border: '1px solid rgba(239,68,68,.3)' }}>{error}</p>}
             <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
               <p className="text-[10px]" style={{ color: 'var(--t-faint)' }}>{mode === 'chart_to_chart' ? `${selectedLeft?.caseCode ?? '左侧未选'} ↔ ${selectedRight?.caseCode ?? '右侧未选'}` : `${selectedLeft?.caseCode ?? '案例未选'} · 两个十年阶段`}</p>
-              <button type="button" disabled={!canSubmit || submitting} onClick={createComparison} className="rounded-lg px-5 py-3 text-xs disabled:cursor-not-allowed disabled:opacity-40" style={{ color: '#fff8e8', background: '#9a6210' }}>{submitting ? '正在生成确定性对比…' : '生成并保存对比'}</button>
+              <button type="button" disabled={!canSubmit || submitting} onClick={createComparison} className="rounded-lg px-5 py-3 text-xs disabled:cursor-not-allowed disabled:opacity-40" style={{ color: '#fffaf3', background: 'var(--ac)' }}>{submitting ? '正在生成确定性对比…' : '生成并保存对比'}</button>
             </div>
           </div>
         )}

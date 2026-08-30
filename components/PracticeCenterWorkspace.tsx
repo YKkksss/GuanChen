@@ -59,7 +59,7 @@ export default function PracticeCenterWorkspace() {
           <h2 className="mt-3 text-lg font-semibold" style={{ color: 'var(--t-text)' }}>命盘结构跨章节复习</h2>
           <p className="mt-3 flex-1 text-xs leading-7" style={{ color: 'var(--t-text2)' }}>八道固定标准题覆盖宫位、命身宫、星曜分层、三方四正、四化、空宫与时间边界。</p>
           <div className="mb-4 text-[10px]" style={{ color: 'var(--t-faint)' }}>约 10 分钟 · 75 分通过 · 无需选择命盘</div>
-          <Link href="/practice/foundation-review" className="rounded-lg px-5 py-3 text-center text-xs" style={{ color: '#fff8e8', background: 'linear-gradient(135deg,#9a6210,#c88020)' }}>开始综合练习</Link>
+          <Link href="/practice/foundation-review" className="rounded-lg px-5 py-3 text-center text-xs" style={{ color: '#fffaf3', background: 'var(--ac)' }}>开始综合练习</Link>
         </article>
 
         <article className="flex min-h-[260px] flex-col rounded-2xl card-glass p-6">
@@ -75,7 +75,7 @@ export default function PracticeCenterWorkspace() {
           <h2 className="mt-3 text-lg font-semibold" style={{ color: 'var(--t-text)' }}>开放式命盘解读训练</h2>
           <p className="mt-3 flex-1 text-xs leading-7" style={{ color: 'var(--t-text2)' }}>选择真实命盘完成结构化解读。程序按公开量表评分，AI 根据确定结果解释遗漏、事实问题和修改顺序。</p>
           <div className="mb-4 text-[10px]" style={{ color: 'var(--t-faint)' }}>{charts.length ? `3 类题型 · 已完成 ${overview?.openPracticeAttempts ?? 0} 次` : '需要先保存一份单人命盘'}</div>
-          <Link href={charts.length ? '/practice/open-ended' : '/chart'} className="rounded-lg px-5 py-3 text-center text-xs" style={{ color: '#fff8e8', background: 'linear-gradient(135deg,#9a6210,#c88020)' }}>{charts.length ? '开始开放式训练' : '先去起盘'}</Link>
+          <Link href={charts.length ? '/practice/open-ended' : '/chart'} className="rounded-lg px-5 py-3 text-center text-xs" style={{ color: '#fffaf3', background: 'var(--ac)' }}>{charts.length ? '开始开放式训练' : '先去起盘'}</Link>
         </article>
       </section>
 
@@ -92,7 +92,7 @@ export default function PracticeCenterWorkspace() {
                 <span style={{ color: 'var(--t-text)' }}>{item.title}</span>
                 <span style={{ color: item.status === 'mastered' ? '#22c55e' : item.status === 'reviewing' ? '#f59e0b' : 'var(--t-faint)' }}>{statusLabel(item.status)}</span>
               </div>
-              <div className="mt-3 h-1.5 overflow-hidden rounded-full" style={{ background: 'var(--t-border)' }}><div className="h-full rounded-full" style={{ width: `${item.masteryScore}%`, background: item.status === 'mastered' ? '#22c55e' : 'linear-gradient(90deg,#9a6210,#d4a843)' }} /></div>
+              <div className="mt-3 h-1.5 overflow-hidden rounded-full" style={{ background: 'var(--t-border)' }}><div className="h-full rounded-full" style={{ width: `${item.masteryScore}%`, background: item.status === 'mastered' ? '#22c55e' : 'var(--ac)' }} /></div>
               <div className="mt-2 text-[9px]" style={{ color: 'var(--t-faint)' }}>{item.masteryScore}% · {item.correctCount}/{item.attemptsCount} 次答对</div>
             </div>
           ))}

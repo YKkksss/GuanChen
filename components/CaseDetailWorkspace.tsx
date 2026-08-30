@@ -121,7 +121,7 @@ export default function CaseDetailWorkspace({ caseId }: { caseId: string }) {
           <div className="mt-3 flex flex-wrap gap-2">{activeScopes.map(scope => <ScopeBadge key={scope} scope={scope} />)}</div>
         </div>
         <div className="flex flex-wrap gap-2">
-          {canTeach && <Link href={`/cases/${caseId}/study`} className="rounded-lg px-4 py-2.5 text-xs" style={{ color: '#fff8e8', background: '#9a6210' }}>打开教学详情</Link>}
+          {canTeach && <Link href={`/cases/${caseId}/study`} className="rounded-lg px-4 py-2.5 text-xs" style={{ color: '#fffaf3', background: 'var(--ac)' }}>打开教学详情</Link>}
           {record.sourceConversationId && <Link href={`/chart/${record.sourceConversationId}`} className="rounded-lg px-4 py-2.5 text-xs" style={{ color: 'var(--t-text2)', border: '1px solid var(--t-border)' }}>查看本地来源命盘</Link>}
           <button type="button" onClick={exportCase} disabled={!canExport} title={!canExport ? '需要“已复核”状态和有效的匿名导出授权' : undefined} className="rounded-lg px-4 py-2.5 text-xs disabled:cursor-not-allowed disabled:opacity-40" style={{ color: 'var(--t-gold)', border: '1px solid var(--t-border-acc)', background: 'var(--ac-bg)' }}>导出匿名 JSON</button>
         </div>

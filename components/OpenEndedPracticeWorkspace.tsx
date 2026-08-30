@@ -144,7 +144,7 @@ export default function OpenEndedPracticeWorkspace() {
                 {templates.map(template => <option key={template.id} value={template.id}>{template.title}</option>)}
               </select>
             </label>
-            <button type="button" disabled={!conversationId} onClick={loadExercise} className="self-end rounded-lg px-5 py-3 text-xs disabled:cursor-not-allowed disabled:opacity-40" style={{ color: '#fff8e8', background: 'linear-gradient(135deg,#9a6210,#c88020)' }}>载入练习</button>
+            <button type="button" disabled={!conversationId} onClick={loadExercise} className="self-end rounded-lg px-5 py-3 text-xs disabled:cursor-not-allowed disabled:opacity-40" style={{ color: '#fffaf3', background: 'var(--ac)' }}>载入练习</button>
           </div>
         ) : <div className="text-xs" style={{ color: 'var(--t-faint)' }}>还没有已保存的单人命盘。<Link href="/chart" style={{ color: 'var(--t-gold)' }}>先去起盘 →</Link></div>}
       </section>
@@ -172,7 +172,7 @@ export default function OpenEndedPracticeWorkspace() {
                 </div>
                 {parentAttemptId && <div className="mt-3 rounded-lg px-3 py-2 text-[10px]" style={{ color: 'var(--t-gold)', background: 'var(--ac-bg)' }}>正在基于上一版答案修订；提交后会保留版本关联。</div>}
                 <textarea value={answer} onChange={event => setAnswer(event.target.value)} rows={15} placeholder="建议按“盘面事实 → 结构关系 → 传统解释 → 现实验证边界”的顺序作答……" className="mt-4 w-full resize-y rounded-xl px-4 py-4 text-xs leading-7 outline-none" style={{ color: 'var(--t-text)', background: 'var(--t-card)', border: '1px solid var(--t-border)' }} />
-                <button type="button" disabled={submitting || !answer.trim()} onClick={submit} className="mt-4 w-full rounded-lg px-5 py-3 text-xs disabled:cursor-not-allowed disabled:opacity-50" style={{ color: '#fff8e8', background: 'linear-gradient(135deg,#9a6210,#c88020)' }}>
+                <button type="button" disabled={submitting || !answer.trim()} onClick={submit} className="mt-4 w-full rounded-lg px-5 py-3 text-xs disabled:cursor-not-allowed disabled:opacity-50" style={{ color: '#fffaf3', background: 'var(--ac)' }}>
                   {submitting ? '程序评分完成，正在生成 AI 学习反馈…' : '提交答案并获取反馈'}
                 </button>
               </article>
@@ -234,7 +234,7 @@ function AttemptResult({ attempt, evidenceById, retrying, onRetry, onRevise }: {
     <section className="mt-7 space-y-5" aria-live="polite">
       <article className="rounded-2xl p-6" style={{ border: `1px solid ${attempt.passed ? 'rgba(34,197,94,.28)' : 'rgba(245,158,11,.28)'}`, background: attempt.passed ? 'rgba(34,197,94,.04)' : 'rgba(245,158,11,.04)' }}>
         <div className="flex flex-wrap items-end justify-between gap-4"><div><div className="text-[10px]" style={{ color: 'var(--t-faint)' }}>程序最终评分</div><div className="mt-1 text-4xl font-semibold" style={{ color: attempt.passed ? '#22c55e' : '#f59e0b' }}>{attempt.score}<span className="text-sm font-normal"> / 100</span></div></div><div className="text-right text-[10px] leading-5" style={{ color: 'var(--t-faint)' }}>{attempt.passed ? '已达到本题通过线' : `距离通过线还差 ${Math.max(0, attempt.grade.passScore - attempt.score)} 分`}<br />要点原始分 {attempt.grade.rawScore}{deductions ? ` · 规则扣分 ${deductions}` : ''}</div></div>
-        <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">{attempt.grade.criteria.map(item => <div key={item.criterionId} className="rounded-lg p-3" style={{ border: '1px solid var(--t-border)' }}><div className="flex justify-between gap-2 text-[9px]"><span style={{ color: 'var(--t-text)' }}>{item.title}</span><span style={{ color: 'var(--t-gold)' }}>{item.score}/{item.maxScore}</span></div><div className="mt-2 h-1 overflow-hidden rounded-full" style={{ background: 'var(--t-border)' }}><div className="h-full rounded-full" style={{ width: `${item.maxScore ? item.score / item.maxScore * 100 : 100}%`, background: 'linear-gradient(90deg,#9a6210,#d4a843)' }} /></div></div>)}</div>
+        <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">{attempt.grade.criteria.map(item => <div key={item.criterionId} className="rounded-lg p-3" style={{ border: '1px solid var(--t-border)' }}><div className="flex justify-between gap-2 text-[9px]"><span style={{ color: 'var(--t-text)' }}>{item.title}</span><span style={{ color: 'var(--t-gold)' }}>{item.score}/{item.maxScore}</span></div><div className="mt-2 h-1 overflow-hidden rounded-full" style={{ background: 'var(--t-border)' }}><div className="h-full rounded-full" style={{ width: `${item.maxScore ? item.score / item.maxScore * 100 : 100}%`, background: 'var(--ac)' }} /></div></div>)}</div>
         {!!attempt.grade.detectedIssues.length && <div className="mt-5 space-y-2">{attempt.grade.detectedIssues.map(issue => <div key={issue.ruleId} className="rounded-lg px-3 py-2 text-[10px] leading-5 text-red-500" style={{ border: '1px solid rgba(239,68,68,.2)' }}>{issue.title}（-{issue.deduction}）：{issue.detail}</div>)}</div>}
         <details className="mt-5"><summary className="cursor-pointer text-[10px]" style={{ color: 'var(--t-gold)' }}>查看程序识别的覆盖与遗漏</summary><div className="mt-3 grid gap-4 sm:grid-cols-2"><EvidenceList title="已覆盖" ids={attempt.grade.coveredEvidencePointIds} evidenceById={evidenceById} good /><EvidenceList title="待补齐" ids={attempt.grade.missingEvidencePointIds} evidenceById={evidenceById} /></div></details>
       </article>

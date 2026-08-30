@@ -101,7 +101,7 @@ export default function ReviewWorkspace() {
       </header>
 
       <div className="mb-5 flex flex-wrap gap-2">
-        {FILTERS.map(item => <button key={item.value} type="button" onClick={() => setFilter(item.value)} className="rounded-full px-4 py-2 text-[10px]" style={{ color: filter === item.value ? '#fff8e8' : 'var(--t-text2)', border: '1px solid var(--t-border)', background: filter === item.value ? '#9a6210' : 'transparent' }}>{item.label}</button>)}
+        {FILTERS.map(item => <button key={item.value} type="button" onClick={() => setFilter(item.value)} className="rounded-full px-4 py-2 text-[10px]" style={{ color: filter === item.value ? '#fffaf3' : 'var(--t-text2)', border: '1px solid var(--t-border)', background: filter === item.value ? 'var(--ac)' : 'transparent' }}>{item.label}</button>)}
       </div>
 
       {error && <div className="mb-5 rounded-lg px-4 py-3 text-xs text-red-500" style={{ border: '1px solid rgba(239,68,68,.25)' }}>{error}</div>}
@@ -130,7 +130,7 @@ export default function ReviewWorkspace() {
               </div>
               {typeof result === 'boolean' && <div className="mt-4 rounded-lg px-4 py-3 text-[10px] leading-6" style={{ color: result ? '#22c55e' : '#ef4444', background: result ? 'rgba(34,197,94,.06)' : 'rgba(239,68,68,.06)' }}>{result ? '回答正确。' : '回答错误，复习进度已重置。'} {item.question.explanation}</div>}
               <div className="mt-5 flex flex-wrap gap-3">
-                <button type="button" disabled={busyId === item.id} onClick={() => submit(item)} className="rounded-lg px-4 py-2.5 text-xs disabled:opacity-40" style={{ color: '#fff8e8', background: 'linear-gradient(135deg,#9a6210,#c88020)' }}>{busyId === item.id ? '正在更新…' : '提交复习答案'}</button>
+                <button type="button" disabled={busyId === item.id} onClick={() => submit(item)} className="rounded-lg px-4 py-2.5 text-xs disabled:opacity-40" style={{ color: '#fffaf3', background: 'var(--ac)' }}>{busyId === item.id ? '正在更新…' : '提交复习答案'}</button>
                 {item.status !== 'mastered' ? <button type="button" disabled={busyId === item.id} onClick={() => changeStatus(item, 'mastered')} className="rounded-lg px-4 py-2.5 text-[10px]" style={{ color: 'var(--t-gold)', border: '1px solid var(--t-border-acc)' }}>手动标记已掌握</button> : <button type="button" disabled={busyId === item.id} onClick={() => changeStatus(item, 'due')} className="rounded-lg px-4 py-2.5 text-[10px]" style={{ color: 'var(--t-text2)', border: '1px solid var(--t-border)' }}>重新加入复习</button>}
               </div>
             </article>

@@ -194,7 +194,7 @@ export default function HemingChatPanel({
           <div className="flex h-full flex-col items-center justify-center px-5 text-center">
             <div className="mb-3 text-4xl opacity-10" style={{ color: 'var(--t-gold)' }}>☯</div>
             <p className="mb-5 text-[10px] leading-relaxed" style={{ color: 'var(--t-faint)' }}>双命盘事实和规则结果已就绪。生成总览后，后续追问会持续使用同一份关系背景与对话记忆。</p>
-            <button disabled={loading} onClick={() => sendMessage(OVERVIEW_PROMPT, { hidden: true, source: 'auto' })} className="rounded-full px-5 py-2 text-[11px] font-medium disabled:opacity-40" style={{ color: '#fff8e8', background: 'linear-gradient(135deg,#9a6210,#c88020)' }}>{loading ? '正在生成…' : '生成合盘总览'}</button>
+            <button disabled={loading} onClick={() => sendMessage(OVERVIEW_PROMPT, { hidden: true, source: 'auto' })} className="rounded-full px-5 py-2 text-[11px] font-medium disabled:opacity-40" style={{ color: '#fffaf3', background: 'var(--ac)' }}>{loading ? '正在生成…' : '生成合盘总览'}</button>
           </div>
         )}
         {messages.map((message, index) => {

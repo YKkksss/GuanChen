@@ -98,7 +98,7 @@ export default function LearningLessonWorkspace({
           <div className="text-3xl">🔒</div>
           <h1 className="mt-4 text-xl font-semibold" style={{ color: 'var(--t-text)' }}>本章尚未解锁</h1>
           <p className="mt-3 text-xs" style={{ color: 'var(--t-faint)' }}>请先完成前置章节“{lockedLesson.title}”并通过小测。</p>
-          <Link href={`/learn/${course.slug}/${lockedLesson.slug}`} className="mt-6 inline-block rounded-lg px-5 py-2.5 text-xs" style={{ color: '#fff8e8', background: 'linear-gradient(135deg,#9a6210,#c88020)' }}>前往前置章节</Link>
+          <Link href={`/learn/${course.slug}/${lockedLesson.slug}`} className="mt-6 inline-block rounded-lg px-5 py-2.5 text-xs" style={{ color: '#fffaf3', background: 'var(--ac)' }}>前往前置章节</Link>
         </div>
       </main>
     );
@@ -114,7 +114,7 @@ export default function LearningLessonWorkspace({
         <h1 className="mt-5 text-2xl font-semibold sm:text-3xl" style={{ color: 'var(--t-text)' }}>{lesson.title}</h1>
         <p className="mt-3 text-sm leading-7" style={{ color: 'var(--t-text2)' }}>{lesson.summary}</p>
         <div className="mt-5 h-1 overflow-hidden rounded-full" style={{ background: 'var(--t-border)' }}>
-          <div className="h-full rounded-full" style={{ width: `${Math.round((lesson.order / course.lessons.length) * 100)}%`, background: 'linear-gradient(90deg,#9a6210,#d4a843)' }} />
+          <div className="h-full rounded-full" style={{ width: `${Math.round((lesson.order / course.lessons.length) * 100)}%`, background: 'var(--ac)' }} />
         </div>
       </header>
 
@@ -189,7 +189,7 @@ export default function LearningLessonWorkspace({
           </div>
         )}
 
-        <button type="button" disabled={submitting} onClick={submit} className="mt-6 w-full rounded-lg px-5 py-3 text-xs disabled:cursor-not-allowed disabled:opacity-50" style={{ color: '#fff8e8', background: 'linear-gradient(135deg,#9a6210,#c88020)' }}>
+        <button type="button" disabled={submitting} onClick={submit} className="mt-6 w-full rounded-lg px-5 py-3 text-xs disabled:cursor-not-allowed disabled:opacity-50" style={{ color: '#fffaf3', background: 'var(--ac)' }}>
           {submitting ? '正在批改…' : completed ? '重新提交本章小测' : '提交本章小测'}
         </button>
       </section>
@@ -210,8 +210,8 @@ export default function LearningLessonWorkspace({
         {previousLesson ? <Link href={`/learn/${course.slug}/${previousLesson.slug}`} className="rounded-lg px-4 py-2.5 text-xs" style={{ color: 'var(--t-text)', border: '1px solid var(--t-border)' }}>← 上一章</Link> : <span />}
         <div className="flex flex-wrap gap-3">
           <Link href="/chart" className="rounded-lg px-4 py-2.5 text-xs" style={{ color: 'var(--t-gold)', border: '1px solid var(--t-border-acc)' }}>去我的命盘练习</Link>
-          {nextLesson && completed && <Link href={`/learn/${course.slug}/${nextLesson.slug}`} className="rounded-lg px-4 py-2.5 text-xs" style={{ color: '#fff8e8', background: 'linear-gradient(135deg,#9a6210,#c88020)' }}>下一章 →</Link>}
-          {!nextLesson && completed && <Link href={`/learn/${course.slug}`} className="rounded-lg px-4 py-2.5 text-xs" style={{ color: '#fff8e8', background: 'linear-gradient(135deg,#9a6210,#c88020)' }}>查看课程完成情况</Link>}
+          {nextLesson && completed && <Link href={`/learn/${course.slug}/${nextLesson.slug}`} className="rounded-lg px-4 py-2.5 text-xs" style={{ color: '#fffaf3', background: 'var(--ac)' }}>下一章 →</Link>}
+          {!nextLesson && completed && <Link href={`/learn/${course.slug}`} className="rounded-lg px-4 py-2.5 text-xs" style={{ color: '#fffaf3', background: 'var(--ac)' }}>查看课程完成情况</Link>}
         </div>
       </nav>
     </main>

@@ -54,13 +54,13 @@ export default function LearningCourseWorkspace({
             </div>
           </div>
           {progress && (
-            <Link href={`/learn/${course.slug}/${nextLesson.slug}`} className="rounded-lg px-5 py-2.5 text-xs" style={{ color: '#fff8e8', background: 'linear-gradient(135deg,#9a6210,#c88020)' }}>
+            <Link href={`/learn/${course.slug}/${nextLesson.slug}`} className="rounded-lg px-5 py-2.5 text-xs" style={{ color: '#fffaf3', background: 'var(--ac)' }}>
               {progress.startedLessons ? '继续学习' : '从第一章开始'}
             </Link>
           )}
         </div>
         <div className="mt-4 h-1.5 overflow-hidden rounded-full" style={{ background: 'var(--t-border)' }}>
-          <div className="h-full rounded-full" style={{ width: `${progress?.completionPercent ?? 0}%`, background: 'linear-gradient(90deg,#9a6210,#d4a843)' }} />
+          <div className="h-full rounded-full" style={{ width: `${progress?.completionPercent ?? 0}%`, background: 'var(--ac)' }} />
         </div>
       </section>
 
@@ -71,7 +71,7 @@ export default function LearningCourseWorkspace({
           const prerequisite = item.prerequisiteLessonIds.map(id => course.lessons.find(candidate => candidate.id === id)?.title).filter(Boolean).join('、');
           const content = (
             <article className="grid gap-4 rounded-xl card-glass p-5 sm:grid-cols-[48px_minmax(0,1fr)_130px] sm:items-center">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full text-sm font-semibold" style={{ color: itemProgress?.status === 'completed' ? '#fff8e8' : 'var(--t-gold)', border: '1px solid var(--t-border-acc)', background: itemProgress?.status === 'completed' ? '#9a6210' : 'var(--ac-bg)' }}>
+              <div className="flex h-10 w-10 items-center justify-center rounded-full text-sm font-semibold" style={{ color: itemProgress?.status === 'completed' ? '#fffaf3' : 'var(--t-gold)', border: '1px solid var(--t-border-acc)', background: itemProgress?.status === 'completed' ? 'var(--ac)' : 'var(--ac-bg)' }}>
                 {itemProgress?.status === 'completed' ? '✓' : item.order}
               </div>
               <div>

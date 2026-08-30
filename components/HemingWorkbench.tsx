@@ -172,7 +172,7 @@ export default function HemingWorkbench({ conversation, initialMessages, onConve
                   {realityFields.map(field => <label key={field} className="text-[10px]" style={{ color: 'var(--t-faint)' }}>{FIELD_LABELS[field] ?? field}<input className="input-base mt-1 block w-full" value={context.confirmedFacts[field] ?? ''} maxLength={300} onChange={event => setContext(previous => ({ ...previous, confirmedFacts: { ...previous.confirmedFacts, [field]: event.target.value } }))} /></label>)}
                 </div>
               </div>
-              <div className="flex items-center justify-end gap-3"><span className="text-[10px]" style={{ color: saved ? '#4f9a72' : 'var(--t-faint)' }}>{saved ? '已保存并重新评估' : '修改后需要保存'}</span><button disabled={saving || !context.ownerARole.trim() || !context.ownerBRole.trim()} onClick={() => void saveRelationshipContext()} className="rounded-lg px-4 py-2 text-[10px] disabled:opacity-40" style={{ color: '#fff8e8', background: 'linear-gradient(135deg,#9a6210,#c88020)' }}>{saving ? '保存中…' : '保存关系背景'}</button></div>
+              <div className="flex items-center justify-end gap-3"><span className="text-[10px]" style={{ color: saved ? '#4f9a72' : 'var(--t-faint)' }}>{saved ? '已保存并重新评估' : '修改后需要保存'}</span><button disabled={saving || !context.ownerARole.trim() || !context.ownerBRole.trim()} onClick={() => void saveRelationshipContext()} className="rounded-lg px-4 py-2 text-[10px] disabled:opacity-40" style={{ color: '#fffaf3', background: 'var(--ac)' }}>{saving ? '保存中…' : '保存关系背景'}</button></div>
             </div>
           )}
         </section>

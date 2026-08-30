@@ -667,6 +667,11 @@ body.eastern-home-body {
   padding: 16px 18px 18px;
 }
 
+.eastern-result-notice {
+  flex: 0 0 auto;
+  margin-bottom: 12px;
+}
+
 .eastern-state-panel,
 .eastern-birth-panel {
   width: min(720px, calc(100% - 32px));

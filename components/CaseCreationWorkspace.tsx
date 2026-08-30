@@ -109,7 +109,7 @@ export default function CaseCreationWorkspace() {
               <option value="">请选择命盘</option>
               {charts.map(chart => <option key={chart.id} value={chart.id}>{chart.title}</option>)}
             </select>
-            <button type="button" disabled={!conversationId || previewing} onClick={generatePreview} className="rounded-lg px-5 py-3 text-xs disabled:opacity-40" style={{ color: '#fff8e8', background: '#9a6210' }}>
+            <button type="button" disabled={!conversationId || previewing} onClick={generatePreview} className="rounded-lg px-5 py-3 text-xs disabled:opacity-40" style={{ color: '#fffaf3', background: 'var(--ac)' }}>
               {previewing ? '正在脱敏…' : '生成脱敏预览'}
             </button>
           </div>
@@ -177,7 +177,7 @@ export default function CaseCreationWorkspace() {
 
             <div className="mt-5 flex flex-wrap justify-end gap-3">
               <Link href="/cases" className="rounded-lg px-5 py-3 text-xs" style={{ color: 'var(--t-text2)', border: '1px solid var(--t-border)' }}>取消</Link>
-              <button type="button" onClick={createCase} disabled={!acknowledged || saving} className="rounded-lg px-5 py-3 text-xs disabled:opacity-40" style={{ color: '#fff8e8', background: 'linear-gradient(135deg,#9a6210,#c88020)' }}>{saving ? '正在保存…' : '确认并保存匿名案例'}</button>
+              <button type="button" onClick={createCase} disabled={!acknowledged || saving} className="rounded-lg px-5 py-3 text-xs disabled:opacity-40" style={{ color: '#fffaf3', background: 'var(--ac)' }}>{saving ? '正在保存…' : '确认并保存匿名案例'}</button>
             </div>
           </section>
         </>

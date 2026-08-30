@@ -132,9 +132,9 @@ export default function ReportsWorkspace({ conversationId }: { conversationId: s
                   : generate(type)}
                 className="rounded-lg px-4 py-2.5 text-xs transition-opacity disabled:cursor-not-allowed disabled:opacity-40"
                 style={{
-                  color: report?.activeVersion ? 'var(--t-gold)' : '#fff8e8',
+                  color: report?.activeVersion ? 'var(--t-gold)' : '#fffaf3',
                   border: report?.activeVersion ? '1px solid rgba(212,168,67,.28)' : 'none',
-                  background: report?.activeVersion ? 'rgba(212,168,67,.05)' : 'linear-gradient(135deg,#9a6210,#c88020)',
+                  background: report?.activeVersion ? 'var(--ac-bg)' : 'var(--ac)',
                 }}
               >
                 {isGenerating ? '正在生成…' : report?.activeVersion ? '打开报告' : '生成报告'}

@@ -14,14 +14,11 @@ import {
   type HemingRelationshipContext,
   type RelationshipType,
 } from '@/lib/heming';
-import { useTheme } from '@/components/ThemeProvider';
 
 interface HemingWorkspaceProps { conversationId?: string }
 
 export default function HemingWorkspace({ conversationId }: HemingWorkspaceProps) {
   const router = useRouter();
-  const { theme } = useTheme();
-  const isDark = theme === 'dark';
   const [historyCollapsed, setHistoryCollapsed] = useState(false);
   const [loadingConversation, setLoadingConversation] = useState(Boolean(conversationId));
   const [loadError, setLoadError] = useState('');
@@ -94,15 +91,15 @@ export default function HemingWorkspace({ conversationId }: HemingWorkspaceProps
   }, [customRelationshipLabel, formA, formB, generateChart, mainConcern, relationshipType, router]);
 
   const cardStyle = {
-    background: isDark ? 'rgba(255,255,255,0.04)' : 'rgba(255,255,255,0.9)',
-    border: `1px solid ${isDark ? 'rgba(255,255,255,0.1)' : 'rgba(200,160,60,0.2)'}`,
-    borderRadius: '16px', padding: '24px',
+    background: 'rgba(255,253,248,0.78)',
+    border: '1px solid rgba(121,91,61,0.17)',
+    borderRadius: '7px', padding: '24px',
   };
   const labelStyle = { fontSize: '10px', letterSpacing: '0.4em', color: 'var(--ac)', opacity: 0.7, marginBottom: '16px', display: 'block' };
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg-0)' }}>
-      <header style={{ position: 'sticky', top: 0, zIndex: 50, background: isDark ? 'rgba(2,8,16,.88)' : 'rgba(250,245,235,.92)', backdropFilter: 'blur(20px)', borderBottom: '1px solid var(--bdr)', display: 'flex', alignItems: 'center', padding: '0 24px', height: '52px', gap: '16px' }}>
+      <header style={{ position: 'relative', zIndex: 20, background: 'rgba(255,253,248,.5)', borderBottom: '1px solid var(--bdr)', display: 'flex', alignItems: 'center', padding: '0 24px', height: '52px', gap: '16px' }}>
         <button onClick={() => router.push('/')} style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '13px', color: 'var(--tx-3)', background: 'none', border: 'none', cursor: 'pointer' }}><span style={{ fontSize: '16px' }}>‹</span><span>返回</span></button>
         <div style={{ width: '1px', height: '20px', background: 'var(--bdr-med)' }} />
         <span style={{ fontSize: '12px', color: 'var(--ac)', letterSpacing: '0.2em' }}>合盘分析</span><div style={{ flex: 1 }} />
@@ -114,7 +111,7 @@ export default function HemingWorkspace({ conversationId }: HemingWorkspaceProps
         <main style={{ minWidth: 0 }}>
           {!conversationId && (
             <>
-              <div className="mb-7 text-center"><div className="mb-2 text-3xl opacity-15" style={{ color: 'var(--ac)' }}>☯</div><h1 className="mb-2 text-[22px] font-semibold tracking-[.15em]" style={{ color: 'var(--tx-0)' }}>紫微合盘</h1><p className="text-[13px]" style={{ color: 'var(--tx-3)' }}>先确认关系背景并保存双方命盘，再进入可持续追问的合盘工作台</p></div>
+              <div className="mb-7 text-center"><div className="mb-2 text-[10px] tracking-[.34em]" style={{ color: 'var(--ac)' }}>关系命理研析</div><h1 className="mb-2 text-[28px] font-semibold tracking-[.15em]" style={{ color: 'var(--tx-0)' }}>紫微合盘</h1><p className="text-[13px]" style={{ color: 'var(--tx-3)' }}>洞察关系本质，明了情缘方向</p></div>
               <div style={{ ...cardStyle, marginBottom: '20px' }}>
                 <span style={labelStyle}>关系背景</span>
                 <div className="heming-relation-grid">
@@ -124,12 +121,12 @@ export default function HemingWorkspace({ conversationId }: HemingWorkspaceProps
                 {relationshipType === 'custom' && <label className="mt-3.5 block text-xs" style={{ color: 'var(--tx-2)' }}>自定义关系名称<input className="input-base mt-2 block w-full" value={customRelationshipLabel} maxLength={40} onChange={event => setCustomRelationshipLabel(event.target.value)} placeholder="例如：师生、长期室友" /></label>}
               </div>
               <div className="heming-grid mb-5 grid grid-cols-2 gap-5">
-                <div style={cardStyle}><span style={labelStyle}>{getRelationshipDefinition(relationshipType).roles[0].label} — A</span><BirthForm hideSubmit onSubmit={() => {}} onFormSave={setFormA} /></div>
-                <div style={cardStyle}><span style={labelStyle}>{getRelationshipDefinition(relationshipType).roles[1].label} — B</span><BirthForm hideSubmit onSubmit={() => {}} onFormSave={setFormB} /></div>
+                <div style={cardStyle}><span style={labelStyle}>{getRelationshipDefinition(relationshipType).roles[0].label} · A</span><BirthForm hideSubmit onSubmit={() => {}} onFormSave={setFormA} /></div>
+                <div style={cardStyle}><span style={labelStyle}>{getRelationshipDefinition(relationshipType).roles[1].label} · B</span><BirthForm hideSubmit onSubmit={() => {}} onFormSave={setFormB} /></div>
               </div>
               <div className="rounded-2xl p-7 text-center" style={cardStyle}>
                 <p className="mb-5 text-[12px] leading-relaxed" style={{ color: 'var(--tx-3)' }}>创建时会固化双方命盘快照。之后刷新页面、退出再进入，都能恢复规则评估与完整聊天记录。</p>
-                <button onClick={() => void createHemingConversation()} disabled={creating} className="rounded-full px-10 py-3.5 text-sm font-semibold tracking-[.15em] disabled:opacity-50" style={{ border: 'none', background: 'linear-gradient(135deg,#9a6210,#c88020)', color: '#fff8e8', boxShadow: '0 4px 16px rgba(140,100,20,.25)' }}>{creating ? '正在生成并保存…' : '创建并保存合盘'}</button>
+                <button onClick={() => void createHemingConversation()} disabled={creating} className="rounded px-10 py-3.5 text-sm font-semibold tracking-[.15em] disabled:opacity-50" style={{ border: 'none', background: '#b42b22', color: '#fffaf3' }}>{creating ? '正在生成并保存…' : '创建并保存合盘'}</button>
                 {formError && <div className="mt-4 text-[13px] text-red-600">{formError}</div>}
               </div>
             </>

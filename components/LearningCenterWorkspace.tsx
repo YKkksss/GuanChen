@@ -85,12 +85,12 @@ export default function LearningCenterWorkspace() {
                         <span>{progress.completionPercent}%</span>
                       </div>
                       <div className="h-1.5 overflow-hidden rounded-full" style={{ background: 'var(--t-border)' }}>
-                        <div className="h-full rounded-full transition-all" style={{ width: `${progress.completionPercent}%`, background: 'linear-gradient(90deg,#9a6210,#d4a843)' }} />
+                        <div className="h-full rounded-full transition-all" style={{ width: `${progress.completionPercent}%`, background: 'var(--ac)' }} />
                       </div>
                     </div>
 
                     <div className="mt-6 flex flex-wrap gap-3">
-                      <Link href={actionHref} className="rounded-lg px-5 py-2.5 text-xs" style={{ color: '#fff8e8', background: 'linear-gradient(135deg,#9a6210,#c88020)' }}>
+                      <Link href={actionHref} className="rounded-lg px-5 py-2.5 text-xs" style={{ color: '#fffaf3', background: 'var(--ac)' }}>
                         {progress.startedLessons ? '继续学习' : '开始课程'}
                       </Link>
                       <Link href={`/learn/${course.slug}`} className="rounded-lg px-5 py-2.5 text-xs" style={{ color: 'var(--t-text)', border: '1px solid var(--t-border)' }}>

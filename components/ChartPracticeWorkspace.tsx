@@ -58,7 +58,7 @@ export default function ChartPracticeWorkspace() {
               <option value="">请选择一份单人命盘</option>
               {charts.map(chart => <option key={chart.id} value={chart.id}>{chart.title}</option>)}
             </select>
-            <button type="button" disabled={!conversationId} onClick={generate} className="rounded-lg px-5 py-3 text-xs disabled:cursor-not-allowed disabled:opacity-40" style={{ color: '#fff8e8', background: 'linear-gradient(135deg,#9a6210,#c88020)' }}>生成识别题</button>
+            <button type="button" disabled={!conversationId} onClick={generate} className="rounded-lg px-5 py-3 text-xs disabled:cursor-not-allowed disabled:opacity-40" style={{ color: '#fffaf3', background: 'var(--ac)' }}>生成识别题</button>
           </div>
         ) : <div className="text-xs" style={{ color: 'var(--t-faint)' }}>还没有已保存的单人命盘。<Link href="/chart" style={{ color: 'var(--t-gold)' }}>先去起盘 →</Link></div>}
       </section>

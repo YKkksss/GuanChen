@@ -97,7 +97,7 @@ export default function HemingReportsWorkspace({ conversationId }: { conversatio
             ? router.push(`/heming/${conversationId}/reports/${report.id}`)
             : void generate()}
           className="mt-5 rounded-lg px-6 py-3 text-xs font-medium disabled:opacity-40"
-          style={{ color: report?.activeVersion ? 'var(--t-gold)' : '#fff8e8', border: report?.activeVersion ? '1px solid rgba(212,168,67,.28)' : 'none', background: report?.activeVersion ? 'rgba(212,168,67,.05)' : 'linear-gradient(135deg,#9a6210,#c88020)' }}
+          style={{ color: report?.activeVersion ? 'var(--t-gold)' : '#fffaf3', border: report?.activeVersion ? '1px solid var(--t-border-acc)' : 'none', background: report?.activeVersion ? 'var(--ac-bg)' : 'var(--ac)' }}
         >
           {generating ? '正在生成完整报告…' : report?.activeVersion ? '打开已保存报告' : '生成合盘关系报告'}
         </button>
