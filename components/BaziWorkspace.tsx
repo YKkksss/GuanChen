@@ -36,6 +36,8 @@ import { calculateBaziMonthDayTimeline } from '@/lib/bazi/month-day-timeline-eng
 import type { BaziMonthDayTimelineResult } from '@/lib/bazi/month-day-timeline-types';
 import { auditBaziMonthDayRelations } from '@/lib/bazi/month-day-relation-engine';
 import type { BaziMonthDayRelationResult } from '@/lib/bazi/month-day-relation-types';
+import { auditBaziMonthDayVisibilityConditions } from '@/lib/bazi/month-day-visibility-engine';
+import type { BaziMonthDayVisibilityResult } from '@/lib/bazi/month-day-visibility-types';
 import { auditBaziRelations } from '@/lib/bazi/relation-audit-engine';
 import type { BaziRelationAuditResult, BaziRelationEvidence } from '@/lib/bazi/relation-audit-types';
 import { adjudicateBaziRelations } from '@/lib/bazi/relation-adjudication-engine';
@@ -191,6 +193,12 @@ export default function BaziWorkspace() {
     if (!monthDayTimeline.days.some(item => item.effectiveDate === selectedFlowDate)) return null;
     return auditBaziMonthDayRelations(result, monthDayTimeline, selectedFlowDate);
   }, [result, monthDayTimeline, selectedFlowDate]);
+  const monthDayVisibility = useMemo(
+    () => result && monthDayRelation
+      ? auditBaziMonthDayVisibilityConditions(result, monthDayRelation)
+      : null,
+    [result, monthDayRelation],
+  );
   const relationAudit = useMemo(
     () => result && luckCycles && annualTimeline
       ? auditBaziRelations(result, luckCycles, annualTimeline)
@@ -266,6 +274,17 @@ export default function BaziWorkspace() {
       }),
     }).catch(() => undefined);
   }, [currentChartId, monthDayRelation?.target.effectiveDate, monthDayRelation?.source.targetYear]);
+  useEffect(() => {
+    if (!currentChartId || !monthDayVisibility) return;
+    void fetch(`/api/bazi/charts/${currentChartId}/month-day-visibility`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        targetDate: monthDayVisibility.target.effectiveDate,
+        targetYear: monthDayVisibility.source.targetYear,
+      }),
+    }).catch(() => undefined);
+  }, [currentChartId, monthDayVisibility?.target.effectiveDate, monthDayVisibility?.source.targetYear]);
 
   const update = <K extends keyof FormState>(key: K, value: FormState[K]) => {
     setForm(current => ({ ...current, [key]: value }));
@@ -558,6 +577,7 @@ export default function BaziWorkspace() {
             {annualTimeline && <BaziAnnualTimelinePanel result={annualTimeline} selectedYear={selectedAnnualYear} onSelectYear={setSelectedAnnualYear} />}
             {monthDayTimeline && <BaziMonthDayTimelinePanel result={monthDayTimeline} selectedDate={selectedFlowDate} onSelectDate={setSelectedFlowDate} />}
             {monthDayRelation && <BaziMonthDayRelationPanel result={monthDayRelation} />}
+            {monthDayVisibility && <BaziMonthDayVisibilityPanel result={monthDayVisibility} />}
             {relationAudit && <BaziRelationAuditPanel result={relationAudit} selectedYear={selectedAnnualYear} />}
             {relationAdjudication && <BaziRelationAdjudicationPanel result={relationAdjudication} selectedYear={selectedAnnualYear} />}
             {dynamicTenGod && <BaziDynamicTenGodPanel result={dynamicTenGod} selectedYear={selectedAnnualYear} />}
@@ -990,6 +1010,64 @@ function BaziMonthDayRelationPanel({ result }: { result: BaziMonthDayRelationRes
   </section>;
 }
 
+function BaziMonthDayVisibilityPanel({ result }: { result: BaziMonthDayVisibilityResult }) {
+  return <section data-testid="bazi-month-day-visibility-audit" className="mt-5 rounded-xl border p-5 md:p-6" style={{ borderColor: 'var(--t-border-acc)', background: 'var(--bg-card)' }}>
+    <div className="flex flex-wrap items-start justify-between gap-4">
+      <div className="flex items-start gap-3">
+        <div className="rounded-lg p-2" style={{ color: 'var(--ac-dim)', background: 'var(--ac-bg)' }}><ShieldCheck size={19} /></div>
+        <div>
+          <p className="text-[10px] tracking-[.18em]" style={{ color: 'var(--ac-dim)' }}>M9-16 · 流月流日显隐、透根与藏干触达</p>
+          <h2 className="mt-1 text-lg font-semibold">{result.target.effectiveDate} {result.target.dayGanZhi} · 动态条件证据审计</h2>
+          <p className="mt-1 text-xs leading-5" style={{ color: 'var(--tx-3)' }}>只保留有流月或流日参与的候选；同见、匹配与触达均不等于力量变化或实际发动。</p>
+        </div>
+      </div>
+      <div className="flex flex-wrap gap-2 text-[9px]">
+        <span className="rounded-full px-2.5 py-1" style={{ color: 'var(--ac-dim)', background: 'var(--bg-1)' }}>同干簇 {result.counts.stemClusters}</span>
+        <span className="rounded-full px-2.5 py-1" style={{ color: 'var(--lu)', background: 'var(--bg-1)' }}>透出匹配 {result.counts.transparencyMatched}</span>
+        <span className="rounded-full px-2.5 py-1" style={{ color: 'var(--tx-3)', background: 'var(--bg-1)' }}>藏干触达 {result.counts.touchedHiddenStems}</span>
+      </div>
+    </div>
+
+    <div className="mt-5 space-y-4">
+      {result.segments.map(segment => <article key={segment.segmentIndex} data-testid="month-day-visibility-segment" className="rounded-xl border p-4" style={{ borderColor: 'var(--bdr)', background: 'var(--bg-1)' }}>
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div><h3 className="text-sm font-semibold">片段 {segment.segmentIndex} · {segment.label}</h3><p className="mt-1 font-mono text-[9px]" style={{ color: 'var(--tx-3)' }}>{segment.startAt} — {segment.endAtExclusive} 前</p></div>
+          <span className="text-[9px]" style={{ color: 'var(--tx-3)' }}>同干 {segment.counts.stemClusters} · 同十神 {segment.counts.tenGodClusters} · 严格同干根 {segment.counts.exactSameStemRoots} · 多入口 {segment.counts.multipleTouchConditions}</span>
+        </div>
+
+        <details open className="mt-4 rounded-lg border p-3" style={{ borderColor: 'var(--bdr)', background: 'var(--bg-card)' }}>
+          <summary className="cursor-pointer text-xs font-semibold">流月／流日参与的显隐重复簇</summary>
+          <div className="mt-3 grid gap-3 lg:grid-cols-2">
+            {segment.repeatAudit.stemClusters.map(cluster => <StemRepeatClusterCard key={cluster.id} cluster={cluster} />)}
+            {segment.repeatAudit.stemClusters.length === 0 && <p className="text-xs" style={{ color: 'var(--tx-3)' }}>本片段没有流月或流日参与的同干重复。</p>}
+          </div>
+        </details>
+
+        <details className="mt-3 rounded-lg border p-3" style={{ borderColor: 'var(--bdr)', background: 'var(--bg-card)' }}>
+          <summary className="cursor-pointer text-xs font-semibold">透出与根气条件</summary>
+          <div className="mt-3 grid gap-4 xl:grid-cols-2">
+            <div className="space-y-2"><p className="text-[9px]" style={{ color: 'var(--tx-3)' }}>藏干 → 表层：完全同干匹配</p>{segment.transparencyRootAudit.transparencyCandidates.map(candidate => <TransparencyCandidateCard key={candidate.id} candidate={candidate} />)}</div>
+            <div className="space-y-2"><p className="text-[9px]" style={{ color: 'var(--tx-3)' }}>表层 → 藏干：严格同干与同五行支持</p>{segment.transparencyRootAudit.rootCandidates.map(candidate => <RootCandidateCard key={candidate.id} candidate={candidate} />)}</div>
+          </div>
+        </details>
+
+        <details className="mt-3 rounded-lg border p-3" style={{ borderColor: 'var(--bdr)', background: 'var(--bg-card)' }}>
+          <summary className="cursor-pointer text-xs font-semibold">藏干触达条件</summary>
+          <div className="mt-3 grid gap-3 lg:grid-cols-2">
+            {segment.hiddenStemTouchAudit.candidates.map(candidate => <HiddenStemTouchCard key={candidate.id} candidate={candidate} />)}
+            {segment.hiddenStemTouchAudit.candidates.length === 0 && <p className="text-xs" style={{ color: 'var(--tx-3)' }}>本片段没有流月或流日自身、或由其入口触达的藏干候选。</p>}
+          </div>
+        </details>
+      </article>)}
+    </div>
+
+    <div className="mt-4 rounded-lg border p-3" style={{ borderColor: 'rgba(168,120,35,.3)', background: 'rgba(168,120,35,.06)' }}>
+      <p className="text-[10px] leading-5" style={{ color: 'var(--tx-3)' }}>{result.boundary}</p>
+      <p className="mt-1 text-[9px]" style={{ color: 'var(--tx-3)' }}>{result.methodologyVersion}</p>
+    </div>
+  </section>;
+}
+
 function monthDayLayerLabel(layer: string): string {
   return ({ luck_cycle: '大运', annual: '流年', month: '流月', day: '流日' } as Record<string, string>)[layer] ?? layer;
 }
@@ -1265,7 +1343,7 @@ function TenGodRoleRepeatCard({ cluster }: { cluster: BaziTenGodRoleRepeatCluste
 }
 
 function TenGodOccurrenceRow({ occurrence }: { occurrence: BaziTenGodOccurrence }) {
-  const layer = ({ natal: '原局', luck_cycle: '大运', annual: '流年' } as Record<string, string>)[occurrence.layer];
+  const layer = ({ natal: '原局', luck_cycle: '大运', annual: '流年', month: '流月', day: '流日' } as Record<string, string>)[occurrence.layer];
   const visibility = ({ surface: '表层', hidden: occurrence.hiddenQiLabel ?? '藏干', reference: '日主参照' } as Record<string, string>)[occurrence.visibility];
   return <div className="flex items-start gap-2 rounded-lg px-2.5 py-2 text-[9px]" style={{ background: 'var(--bg-1)' }}><span className="shrink-0 rounded px-1.5 py-0.5" style={{ color: occurrence.visibility === 'hidden' ? 'var(--tx-3)' : 'var(--ac-dim)', background: 'var(--bg-card)' }}>{layer} · {visibility}</span><span className="leading-4" style={{ color: 'var(--tx-2)' }}>{occurrence.label}{occurrence.tenGod ? ` · ${occurrence.tenGod}` : ''}</span></div>;
 }

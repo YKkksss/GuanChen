@@ -95,20 +95,53 @@ function buildSegment(
   dynamicSegment: BaziDynamicTenGodResult['years'][number]['segments'][number],
   relationSegment: BaziRelationAuditSegment,
 ): BaziTenGodRepeatSegment {
-  const dynamicOccurrences = [
-    ...buildBaziDynamicTenGodOccurrences(dynamicSegment.annual),
-    ...(dynamicSegment.luckCycle ? buildBaziDynamicTenGodOccurrences(dynamicSegment.luckCycle) : []),
-  ];
-  const occurrences = [...natalOccurrences, ...dynamicOccurrences];
-  const stemClusters = buildStemClusters(dayMasterStem, occurrences, relationSegment);
-  const tenGodClusters = buildTenGodClusters(occurrences, relationSegment);
-  return {
+  return auditBaziTenGodRepeatSegment({
+    dayMasterStem,
+    natalOccurrences,
+    dynamicLayers: [dynamicSegment.annual, ...(dynamicSegment.luckCycle ? [dynamicSegment.luckCycle] : [])],
+    relationSegment,
     segmentIndex: dynamicSegment.segmentIndex,
     startAt: dynamicSegment.startAt,
     endAtExclusive: dynamicSegment.endAtExclusive,
     luckCycleIndex: dynamicSegment.luckCycleIndex,
     luckCycleGanZhi: dynamicSegment.luckCycleGanZhi,
     label: dynamicSegment.label,
+    focusLayers: ['annual', 'luck_cycle'],
+  });
+}
+
+/** 复用 M9-9 聚类规则审计任意精确时间片段，并可限定必须参与的动态层。 */
+export function auditBaziTenGodRepeatSegment(input: {
+  dayMasterStem: string;
+  natalOccurrences: BaziTenGodOccurrence[];
+  dynamicLayers: BaziDynamicTenGodLayerSnapshot[];
+  relationSegment: Pick<BaziRelationAuditSegment, 'segmentIndex' | 'evidence'>;
+  segmentIndex: number;
+  startAt: string | null;
+  endAtExclusive: string | null;
+  luckCycleIndex: number | null;
+  luckCycleGanZhi: string | null;
+  label: string;
+  focusLayers: BaziRelationLayer[];
+}): BaziTenGodRepeatSegment {
+  const occurrences = [
+    ...input.natalOccurrences,
+    ...input.dynamicLayers.flatMap(buildBaziDynamicTenGodOccurrences),
+  ];
+  const stemClusters = buildStemClusters(
+    input.dayMasterStem,
+    occurrences,
+    input.relationSegment,
+    input.focusLayers,
+  );
+  const tenGodClusters = buildTenGodClusters(occurrences, input.relationSegment, input.focusLayers);
+  return {
+    segmentIndex: input.segmentIndex,
+    startAt: input.startAt,
+    endAtExclusive: input.endAtExclusive,
+    luckCycleIndex: input.luckCycleIndex,
+    luckCycleGanZhi: input.luckCycleGanZhi,
+    label: input.label,
     stemClusters,
     tenGodClusters,
     counts: {
@@ -190,10 +223,11 @@ export function buildBaziDynamicTenGodOccurrences(layer: BaziDynamicTenGodLayerS
 function buildStemClusters(
   dayMasterStem: string,
   occurrences: BaziTenGodOccurrence[],
-  relationSegment: BaziRelationAuditSegment,
+  relationSegment: Pick<BaziRelationAuditSegment, 'segmentIndex' | 'evidence'>,
+  focusLayers: BaziRelationLayer[],
 ): BaziStemRepeatCluster[] {
   const groups = groupOccurrences(occurrences, item => item.stem);
-  return [...groups.entries()].filter(([, items]) => qualifies(items)).map(([stem, items]) => {
+  return [...groups.entries()].filter(([, items]) => qualifies(items, focusLayers)).map(([stem, items]) => {
     const sorted = sortOccurrences(items);
     const patterns = resolvePatterns(sorted);
     return {
@@ -217,11 +251,12 @@ function buildStemClusters(
 
 function buildTenGodClusters(
   occurrences: BaziTenGodOccurrence[],
-  relationSegment: BaziRelationAuditSegment,
+  relationSegment: Pick<BaziRelationAuditSegment, 'segmentIndex' | 'evidence'>,
+  focusLayers: BaziRelationLayer[],
 ): BaziTenGodRoleRepeatCluster[] {
   const roleOccurrences = occurrences.filter((item): item is BaziTenGodOccurrence & { tenGod: BaziTenGodName } => item.tenGod !== null);
   const groups = groupOccurrences(roleOccurrences, item => item.tenGod);
-  return [...groups.entries()].filter(([, items]) => qualifies(items)).map(([tenGod, items]) => {
+  return [...groups.entries()].filter(([, items]) => qualifies(items, focusLayers)).map(([tenGod, items]) => {
     const sorted = sortOccurrences(items);
     return {
       id: `ten-god-repeat-${relationSegment.segmentIndex}-${tenGod}`,
@@ -243,7 +278,7 @@ function buildTenGodClusters(
 
 function buildConnections(
   occurrences: BaziTenGodOccurrence[],
-  relationSegment: BaziRelationAuditSegment,
+  relationSegment: Pick<BaziRelationAuditSegment, 'segmentIndex' | 'evidence'>,
 ): BaziTenGodRepeatConnection[] {
   const connections: BaziTenGodRepeatConnection[] = [];
   for (const evidence of relationSegment.evidence.filter(item => item.domain === 'stem')) {
@@ -269,8 +304,8 @@ function buildConnections(
   return connections;
 }
 
-function qualifies(occurrences: BaziTenGodOccurrence[]): boolean {
-  return occurrences.length >= 2 && occurrences.some(item => item.layer === 'annual' || item.layer === 'luck_cycle');
+function qualifies(occurrences: BaziTenGodOccurrence[], focusLayers: BaziRelationLayer[]): boolean {
+  return occurrences.length >= 2 && occurrences.some(item => focusLayers.includes(item.layer));
 }
 
 function resolvePatterns(occurrences: BaziTenGodOccurrence[]): BaziTenGodRepeatPattern[] {

@@ -122,7 +122,7 @@ async function main() {
       id: string; monthDayRelationVersionId: string; promptVersion: string;
     } }>(conversationResponse)).conversation;
     assert.ok(conversation.monthDayRelationVersionId);
-    assert.equal(conversation.promptVersion, 'bazi-chat-month-day-relation-v14');
+    assert.equal(conversation.promptVersion, 'bazi-chat-month-day-visibility-v15');
     const question = appendBaziMessage({
       conversationId: conversation.id,
       role: 'user',

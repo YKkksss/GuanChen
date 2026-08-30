@@ -15,6 +15,7 @@ import type {
   BaziTransparencyRootSegment,
 } from './transparency-root-types';
 import type { BaziTenGodOccurrence, BaziTenGodRepeatResult, BaziTenGodRepeatSegment } from './ten-god-repeat-types';
+import type { BaziRelationLayer } from './relation-audit-types';
 import type { BaziCalculationResult, BaziElement } from './types';
 
 const STEM_ELEMENTS: Record<string, BaziElement> = {
@@ -100,8 +101,11 @@ function buildSegment(
   occurrences: BaziTenGodOccurrence[],
   repeatSegment: BaziTenGodRepeatSegment,
 ): BaziTransparencyRootSegment {
-  const transparencyCandidates = buildTransparencyCandidates(occurrences, repeatSegment);
-  const rootCandidates = buildRootCandidates(occurrences, repeatSegment);
+  const audit = auditBaziTransparencyRootOccurrenceSet({
+    occurrences,
+    repeatSegment,
+    focusLayers: ['annual', 'luck_cycle'],
+  });
   return {
     segmentIndex: dynamicSegment.segmentIndex,
     startAt: dynamicSegment.startAt,
@@ -109,27 +113,48 @@ function buildSegment(
     luckCycleIndex: dynamicSegment.luckCycleIndex,
     luckCycleGanZhi: dynamicSegment.luckCycleGanZhi,
     label: dynamicSegment.label,
+    transparencyCandidates: audit.transparencyCandidates,
+    rootCandidates: audit.rootCandidates,
+    counts: audit.counts,
+    boundary: '本片段只比较实际共存的位置；同干匹配与同五行支持分开记录，不跨片段累计或折算力量。',
+  };
+}
+
+/** 复用 M9-10 规则审计任意精确片段，并限定候选必须由指定动态层参与。 */
+export function auditBaziTransparencyRootOccurrenceSet(input: {
+  occurrences: BaziTenGodOccurrence[];
+  repeatSegment: BaziTenGodRepeatSegment;
+  focusLayers: BaziRelationLayer[];
+}): Pick<BaziTransparencyRootSegment, 'transparencyCandidates' | 'rootCandidates' | 'counts'> {
+  const transparencyCandidates = buildTransparencyCandidates(
+    input.occurrences,
+    input.repeatSegment,
+    input.focusLayers,
+  );
+  const rootCandidates = buildRootCandidates(input.occurrences, input.repeatSegment, input.focusLayers);
+  return {
     transparencyCandidates,
     rootCandidates,
     counts: countCandidates(transparencyCandidates, rootCandidates),
-    boundary: '本片段只比较实际共存的位置；同干匹配与同五行支持分开记录，不跨片段累计或折算力量。',
   };
 }
 
 function buildTransparencyCandidates(
   occurrences: BaziTenGodOccurrence[],
   repeatSegment: BaziTenGodRepeatSegment,
+  focusLayers: BaziRelationLayer[],
 ): BaziTransparencyCandidate[] {
   const surfaces = occurrences.filter(item => item.visibility !== 'hidden');
   const hidden = occurrences.filter(item => item.visibility === 'hidden');
   return hidden.flatMap(hiddenOccurrence => {
     const surfaceMatches = sortOccurrences(surfaces.filter(item =>
       item.stem === hiddenOccurrence.stem
-      && (hiddenOccurrence.layer !== 'natal' || item.layer !== 'natal'),
+      && (hiddenOccurrence.layer !== 'natal' || item.layer !== 'natal')
+      && (focusLayers.includes(hiddenOccurrence.layer) || focusLayers.includes(item.layer)),
     ));
-    const hasDynamicOccurrence = hiddenOccurrence.layer !== 'natal'
-      || surfaceMatches.some(item => item.layer !== 'natal');
-    if (!hasDynamicOccurrence) return [];
+    const hasFocusOccurrence = focusLayers.includes(hiddenOccurrence.layer)
+      || surfaceMatches.some(item => focusLayers.includes(item.layer));
+    if (!hasFocusOccurrence) return [];
     const repeatCluster = surfaceMatches.length
       ? repeatSegment.stemClusters.find(item => item.stem === hiddenOccurrence.stem) ?? null
       : null;
@@ -177,6 +202,7 @@ function buildTransparencyCandidates(
 function buildRootCandidates(
   occurrences: BaziTenGodOccurrence[],
   repeatSegment: BaziTenGodRepeatSegment,
+  focusLayers: BaziRelationLayer[],
 ): BaziRootCandidate[] {
   const surfaces = occurrences.filter(item => item.visibility !== 'hidden');
   const hidden = occurrences.filter(item => item.visibility === 'hidden');
@@ -184,17 +210,19 @@ function buildRootCandidates(
     const element = requireStemElement(surfaceOccurrence.stem);
     const exactRootMatches = sortOccurrences(hidden.filter(item =>
       item.stem === surfaceOccurrence.stem
-      && (surfaceOccurrence.layer !== 'natal' || item.layer !== 'natal'),
+      && (surfaceOccurrence.layer !== 'natal' || item.layer !== 'natal')
+      && (focusLayers.includes(surfaceOccurrence.layer) || focusLayers.includes(item.layer)),
     ));
     const sameElementSupportMatches = sortOccurrences(hidden.filter(item =>
       item.stem !== surfaceOccurrence.stem
       && requireStemElement(item.stem) === element
-      && (surfaceOccurrence.layer !== 'natal' || item.layer !== 'natal'),
+      && (surfaceOccurrence.layer !== 'natal' || item.layer !== 'natal')
+      && (focusLayers.includes(surfaceOccurrence.layer) || focusLayers.includes(item.layer)),
     ));
-    const hasDynamicOccurrence = surfaceOccurrence.layer !== 'natal'
-      || exactRootMatches.some(item => item.layer !== 'natal')
-      || sameElementSupportMatches.some(item => item.layer !== 'natal');
-    if (!hasDynamicOccurrence) return [];
+    const hasFocusOccurrence = focusLayers.includes(surfaceOccurrence.layer)
+      || exactRootMatches.some(item => focusLayers.includes(item.layer))
+      || sameElementSupportMatches.some(item => focusLayers.includes(item.layer));
+    if (!hasFocusOccurrence) return [];
     const repeatCluster = exactRootMatches.length
       ? repeatSegment.stemClusters.find(item => item.stem === surfaceOccurrence.stem) ?? null
       : null;

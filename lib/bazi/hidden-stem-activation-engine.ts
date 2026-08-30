@@ -12,7 +12,7 @@ import type {
   BaziHiddenStemTouchEntry,
 } from './hidden-stem-activation-types';
 import type { BaziRelationAdjudicationResult, BaziRelationAdjudicationSegment } from './relation-adjudication-types';
-import type { BaziRelationAuditResult, BaziRelationAuditSegment, BaziRelationType } from './relation-audit-types';
+import type { BaziRelationAuditResult, BaziRelationAuditSegment, BaziRelationLayer, BaziRelationType } from './relation-audit-types';
 import {
   buildBaziDynamicTenGodOccurrences,
   buildBaziNatalTenGodOccurrences,
@@ -122,10 +122,15 @@ function buildSegment(
   repeatSegment: BaziTenGodRepeatSegment,
   transparencySegment: BaziTransparencyRootSegment,
 ): BaziHiddenStemActivationSegment {
-  const candidates = occurrences
-    .filter((item): item is BaziTenGodOccurrence & { tenGod: NonNullable<BaziTenGodOccurrence['tenGod']> } => item.visibility === 'hidden' && item.tenGod !== null)
-    .map(hidden => buildCandidate(hidden, occurrences, relationSegment, adjudicationSegment, repeatSegment, transparencySegment))
-    .sort((left, right) => compareOccurrences(left.hiddenOccurrence, right.hiddenOccurrence));
+  const audit = auditBaziHiddenStemTouchOccurrenceSet({
+    occurrences,
+    relationSegment,
+    adjudicationSegment,
+    repeatSegment,
+    transparencySegment,
+    focusLayers: ['annual', 'luck_cycle'],
+    includeAllCandidates: true,
+  });
   return {
     segmentIndex: dynamicSegment.segmentIndex,
     startAt: dynamicSegment.startAt,
@@ -133,24 +138,85 @@ function buildSegment(
     luckCycleIndex: dynamicSegment.luckCycleIndex,
     luckCycleGanZhi: dynamicSegment.luckCycleGanZhi,
     label: dynamicSegment.label,
-    candidates,
-    counts: countCandidates(candidates),
+    candidates: audit.candidates,
+    counts: audit.counts,
     boundary: '本片段逐个藏干记录三类入口是否命中；入口可以并见，但没有固定优先级，也不能跨片段累计。',
   };
+}
+
+/** 复用 M9-11 三类触达入口审计任意精确片段，可只保留由指定动态层参与的候选。 */
+export function auditBaziHiddenStemTouchOccurrenceSet(input: {
+  occurrences: BaziTenGodOccurrence[];
+  relationSegment: Pick<BaziRelationAuditSegment, 'segmentIndex' | 'evidence'>;
+  adjudicationSegment: Pick<BaziRelationAdjudicationSegment, 'decisions'>;
+  repeatSegment: BaziTenGodRepeatSegment;
+  transparencySegment: Pick<BaziTransparencyRootSegment, 'transparencyCandidates'>;
+  focusLayers: BaziRelationLayer[];
+  includeAllCandidates?: boolean;
+}): Pick<BaziHiddenStemActivationSegment, 'candidates' | 'counts'> {
+  const hiddenOccurrences = input.occurrences.filter(
+    (item): item is BaziTenGodOccurrence & { tenGod: NonNullable<BaziTenGodOccurrence['tenGod']> } =>
+      item.visibility === 'hidden' && item.tenGod !== null,
+  );
+  const candidates = hiddenOccurrences
+    .filter(hidden => input.includeAllCandidates || hasFocusTouch(
+      hidden,
+      input.occurrences,
+      input.relationSegment,
+      input.focusLayers,
+    ))
+    .map(hidden => buildCandidate(
+      hidden,
+      input.occurrences,
+      input.relationSegment,
+      input.adjudicationSegment,
+      input.repeatSegment,
+      input.transparencySegment,
+      input.focusLayers,
+    ))
+    .sort((left, right) => compareOccurrences(left.hiddenOccurrence, right.hiddenOccurrence));
+  return { candidates, counts: countCandidates(candidates) };
+}
+
+function hasFocusTouch(
+  hidden: BaziTenGodOccurrence,
+  occurrences: BaziTenGodOccurrence[],
+  relationSegment: Pick<BaziRelationAuditSegment, 'evidence'>,
+  focusLayers: BaziRelationLayer[],
+): boolean {
+  if (focusLayers.includes(hidden.layer)) return true;
+  if (occurrences.some(item =>
+    focusLayers.includes(item.layer)
+    && item.visibility !== 'hidden'
+    && item.stem === hidden.stem,
+  )) return true;
+  if (occurrences.some(item =>
+    focusLayers.includes(item.layer)
+    && item.visibility === 'hidden'
+    && item.nodeId !== hidden.nodeId
+    && item.sourceBranch === hidden.sourceBranch,
+  )) return true;
+  return relationSegment.evidence.some(evidence =>
+    evidence.domain === 'branch'
+    && evidence.participants.some(participant => participant.id === hidden.nodeId)
+    && evidence.participants.some(participant => focusLayers.includes(participant.layer)),
+  );
 }
 
 function buildCandidate(
   hidden: BaziTenGodOccurrence & { tenGod: NonNullable<BaziTenGodOccurrence['tenGod']> },
   occurrences: BaziTenGodOccurrence[],
-  relationSegment: BaziRelationAuditSegment,
-  adjudicationSegment: BaziRelationAdjudicationSegment,
+  relationSegment: Pick<BaziRelationAuditSegment, 'segmentIndex' | 'evidence'>,
+  adjudicationSegment: Pick<BaziRelationAdjudicationSegment, 'decisions'>,
   repeatSegment: BaziTenGodRepeatSegment,
-  transparencySegment: BaziTransparencyRootSegment,
+  transparencySegment: Pick<BaziTransparencyRootSegment, 'transparencyCandidates'>,
+  focusLayers: BaziRelationLayer[],
 ): BaziHiddenStemTouchCandidate {
   const exactDynamicSurfaces = occurrences.filter(item =>
     item.visibility !== 'hidden'
     && item.layer !== 'natal'
-    && item.stem === hidden.stem,
+    && item.stem === hidden.stem
+    && (focusLayers.includes(hidden.layer) || focusLayers.includes(item.layer)),
   );
   const transparencyCandidate = transparencySegment.transparencyCandidates.find(item => item.hiddenOccurrence.id === hidden.id) ?? null;
   const repeatCluster = repeatSegment.stemClusters.find(item =>
@@ -166,7 +232,8 @@ function buildCandidate(
     item.visibility === 'hidden'
     && item.sourceBranch === hidden.sourceBranch
     && item.nodeId !== hidden.nodeId
-    && (item.layer !== 'natal' || hidden.layer !== 'natal'),
+    && (item.layer !== 'natal' || hidden.layer !== 'natal')
+    && (focusLayers.includes(hidden.layer) || focusLayers.includes(item.layer)),
   ));
   const relationEvidence = buildRelationEvidence(hidden, relationSegment, adjudicationSegment);
   const entries: BaziHiddenStemTouchEntry[] = [
@@ -231,8 +298,8 @@ function buildCandidate(
 
 function buildRelationEvidence(
   hidden: BaziTenGodOccurrence,
-  relationSegment: BaziRelationAuditSegment,
-  adjudicationSegment: BaziRelationAdjudicationSegment,
+  relationSegment: Pick<BaziRelationAuditSegment, 'evidence'>,
+  adjudicationSegment: Pick<BaziRelationAdjudicationSegment, 'decisions'>,
 ): BaziHiddenStemRelationTouchEvidence[] {
   return relationSegment.evidence
     .filter(evidence =>
