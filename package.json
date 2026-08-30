@@ -49,6 +49,7 @@
     "test:bazi-month-day-timeline": "tsx scripts/test-bazi-month-day-timeline.ts",
     "test:bazi-month-day-relations": "tsx scripts/test-bazi-month-day-relations.ts",
     "test:bazi-month-day-visibility": "tsx scripts/test-bazi-month-day-visibility.ts",
+    "test:bazi-month-day-strength": "tsx scripts/test-bazi-month-day-strength.ts",
     "start": "next start -p 30001",
     "build:cf": "npx @cloudflare/next-on-pages",
     "preview:cf": "npx wrangler pages dev",

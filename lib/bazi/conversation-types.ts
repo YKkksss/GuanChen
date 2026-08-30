@@ -14,6 +14,7 @@ import type { BaziPatternConditionVersion } from './pattern-condition-types';
 import type { BaziMonthDayTimelineVersion } from './month-day-timeline-types';
 import type { BaziMonthDayRelationVersion } from './month-day-relation-types';
 import type { BaziMonthDayVisibilityVersion } from './month-day-visibility-types';
+import type { BaziMonthDayStrengthVersion } from './month-day-strength-types';
 
 export type BaziConversationStatus = 'active' | 'archived';
 export type BaziMessageRole = 'user' | 'assistant' | 'system';
@@ -47,6 +48,7 @@ export interface BaziConversation {
   monthDayTimelineVersionId: string | null;
   monthDayRelationVersionId: string | null;
   monthDayVisibilityVersionId: string | null;
+  monthDayStrengthVersionId: string | null;
   title: string;
   status: BaziConversationStatus;
   methodologyVersion: string;
@@ -78,6 +80,7 @@ export interface BaziConversationDetail extends BaziConversation {
   monthDayTimeline: BaziMonthDayTimelineVersion | null;
   monthDayRelation: BaziMonthDayRelationVersion | null;
   monthDayVisibility: BaziMonthDayVisibilityVersion | null;
+  monthDayStrength: BaziMonthDayStrengthVersion | null;
 }
 
 export interface BaziConversationListItem extends BaziConversation {

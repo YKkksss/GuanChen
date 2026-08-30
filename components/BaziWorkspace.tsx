@@ -38,6 +38,11 @@ import { auditBaziMonthDayRelations } from '@/lib/bazi/month-day-relation-engine
 import type { BaziMonthDayRelationResult } from '@/lib/bazi/month-day-relation-types';
 import { auditBaziMonthDayVisibilityConditions } from '@/lib/bazi/month-day-visibility-engine';
 import type { BaziMonthDayVisibilityResult } from '@/lib/bazi/month-day-visibility-types';
+import { auditBaziMonthDayStrengthComposite } from '@/lib/bazi/month-day-strength-engine';
+import type {
+  BaziMonthDayStrengthEvidence,
+  BaziMonthDayStrengthResult,
+} from '@/lib/bazi/month-day-strength-types';
 import { auditBaziRelations } from '@/lib/bazi/relation-audit-engine';
 import type { BaziRelationAuditResult, BaziRelationEvidence } from '@/lib/bazi/relation-audit-types';
 import { adjudicateBaziRelations } from '@/lib/bazi/relation-adjudication-engine';
@@ -199,6 +204,12 @@ export default function BaziWorkspace() {
       : null,
     [result, monthDayRelation],
   );
+  const monthDayStrength = useMemo(
+    () => result && interpretation && monthDayRelation && monthDayVisibility
+      ? auditBaziMonthDayStrengthComposite(result, interpretation, monthDayRelation, monthDayVisibility)
+      : null,
+    [result, interpretation, monthDayRelation, monthDayVisibility],
+  );
   const relationAudit = useMemo(
     () => result && luckCycles && annualTimeline
       ? auditBaziRelations(result, luckCycles, annualTimeline)
@@ -285,6 +296,17 @@ export default function BaziWorkspace() {
       }),
     }).catch(() => undefined);
   }, [currentChartId, monthDayVisibility?.target.effectiveDate, monthDayVisibility?.source.targetYear]);
+  useEffect(() => {
+    if (!currentChartId || !monthDayStrength) return;
+    void fetch(`/api/bazi/charts/${currentChartId}/month-day-strength`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        targetDate: monthDayStrength.target.effectiveDate,
+        targetYear: monthDayStrength.source.targetYear,
+      }),
+    }).catch(() => undefined);
+  }, [currentChartId, monthDayStrength?.target.effectiveDate, monthDayStrength?.source.targetYear]);
 
   const update = <K extends keyof FormState>(key: K, value: FormState[K]) => {
     setForm(current => ({ ...current, [key]: value }));
@@ -578,6 +600,7 @@ export default function BaziWorkspace() {
             {monthDayTimeline && <BaziMonthDayTimelinePanel result={monthDayTimeline} selectedDate={selectedFlowDate} onSelectDate={setSelectedFlowDate} />}
             {monthDayRelation && <BaziMonthDayRelationPanel result={monthDayRelation} />}
             {monthDayVisibility && <BaziMonthDayVisibilityPanel result={monthDayVisibility} />}
+            {monthDayStrength && <BaziMonthDayStrengthPanel result={monthDayStrength} />}
             {relationAudit && <BaziRelationAuditPanel result={relationAudit} selectedYear={selectedAnnualYear} />}
             {relationAdjudication && <BaziRelationAdjudicationPanel result={relationAdjudication} selectedYear={selectedAnnualYear} />}
             {dynamicTenGod && <BaziDynamicTenGodPanel result={dynamicTenGod} selectedYear={selectedAnnualYear} />}
@@ -1066,6 +1089,89 @@ function BaziMonthDayVisibilityPanel({ result }: { result: BaziMonthDayVisibilit
       <p className="mt-1 text-[9px]" style={{ color: 'var(--tx-3)' }}>{result.methodologyVersion}</p>
     </div>
   </section>;
+}
+
+function BaziMonthDayStrengthPanel({ result }: { result: BaziMonthDayStrengthResult }) {
+  return <section data-testid="bazi-month-day-strength-audit" className="mt-5 rounded-xl border p-5 md:p-6" style={{ borderColor: 'var(--t-border-acc)', background: 'var(--bg-card)' }}>
+    <div className="flex flex-wrap items-start justify-between gap-4">
+      <div className="flex items-start gap-3">
+        <div className="rounded-lg p-2" style={{ color: 'var(--ac-dim)', background: 'var(--ac-bg)' }}><Database size={19} /></div>
+        <div>
+          <p className="text-[10px] tracking-[.18em]" style={{ color: 'var(--ac-dim)' }}>M9-17 · 流月流日旺衰综合证据矩阵</p>
+          <h2 className="mt-1 text-lg font-semibold">{result.target.effectiveDate} {result.target.dayGanZhi} · 三层方向对照</h2>
+          <p className="mt-1 text-xs leading-5" style={{ color: 'var(--tx-3)' }}>静态基线保持为“{result.staticBaseline.label}”；分别查看既有岁运、流月流日新增与五层合并的表层方向，不生成最终旺衰。</p>
+        </div>
+      </div>
+      <span className="rounded-full px-3 py-1 text-[9px]" style={{ color: 'var(--ac-dim)', background: 'var(--bg-1)' }}>{result.target.segmentCount} 个精确片段</span>
+    </div>
+
+    <div className="mt-5 space-y-4">
+      {result.segments.map(segment => {
+        const inherited = segment.evidence.filter(item => item.family === 'inherited_dynamic_surface');
+        const focus = segment.evidence.filter(item => item.family === 'month_day_surface');
+        const context = segment.evidence.filter(item => item.side === 'context' && item.family !== 'static_baseline');
+        return <article key={segment.segmentIndex} data-testid="month-day-strength-segment" className="rounded-xl border p-4" style={{ borderColor: 'var(--bdr)', background: 'var(--bg-1)' }}>
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div><h3 className="text-sm font-semibold">片段 {segment.segmentIndex} · {segment.label}</h3><p className="mt-1 font-mono text-[9px]" style={{ color: 'var(--tx-3)' }}>{segment.startAt} — {segment.endAtExclusive} 前</p></div>
+            <span className="text-[9px]" style={{ color: 'var(--tx-3)' }}>既有表层 {segment.counts.inheritedSurfaceEvidence} · 新增表层 {segment.counts.focusSurfaceEvidence} · 条件上下文 {segment.counts.contextEvidence}</span>
+          </div>
+
+          <div className="mt-4 grid gap-3 lg:grid-cols-3">
+            <DirectionCard title="大运／流年既有方向" label={segment.inheritedSurfaceDirectionLabel} evidence={inherited} />
+            <DirectionCard title="流月／流日新增方向" label={segment.focusSurfaceDirectionLabel} evidence={focus} accent />
+            <div className="rounded-lg border p-3" style={{ borderColor: 'var(--ac-bdr)', background: 'var(--bg-card)' }}>
+              <p className="text-[9px]" style={{ color: 'var(--tx-3)' }}>五层表层合并</p>
+              <p className="mt-2 text-xs font-semibold" style={{ color: 'var(--ac-dim)' }}>{segment.combinedSurfaceDirectionLabel}</p>
+              <p className="mt-3 text-[10px] leading-5" style={{ color: 'var(--tx-3)' }}>{segment.focusComparisonLabel}</p>
+              <p className="text-[10px] leading-5" style={{ color: 'var(--tx-3)' }}>{segment.staticComparisonLabel}</p>
+            </div>
+          </div>
+
+          <details className="mt-3 rounded-lg border p-3" style={{ borderColor: 'var(--bdr)', background: 'var(--bg-card)' }}>
+            <summary className="cursor-pointer text-xs font-semibold">条件上下文 · 不参与方向计算</summary>
+            <div className="mt-3 grid gap-2 lg:grid-cols-2">
+              {context.map(item => <StrengthContextCard key={item.id} evidence={item} />)}
+              {context.length === 0 && <p className="text-xs" style={{ color: 'var(--tx-3)' }}>当前片段没有已开放的藏干、根气或触达条件上下文。</p>}
+            </div>
+          </details>
+        </article>;
+      })}
+    </div>
+
+    <div className="mt-4 rounded-lg border p-3" style={{ borderColor: 'rgba(168,120,35,.3)', background: 'rgba(168,120,35,.06)' }}>
+      <p className="text-[10px] leading-5" style={{ color: 'var(--tx-3)' }}>同向不等于增强，异向不等于抵消或反转；藏干位置、根气与触达不计入方向。{result.boundary}</p>
+      <p className="mt-1 text-[9px]" style={{ color: 'var(--tx-3)' }}>{result.methodologyVersion}</p>
+    </div>
+  </section>;
+}
+
+function DirectionCard({
+  title,
+  label,
+  evidence,
+  accent = false,
+}: {
+  title: string;
+  label: string;
+  evidence: BaziMonthDayStrengthEvidence[];
+  accent?: boolean;
+}) {
+  return <div className="rounded-lg border p-3" style={{ borderColor: accent ? 'var(--ac-bdr)' : 'var(--bdr)', background: 'var(--bg-card)' }}>
+    <p className="text-[9px]" style={{ color: 'var(--tx-3)' }}>{title}</p>
+    <p className="mt-2 text-xs font-semibold" style={{ color: accent ? 'var(--ac-dim)' : 'var(--tx-1)' }}>{label}</p>
+    <div className="mt-3 space-y-1.5">
+      {evidence.map(item => <p key={item.id} className="text-[9px] leading-4" style={{ color: 'var(--tx-3)' }}>· {item.label} · {item.side === 'support' ? '生扶' : '泄耗制'}</p>)}
+      {evidence.length === 0 && <p className="text-[9px]" style={{ color: 'var(--tx-3)' }}>无可见表层方向证据</p>}
+    </div>
+  </div>;
+}
+
+function StrengthContextCard({ evidence }: { evidence: BaziMonthDayStrengthEvidence }) {
+  return <div className="rounded-lg border p-3" style={{ borderColor: 'var(--bdr)', background: 'var(--bg-1)' }}>
+    <div className="flex flex-wrap items-center gap-2"><span className="rounded-full px-2 py-0.5 text-[8px]" style={{ color: 'var(--ac-dim)', background: 'var(--ac-bg)' }}>{evidence.familyLabel}</span><span className="text-[8px]" style={{ color: 'var(--tx-3)' }}>{evidence.status === 'condition_only' ? '条件证据' : '位置证据'}</span></div>
+    <p className="mt-2 text-[10px] font-medium leading-5">{evidence.label}</p>
+    <p className="mt-1 text-[9px] leading-4" style={{ color: 'var(--tx-3)' }}>{evidence.detail}</p>
+  </div>;
 }
 
 function monthDayLayerLabel(layer: string): string {

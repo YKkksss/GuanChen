@@ -249,7 +249,8 @@ function buildMonthTouchEvidence(segment: BaziHiddenStemActivationSegment): Bazi
   });
 }
 
-function resolveDynamicDirection(evidence: BaziStrengthCompositeEvidence[]): BaziDynamicSurfaceDirection {
+/** 供按日综合矩阵复用 M9-12 的表层方向分类，不接收条件型藏干证据。 */
+export function resolveDynamicDirection(evidence: Array<Pick<BaziStrengthCompositeEvidence, 'side'>>): BaziDynamicSurfaceDirection {
   const support = evidence.some(item => item.side === 'support');
   const drain = evidence.some(item => item.side === 'drain_or_control');
   if (support && drain) return 'both_sides';
@@ -258,7 +259,8 @@ function resolveDynamicDirection(evidence: BaziStrengthCompositeEvidence[]): Baz
   return 'none';
 }
 
-function resolveComparison(
+/** 复用 M9-12 的静态基线与可见动态表层比较语义。 */
+export function resolveComparison(
   assessment: BaziInterpretationResult['strength']['assessment'],
   dynamic: BaziDynamicSurfaceDirection,
   completeness: BaziCalculationResult['completeness'],
@@ -303,7 +305,8 @@ function countEvidence(evidence: BaziStrengthCompositeEvidence[]): BaziStrengthC
   };
 }
 
-function tenGodSide(tenGod: BaziTenGodName): Exclude<BaziStrengthCompositeSide, 'context'> {
+/** 统一十神在扶抑方向矩阵中的生扶／泄耗制分类。 */
+export function tenGodSide(tenGod: BaziTenGodName): Exclude<BaziStrengthCompositeSide, 'context'> {
   return SUPPORT_TEN_GODS.has(tenGod) ? 'support' : 'drain_or_control';
 }
 

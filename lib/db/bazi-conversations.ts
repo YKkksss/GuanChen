@@ -38,9 +38,13 @@ import {
   ensureBaziMonthDayVisibilityVersion,
   getBaziMonthDayVisibilityVersion,
 } from './bazi-month-day-visibility';
+import {
+  ensureBaziMonthDayStrengthVersion,
+  getBaziMonthDayStrengthVersion,
+} from './bazi-month-day-strengths';
 import { getDatabase } from './client';
 
-export const BAZI_CHAT_PROMPT_VERSION = 'bazi-chat-month-day-visibility-v15';
+export const BAZI_CHAT_PROMPT_VERSION = 'bazi-chat-month-day-strength-v16';
 
 interface ConversationRow {
   id: string; chart_version_id: string; analysis_version_id: string | null; luck_cycle_version_id: string | null;
@@ -56,6 +60,7 @@ interface ConversationRow {
   month_day_timeline_version_id: string | null;
   month_day_relation_version_id: string | null;
   month_day_visibility_version_id: string | null;
+  month_day_strength_version_id: string | null;
   title: string; status: BaziConversationStatus;
   methodology_version: string; engine_version: string; prompt_version: string;
   summary_json: string | null; summary_through_seq: number; summary_version: number;
@@ -100,6 +105,7 @@ export function createBaziConversation(input: {
   const monthDayTimeline = ensureBaziMonthDayTimelineVersion(chart.id);
   const monthDayRelation = ensureBaziMonthDayRelationVersion(chart.id);
   const monthDayVisibility = ensureBaziMonthDayVisibilityVersion(chart.id);
+  const monthDayStrength = ensureBaziMonthDayStrengthVersion(chart.id);
 
   if (!input.forceNew) {
     const existing = getDatabase().prepare(`
@@ -123,11 +129,12 @@ export function createBaziConversation(input: {
       month_day_timeline_version_id,
       month_day_relation_version_id,
       month_day_visibility_version_id,
+      month_day_strength_version_id,
       title, status, methodology_version, engine_version,
       prompt_version, created_at, updated_at
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', ?, ?, ?, ?, ?)
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', ?, ?, ?, ?, ?)
   `).run(
-    id, chart.id, analysis.id, luckCycles.id, annualTimeline.id, relationAudit.id, relationAdjudication.id, dynamicTenGod.id, tenGodRepeat.id, transparencyRoot.id, hiddenStemActivation.id, strengthComposite.id, patternCondition.id, monthDayTimeline.id, monthDayRelation.id, monthDayVisibility.id, title,
+    id, chart.id, analysis.id, luckCycles.id, annualTimeline.id, relationAudit.id, relationAdjudication.id, dynamicTenGod.id, tenGodRepeat.id, transparencyRoot.id, hiddenStemActivation.id, strengthComposite.id, patternCondition.id, monthDayTimeline.id, monthDayRelation.id, monthDayVisibility.id, monthDayStrength.id, title,
     chart.methodologyVersion, chart.engineVersion, BAZI_CHAT_PROMPT_VERSION, now, now,
   );
   return getBaziConversation(id)!;
@@ -137,7 +144,7 @@ export function getBaziConversation(id: string): BaziConversationDetail | null {
   let row = getDatabase().prepare('SELECT * FROM bazi_conversations WHERE id = ?')
     .get(id) as ConversationRow | undefined;
   if (!row) return null;
-  if (!row.analysis_version_id || !row.luck_cycle_version_id || !row.annual_timeline_version_id || !row.relation_audit_version_id || !row.relation_adjudication_version_id || !row.dynamic_ten_god_version_id || !row.ten_god_repeat_version_id || !row.transparency_root_version_id || !row.hidden_stem_activation_version_id || !row.strength_composite_version_id || !row.pattern_condition_version_id || !row.month_day_timeline_version_id || !row.month_day_relation_version_id || !row.month_day_visibility_version_id || row.prompt_version !== BAZI_CHAT_PROMPT_VERSION) {
+  if (!row.analysis_version_id || !row.luck_cycle_version_id || !row.annual_timeline_version_id || !row.relation_audit_version_id || !row.relation_adjudication_version_id || !row.dynamic_ten_god_version_id || !row.ten_god_repeat_version_id || !row.transparency_root_version_id || !row.hidden_stem_activation_version_id || !row.strength_composite_version_id || !row.pattern_condition_version_id || !row.month_day_timeline_version_id || !row.month_day_relation_version_id || !row.month_day_visibility_version_id || !row.month_day_strength_version_id || row.prompt_version !== BAZI_CHAT_PROMPT_VERSION) {
     const analysis = ensureBaziAnalysisVersion(row.chart_version_id);
     const luckCycles = ensureBaziLuckCycleVersion(row.chart_version_id);
     const annualTimeline = ensureBaziAnnualTimelineVersion(row.chart_version_id);
@@ -152,12 +159,13 @@ export function getBaziConversation(id: string): BaziConversationDetail | null {
     const monthDayTimeline = ensureBaziMonthDayTimelineVersion(row.chart_version_id);
     const monthDayRelation = ensureBaziMonthDayRelationVersion(row.chart_version_id);
     const monthDayVisibility = ensureBaziMonthDayVisibilityVersion(row.chart_version_id);
+    const monthDayStrength = ensureBaziMonthDayStrengthVersion(row.chart_version_id);
     getDatabase().prepare(`
       UPDATE bazi_conversations
       SET analysis_version_id = ?, luck_cycle_version_id = ?, annual_timeline_version_id = ?, relation_audit_version_id = ?,
-          relation_adjudication_version_id = ?, dynamic_ten_god_version_id = ?, ten_god_repeat_version_id = ?, transparency_root_version_id = ?, hidden_stem_activation_version_id = ?, strength_composite_version_id = ?, pattern_condition_version_id = ?, month_day_timeline_version_id = ?, month_day_relation_version_id = ?, month_day_visibility_version_id = ?, prompt_version = ?, updated_at = ?
+          relation_adjudication_version_id = ?, dynamic_ten_god_version_id = ?, ten_god_repeat_version_id = ?, transparency_root_version_id = ?, hidden_stem_activation_version_id = ?, strength_composite_version_id = ?, pattern_condition_version_id = ?, month_day_timeline_version_id = ?, month_day_relation_version_id = ?, month_day_visibility_version_id = ?, month_day_strength_version_id = ?, prompt_version = ?, updated_at = ?
       WHERE id = ?
-    `).run(analysis.id, luckCycles.id, annualTimeline.id, relationAudit.id, relationAdjudication.id, dynamicTenGod.id, tenGodRepeat.id, transparencyRoot.id, hiddenStemActivation.id, strengthComposite.id, patternCondition.id, monthDayTimeline.id, monthDayRelation.id, monthDayVisibility.id, BAZI_CHAT_PROMPT_VERSION, Date.now(), id);
+    `).run(analysis.id, luckCycles.id, annualTimeline.id, relationAudit.id, relationAdjudication.id, dynamicTenGod.id, tenGodRepeat.id, transparencyRoot.id, hiddenStemActivation.id, strengthComposite.id, patternCondition.id, monthDayTimeline.id, monthDayRelation.id, monthDayVisibility.id, monthDayStrength.id, BAZI_CHAT_PROMPT_VERSION, Date.now(), id);
     row = getDatabase().prepare('SELECT * FROM bazi_conversations WHERE id = ?')
       .get(id) as ConversationRow;
   }
@@ -208,7 +216,10 @@ export function getBaziConversation(id: string): BaziConversationDetail | null {
   const monthDayVisibility = conversation.monthDayVisibilityVersionId
     ? getBaziMonthDayVisibilityVersion(conversation.monthDayVisibilityVersionId)
     : null;
-  return { ...conversation, chart, profile, analysis, luckCycles, annualTimeline, relationAudit, relationAdjudication, dynamicTenGod, tenGodRepeat, transparencyRoot, hiddenStemActivation, strengthComposite, patternCondition, monthDayTimeline, monthDayRelation, monthDayVisibility };
+  const monthDayStrength = conversation.monthDayStrengthVersionId
+    ? getBaziMonthDayStrengthVersion(conversation.monthDayStrengthVersionId)
+    : null;
+  return { ...conversation, chart, profile, analysis, luckCycles, annualTimeline, relationAudit, relationAdjudication, dynamicTenGod, tenGodRepeat, transparencyRoot, hiddenStemActivation, strengthComposite, patternCondition, monthDayTimeline, monthDayRelation, monthDayVisibility, monthDayStrength };
 }
 
 export function listBaziConversations(input: {
@@ -408,6 +419,7 @@ function mapConversation(row: ConversationRow): BaziConversation {
     monthDayTimelineVersionId: row.month_day_timeline_version_id,
     monthDayRelationVersionId: row.month_day_relation_version_id,
     monthDayVisibilityVersionId: row.month_day_visibility_version_id,
+    monthDayStrengthVersionId: row.month_day_strength_version_id,
     title: row.title, status: row.status,
     methodologyVersion: row.methodology_version, engineVersion: row.engine_version,
     promptVersion: row.prompt_version, summary: parseJson<BaziConversationSummary>(row.summary_json),
