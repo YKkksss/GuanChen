@@ -4,6 +4,7 @@ import { BRANCHES } from '@/lib/ziwei/constants';
 import type { SiHua, ZiweiChart } from '@/lib/ziwei/types';
 import type {
   AnnualTransitSnapshot,
+  DailyTransitSnapshot,
   MonthlyTransitSnapshot,
   TransitKeyPalace,
   TransitPalaceMapping,
@@ -12,6 +13,7 @@ import type {
 
 export const TRANSIT_ENGINE_VERSION = 'transit-v1-iztro-2.5.8';
 export const MONTHLY_TRANSIT_ENGINE_VERSION = 'transit-month-v1-iztro-2.5.8-normal-lunar-boundary';
+export const DAILY_TRANSIT_ENGINE_VERSION = 'transit-day-v1-iztro-2.5.8-early-rat-hour';
 
 const TRANSFORM_TYPES: SiHua[] = ['禄', '权', '科', '忌'];
 
@@ -112,6 +114,10 @@ function getLunarDate(targetDate: string) {
   return Solar.fromYmd(year, month, day).getLunar();
 }
 
+function buildLunarMonthLabel(monthName: string, isLeap: boolean): string {
+  return `${isLeap && !monthName.startsWith('闰') ? '闰' : ''}${monthName}月`;
+}
+
 /**
  * 将任意公历观察日归一到它所属的农历月。
  * iztro 默认使用农历初一作为流月边界，因此同一农历月只保存一份快照。
@@ -139,7 +145,7 @@ export function resolveMonthlyTransitPeriod(targetDate: string): MonthlyTransitS
     year: selectedLunar.getYear(),
     month: absoluteMonth,
     isLeap,
-    label: `${isLeap && !selectedLunar.getMonthInChinese().startsWith('闰') ? '闰' : ''}${selectedLunar.getMonthInChinese()}月`,
+    label: buildLunarMonthLabel(selectedLunar.getMonthInChinese(), isLeap),
     startDate,
     endDate: addSolarDays(nextStartDate, -1),
     dayCount,
@@ -404,6 +410,175 @@ export function buildMonthlyTransitSnapshot(
         label: '三方四正',
         source: 'project-rule',
         details: '以流月命宫及其对宫、两个三合宫作为本月结构的首要观察范围。',
+      },
+    ],
+  };
+}
+
+/**
+ * 生成流日运势的确定性快照。
+ * 日期级产品统一使用目标公历日的早子时作为代表点；晚子时跨日属于后续流时模块的范围。
+ */
+export function buildDailyTransitSnapshot(
+  chart: ZiweiChart,
+  targetDate: string,
+): DailyTransitSnapshot {
+  const parsed = parseSolarDate(targetDate);
+  const representativeDate = parsed.iso;
+  const lunar = getLunarDate(representativeDate);
+  const lunarMonth = resolveMonthlyTransitPeriod(representativeDate);
+  const birth = chart.birthInfo;
+  const gender = birth.gender === 'male' ? '男' : '女';
+  const astrolabe = astro.bySolar(
+    `${birth.year}-${birth.month}-${birth.day}`,
+    birth.hour,
+    gender,
+    true,
+    'zh-CN',
+  );
+  // 不传 timeIndex 时，iztro 对纯日期使用早子时代表点。
+  const horoscope = astrolabe.horoscope(representativeDate);
+
+  const palaceMappings: TransitPalaceMapping[] = astrolabe.palaces.map((palace, index) => ({
+    branch: branchIndex(palace.earthlyBranch as string),
+    nativePalaceName: palace.name as string,
+    transitPalaceName: horoscope.daily.palaceNames[index] as string,
+    transitStars: (horoscope.daily.stars?.[index] ?? []).map(star => star.name as string),
+  }));
+  const flowYearBranch = branchIndex(astrolabe.palaces[horoscope.yearly.index].earthlyBranch as string);
+  const flowMonthBranch = branchIndex(astrolabe.palaces[horoscope.monthly.index].earthlyBranch as string);
+  const flowDayBranch = branchIndex(astrolabe.palaces[horoscope.daily.index].earthlyBranch as string);
+  const decadalBranch = branchIndex(astrolabe.palaces[horoscope.decadal.index].earthlyBranch as string);
+  const decadalFromChart = chart.daXians.find(item => item.palaceBranch === decadalBranch);
+  const yearlyTransformations = buildTransformations(chart, horoscope.yearly.mutagen as string[]);
+  const monthlyTransformations = buildTransformations(chart, horoscope.monthly.mutagen as string[]);
+  const transformations = buildTransformations(chart, horoscope.daily.mutagen as string[]);
+  const keyPalaces = buildKeyPalaces(
+    chart,
+    palaceMappings,
+    flowDayBranch,
+    transformations,
+    '流日',
+  );
+  const lunarMonthNumber = lunar.getMonth();
+  const isLeapMonth = lunarMonthNumber < 0;
+
+  return {
+    level: 'day',
+    targetDate: representativeDate,
+    representativeDate,
+    representativeTimeIndex: 0,
+    boundaryPolicy: 'civil-date-early-rat-hour-representative',
+    engineVersion: DAILY_TRANSIT_ENGINE_VERSION,
+    lunarDate: horoscope.lunarDate,
+    nominalAge: horoscope.age.nominalAge,
+    lunarDay: {
+      year: lunar.getYear(),
+      month: Math.abs(lunarMonthNumber),
+      day: lunar.getDay(),
+      isLeapMonth,
+      monthLabel: buildLunarMonthLabel(lunar.getMonthInChinese(), isLeapMonth),
+      dayLabel: lunar.getDayInChinese(),
+    },
+    lunarMonth,
+    year: {
+      heavenlyStem: horoscope.yearly.heavenlyStem as string,
+      earthlyBranch: horoscope.yearly.earthlyBranch as string,
+      ganZhi: `${horoscope.yearly.heavenlyStem}${horoscope.yearly.earthlyBranch}`,
+    },
+    decadal: {
+      startAge: decadalFromChart?.startAge ?? null,
+      endAge: decadalFromChart?.endAge ?? null,
+      palaceBranch: decadalBranch,
+      nativePalaceName: chart.palaces.find(item => item.branch === decadalBranch)?.name ?? '未知宫位',
+      heavenlyStem: horoscope.decadal.heavenlyStem as string,
+      earthlyBranch: horoscope.decadal.earthlyBranch as string,
+    },
+    flowYear: {
+      palaceBranch: flowYearBranch,
+      nativePalaceName: chart.palaces.find(item => item.branch === flowYearBranch)?.name ?? '未知宫位',
+      heavenlyStem: horoscope.yearly.heavenlyStem as string,
+      earthlyBranch: horoscope.yearly.earthlyBranch as string,
+    },
+    flowMonth: {
+      palaceBranch: flowMonthBranch,
+      nativePalaceName: chart.palaces.find(item => item.branch === flowMonthBranch)?.name ?? '未知宫位',
+      heavenlyStem: horoscope.monthly.heavenlyStem as string,
+      earthlyBranch: horoscope.monthly.earthlyBranch as string,
+      ganZhi: `${horoscope.monthly.heavenlyStem}${horoscope.monthly.earthlyBranch}`,
+    },
+    flowDay: {
+      palaceBranch: flowDayBranch,
+      nativePalaceName: chart.palaces.find(item => item.branch === flowDayBranch)?.name ?? '未知宫位',
+      heavenlyStem: horoscope.daily.heavenlyStem as string,
+      earthlyBranch: horoscope.daily.earthlyBranch as string,
+      ganZhi: `${horoscope.daily.heavenlyStem}${horoscope.daily.earthlyBranch}`,
+    },
+    yearlyTransformations,
+    monthlyTransformations,
+    transformations,
+    relatedPalaceBranches: [
+      flowDayBranch,
+      (flowDayBranch + 6) % 12,
+      (flowDayBranch + 4) % 12,
+      (flowDayBranch + 8) % 12,
+    ],
+    palaceMappings,
+    keyPalaces,
+    topicPalaces: {
+      career: findMappingBranch(palaceMappings, '官禄宫'),
+      relationship: findMappingBranch(palaceMappings, '夫妻宫'),
+      wealth: findMappingBranch(palaceMappings, '财帛宫'),
+      health: findMappingBranch(palaceMappings, '疾厄宫'),
+    },
+    evidence: [
+      {
+        id: 'daily-boundary',
+        label: '流日代表口径',
+        source: 'project-rule',
+        details: `按公历日期 ${representativeDate} 归档，并使用该日早子时作为日期级代表点；晚子时跨日需在流时模块按具体时辰判断。`,
+      },
+      {
+        id: 'daily-lunar-date',
+        label: '农历日期',
+        source: 'iztro',
+        details: `${representativeDate} 对应农历 ${lunar.getYear()} 年${buildLunarMonthLabel(lunar.getMonthInChinese(), isLeapMonth)}${lunar.getDayInChinese()}。`,
+      },
+      {
+        id: 'daily-ganzhi',
+        label: '流日干支',
+        source: 'iztro',
+        details: `早子时代表点的流日干支为 ${horoscope.daily.heavenlyStem}${horoscope.daily.earthlyBranch}。`,
+      },
+      {
+        id: 'daily-life-palace',
+        label: '流日命宫',
+        source: 'iztro',
+        details: `流日命宫落在本命${chart.palaces.find(item => item.branch === flowDayBranch)?.name ?? '未知宫位'}（${BRANCHES[flowDayBranch]}宫）。`,
+      },
+      {
+        id: 'daily-mutagen',
+        label: '流日四化',
+        source: 'iztro',
+        details: transformations.map(item => `${item.starName}化${item.type}`).join('、'),
+      },
+      {
+        id: 'daily-stars',
+        label: '流日流曜',
+        source: 'iztro',
+        details: `已将 ${palaceMappings.reduce((count, item) => count + item.transitStars.length, 0)} 个流日流曜定位到十二宫。`,
+      },
+      {
+        id: 'daily-palace-map',
+        label: '流日十二宫映射',
+        source: 'iztro',
+        details: '将流日十二宫与本命十二宫逐宫对齐，用于日期级专题宫位定位。',
+      },
+      {
+        id: 'daily-related-palaces',
+        label: '三方四正',
+        source: 'project-rule',
+        details: '以流日命宫及其对宫、两个三合宫作为当日结构的首要观察范围。',
       },
     ],
   };

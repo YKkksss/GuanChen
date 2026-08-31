@@ -28,7 +28,7 @@ interface InsightPanelProps {
   initialMessages?: ConversationMessage[];
   selectedPalace?: Palace | null;
   selectedSiHua?: SelectedSiHua | null;
-  transitContext?: { level: 'year' | 'month'; targetDate: string; label?: string } | null;
+  transitContext?: { level: 'year' | 'month' | 'day'; targetDate: string; label?: string } | null;
   autoGenerate?: boolean;
 }
 

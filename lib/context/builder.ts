@@ -22,8 +22,17 @@ import {
   type LifeEventWithTransits,
 } from '@/lib/events/types';
 import { buildCompactChartBase, buildTopicChartContext } from './chart-context';
-import { getOrCreateAnnualTransit, getOrCreateMonthlyTransit } from '@/lib/transits/service';
-import type { AnnualTransitSnapshot, MonthlyTransitSnapshot, TransitSnapshot } from '@/lib/transits/types';
+import {
+  getOrCreateAnnualTransit,
+  getOrCreateDailyTransit,
+  getOrCreateMonthlyTransit,
+} from '@/lib/transits/service';
+import type {
+  AnnualTransitSnapshot,
+  DailyTransitSnapshot,
+  MonthlyTransitSnapshot,
+  TransitSnapshot,
+} from '@/lib/transits/types';
 import { getModelProfile } from './model-profile';
 import {
   estimateMessageTokens,
@@ -280,6 +289,9 @@ function getTransitFromMessage(
   if (transit.level === 'month' && /^\d{4}-\d{2}-\d{2}$/.test(transit.targetDate)) {
     return getOrCreateMonthlyTransit(conversationId, transit.targetDate).snapshot;
   }
+  if (transit.level === 'day' && /^\d{4}-\d{2}-\d{2}$/.test(transit.targetDate)) {
+    return getOrCreateDailyTransit(conversationId, transit.targetDate).snapshot;
+  }
   if (transit.level === 'year' && /^\d{4}$/.test(transit.targetDate)) {
     const year = Number.parseInt(transit.targetDate, 10);
     return getOrCreateAnnualTransit(conversationId, year).snapshot;
@@ -288,9 +300,9 @@ function getTransitFromMessage(
 }
 
 function buildTransitContext(snapshot: TransitSnapshot): string {
-  return snapshot.level === 'month'
-    ? buildMonthlyTransitContext(snapshot)
-    : buildAnnualTransitContext(snapshot);
+  if (snapshot.level === 'day') return buildDailyTransitContext(snapshot);
+  if (snapshot.level === 'month') return buildMonthlyTransitContext(snapshot);
+  return buildAnnualTransitContext(snapshot);
 }
 
 function buildAnnualTransitContext(snapshot: AnnualTransitSnapshot): string {
@@ -331,6 +343,33 @@ function buildMonthlyTransitContext(snapshot: MonthlyTransitSnapshot): string {
     `流月四化：${monthlyTransformations}。`,
     `流月重点宫位及依据：${keyPalaces}。`,
     '回答时须按“大限背景—流年主题—流月触发”分层说明，并区分“排盘事实”“传统解释”和“建议”，不得把趋势表达成必然事件。',
+  ].join('\n');
+}
+
+function buildDailyTransitContext(snapshot: DailyTransitSnapshot): string {
+  const yearlyTransformations = snapshot.yearlyTransformations.map(item => (
+    `${item.starName}化${item.type}→${item.natalPalaceName ?? '本命盘未定位'}`
+  )).join('；');
+  const monthlyTransformations = snapshot.monthlyTransformations.map(item => (
+    `${item.starName}化${item.type}→${item.natalPalaceName ?? '本命盘未定位'}`
+  )).join('；');
+  const dailyTransformations = snapshot.transformations.map(item => (
+    `${item.starName}化${item.type}→${item.natalPalaceName ?? '本命盘未定位'}`
+  )).join('；');
+  const keyPalaces = snapshot.keyPalaces.map(item => (
+    `${item.nativePalaceName}（流日${item.transitPalaceName}）：${item.reasons.join('、')}`
+  )).join('；');
+  return [
+    `【L2.5 ${snapshot.targetDate} 流日确定性运势事实】以下为程序计算结果，不是 AI 推测。`,
+    `日期：公历 ${snapshot.targetDate}；农历 ${snapshot.lunarDay.year} 年${snapshot.lunarDay.monthLabel}${snapshot.lunarDay.dayLabel}；以早子时为日期级代表点。`,
+    `流年：${snapshot.year.ganZhi}；流月：${snapshot.flowMonth.ganZhi}；流日：${snapshot.flowDay.ganZhi}；虚岁：${snapshot.nominalAge}。`,
+    `所在大限：${snapshot.decadal.startAge ?? '?'}-${snapshot.decadal.endAge ?? '?'} 岁，落本命${snapshot.decadal.nativePalaceName}。`,
+    `流年命宫：本命${snapshot.flowYear.nativePalaceName}；流月命宫：本命${snapshot.flowMonth.nativePalaceName}；流日命宫：本命${snapshot.flowDay.nativePalaceName}（${BRANCH_LABELS[snapshot.flowDay.palaceBranch] ?? snapshot.flowDay.earthlyBranch}）。`,
+    `流年四化：${yearlyTransformations}。`,
+    `流月四化：${monthlyTransformations}。`,
+    `流日四化：${dailyTransformations}。`,
+    `流日重点宫位及依据：${keyPalaces}。`,
+    '回答时须按“大限背景—流年主题—流月触发—流日观察”分层说明。流日仅适合日记式观察和现实安排参考，不得写成必然事件；涉及晚子时必须提示需要具体时辰才能判断。',
   ].join('\n');
 }
 

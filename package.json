@@ -9,6 +9,7 @@
     "test:context": "tsx scripts/test-context-management.ts",
     "test:transits": "tsx scripts/test-transits.ts",
     "test:monthly-transits": "tsx scripts/test-monthly-transits.ts",
+    "test:daily-transits": "tsx scripts/test-daily-transits.ts",
     "test:events": "tsx scripts/test-life-events.ts",
     "test:event-candidates": "tsx scripts/test-life-event-candidates.ts",
     "test:reports": "tsx scripts/test-reports.ts",

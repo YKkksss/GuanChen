@@ -7,6 +7,7 @@ import AnnualReportPanel from '@/components/AnnualReportPanel';
 import AnnualTransitPanel from '@/components/AnnualTransitPanel';
 import ChartBoard from '@/components/ChartBoard';
 import ConversationHistory from '@/components/ConversationHistory';
+import DailyTransitPanel from '@/components/DailyTransitPanel';
 import InsightPanel from '@/components/InsightPanel';
 import MonthlyTransitPanel from '@/components/MonthlyTransitPanel';
 import type { Conversation, ConversationMessage } from '@/lib/conversations/types';
@@ -19,21 +20,27 @@ import type {
 import type { Palace, ZiweiChart } from '@/lib/ziwei/types';
 import type { TimeView } from '@/components/TimeNav';
 
+type AnalysisLevel = 'year' | 'month' | 'day';
+
 export default function TransitWorkspace({ conversationId }: { conversationId: string }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [chart, setChart] = useState<ZiweiChart | null>(null);
   const [messages, setMessages] = useState<ConversationMessage[]>([]);
-  const requestedLevel = searchParams.get('level') === 'month' ? 'month' : 'year';
+  const requestedLevel: AnalysisLevel = searchParams.get('level') === 'month'
+    ? 'month'
+    : searchParams.get('level') === 'day'
+      ? 'day'
+      : 'year';
   const requestedDate = normalizeObservationDate(searchParams.get('date'));
-  const [analysisLevel, setAnalysisLevel] = useState<'year' | 'month'>(requestedLevel);
+  const [analysisLevel, setAnalysisLevel] = useState<AnalysisLevel>(requestedLevel);
   const [snapshot, setSnapshot] = useState<TransitSnapshot | null>(null);
   const [report, setReport] = useState<AnnualTransitReport | null>(null);
   const [reportVersions, setReportVersions] = useState<AnnualTransitReportVersion[]>([]);
   const requestedYear = Number.parseInt(searchParams.get('year') ?? '', 10);
   const initialYear = Number.isInteger(requestedYear)
     ? requestedYear
-    : requestedLevel === 'month'
+    : requestedLevel !== 'year'
       ? Number.parseInt(requestedDate.slice(0, 4), 10)
       : new Date().getFullYear();
   const [year, setYear] = useState(initialYear);
@@ -147,7 +154,7 @@ export default function TransitWorkspace({ conversationId }: { conversationId: s
     ? `${chart.birthInfo.year}-${String(chart.birthInfo.month).padStart(2, '0')}-${String(chart.birthInfo.day).padStart(2, '0')}`
     : `${minYear}-01-01`;
   const maxDate = `${maxYear}-12-31`;
-  const displayYear = analysisLevel === 'month' ? Number.parseInt(observationDate.slice(0, 4), 10) : year;
+  const displayYear = analysisLevel !== 'year' ? Number.parseInt(observationDate.slice(0, 4), 10) : year;
   const selectedNominalAge = chart ? displayYear - chart.birthInfo.year + 1 : 0;
   const selectedDaXian = chart?.daXians.find(item => (
     selectedNominalAge >= item.startAge && selectedNominalAge <= item.endAge
@@ -195,11 +202,14 @@ export default function TransitWorkspace({ conversationId }: { conversationId: s
       });
   };
 
-  const changeObservationDate = (nextDate: string) => {
+  const changeObservationDate = (
+    nextDate: string,
+    level: 'month' | 'day' = analysisLevel === 'day' ? 'day' : 'month',
+  ) => {
     const safeDate = clampDate(nextDate, minDate, maxDate);
     setObservationDate(safeDate);
     setYear(Number.parseInt(safeDate.slice(0, 4), 10));
-    router.replace(`/chart/${conversationId}/timeline?level=month&date=${safeDate}`, { scroll: false });
+    router.replace(`/chart/${conversationId}/timeline?level=${level}&date=${safeDate}`, { scroll: false });
   };
 
   const changeAnnualYear = (nextYear: number) => {
@@ -210,18 +220,18 @@ export default function TransitWorkspace({ conversationId }: { conversationId: s
 
   const changeChartYear = (nextYear: number) => {
     const safeYear = Math.min(maxYear, Math.max(minYear, nextYear));
-    if (analysisLevel === 'month') {
+    if (analysisLevel !== 'year') {
       changeObservationDate(replaceDateYear(observationDate, safeYear));
     } else {
       changeAnnualYear(safeYear);
     }
   };
 
-  const changeAnalysisLevel = (level: 'year' | 'month') => {
+  const changeAnalysisLevel = (level: AnalysisLevel) => {
     setAnalysisLevel(level);
     setError('');
-    if (level === 'month') {
-      changeObservationDate(replaceDateYear(observationDate, year));
+    if (level !== 'year') {
+      changeObservationDate(replaceDateYear(observationDate, year), level);
     } else {
       changeAnnualYear(year);
     }
@@ -253,7 +263,7 @@ export default function TransitWorkspace({ conversationId }: { conversationId: s
             </div>
             <div className="text-right">
               <h1 className="text-sm font-medium" style={{ color: 'var(--t-text)' }}>时间运势</h1>
-              <p className="mt-0.5 text-[9px]" style={{ color: 'var(--t-faint)' }}>M1-2 · 年度与流月确定性快照</p>
+              <p className="mt-0.5 text-[9px]" style={{ color: 'var(--t-faint)' }}>M1-3 · 年度、流月与流日确定性快照</p>
             </div>
           </div>
 
@@ -261,6 +271,7 @@ export default function TransitWorkspace({ conversationId }: { conversationId: s
             {([
               ['year', '年度分析'],
               ['month', '流月分析'],
+              ['day', '流日分析'],
             ] as const).map(([level, label]) => (
               <button
                 key={level}
@@ -315,6 +326,17 @@ export default function TransitWorkspace({ conversationId }: { conversationId: s
                     onDateChange={changeObservationDate}
                   />
                 )}
+                {analysisLevel === 'day' && (
+                  <DailyTransitPanel
+                    snapshot={snapshot?.level === 'day' ? snapshot : null}
+                    observationDate={observationDate}
+                    minDate={minDate}
+                    maxDate={maxDate}
+                    loading={loadingTransit}
+                    error={error}
+                    onDateChange={changeObservationDate}
+                  />
+                )}
                 {analysisLevel === 'year' && snapshot?.level === 'year' && snapshot.selectedYear === year && (
                   <AnnualReportPanel
                     year={year}
@@ -335,15 +357,23 @@ export default function TransitWorkspace({ conversationId }: { conversationId: s
                   initialMessages={messages}
                   selectedPalace={selectedPalace}
                   selectedSiHua={selectedSiHua}
-                  transitContext={analysisLevel === 'month'
-                    ? snapshot?.level === 'month'
+                  transitContext={analysisLevel === 'day'
+                    ? snapshot?.level === 'day'
                       ? {
-                          level: 'month',
+                          level: 'day',
                           targetDate: snapshot.targetDate,
-                          label: `${snapshot.lunarMonth.year} 年${snapshot.lunarMonth.label}`,
+                          label: `${snapshot.targetDate} 流日`,
                         }
                       : null
-                    : { level: 'year', targetDate: String(year), label: `${year} 年` }}
+                    : analysisLevel === 'month'
+                      ? snapshot?.level === 'month'
+                        ? {
+                            level: 'month',
+                            targetDate: snapshot.targetDate,
+                            label: `${snapshot.lunarMonth.year} 年${snapshot.lunarMonth.label}`,
+                          }
+                        : null
+                      : { level: 'year', targetDate: String(year), label: `${year} 年` }}
                   autoGenerate={false}
                 />
               </div>

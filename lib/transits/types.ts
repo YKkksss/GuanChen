@@ -118,7 +118,46 @@ export interface MonthlyTransitSnapshot {
   evidence: TransitRuleEvidence[];
 }
 
-export type TransitSnapshot = AnnualTransitSnapshot | MonthlyTransitSnapshot;
+export interface DailyTransitSnapshot {
+  level: 'day';
+  targetDate: string;
+  representativeDate: string;
+  representativeTimeIndex: 0;
+  boundaryPolicy: 'civil-date-early-rat-hour-representative';
+  engineVersion: string;
+  lunarDate: string;
+  nominalAge: number;
+  lunarDay: {
+    year: number;
+    month: number;
+    day: number;
+    isLeapMonth: boolean;
+    monthLabel: string;
+    dayLabel: string;
+  };
+  lunarMonth: MonthlyTransitSnapshot['lunarMonth'];
+  year: MonthlyTransitSnapshot['year'];
+  decadal: MonthlyTransitSnapshot['decadal'];
+  flowYear: MonthlyTransitSnapshot['flowYear'];
+  flowMonth: MonthlyTransitSnapshot['flowMonth'];
+  flowDay: {
+    palaceBranch: number;
+    nativePalaceName: string;
+    heavenlyStem: string;
+    earthlyBranch: string;
+    ganZhi: string;
+  };
+  yearlyTransformations: TransitTransform[];
+  monthlyTransformations: TransitTransform[];
+  transformations: TransitTransform[];
+  relatedPalaceBranches: number[];
+  palaceMappings: TransitPalaceMapping[];
+  keyPalaces: TransitKeyPalace[];
+  topicPalaces: Record<'career' | 'relationship' | 'wealth' | 'health', number>;
+  evidence: TransitRuleEvidence[];
+}
+
+export type TransitSnapshot = AnnualTransitSnapshot | MonthlyTransitSnapshot | DailyTransitSnapshot;
 
 export interface TransitSnapshotRecord<TSnapshot extends TransitSnapshot = TransitSnapshot> {
   id: string;
