@@ -2432,6 +2432,50 @@ function migrate(db: Database.Database) {
     applyV44();
   }
 
+  if (!applied.has(45)) {
+    const applyV45 = db.transaction(() => {
+      db.exec(`
+        ALTER TABLE event_transit_links RENAME TO event_transit_links_v44;
+
+        CREATE TABLE event_transit_links (
+          id TEXT PRIMARY KEY,
+          event_id TEXT NOT NULL,
+          snapshot_id TEXT NOT NULL,
+          level TEXT NOT NULL CHECK (level IN ('year', 'month', 'day')),
+          target_date TEXT NOT NULL,
+          relationship TEXT NOT NULL CHECK (relationship IN (
+            'occurs_in', 'starts_in', 'continues_in', 'ends_in'
+          )),
+          created_at INTEGER NOT NULL,
+
+          UNIQUE (event_id, level, target_date),
+          FOREIGN KEY (event_id)
+            REFERENCES life_events(id)
+            ON DELETE CASCADE,
+          FOREIGN KEY (snapshot_id)
+            REFERENCES transit_snapshots(id)
+            ON DELETE CASCADE
+        );
+
+        INSERT INTO event_transit_links (
+          id, event_id, snapshot_id, level, target_date, relationship, created_at
+        )
+        SELECT id, event_id, snapshot_id, level, target_date, relationship, created_at
+        FROM event_transit_links_v44;
+
+        DROP TABLE event_transit_links_v44;
+
+        CREATE INDEX idx_event_transit_links_event
+          ON event_transit_links(event_id, level, target_date);
+        CREATE INDEX idx_event_transit_links_snapshot
+          ON event_transit_links(snapshot_id);
+      `);
+      db.prepare('INSERT INTO schema_migrations(version, applied_at) VALUES (?, ?)')
+        .run(45, Date.now());
+    });
+    applyV45();
+  }
+
   ensureMessageSearch(db);
 }
 

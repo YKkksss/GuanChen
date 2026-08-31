@@ -9,6 +9,7 @@ import type { Conversation } from '@/lib/conversations/types';
 import {
   LIFE_EVENT_CATEGORIES,
   LIFE_EVENT_CATEGORY_LABELS,
+  type EventTransitLink,
   type LifeEventCategory,
   type LifeEventWithTransits,
 } from '@/lib/events/types';
@@ -129,7 +130,7 @@ export default function LifeEventsWorkspace({ conversationId }: { conversationId
             <div>
               <button type="button" onClick={() => router.push(`/chart/${conversationId}`)} className="text-[10px]" style={{ color: 'var(--t-faint)' }}>← 返回命盘</button>
               <h1 className="mt-2 text-xl font-semibold" style={{ color: 'var(--t-text)' }}>人生事件时间轴</h1>
-              <p className="mt-1 text-[10px]" style={{ color: 'var(--t-faint)' }}>记录真实经历，并自动关联当年的大限与流年结构</p>
+              <p className="mt-1 text-[10px]" style={{ color: 'var(--t-faint)' }}>记录真实经历，并按日期精度关联流年、流月与流日结构</p>
             </div>
             <div className="flex gap-2">
               <a
@@ -149,6 +150,14 @@ export default function LifeEventsWorkspace({ conversationId }: { conversationId
                 <Plus size={14} weight="bold" />新增事件
               </button>
             </div>
+          </div>
+
+          <div
+            className="mt-4 rounded-xl px-4 py-3 text-[10px] leading-relaxed"
+            style={{ border: '1px solid rgba(212,168,67,.22)', color: 'var(--t-text2)', background: 'rgba(212,168,67,.055)' }}
+          >
+            <span className="font-medium" style={{ color: 'var(--t-gold)' }}>事实边界：</span>
+            事件内容以你确认的真实经历为准；运限挂接只表示日期与传统命理时间结构对齐，不证明命理因素造成了现实事件。
           </div>
 
           <div className="mt-4 flex gap-1.5 overflow-x-auto pb-1">
@@ -188,7 +197,14 @@ export default function LifeEventsWorkspace({ conversationId }: { conversationId
                             event={event}
                             onEdit={() => openEdit(event)}
                             onDelete={() => removeEvent(event)}
-                            onOpenTransit={targetYear => router.push(`/chart/${conversationId}/timeline?year=${targetYear}`)}
+                            onOpenTransit={link => {
+                              const query = link.level === 'year'
+                                ? `level=year&year=${link.targetDate}`
+                                : link.level === 'month'
+                                  ? `level=month&date=${getMonthlyNavigationDate(link, conversation)}`
+                                  : `level=day&date=${link.targetDate}`;
+                              router.push(`/chart/${conversationId}/timeline?${query}`);
+                            }}
                           />
                         ))}
                       </div>
@@ -224,10 +240,16 @@ function EventCard({
   event: LifeEventWithTransits;
   onEdit: () => void;
   onDelete: () => void;
-  onOpenTransit: (year: string) => void;
+  onOpenTransit: (link: EventTransitLink) => void;
 }) {
   const color = CATEGORY_COLORS[event.category];
-  const firstTransit = event.transitLinks[0];
+  const visibleLinks = getVisibleTransitLinks(event.transitLinks);
+  const hiddenCount = event.transitLinks.length - visibleLinks.length;
+  const levelSummary = (['year', 'month', 'day'] as const)
+    .map(level => ({ level, count: event.transitLinks.filter(link => link.level === level).length }))
+    .filter(item => item.count > 0)
+    .map(item => `${TRANSIT_LEVEL_LABELS[item.level]} ${item.count}`)
+    .join(' · ');
   return (
     <article className="rounded-xl p-3.5" style={{ border: `1px solid ${color}30`, background: 'var(--t-card)' }}>
       <div className="flex items-start justify-between gap-3">
@@ -251,26 +273,88 @@ function EventCard({
         </div>
       </div>
 
-      {firstTransit && (
-        <button
-          type="button"
-          onClick={() => onOpenTransit(firstTransit.targetDate)}
-          className="mt-3 block w-full rounded-lg px-3 py-2 text-left"
-          style={{ border: '1px solid var(--t-border)', background: 'rgba(212,168,67,.035)' }}
-        >
+      {event.transitLinks.length > 0 && (
+        <div className="mt-3 rounded-lg px-3 py-2.5" style={{ border: '1px solid var(--t-border)', background: 'rgba(212,168,67,.035)' }}>
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <span className="text-[9px]" style={{ color: 'var(--t-gold)' }}>
-              {event.transitLinks.length > 1 ? `已关联 ${event.transitLinks.length} 个年度快照` : `${firstTransit.targetDate} 年运限关联`}
-            </span>
-            <span className="text-[9px]" style={{ color: 'var(--t-faint)' }}>查看年度分析 →</span>
+            <span className="text-[9px]" style={{ color: 'var(--t-gold)' }}>精确运限挂接 · {levelSummary}</span>
+            <span className="text-[9px]" style={{ color: 'var(--t-faint)' }}>点击进入对应时间层级</span>
           </div>
-          <div className="mt-1 text-[9px]" style={{ color: 'var(--t-faint)' }}>
-            {firstTransit.snapshot.year.ganZhi}年 · 虚岁 {firstTransit.snapshot.nominalAge} · 流年命宫落本命{firstTransit.snapshot.flowYear.nativePalaceName}
+          <div className="mt-2 grid gap-1.5 sm:grid-cols-2 xl:grid-cols-3">
+            {visibleLinks.map(link => (
+              <button
+                key={link.id}
+                type="button"
+                onClick={() => onOpenTransit(link)}
+                className="rounded-md px-2.5 py-2 text-left transition-colors hover:bg-[rgba(212,168,67,.08)]"
+                style={{ border: '1px solid var(--t-border)' }}
+              >
+                <div className="flex items-center justify-between gap-2 text-[9px]">
+                  <span style={{ color: 'var(--t-text)' }}>{formatTransitTitle(link)}</span>
+                  <span className="shrink-0" style={{ color: 'var(--t-gold)' }}>{RELATIONSHIP_LABELS[link.relationship]} →</span>
+                </div>
+                <div className="mt-1 line-clamp-2 text-[8px] leading-relaxed" style={{ color: 'var(--t-faint)' }}>
+                  {formatTransitDetail(link)}
+                </div>
+              </button>
+            ))}
           </div>
-        </button>
+          {hiddenCount > 0 && (
+            <div className="mt-2 text-[8px]" style={{ color: 'var(--t-faint)' }}>
+              区间覆盖较长，已收起中间 {hiddenCount} 个年度挂接；保留首尾年度与精确边界入口。
+            </div>
+          )}
+        </div>
       )}
     </article>
   );
+}
+
+const TRANSIT_LEVEL_LABELS = { year: '流年', month: '流月', day: '流日' } as const;
+const RELATIONSHIP_LABELS: Record<EventTransitLink['relationship'], string> = {
+  occurs_in: '发生',
+  starts_in: '开始',
+  continues_in: '持续',
+  ends_in: '结束',
+};
+
+function getVisibleTransitLinks(links: EventTransitLink[]): EventTransitLink[] {
+  const years = links.filter(link => link.level === 'year');
+  const precise = links.filter(link => link.level !== 'year');
+  if (years.length <= 6) return [...years, ...precise];
+  return [...years.slice(0, 3), ...years.slice(-2), ...precise];
+}
+
+function formatTransitTitle(link: EventTransitLink): string {
+  if (link.level === 'year') return `${link.targetDate} 流年`;
+  if (link.level === 'month') return `农历${link.snapshot.lunarMonth.label}`;
+  return `${link.targetDate} 流日`;
+}
+
+function formatTransitDetail(link: EventTransitLink): string {
+  if (link.level === 'year') {
+    return `${link.snapshot.year.ganZhi}年 · 虚岁 ${link.snapshot.nominalAge} · 流年命宫落本命${link.snapshot.flowYear.nativePalaceName}`;
+  }
+  if (link.level === 'month') {
+    return `${link.snapshot.lunarMonth.startDate} 至 ${link.snapshot.lunarMonth.endDate} · 流月命宫落本命${link.snapshot.flowMonth.nativePalaceName}`;
+  }
+  return `农历${link.snapshot.lunarDay.monthLabel}${link.snapshot.lunarDay.dayLabel} · 流日命宫落本命${link.snapshot.flowDay.nativePalaceName}`;
+}
+
+function getMonthlyNavigationDate(
+  link: Extract<EventTransitLink, { level: 'month' }>,
+  conversation: Conversation | null,
+): string {
+  const birthInfo = conversation?.birthInfo;
+  if (!birthInfo) return link.snapshot.representativeDate;
+  const minimumDate = [
+    birthInfo.year,
+    String(birthInfo.month).padStart(2, '0'),
+    String(birthInfo.day).padStart(2, '0'),
+  ].join('-');
+  const maximumDate = `${Math.min(birthInfo.year + 130, 2200)}-12-31`;
+  if (link.snapshot.lunarMonth.startDate < minimumDate) return minimumDate;
+  if (link.snapshot.lunarMonth.endDate > maximumDate) return maximumDate;
+  return link.snapshot.representativeDate;
 }
 
 function FilterButton({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {

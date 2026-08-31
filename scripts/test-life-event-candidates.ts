@@ -126,7 +126,7 @@ async function main() {
     assert.equal(confirmResponse.status, 200);
     const confirmed = await json<{ candidate: { status: string }; event: {
       id: string; title: string; source: string; sourceMessageId: string; confirmedByUser: boolean;
-      startDate: string; transitLinks: Array<{ targetDate: string }>;
+      startDate: string; transitLinks: Array<{ level: string; targetDate: string }>;
     } }>(confirmResponse);
     assert.equal(confirmed.candidate.status, 'confirmed');
     assert.equal(confirmed.event.title, '第一次正式转职');
@@ -135,6 +135,7 @@ async function main() {
     assert.equal(confirmed.event.confirmedByUser, true);
     assert.equal(confirmed.event.startDate, '2018-07');
     assert.equal(confirmed.event.transitLinks[0].targetDate, '2018');
+    assert.deepEqual(confirmed.event.transitLinks.map(link => link.level), ['year', 'month']);
     assert.equal(listLifeEvents({ conversationId: conversation.id }).length, 1);
     assert.equal(listActiveMemories(conversation.id).filter(item => item.category === 'confirmed_event').length, 1);
 

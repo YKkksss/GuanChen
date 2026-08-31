@@ -8,7 +8,7 @@ import type {
   LifeEventSource,
   LifeEventWithTransits,
 } from '@/lib/events/types';
-import type { AnnualTransitSnapshot } from '@/lib/transits/types';
+import type { TransitLevel, TransitSnapshot } from '@/lib/transits/types';
 import { getDatabase } from './client';
 
 interface LifeEventRow {
@@ -33,7 +33,7 @@ interface EventTransitLinkRow {
   id: string;
   event_id: string;
   snapshot_id: string;
-  level: 'year';
+  level: TransitLevel;
   target_date: string;
   relationship: EventTransitLink['relationship'];
   snapshot_json: string;
@@ -61,16 +61,19 @@ function mapEvent(row: LifeEventRow): LifeEvent {
 }
 
 function mapLink(row: EventTransitLinkRow): EventTransitLink {
-  return {
+  const snapshot = JSON.parse(row.snapshot_json) as TransitSnapshot;
+  const base = {
     id: row.id,
     eventId: row.event_id,
     snapshotId: row.snapshot_id,
-    level: row.level,
     targetDate: row.target_date,
     relationship: row.relationship,
-    snapshot: JSON.parse(row.snapshot_json) as AnnualTransitSnapshot,
     createdAt: row.created_at,
   };
+  if (snapshot.level !== row.level) throw new Error(`人生事件运限关联层级不一致：${row.id}`);
+  if (snapshot.level === 'year') return { ...base, level: 'year', snapshot };
+  if (snapshot.level === 'month') return { ...base, level: 'month', snapshot };
+  return { ...base, level: 'day', snapshot };
 }
 
 export function getLifeEvent(id: string): LifeEventWithTransits | null {
@@ -168,6 +171,7 @@ export function replaceEventTransitLinks(input: {
   eventId: string;
   links: Array<{
     snapshotId: string;
+    level: TransitLevel;
     targetDate: string;
     relationship: EventTransitLink['relationship'];
   }>;
@@ -178,13 +182,14 @@ export function replaceEventTransitLinks(input: {
     const insert = db.prepare(`
       INSERT INTO event_transit_links (
         id, event_id, snapshot_id, level, target_date, relationship, created_at
-      ) VALUES (?, ?, ?, 'year', ?, ?, ?)
+      ) VALUES (?, ?, ?, ?, ?, ?, ?)
     `);
     const now = Date.now();
     input.links.forEach(link => insert.run(
       randomUUID(),
       input.eventId,
       link.snapshotId,
+      link.level,
       link.targetDate,
       link.relationship,
       now,
@@ -199,7 +204,7 @@ export function listEventTransitLinks(eventId: string): EventTransitLink[] {
     FROM event_transit_links l
     JOIN transit_snapshots s ON s.id = l.snapshot_id
     WHERE l.event_id = ?
-    ORDER BY l.target_date ASC
+    ORDER BY CASE l.level WHEN 'year' THEN 0 WHEN 'month' THEN 1 ELSE 2 END, l.target_date ASC
   `).all(eventId) as EventTransitLinkRow[];
   return rows.map(mapLink);
 }

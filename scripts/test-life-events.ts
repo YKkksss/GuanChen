@@ -30,6 +30,7 @@ async function main() {
     const workEvent = createLifeEventWithTransits(conversation.id, yearInput);
     assert.equal(workEvent.confirmedByUser, true);
     assert.equal(workEvent.transitLinks.length, 1);
+    assert.equal(workEvent.transitLinks[0].level, 'year');
     assert.equal(workEvent.transitLinks[0].targetDate, '2012');
     assert.equal(workEvent.transitLinks[0].snapshot.selectedYear, 2012);
     assert.equal(workEvent.transitLinks[0].relationship, 'occurs_in');
@@ -45,8 +46,17 @@ async function main() {
     const rangeEvent = createLifeEventWithTransits(conversation.id, rangeInput);
     assert.deepEqual(getEventYears(rangeEvent), [2018, 2019, 2020]);
     assert.deepEqual(
-      rangeEvent.transitLinks.map(link => link.relationship),
+      rangeEvent.transitLinks.filter(link => link.level === 'year').map(link => link.relationship),
       ['starts_in', 'continues_in', 'ends_in'],
+    );
+    assert.deepEqual(
+      rangeEvent.transitLinks.map(link => link.level),
+      ['year', 'year', 'year', 'month', 'month', 'day', 'day'],
+      '区间事件应覆盖年度，并精确挂接起止月和起止日',
+    );
+    assert.deepEqual(
+      rangeEvent.transitLinks.filter(link => link.level === 'day').map(link => link.targetDate),
+      ['2018-03-12', '2020-08-20'],
     );
 
     const unknownInput = parseLifeEventInput({
@@ -68,13 +78,33 @@ async function main() {
     }));
     assert.equal(updated?.startDate, '2013-07');
     assert.equal(updated?.transitLinks[0].targetDate, '2013');
+    assert.deepEqual(updated?.transitLinks.map(link => link.level), ['year', 'month']);
     assert.equal(
       (getDatabase().prepare('SELECT COUNT(*) AS count FROM event_transit_links WHERE event_id = ?').get(workEvent.id) as { count: number }).count,
-      1,
+      2,
       '修改日期后旧关联必须被替换',
     );
 
-    assert.equal(listLifeEvents({ conversationId: conversation.id }).length, 3);
+    const dayEvent = createLifeEventWithTransits(conversation.id, parseLifeEventInput({
+      title: '重要纪念日',
+      category: 'achievement',
+      datePrecision: 'day',
+      startDate: '2022-11-08',
+      impactLevel: 4,
+    }));
+    assert.deepEqual(dayEvent.transitLinks.map(link => link.level), ['year', 'month', 'day']);
+    assert.equal(dayEvent.transitLinks.find(link => link.level === 'day')?.targetDate, '2022-11-08');
+
+    const birthMonthEvent = createLifeEventWithTransits(conversation.id, parseLifeEventInput({
+      title: '出生当月记录',
+      category: 'family',
+      datePrecision: 'month',
+      startDate: '1990-06',
+      impactLevel: 3,
+    }));
+    assert.deepEqual(birthMonthEvent.transitLinks.map(link => link.level), ['year', 'month']);
+
+    assert.equal(listLifeEvents({ conversationId: conversation.id }).length, 5);
     assert.equal(listLifeEvents({ conversationId: conversation.id, category: 'career' }).length, 1);
     assert.equal(listLifeEvents({ conversationId: conversation.id, year: 2019 }).length, 1);
 
@@ -105,6 +135,14 @@ async function main() {
       countBeforeInvalidYear,
       '年份越界时不能先写入事件再报错',
     );
+    assert.throws(() => createLifeEventWithTransits(conversation.id, parseLifeEventInput({
+      title: '出生日期前的同年事件',
+      category: 'family',
+      datePrecision: 'day',
+      startDate: '1990-06-01',
+      impactLevel: 2,
+    })), /事件日期必须/);
+    assert.equal(listLifeEvents({ conversationId: conversation.id }).length, countBeforeInvalidYear);
 
     assert.equal(deleteLifeEvent(rangeEvent.id), true);
     assert.equal(getLifeEvent(rangeEvent.id), null);
@@ -114,8 +152,8 @@ async function main() {
       '删除事件后关联必须级联删除',
     );
 
-    const migration = getDatabase().prepare('SELECT version FROM schema_migrations WHERE version = 5').get();
-    assert.ok(migration, '数据库第 5 版迁移必须存在');
+    const migration = getDatabase().prepare('SELECT version FROM schema_migrations WHERE version = 45').get();
+    assert.ok(migration, '数据库第 45 版精确挂接迁移必须存在');
     assert.equal(deleteConversation(conversation.id), true);
     assert.equal(
       (getDatabase().prepare('SELECT COUNT(*) AS count FROM life_events WHERE conversation_id = ?').get(conversation.id) as { count: number }).count,
@@ -123,7 +161,7 @@ async function main() {
       '删除会话后事件必须级联删除',
     );
 
-    console.log('人生事件测试通过：日期精度、CRUD、年度关联、范围关系、筛选及级联删除均正常。');
+    console.log('M2-2 人生事件测试通过：年月日精确挂接、区间边界、CRUD、筛选、迁移及级联删除均正常。');
   } finally {
     const database = globalThis.__ziweiSqlite;
     if (database?.open) database.close();

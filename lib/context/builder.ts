@@ -451,7 +451,7 @@ export function selectRelevantLifeEvents(
   return events
     .map(event => {
       const categoryTerms = EVENT_CATEGORY_TERMS[event.category];
-      const eventYears = event.transitLinks.map(link => link.targetDate);
+      const eventYears = event.transitLinks.map(link => link.targetDate.slice(0, 4));
       const score = eventYears.filter(year => requestedYears.has(year)).length * 12
         + categoryTerms.filter(term => question.includes(term)).length * 5
         + terms.filter(term => `${event.title}${event.description ?? ''}`.includes(term)).length * 4
@@ -474,9 +474,31 @@ function buildConfirmedEventContext(events: LifeEventWithTransits[], layer = 3):
     const category = event.category === 'custom'
       ? event.customCategory ?? '自定义事件'
       : LIFE_EVENT_CATEGORY_LABELS[event.category];
-    return `- [${event.id}] ${date} · ${category} · ${event.title}${event.description ? `：${event.description.slice(0, 240)}` : ''}`;
+    const transitAlignment = formatEventTransitAlignment(event);
+    return `- [${event.id}] ${date} · ${category} · ${event.title}${event.description ? `：${event.description.slice(0, 240)}` : ''}${transitAlignment ? `；程序时间挂接：${transitAlignment}` : ''}`;
   });
-  return `【L${layer} 用户已确认人生事件】\n以下记录来自正式事件表，可以作为现实事实；不得把未确认候选、助手推断或命理解释补写为新事件。\n${lines.join('\n')}`;
+  return `【L${layer} 用户已确认人生事件】\n以下事件内容来自用户核对后的正式事件表，可以作为现实事实；“程序时间挂接”只表示事件日期与流年、流月、流日结构对齐，不证明命理结构造成了该事件。不得把未确认候选、助手推断或命理解释补写为新事件，也不得倒因为果。\n${lines.join('\n')}`;
+}
+
+function formatEventTransitAlignment(event: LifeEventWithTransits): string {
+  const groups = new Map<'year' | 'month' | 'day', string[]>();
+  event.transitLinks.forEach(link => {
+    const values = groups.get(link.level) ?? [];
+    values.push(link.targetDate);
+    groups.set(link.level, values);
+  });
+  return ([
+    ['year', '流年'],
+    ['month', '流月'],
+    ['day', '流日'],
+  ] as const).flatMap(([level, label]) => {
+    const values = groups.get(level) ?? [];
+    if (!values.length) return [];
+    const display = values.length <= 4
+      ? values.join('、')
+      : `${values.slice(0, 2).join('、')}…${values.at(-1)}（共 ${values.length} 个）`;
+    return `${label} ${display}`;
+  }).join('；');
 }
 
 const EVENT_CATEGORY_TERMS: Record<LifeEventCategory, string[]> = {

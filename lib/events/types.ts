@@ -1,4 +1,9 @@
-import type { AnnualTransitSnapshot } from '@/lib/transits/types';
+import type {
+  AnnualTransitSnapshot,
+  DailyTransitSnapshot,
+  MonthlyTransitSnapshot,
+  TransitLevel,
+} from '@/lib/transits/types';
 
 export const LIFE_EVENT_CATEGORIES = [
   'education',
@@ -37,16 +42,20 @@ export interface LifeEvent {
   updatedAt: number;
 }
 
-export interface EventTransitLink {
+interface EventTransitLinkBase {
   id: string;
   eventId: string;
   snapshotId: string;
-  level: 'year';
   targetDate: string;
   relationship: 'occurs_in' | 'starts_in' | 'continues_in' | 'ends_in';
-  snapshot: AnnualTransitSnapshot;
   createdAt: number;
 }
+
+export type EventTransitLink = EventTransitLinkBase & (
+  | { level: Extract<TransitLevel, 'year'>; snapshot: AnnualTransitSnapshot }
+  | { level: Extract<TransitLevel, 'month'>; snapshot: MonthlyTransitSnapshot }
+  | { level: Extract<TransitLevel, 'day'>; snapshot: DailyTransitSnapshot }
+);
 
 export interface LifeEventWithTransits extends LifeEvent {
   transitLinks: EventTransitLink[];
