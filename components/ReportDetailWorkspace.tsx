@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import { REPORT_GENERATION_REASON_LABELS, type ReportDetail, type ReportEvidence } from '@/lib/reports/types';
 import ReportPdfExportButton from '@/components/ReportPdfExportButton';
 import ReportVersionComparePanel from '@/components/ReportVersionComparePanel';
+import ReportReviewPanel from '@/components/ReportReviewPanel';
+import type { ReportUserRevision } from '@/lib/report-revisions/types';
 
 export default function ReportDetailWorkspace({
   conversationId,
@@ -20,6 +22,8 @@ export default function ReportDetailWorkspace({
   const [loading, setLoading] = useState(true);
   const [regenerating, setRegenerating] = useState(false);
   const [error, setError] = useState('');
+  const [userRevision, setUserRevision] = useState<ReportUserRevision | null>(null);
+  const handleRevisionChange = useCallback((revision: ReportUserRevision | null) => setUserRevision(revision), []);
 
   const load = useCallback(async (version?: number) => {
     setLoading(true);
@@ -71,7 +75,11 @@ export default function ReportDetailWorkspace({
     return <main className="mx-auto max-w-[1000px] px-4 py-24 text-center text-sm text-red-500">{error || '报告不存在'}</main>;
   }
 
-  const content = detail.version?.content;
+  const originalContent = detail.version?.content;
+  const content = userRevision && userRevision.sourceVersionId === detail.version?.id
+    && userRevision.editedContent?.format === 'structured'
+    ? userRevision.editedContent.content
+    : originalContent;
   return (
     <main className="report-print-area mx-auto max-w-[1000px] px-4 py-6 sm:px-6">
       <div className="report-controls mb-5 flex flex-wrap items-center justify-between gap-3">
@@ -132,6 +140,16 @@ export default function ReportDetailWorkspace({
         versions={detail.versions}
         currentVersion={detail.version?.version}
       />
+
+      {detail.version?.status === 'completed' && originalContent && (
+        <ReportReviewPanel
+          sourceKind={conversationType === 'heming' ? 'heming' : 'topic'}
+          reportId={reportId}
+          version={detail.version.version}
+          originalContent={{ format: 'structured', content: originalContent }}
+          onRevisionChange={handleRevisionChange}
+        />
+      )}
 
       {error && (
         <div className="report-controls mb-4 rounded-lg px-4 py-3 text-xs text-red-500" style={{ border: '1px solid rgba(239,68,68,.25)' }}>

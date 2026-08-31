@@ -2381,6 +2381,57 @@ function migrate(db: Database.Database) {
     applyV43();
   }
 
+  if (!applied.has(44)) {
+    const applyV44 = db.transaction(() => {
+      db.exec(`
+        CREATE TABLE report_user_revisions (
+          id TEXT PRIMARY KEY,
+          source_kind TEXT NOT NULL CHECK (source_kind IN ('topic', 'heming', 'annual', 'rectification')),
+          source_report_id TEXT NOT NULL,
+          source_version_id TEXT NOT NULL,
+          source_version INTEGER NOT NULL CHECK (source_version > 0),
+          review_status TEXT NOT NULL DEFAULT 'draft'
+            CHECK (review_status IN ('draft', 'confirmed', 'needs_revision')),
+          note TEXT NOT NULL DEFAULT '',
+          edited_content_json TEXT,
+          edit_revision INTEGER NOT NULL DEFAULT 0 CHECK (edit_revision >= 0),
+          created_at INTEGER NOT NULL,
+          updated_at INTEGER NOT NULL,
+          confirmed_at INTEGER,
+
+          UNIQUE (source_kind, source_version_id),
+          CHECK (review_status = 'confirmed' OR confirmed_at IS NULL)
+        );
+
+        CREATE INDEX idx_report_user_revisions_report
+          ON report_user_revisions(source_kind, source_report_id, source_version DESC);
+        CREATE INDEX idx_report_user_revisions_status
+          ON report_user_revisions(review_status, updated_at DESC);
+
+        CREATE TRIGGER report_user_revisions_delete_topic
+        AFTER DELETE ON report_versions BEGIN
+          DELETE FROM report_user_revisions
+          WHERE source_kind IN ('topic', 'heming') AND source_version_id = old.id;
+        END;
+
+        CREATE TRIGGER report_user_revisions_delete_annual
+        AFTER DELETE ON transit_report_versions BEGIN
+          DELETE FROM report_user_revisions
+          WHERE source_kind = 'annual' AND source_version_id = old.id;
+        END;
+
+        CREATE TRIGGER report_user_revisions_delete_rectification
+        AFTER DELETE ON rectification_report_versions BEGIN
+          DELETE FROM report_user_revisions
+          WHERE source_kind = 'rectification' AND source_version_id = old.id;
+        END;
+      `);
+      db.prepare('INSERT INTO schema_migrations(version, applied_at) VALUES (?, ?)')
+        .run(44, Date.now());
+    });
+    applyV44();
+  }
+
   ensureMessageSearch(db);
 }
 

@@ -3,6 +3,7 @@ import { getConversation } from '@/lib/db/conversations';
 import { getRectificationReportDetail } from '@/lib/db/rectification-reports';
 import { getReportDetail } from '@/lib/db/reports';
 import { getAnnualTransitReportById } from '@/lib/db/transit-reports';
+import { getReportUserRevision } from '@/lib/db/report-user-revisions';
 import type { RectificationReportEvidence } from '@/lib/rectification/report-types';
 import { REPORT_GENERATION_REASON_LABELS, type ReportEvidence } from '@/lib/reports/types';
 import type {
@@ -32,9 +33,13 @@ function resolveTopicDocument(input: EnsureReportExportInput): ReportExportDocum
   if (!conversation) throw new Error('报告关联会话不存在');
   const expectedKind = conversation.type === 'heming' ? 'heming' : 'topic';
   if (expectedKind !== input.sourceKind) throw new Error('报告类型与导出类型不一致');
+  const userRevision = getReportUserRevision(input.sourceKind, version.id);
+  const content = userRevision?.editedContent?.format === 'structured'
+    ? userRevision.editedContent.content
+    : version.content;
 
   const evidenceBySection = groupEvidence(detail.evidence);
-  const sections = version.content.sections.map(section => ({
+  const sections = content.sections.map(section => ({
     key: section.key,
     title: section.title,
     content: section.content,
@@ -48,6 +53,7 @@ function resolveTopicDocument(input: EnsureReportExportInput): ReportExportDocum
     reportId: detail.report.id,
     version,
     evidence: detail.evidence,
+    userRevision,
   });
   return {
     sourceKind: input.sourceKind,
@@ -56,7 +62,7 @@ function resolveTopicDocument(input: EnsureReportExportInput): ReportExportDocum
     sourceFingerprint,
     title: detail.report.title,
     categoryLabel: input.sourceKind === 'heming' ? '紫微斗数合盘关系报告' : '紫微斗数专题报告',
-    versionLabel: `v${version.version}`,
+    versionLabel: revisionVersionLabel(version.version, userRevision?.editRevision),
     generatedAt: Date.now(),
     sourceCompletedAt: version.completedAt,
     metadata: [
@@ -66,12 +72,13 @@ function resolveTopicDocument(input: EnsureReportExportInput): ReportExportDocum
       { label: '生成模型', value: `${version.provider} / ${version.model}` },
       { label: '生成原因', value: REPORT_GENERATION_REASON_LABELS[version.generationReason] },
       { label: '结构化依据', value: `${detail.evidence.length} 条` },
+      ...revisionMetadata(userRevision),
     ],
-    summary: version.content.summary,
-    sections,
-    actionItems: version.content.actionItems,
-    openQuestions: version.content.openQuestions,
-    disclaimer: version.content.disclaimer || CULTURE_DISCLAIMER,
+    summary: content.summary,
+    sections: appendPersonalNote(sections, userRevision?.note),
+    actionItems: content.actionItems,
+    openQuestions: content.openQuestions,
+    disclaimer: content.disclaimer || CULTURE_DISCLAIMER,
   };
 }
 
@@ -84,10 +91,15 @@ function resolveAnnualDocument(input: EnsureReportExportInput): ReportExportDocu
   }
   const conversation = getConversation(report.conversationId);
   if (!conversation || conversation.type !== 'chart') throw new Error('年度报告关联命盘不存在');
-  const parsed = parseAnnualContent(report.content);
+  const userRevision = report.versionId ? getReportUserRevision('annual', report.versionId) : null;
+  const content = userRevision?.editedContent?.format === 'plain_text'
+    ? userRevision.editedContent.content
+    : report.content;
+  const parsed = parseAnnualContent(content);
   const sourceFingerprint = fingerprint({
     sourceKind: 'annual',
     report,
+    userRevision,
   });
   const year = Number.parseInt(report.targetDate.slice(0, 4), 10);
   return {
@@ -97,7 +109,7 @@ function resolveAnnualDocument(input: EnsureReportExportInput): ReportExportDocu
     sourceFingerprint,
     title: `${year} 年度总结报告`,
     categoryLabel: '紫微斗数年度运势报告',
-    versionLabel: report.version ? `v${report.version}` : report.engineVersion,
+    versionLabel: report.version ? revisionVersionLabel(report.version, userRevision?.editRevision) : report.engineVersion,
     generatedAt: Date.now(),
     sourceCompletedAt: report.completedAt,
     metadata: [
@@ -108,9 +120,10 @@ function resolveAnnualDocument(input: EnsureReportExportInput): ReportExportDocu
       { label: '生成模型', value: `${report.provider} / ${report.model}` },
       { label: '生成原因', value: REPORT_GENERATION_REASON_LABELS[report.generationReason] },
       { label: '报告来源', value: '本地已保存命盘' },
+      ...revisionMetadata(userRevision),
     ],
     summary: parsed.summary,
-    sections: parsed.sections,
+    sections: appendPersonalNote(parsed.sections, userRevision?.note),
     actionItems: [],
     openQuestions: [],
     disclaimer: CULTURE_DISCLAIMER,
@@ -125,12 +138,17 @@ function resolveRectificationDocument(input: EnsureReportExportInput): ReportExp
   if (!version || version.status !== 'completed' || !version.content) {
     throw new Error('只有已完成的校时报告版本可以导出 PDF');
   }
+  const userRevision = getReportUserRevision('rectification', version.id);
+  const content = userRevision?.editedContent?.format === 'structured'
+    ? userRevision.editedContent.content
+    : version.content;
   const evidenceBySection = groupRectificationEvidence(detail.evidence);
   const sourceFingerprint = fingerprint({
     sourceKind: 'rectification',
     reportId: detail.report.id,
     version,
     evidence: detail.evidence,
+    userRevision,
   });
   return {
     sourceKind: 'rectification',
@@ -139,7 +157,7 @@ function resolveRectificationDocument(input: EnsureReportExportInput): ReportExp
     sourceFingerprint,
     title: detail.report.title,
     categoryLabel: '紫微斗数出生时辰校正报告',
-    versionLabel: `v${version.version}`,
+    versionLabel: revisionVersionLabel(version.version, userRevision?.editRevision),
     generatedAt: Date.now(),
     sourceCompletedAt: version.completedAt,
     metadata: [
@@ -149,9 +167,10 @@ function resolveRectificationDocument(input: EnsureReportExportInput): ReportExp
       { label: '提示词版本', value: version.promptVersion },
       { label: '生成模型', value: `${version.provider} / ${version.model}` },
       { label: '生成原因', value: REPORT_GENERATION_REASON_LABELS[version.generationReason] },
+      ...revisionMetadata(userRevision),
     ],
-    summary: version.content.summary,
-    sections: version.content.sections.map(section => ({
+    summary: content.summary,
+    sections: appendPersonalNote(content.sections.map(section => ({
       key: section.key,
       title: section.title,
       content: section.content,
@@ -159,11 +178,42 @@ function resolveRectificationDocument(input: EnsureReportExportInput): ReportExp
         ? `${(evidenceBySection.get(section.key) ?? []).length} 条校时依据`
         : '综合观察',
       evidence: (evidenceBySection.get(section.key) ?? []).map(summarizeRectificationEvidence),
-    })),
-    actionItems: version.content.actionItems,
-    openQuestions: version.content.openQuestions,
-    disclaimer: version.content.disclaimer || CULTURE_DISCLAIMER,
+    })), userRevision?.note),
+    actionItems: content.actionItems,
+    openQuestions: content.openQuestions,
+    disclaimer: content.disclaimer || CULTURE_DISCLAIMER,
   };
+}
+
+function revisionMetadata(revision: ReturnType<typeof getReportUserRevision>): Array<{ label: string; value: string }> {
+  if (!revision) return [{ label: '用户确认', value: '尚未确认' }];
+  return [
+    {
+      label: '用户确认',
+      value: revision.reviewStatus === 'confirmed' ? '已确认'
+        : revision.reviewStatus === 'needs_revision' ? '待调整'
+          : '修订中',
+    },
+    ...(revision.editedContent ? [{ label: '内容来源', value: `人工修订第 ${revision.editRevision} 稿` }] : []),
+  ];
+}
+
+function revisionVersionLabel(version: number, editRevision?: number): string {
+  return editRevision ? `v${version}-人工修订r${editRevision}` : `v${version}`;
+}
+
+function appendPersonalNote(sections: ReportExportSection[], note?: string): ReportExportSection[] {
+  if (!note?.trim()) return sections;
+  return [
+    ...sections,
+    {
+      key: 'user_personal_note',
+      title: '个人备注',
+      content: note.trim(),
+      basisLabel: '用户本人记录',
+      evidence: [],
+    },
+  ];
 }
 
 export function parseAnnualContent(content: string): {

@@ -1,9 +1,12 @@
 'use client';
 
+import { useCallback, useState } from 'react';
 import type { AnnualTransitReport, AnnualTransitReportVersion } from '@/lib/transits/types';
 import ReportPdfExportButton from '@/components/ReportPdfExportButton';
 import ReportVersionComparePanel from '@/components/ReportVersionComparePanel';
+import ReportReviewPanel from '@/components/ReportReviewPanel';
 import { REPORT_GENERATION_REASON_LABELS } from '@/lib/reports/types';
+import type { ReportUserRevision } from '@/lib/report-revisions/types';
 
 interface AnnualReportPanelProps {
   year: number;
@@ -24,7 +27,14 @@ export default function AnnualReportPanel({
   onRegenerate,
   onVersionChange,
 }: AnnualReportPanelProps) {
-  const hasContent = Boolean(report?.content.trim());
+  const [userRevision, setUserRevision] = useState<ReportUserRevision | null>(null);
+  const handleRevisionChange = useCallback((revision: ReportUserRevision | null) => setUserRevision(revision), []);
+  const originalContent = report?.content ?? '';
+  const content = userRevision && userRevision.sourceVersionId === report?.versionId
+    && userRevision.editedContent?.format === 'plain_text'
+    ? userRevision.editedContent.content
+    : originalContent;
+  const hasContent = Boolean(content.trim());
   return (
     <section className="mt-4 overflow-hidden rounded-xl card-glass">
       <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3" style={{ borderBottom: '1px solid var(--t-border)' }}>
@@ -78,6 +88,18 @@ export default function AnnualReportPanel({
         </div>
       )}
 
+      {report?.status === 'completed' && report.version && report.versionId && originalContent.trim() && (
+        <div className="px-4">
+          <ReportReviewPanel
+            sourceKind="annual"
+            reportId={report.id}
+            version={report.version}
+            originalContent={{ format: 'plain_text', content: originalContent }}
+            onRevisionChange={handleRevisionChange}
+          />
+        </div>
+      )}
+
       {loading && !hasContent && (
         <div className="px-5 py-12 text-center">
           <div className="mx-auto h-8 w-8 animate-spin rounded-full" style={{ border: '2px solid var(--t-border)', borderTopColor: 'var(--t-gold)' }} />
@@ -99,7 +121,7 @@ export default function AnnualReportPanel({
               正在生成新版本，完成前继续显示上一次保存的报告。
             </div>
           )}
-          <ReportContent content={report.content} />
+          <ReportContent content={content} />
           <div className="mt-6 rounded-lg px-3 py-2 text-[9px] leading-relaxed" style={{ color: 'var(--t-faint)', background: 'rgba(212,168,67,.05)' }}>
             本报告属于传统文化研究与自我观察参考，不替代医疗、投资、法律、婚姻等专业意见。
           </div>

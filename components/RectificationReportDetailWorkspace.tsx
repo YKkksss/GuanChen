@@ -7,6 +7,8 @@ import type { RectificationReportDetail, RectificationReportEvidence } from '@/l
 import { REPORT_GENERATION_REASON_LABELS } from '@/lib/reports/types';
 import ReportPdfExportButton from '@/components/ReportPdfExportButton';
 import ReportVersionComparePanel from '@/components/ReportVersionComparePanel';
+import ReportReviewPanel from '@/components/ReportReviewPanel';
+import type { ReportUserRevision } from '@/lib/report-revisions/types';
 
 export default function RectificationReportDetailWorkspace({ sessionId, reportId }: { sessionId: string; reportId: string }) {
   const router = useRouter();
@@ -14,6 +16,8 @@ export default function RectificationReportDetailWorkspace({ sessionId, reportId
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState('');
   const [error, setError] = useState('');
+  const [userRevision, setUserRevision] = useState<ReportUserRevision | null>(null);
+  const handleRevisionChange = useCallback((revision: ReportUserRevision | null) => setUserRevision(revision), []);
   const load = useCallback(async (version?: number) => {
     setLoading(true); setError('');
     try {
@@ -56,7 +60,11 @@ export default function RectificationReportDetailWorkspace({ sessionId, reportId
 
   if (loading && !detail) return <State text="正在加载校时报告…" />;
   if (!detail) return <State text={error || '校时报告不存在'} error />;
-  const content = detail.version?.content;
+  const originalContent = detail.version?.content;
+  const content = userRevision && userRevision.sourceVersionId === detail.version?.id
+    && userRevision.editedContent?.format === 'structured'
+    ? userRevision.editedContent.content
+    : originalContent;
   return (
     <main className="report-print-area min-h-[100dvh] px-4 py-6" style={{ background: 'var(--bg-0)', color: 'var(--tx-1)' }}>
       <div className="mx-auto max-w-[1000px]">
@@ -73,6 +81,15 @@ export default function RectificationReportDetailWorkspace({ sessionId, reportId
           </div>
         </div>
         <ReportVersionComparePanel sourceKind="rectification" reportId={reportId} versions={detail.versions} currentVersion={detail.version?.version} />
+        {detail.version?.status === 'completed' && originalContent && (
+          <ReportReviewPanel
+            sourceKind="rectification"
+            reportId={reportId}
+            version={detail.version.version}
+            originalContent={{ format: 'structured', content: originalContent }}
+            onRevisionChange={handleRevisionChange}
+          />
+        )}
         {error && <div className="report-controls mt-4 rounded-lg border px-4 py-3 text-sm" style={{ borderColor: 'rgba(168,50,40,.35)', color: 'var(--ji)' }}>{error}。已完成的旧版本不会受影响。</div>}
         <article className="mt-5 overflow-hidden rounded-xl border" style={{ borderColor: 'var(--bdr)', background: 'var(--bg-card)' }}>
           <header className="border-b px-6 py-8 text-center" style={{ borderColor: 'var(--bdr)' }}>
