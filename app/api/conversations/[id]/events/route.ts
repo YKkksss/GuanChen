@@ -3,6 +3,7 @@ import { getConversation } from '@/lib/db/conversations';
 import { listLifeEvents } from '@/lib/db/events';
 import { LIFE_EVENT_CATEGORIES, type LifeEventCategory } from '@/lib/events/types';
 import { createLifeEventWithTransits } from '@/lib/events/service';
+import { listEventAnalysisSummaries } from '@/lib/events/analysis-service';
 import { parseLifeEventInput } from '@/lib/events/validation';
 
 export const runtime = 'nodejs';
@@ -27,6 +28,7 @@ export async function GET(request: Request, context: RouteContext) {
     return NextResponse.json({ error: '年份格式不正确' }, { status: 400 });
   }
   const events = listLifeEvents({ conversationId: id, category, year });
+  const analyses = listEventAnalysisSummaries(id);
   if (url.searchParams.get('format') === 'json') {
     return new Response(JSON.stringify({
       exportedAt: new Date().toISOString(),
@@ -39,7 +41,7 @@ export async function GET(request: Request, context: RouteContext) {
       },
     });
   }
-  return NextResponse.json({ events });
+  return NextResponse.json({ events, analyses });
 }
 
 export async function POST(request: Request, context: RouteContext) {

@@ -402,7 +402,7 @@ interface TransitContext {
 
 ## 9. M2：人生事件时间轴
 
-> 实施状态（2026-09-01）：M2 第一版、M2-1 与 M2-2 已完成。当前支持手动事件 CRUD、日期精度、分类筛选、JSON 导出、时间轴、聊天事件智能提取与用户核对确认；已确认事件会按精度挂接流年、流月、流日，其中区间事件仅展开覆盖年度和起止月／日，避免逐日膨胀。事件上下文明确区分“用户确认的现实事实”和“程序计算的时间结构对齐”，挂接不作为因果证明。SQLite 已升级至 v45。事件专项 AI 回溯、年龄轴切换和批量导入仍待后续增强。实现细节见 `docs/M2_LIFE_EVENTS_IMPLEMENTATION.md`、`docs/M2_1_LIFE_EVENT_CANDIDATE_CONFIRMATION_IMPLEMENTATION.md` 与 `docs/M2_2_EVENT_TRANSIT_PRECISION_IMPLEMENTATION.md`。
+> 实施状态（2026-09-01）：M2 第一版、M2-1、M2-2 与 M2-3 已完成。当前支持手动事件 CRUD、日期精度、分类筛选、JSON 导出、时间轴、聊天事件智能提取与用户核对确认；已确认事件会按精度挂接流年、流月、流日，其中区间事件仅展开覆盖年度和起止月／日，避免逐日膨胀。事件专项 AI 回溯采用不可变版本、依据指纹、证据快照和本地缓存，严格分开已确认事实、程序时间结构、谨慎解释与待验证项；事件或运限依据变化时提示更新，不覆盖旧版本。SQLite 已升级至 v46。年龄轴切换和批量导入仍待后续增强。实现细节见 `docs/M2_LIFE_EVENTS_IMPLEMENTATION.md`、`docs/M2_1_LIFE_EVENT_CANDIDATE_CONFIRMATION_IMPLEMENTATION.md`、`docs/M2_2_EVENT_TRANSIT_PRECISION_IMPLEMENTATION.md` 与 `docs/M2_3_EVENT_RETROSPECTIVE_ANALYSIS_IMPLEMENTATION.md`。
 
 ### 9.1 产品目标
 
@@ -470,7 +470,9 @@ AI 可以从用户话语中提取候选事件：
 
 `life_events`：保存原始事件。  
 `event_transit_links`：保存事件和运限快照之间的关系。  
-`event_ai_analysis`：保存某次 AI 回溯分析，属于派生数据。
+- `event_ai_analyses`：保存事件回溯分析主记录和当前生效版本。
+- `event_ai_analysis_versions`：保存不可变的 AI 回溯版本、依据指纹和生成审计。
+- `event_ai_analysis_evidence`：按章节保存用户确认事实与程序运限证据快照。
 
 ### 9.7 页面规划
 
@@ -488,6 +490,8 @@ AI 可以从用户话语中提取候选事件：
 - 事件能够按日期精度正确映射到对应大限、流年、流月和流日。
 - 日期范围只挂接覆盖年度和起止月／日，不按天展开整段区间。
 - 页面和 AI 上下文均明确提示运限挂接不构成现实事件的因果证明。
+- 用户可以生成、重新打开和重新生成事件专项回溯，重复打开不会重复调用模型。
+- 事件事实变化后旧回溯保留且明确标记为过期，新版本可以追溯生成原因与依据。
 - 时间轴可以处理同一年多个事件。
 
 ---

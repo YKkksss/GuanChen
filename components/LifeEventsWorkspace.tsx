@@ -5,7 +5,9 @@ import { useRouter } from 'next/navigation';
 import { DownloadSimple, Plus } from '@phosphor-icons/react';
 import ConversationHistory from '@/components/ConversationHistory';
 import LifeEventForm from '@/components/LifeEventForm';
+import LifeEventAnalysisPanel from '@/components/LifeEventAnalysisPanel';
 import type { Conversation } from '@/lib/conversations/types';
+import type { EventAnalysisSummary } from '@/lib/events/analysis-types';
 import {
   LIFE_EVENT_CATEGORIES,
   LIFE_EVENT_CATEGORY_LABELS,
@@ -31,6 +33,8 @@ export default function LifeEventsWorkspace({ conversationId }: { conversationId
   const router = useRouter();
   const [conversation, setConversation] = useState<Conversation | null>(null);
   const [events, setEvents] = useState<LifeEventWithTransits[]>([]);
+  const [analysisSummaries, setAnalysisSummaries] = useState<Record<string, EventAnalysisSummary>>({});
+  const [openAnalysisEventId, setOpenAnalysisEventId] = useState<string | null>(null);
   const [category, setCategory] = useState<LifeEventCategory | 'all'>('all');
   const [editing, setEditing] = useState<LifeEventWithTransits | null>(null);
   const [formOpen, setFormOpen] = useState(false);
@@ -49,6 +53,9 @@ export default function LifeEventsWorkspace({ conversationId }: { conversationId
       if (!conversationData.conversation?.chartSnapshot) throw new Error(conversationData.error || '命盘加载失败');
       setConversation(conversationData.conversation);
       setEvents(eventData.events ?? []);
+      setAnalysisSummaries(Object.fromEntries(
+        ((eventData.analyses ?? []) as EventAnalysisSummary[]).map(item => [item.eventId, item]),
+      ));
     }).catch(loadError => setError(loadError instanceof Error ? loadError.message : '人生事件加载失败'))
       .finally(() => setLoading(false));
   }, [conversationId]);
@@ -104,6 +111,11 @@ export default function LifeEventsWorkspace({ conversationId }: { conversationId
       setEvents(current => editing
         ? current.map(item => item.id === data.event!.id ? data.event! : item)
         : [...current, data.event!].sort(compareEvents));
+      if (editing) {
+        setAnalysisSummaries(current => current[editing.id]
+          ? { ...current, [editing.id]: { ...current[editing.id], isStale: true } }
+          : current);
+      }
       setFormOpen(false);
       setEditing(null);
     } catch (saveError) {
@@ -116,7 +128,15 @@ export default function LifeEventsWorkspace({ conversationId }: { conversationId
   const removeEvent = async (event: LifeEventWithTransits) => {
     if (!window.confirm(`确定删除“${event.title}”吗？该操作无法恢复。`)) return;
     const response = await fetch(`/api/conversations/${conversationId}/events/${event.id}`, { method: 'DELETE' });
-    if (response.ok) setEvents(current => current.filter(item => item.id !== event.id));
+    if (response.ok) {
+      setEvents(current => current.filter(item => item.id !== event.id));
+      setAnalysisSummaries(current => {
+        const next = { ...current };
+        delete next[event.id];
+        return next;
+      });
+      setOpenAnalysisEventId(current => current === event.id ? null : current);
+    }
   };
 
   const birthYear = conversation?.birthInfo?.year ?? new Date().getFullYear();
@@ -195,8 +215,13 @@ export default function LifeEventsWorkspace({ conversationId }: { conversationId
                           <EventCard
                             key={event.id}
                             event={event}
+                            conversationId={conversationId}
+                            analysisSummary={analysisSummaries[event.id] ?? null}
+                            analysisOpen={openAnalysisEventId === event.id}
                             onEdit={() => openEdit(event)}
                             onDelete={() => removeEvent(event)}
+                            onToggleAnalysis={() => setOpenAnalysisEventId(current => current === event.id ? null : event.id)}
+                            onAnalysisSummaryChange={summary => setAnalysisSummaries(current => ({ ...current, [event.id]: summary }))}
                             onOpenTransit={link => {
                               const query = link.level === 'year'
                                 ? `level=year&year=${link.targetDate}`
@@ -233,13 +258,23 @@ export default function LifeEventsWorkspace({ conversationId }: { conversationId
 
 function EventCard({
   event,
+  conversationId,
+  analysisSummary,
+  analysisOpen,
   onEdit,
   onDelete,
+  onToggleAnalysis,
+  onAnalysisSummaryChange,
   onOpenTransit,
 }: {
   event: LifeEventWithTransits;
+  conversationId: string;
+  analysisSummary: EventAnalysisSummary | null;
+  analysisOpen: boolean;
   onEdit: () => void;
   onDelete: () => void;
+  onToggleAnalysis: () => void;
+  onAnalysisSummaryChange: (summary: EventAnalysisSummary) => void;
   onOpenTransit: (link: EventTransitLink) => void;
 }) {
   const color = CATEGORY_COLORS[event.category];
@@ -267,7 +302,10 @@ function EventCard({
           <h3 className="mt-2 text-[12px] font-medium" style={{ color: 'var(--t-text)' }}>{event.title}</h3>
           {event.description && <p className="mt-1.5 whitespace-pre-wrap text-[10px] leading-relaxed" style={{ color: 'var(--t-text2)' }}>{event.description}</p>}
         </div>
-        <div className="flex shrink-0 gap-2 text-[9px]" style={{ color: 'var(--t-faint)' }}>
+        <div className="flex shrink-0 flex-wrap justify-end gap-2 text-[9px]" style={{ color: 'var(--t-faint)' }}>
+          <button type="button" onClick={onToggleAnalysis} style={{ color: analysisSummary?.isStale ? '#f59e0b' : 'var(--t-gold)' }}>
+            {formatAnalysisAction(analysisSummary, analysisOpen)}
+          </button>
           <button type="button" onClick={onEdit}>编辑</button>
           <button type="button" onClick={onDelete}>删除</button>
         </div>
@@ -305,6 +343,14 @@ function EventCard({
           )}
         </div>
       )}
+
+      {analysisOpen && (
+        <LifeEventAnalysisPanel
+          conversationId={conversationId}
+          event={event}
+          onSummaryChange={onAnalysisSummaryChange}
+        />
+      )}
     </article>
   );
 }
@@ -316,6 +362,14 @@ const RELATIONSHIP_LABELS: Record<EventTransitLink['relationship'], string> = {
   continues_in: '持续',
   ends_in: '结束',
 };
+
+function formatAnalysisAction(summary: EventAnalysisSummary | null, open: boolean): string {
+  if (open) return '收起回溯';
+  if (!summary) return '事件回溯';
+  if (summary.isStale) return '回溯需更新';
+  if (summary.status === 'failed') return '回溯失败';
+  return summary.version ? `查看回溯 v${summary.version}` : '事件回溯';
+}
 
 function getVisibleTransitLinks(links: EventTransitLink[]): EventTransitLink[] {
   const years = links.filter(link => link.level === 'year');

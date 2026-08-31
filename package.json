@@ -13,6 +13,7 @@
     "test:daily-transits": "tsx scripts/test-daily-transits.ts",
     "test:events": "tsx scripts/test-life-events.ts",
     "test:event-candidates": "tsx scripts/test-life-event-candidates.ts",
+    "test:event-analyses": "tsx scripts/test-event-analyses.ts",
     "test:reports": "tsx scripts/test-reports.ts",
     "test:report-pdf": "tsx scripts/test-report-pdf-exports.ts",
     "test:report-comparisons": "tsx scripts/test-report-comparisons.ts",

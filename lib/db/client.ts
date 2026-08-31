@@ -2476,6 +2476,86 @@ function migrate(db: Database.Database) {
     applyV45();
   }
 
+  if (!applied.has(46)) {
+    const applyV46 = db.transaction(() => {
+      db.exec(`
+        CREATE TABLE event_ai_analyses (
+          id TEXT PRIMARY KEY,
+          event_id TEXT NOT NULL,
+          conversation_id TEXT NOT NULL,
+          active_version_id TEXT,
+          created_at INTEGER NOT NULL,
+          updated_at INTEGER NOT NULL,
+
+          UNIQUE (event_id),
+          FOREIGN KEY (event_id) REFERENCES life_events(id) ON DELETE CASCADE,
+          FOREIGN KEY (conversation_id) REFERENCES conversations(id) ON DELETE CASCADE
+        );
+
+        CREATE TABLE event_ai_analysis_versions (
+          id TEXT PRIMARY KEY,
+          analysis_id TEXT NOT NULL,
+          version INTEGER NOT NULL,
+          source_fingerprint TEXT NOT NULL,
+          engine_version TEXT NOT NULL,
+          prompt_version TEXT NOT NULL,
+          provider TEXT NOT NULL,
+          model TEXT NOT NULL,
+          generation_reason TEXT NOT NULL CHECK (generation_reason IN (
+            'initial_generation', 'manual_regenerate', 'source_changed',
+            'template_upgraded', 'legacy_migration'
+          )),
+          base_version_id TEXT,
+          content_json TEXT,
+          status TEXT NOT NULL CHECK (status IN ('generating', 'completed', 'failed')),
+          error_code TEXT,
+          input_tokens INTEGER,
+          output_tokens INTEGER,
+          created_at INTEGER NOT NULL,
+          completed_at INTEGER,
+
+          UNIQUE (analysis_id, version),
+          FOREIGN KEY (analysis_id) REFERENCES event_ai_analyses(id) ON DELETE CASCADE
+        );
+
+        CREATE TABLE event_ai_analysis_evidence (
+          id TEXT PRIMARY KEY,
+          analysis_version_id TEXT NOT NULL,
+          section_key TEXT NOT NULL CHECK (section_key IN (
+            'confirmed_facts', 'timing_structure',
+            'cautious_interpretation', 'open_verification'
+          )),
+          evidence_key TEXT NOT NULL,
+          kind TEXT NOT NULL CHECK (kind IN (
+            'confirmed_event', 'annual_transit', 'monthly_transit',
+            'daily_transit', 'transit_range_summary'
+          )),
+          label TEXT NOT NULL,
+          source TEXT NOT NULL CHECK (source IN ('user_confirmed', 'rule_engine')),
+          facts_json TEXT NOT NULL,
+          created_at INTEGER NOT NULL,
+
+          UNIQUE (analysis_version_id, section_key, evidence_key),
+          FOREIGN KEY (analysis_version_id)
+            REFERENCES event_ai_analysis_versions(id)
+            ON DELETE CASCADE
+        );
+
+        CREATE INDEX idx_event_ai_analyses_conversation
+          ON event_ai_analyses(conversation_id, updated_at DESC);
+        CREATE INDEX idx_event_ai_analysis_versions_analysis
+          ON event_ai_analysis_versions(analysis_id, version DESC);
+        CREATE INDEX idx_event_ai_analysis_versions_fingerprint
+          ON event_ai_analysis_versions(analysis_id, source_fingerprint, status);
+        CREATE INDEX idx_event_ai_analysis_evidence_version
+          ON event_ai_analysis_evidence(analysis_version_id, section_key);
+      `);
+      db.prepare('INSERT INTO schema_migrations(version, applied_at) VALUES (?, ?)')
+        .run(46, Date.now());
+    });
+    applyV46();
+  }
+
   ensureMessageSearch(db);
 }
 
