@@ -118,6 +118,33 @@ export interface MonthlyTransitSnapshot {
   evidence: TransitRuleEvidence[];
 }
 
+export interface MonthlyTransitYearItem {
+  snapshotId: string;
+  targetDate: string;
+  lunarMonth: MonthlyTransitSnapshot['lunarMonth'];
+  nominalAge: number;
+  yearGanZhi: string;
+  flowMonth: MonthlyTransitSnapshot['flowMonth'];
+  transformations: TransitTransform[];
+  keyPalaces: TransitKeyPalace[];
+  topicPalaces: MonthlyTransitSnapshot['topicPalaces'];
+}
+
+export interface MonthlyTransitYearOverview {
+  level: 'month-year';
+  lunarYear: number;
+  startDate: string;
+  endDate: string;
+  monthCount: number;
+  boundaryPolicy: 'lunar-year-first-day-to-next-lunar-year-eve';
+  comparisonPolicy: 'user-selected-factual-difference';
+  engineVersion: string;
+  previousYearStartDate: string | null;
+  nextYearStartDate: string | null;
+  months: MonthlyTransitYearItem[];
+  evidence: TransitRuleEvidence[];
+}
+
 export interface DailyTransitSnapshot {
   level: 'day';
   targetDate: string;

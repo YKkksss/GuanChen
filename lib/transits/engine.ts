@@ -1,5 +1,5 @@
 import { astro } from 'iztro';
-import { Solar } from 'lunar-javascript';
+import { Lunar, Solar } from 'lunar-javascript';
 import { BRANCHES } from '@/lib/ziwei/constants';
 import type { SiHua, ZiweiChart } from '@/lib/ziwei/types';
 import type {
@@ -150,6 +150,35 @@ export function resolveMonthlyTransitPeriod(targetDate: string): MonthlyTransitS
     endDate: addSolarDays(nextStartDate, -1),
     dayCount,
   };
+}
+
+/**
+ * 列出一个农历流年内的全部流月。
+ * 常规年份返回 12 个月，存在闰月时返回 13 个月，不能为了固定数量忽略闰月。
+ */
+export function resolveLunarYearMonthlyPeriods(
+  lunarYear: number,
+): MonthlyTransitSnapshot['lunarMonth'][] {
+  if (!Number.isInteger(lunarYear) || lunarYear < 1900 || lunarYear > 2200) {
+    throw new Error('农历流年必须在 1900 至 2200 之间');
+  }
+  const startDate = Lunar.fromYmd(lunarYear, 1, 1).getSolar().toYmd();
+  const nextYearStartDate = Lunar.fromYmd(lunarYear + 1, 1, 1).getSolar().toYmd();
+  const periods: MonthlyTransitSnapshot['lunarMonth'][] = [];
+  let cursor = startDate;
+
+  while (cursor < nextYearStartDate) {
+    const period = resolveMonthlyTransitPeriod(cursor);
+    if (period.year !== lunarYear) break;
+    periods.push(period);
+    cursor = addSolarDays(period.endDate, 1);
+    if (periods.length > 13) throw new Error('农历流月数量异常');
+  }
+
+  if (periods.length !== 12 && periods.length !== 13) {
+    throw new Error(`农历 ${lunarYear} 年流月数量异常：${periods.length}`);
+  }
+  return periods;
 }
 
 /**

@@ -1,9 +1,12 @@
 'use client';
 
+import { useEffect, useState } from 'react';
+import MonthlyTransitYearPanel from '@/components/MonthlyTransitYearPanel';
 import type { MonthlyTransitSnapshot } from '@/lib/transits/types';
 import { BRANCHES } from '@/lib/ziwei/constants';
 
 interface MonthlyTransitPanelProps {
+  conversationId: string;
   snapshot: MonthlyTransitSnapshot | null;
   observationDate: string;
   minDate: string;
@@ -21,6 +24,7 @@ const TRANSFORM_COLORS: Record<string, string> = {
 };
 
 export default function MonthlyTransitPanel({
+  conversationId,
   snapshot,
   observationDate,
   minDate,
@@ -29,6 +33,10 @@ export default function MonthlyTransitPanel({
   error = '',
   onDateChange,
 }: MonthlyTransitPanelProps) {
+  const [overviewYear, setOverviewYear] = useState<number | null>(snapshot?.lunarMonth.year ?? null);
+  useEffect(() => {
+    if (snapshot) setOverviewYear(snapshot.lunarMonth.year);
+  }, [snapshot]);
   const previousDate = snapshot
     ? addDays(snapshot.lunarMonth.startDate, -1)
     : addDays(observationDate, -30);
@@ -87,6 +95,13 @@ export default function MonthlyTransitPanel({
           {error}
         </div>
       )}
+
+      <MonthlyTransitYearPanel
+        conversationId={conversationId}
+        lunarYear={overviewYear}
+        activeTargetDate={snapshot?.targetDate ?? null}
+        onDateChange={onDateChange}
+      />
 
       {!loading && snapshot && (
         <div className="mt-4 space-y-4">

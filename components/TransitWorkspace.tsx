@@ -263,7 +263,7 @@ export default function TransitWorkspace({ conversationId }: { conversationId: s
             </div>
             <div className="text-right">
               <h1 className="text-sm font-medium" style={{ color: 'var(--t-text)' }}>时间运势</h1>
-              <p className="mt-0.5 text-[9px]" style={{ color: 'var(--t-faint)' }}>M1-3 · 年度、流月与流日确定性快照</p>
+              <p className="mt-0.5 text-[9px]" style={{ color: 'var(--t-faint)' }}>M1-4 · 全年流月时间轴与重点月份对比</p>
             </div>
           </div>
 
@@ -317,6 +317,7 @@ export default function TransitWorkspace({ conversationId }: { conversationId: s
                 )}
                 {analysisLevel === 'month' && (
                   <MonthlyTransitPanel
+                    conversationId={conversationId}
                     snapshot={snapshot?.level === 'month' ? snapshot : null}
                     observationDate={observationDate}
                     minDate={minDate}
