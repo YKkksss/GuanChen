@@ -59,8 +59,14 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     const topic = typeof body.topic === 'string' ? body.topic.slice(0, 40) : null;
     const palaceBranch = typeof body.palaceBranch === 'number' ? body.palaceBranch : null;
     const sihuaType = typeof body.sihuaType === 'string' ? body.sihuaType.slice(0, 20) : null;
-    const transitLevel = body.transitLevel === 'year' ? 'year' : null;
-    const targetDate = typeof body.targetDate === 'string' && /^\d{4}$/.test(body.targetDate)
+    const transitLevel = body.transitLevel === 'year' || body.transitLevel === 'month'
+      ? body.transitLevel
+      : null;
+    const targetDate = typeof body.targetDate === 'string'
+      && (
+        (transitLevel === 'year' && /^\d{4}$/.test(body.targetDate))
+        || (transitLevel === 'month' && /^\d{4}-\d{2}-\d{2}$/.test(body.targetDate))
+      )
       ? body.targetDate
       : null;
     const metadata = transitLevel && targetDate

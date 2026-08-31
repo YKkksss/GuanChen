@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getConversation } from '@/lib/db/conversations';
-import { getOrCreateAnnualTransit } from '@/lib/transits/service';
+import { getOrCreateAnnualTransit, getOrCreateMonthlyTransit } from '@/lib/transits/service';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -18,21 +18,28 @@ export async function GET(request: Request, context: RouteContext) {
 
   const url = new URL(request.url);
   const level = url.searchParams.get('level') ?? 'year';
-  if (level !== 'year') {
-    return NextResponse.json({ error: '第一版暂时只支持年度分析' }, { status: 400 });
+  if (level !== 'year' && level !== 'month') {
+    return NextResponse.json({ error: '当前仅支持年度或流月分析' }, { status: 400 });
   }
 
-  const rawDate = url.searchParams.get('date') ?? String(new Date().getFullYear());
+  const now = new Date();
+  const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+  const rawDate = url.searchParams.get('date') ?? (level === 'year' ? String(now.getFullYear()) : today);
+  if (level === 'month' && !/^\d{4}-\d{2}-\d{2}$/.test(rawDate)) {
+    return NextResponse.json({ error: '流月观察日期必须使用 YYYY-MM-DD 格式' }, { status: 400 });
+  }
   const selectedYear = Number.parseInt(rawDate.slice(0, 4), 10);
   if (!Number.isInteger(selectedYear)) {
     return NextResponse.json({ error: '日期格式不正确' }, { status: 400 });
   }
 
   try {
-    const transit = getOrCreateAnnualTransit(id, selectedYear);
+    const transit = level === 'month'
+      ? getOrCreateMonthlyTransit(id, rawDate)
+      : getOrCreateAnnualTransit(id, selectedYear);
     return NextResponse.json({ transit });
   } catch (error) {
-    const message = error instanceof Error ? error.message : '年度分析生成失败';
+    const message = error instanceof Error ? error.message : '运限分析生成失败';
     return NextResponse.json({ error: message }, { status: 400 });
   }
 }

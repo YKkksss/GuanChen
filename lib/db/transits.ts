@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import type { AnnualTransitSnapshot, TransitLevel, TransitSnapshotRecord } from '@/lib/transits/types';
+import type { TransitLevel, TransitSnapshot, TransitSnapshotRecord } from '@/lib/transits/types';
 import { getDatabase } from './client';
 
 interface TransitSnapshotRow {
@@ -13,25 +13,25 @@ interface TransitSnapshotRow {
   updated_at: number;
 }
 
-function mapRow(row: TransitSnapshotRow): TransitSnapshotRecord {
+function mapRow<TSnapshot extends TransitSnapshot = TransitSnapshot>(row: TransitSnapshotRow): TransitSnapshotRecord<TSnapshot> {
   return {
     id: row.id,
     conversationId: row.conversation_id,
     level: row.level,
     targetDate: row.target_date,
     engineVersion: row.engine_version,
-    snapshot: JSON.parse(row.snapshot_json) as AnnualTransitSnapshot,
+    snapshot: JSON.parse(row.snapshot_json) as TSnapshot,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
 }
 
-export function getTransitSnapshot(input: {
+export function getTransitSnapshot<TSnapshot extends TransitSnapshot = TransitSnapshot>(input: {
   conversationId: string;
   level: TransitLevel;
   targetDate: string;
   engineVersion: string;
-}): TransitSnapshotRecord | null {
+}): TransitSnapshotRecord<TSnapshot> | null {
   const row = getDatabase().prepare(`
     SELECT * FROM transit_snapshots
     WHERE conversation_id = ? AND level = ? AND target_date = ? AND engine_version = ?
@@ -41,7 +41,7 @@ export function getTransitSnapshot(input: {
     input.targetDate,
     input.engineVersion,
   ) as TransitSnapshotRow | undefined;
-  return row ? mapRow(row) : null;
+  return row ? mapRow<TSnapshot>(row) : null;
 }
 
 export function getTransitSnapshotById(id: string): TransitSnapshotRecord | null {
@@ -50,14 +50,14 @@ export function getTransitSnapshotById(id: string): TransitSnapshotRecord | null
   return row ? mapRow(row) : null;
 }
 
-export function upsertTransitSnapshot(input: {
+export function upsertTransitSnapshot<TSnapshot extends TransitSnapshot>(input: {
   conversationId: string;
   level: TransitLevel;
   targetDate: string;
   engineVersion: string;
-  snapshot: AnnualTransitSnapshot;
-}): TransitSnapshotRecord {
-  const existing = getTransitSnapshot(input);
+  snapshot: TSnapshot;
+}): TransitSnapshotRecord<TSnapshot> {
+  const existing = getTransitSnapshot<TSnapshot>(input);
   const id = existing?.id ?? randomUUID();
   const now = Date.now();
   getDatabase().prepare(`
@@ -77,7 +77,7 @@ export function upsertTransitSnapshot(input: {
     existing?.createdAt ?? now,
     now,
   );
-  return getTransitSnapshot(input)!;
+  return getTransitSnapshot<TSnapshot>(input)!;
 }
 
 export function listTransitSnapshots(conversationId: string): TransitSnapshotRecord[] {

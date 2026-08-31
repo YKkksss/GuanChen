@@ -22,8 +22,8 @@ import {
   type LifeEventWithTransits,
 } from '@/lib/events/types';
 import { buildCompactChartBase, buildTopicChartContext } from './chart-context';
-import { getOrCreateAnnualTransit } from '@/lib/transits/service';
-import type { AnnualTransitSnapshot } from '@/lib/transits/types';
+import { getOrCreateAnnualTransit, getOrCreateMonthlyTransit } from '@/lib/transits/service';
+import type { AnnualTransitSnapshot, MonthlyTransitSnapshot, TransitSnapshot } from '@/lib/transits/types';
 import { getModelProfile } from './model-profile';
 import {
   estimateMessageTokens,
@@ -73,8 +73,8 @@ export function buildConversationContext(input: {
     topic,
     current.palaceBranch,
   );
-  const transitSnapshot = getAnnualTransitFromMessage(conversation.id, current);
-  const transitContext = transitSnapshot ? buildAnnualTransitContext(transitSnapshot) : '';
+  const transitSnapshot = getTransitFromMessage(conversation.id, current);
+  const transitContext = transitSnapshot ? buildTransitContext(transitSnapshot) : '';
 
   const systemMessage: ChatMessage = { role: 'system', content: ZIWEI_SYSTEM_PROMPT };
   const chartMessage: ChatMessage = {
@@ -167,7 +167,8 @@ export function buildConversationContext(input: {
         chartTopic: { included: true, tokens: estimateTextTokens(chartTopic) },
         transit: {
           included: Boolean(transitContext),
-          year: transitSnapshot?.selectedYear ?? null,
+          level: transitSnapshot?.level ?? null,
+          targetDate: transitSnapshot?.targetDate ?? null,
           tokens: estimateTextTokens(transitContext),
         },
         memories: { count: support.memoryCount, tokens: support.memoryTokens },
@@ -206,8 +207,8 @@ export function buildFallbackConversationContext(input: {
   const profile = getModelProfile(input.provider, input.model);
   const inputBudget = profile.contextLimit - profile.outputReserve - profile.safetyMargin;
   const system: ChatMessage = { role: 'system', content: ZIWEI_SYSTEM_PROMPT };
-  const transitSnapshot = getAnnualTransitFromMessage(conversation.id, current);
-  const transitContext = transitSnapshot ? buildAnnualTransitContext(transitSnapshot) : '';
+  const transitSnapshot = getTransitFromMessage(conversation.id, current);
+  const transitContext = transitSnapshot ? buildTransitContext(transitSnapshot) : '';
   const searchTerms = extractSearchTerms(current.content);
   const confirmedEvents = selectRelevantLifeEvents(
     listLifeEvents({ conversationId: conversation.id }).filter(event => event.confirmedByUser),
@@ -254,7 +255,11 @@ export function buildFallbackConversationContext(input: {
       layers: {
         system: { included: true },
         chartBase: { included: true },
-        transit: { included: Boolean(transitContext), year: transitSnapshot?.selectedYear ?? null },
+        transit: {
+          included: Boolean(transitContext),
+          level: transitSnapshot?.level ?? null,
+          targetDate: transitSnapshot?.targetDate ?? null,
+        },
         confirmedEvents: { count: confirmedEvents.length, ids: confirmedEvents.map(event => event.id) },
         recent: { count: recent.length },
         current: { included: true },
@@ -264,17 +269,28 @@ export function buildFallbackConversationContext(input: {
   };
 }
 
-function getAnnualTransitFromMessage(
+function getTransitFromMessage(
   conversationId: string,
   message: ConversationMessage,
-): AnnualTransitSnapshot | null {
+): TransitSnapshot | null {
   const rawTransit = message.metadata?.transit;
   if (!rawTransit || typeof rawTransit !== 'object') return null;
   const transit = rawTransit as { level?: unknown; targetDate?: unknown };
-  if (transit.level !== 'year' || typeof transit.targetDate !== 'string') return null;
-  const year = Number.parseInt(transit.targetDate, 10);
-  if (!Number.isInteger(year)) return null;
-  return getOrCreateAnnualTransit(conversationId, year).snapshot;
+  if (typeof transit.targetDate !== 'string') return null;
+  if (transit.level === 'month' && /^\d{4}-\d{2}-\d{2}$/.test(transit.targetDate)) {
+    return getOrCreateMonthlyTransit(conversationId, transit.targetDate).snapshot;
+  }
+  if (transit.level === 'year' && /^\d{4}$/.test(transit.targetDate)) {
+    const year = Number.parseInt(transit.targetDate, 10);
+    return getOrCreateAnnualTransit(conversationId, year).snapshot;
+  }
+  return null;
+}
+
+function buildTransitContext(snapshot: TransitSnapshot): string {
+  return snapshot.level === 'month'
+    ? buildMonthlyTransitContext(snapshot)
+    : buildAnnualTransitContext(snapshot);
 }
 
 function buildAnnualTransitContext(snapshot: AnnualTransitSnapshot): string {
@@ -292,6 +308,29 @@ function buildAnnualTransitContext(snapshot: AnnualTransitSnapshot): string {
     `流年四化：${transformations}。`,
     `重点宫位及依据：${keyPalaces}。`,
     '回答时须区分“排盘事实”“传统解释”和“建议”，不得把趋势表达成必然事件。',
+  ].join('\n');
+}
+
+function buildMonthlyTransitContext(snapshot: MonthlyTransitSnapshot): string {
+  const yearlyTransformations = snapshot.yearlyTransformations.map(item => (
+    `${item.starName}化${item.type}→${item.natalPalaceName ?? '本命盘未定位'}`
+  )).join('；');
+  const monthlyTransformations = snapshot.transformations.map(item => (
+    `${item.starName}化${item.type}→${item.natalPalaceName ?? '本命盘未定位'}`
+  )).join('；');
+  const keyPalaces = snapshot.keyPalaces.map(item => (
+    `${item.nativePalaceName}（流月${item.transitPalaceName}）：${item.reasons.join('、')}`
+  )).join('；');
+  return [
+    `【L2.5 ${snapshot.lunarMonth.year} 年${snapshot.lunarMonth.label}确定性运势事实】以下为程序计算结果，不是 AI 推测。`,
+    `有效范围：公历 ${snapshot.lunarMonth.startDate} 至 ${snapshot.lunarMonth.endDate}；按农历初一换月。`,
+    `流年：${snapshot.year.ganZhi}；流月：${snapshot.flowMonth.ganZhi}；虚岁：${snapshot.nominalAge}。`,
+    `所在大限：${snapshot.decadal.startAge ?? '?'}-${snapshot.decadal.endAge ?? '?'} 岁，落本命${snapshot.decadal.nativePalaceName}。`,
+    `流年命宫：落本命${snapshot.flowYear.nativePalaceName}；流月命宫：落本命${snapshot.flowMonth.nativePalaceName}（${BRANCH_LABELS[snapshot.flowMonth.palaceBranch] ?? snapshot.flowMonth.earthlyBranch}）。`,
+    `流年四化：${yearlyTransformations}。`,
+    `流月四化：${monthlyTransformations}。`,
+    `流月重点宫位及依据：${keyPalaces}。`,
+    '回答时须按“大限背景—流年主题—流月触发”分层说明，并区分“排盘事实”“传统解释”和“建议”，不得把趋势表达成必然事件。',
   ].join('\n');
 }
 

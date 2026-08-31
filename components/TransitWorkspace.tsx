@@ -8,8 +8,14 @@ import AnnualTransitPanel from '@/components/AnnualTransitPanel';
 import ChartBoard from '@/components/ChartBoard';
 import ConversationHistory from '@/components/ConversationHistory';
 import InsightPanel from '@/components/InsightPanel';
+import MonthlyTransitPanel from '@/components/MonthlyTransitPanel';
 import type { Conversation, ConversationMessage } from '@/lib/conversations/types';
-import type { AnnualTransitReport, AnnualTransitReportVersion, AnnualTransitSnapshot, TransitSnapshotRecord } from '@/lib/transits/types';
+import type {
+  AnnualTransitReport,
+  AnnualTransitReportVersion,
+  TransitSnapshot,
+  TransitSnapshotRecord,
+} from '@/lib/transits/types';
 import type { Palace, ZiweiChart } from '@/lib/ziwei/types';
 import type { TimeView } from '@/components/TimeNav';
 
@@ -18,11 +24,20 @@ export default function TransitWorkspace({ conversationId }: { conversationId: s
   const searchParams = useSearchParams();
   const [chart, setChart] = useState<ZiweiChart | null>(null);
   const [messages, setMessages] = useState<ConversationMessage[]>([]);
-  const [snapshot, setSnapshot] = useState<AnnualTransitSnapshot | null>(null);
+  const requestedLevel = searchParams.get('level') === 'month' ? 'month' : 'year';
+  const requestedDate = normalizeObservationDate(searchParams.get('date'));
+  const [analysisLevel, setAnalysisLevel] = useState<'year' | 'month'>(requestedLevel);
+  const [snapshot, setSnapshot] = useState<TransitSnapshot | null>(null);
   const [report, setReport] = useState<AnnualTransitReport | null>(null);
   const [reportVersions, setReportVersions] = useState<AnnualTransitReportVersion[]>([]);
   const requestedYear = Number.parseInt(searchParams.get('year') ?? '', 10);
-  const [year, setYear] = useState(Number.isInteger(requestedYear) ? requestedYear : new Date().getFullYear());
+  const initialYear = Number.isInteger(requestedYear)
+    ? requestedYear
+    : requestedLevel === 'month'
+      ? Number.parseInt(requestedDate.slice(0, 4), 10)
+      : new Date().getFullYear();
+  const [year, setYear] = useState(initialYear);
+  const [observationDate, setObservationDate] = useState(requestedDate);
   const [timeView, setTimeView] = useState<TimeView>('liunian');
   const [selectedPalace, setSelectedPalace] = useState<Palace | null>(null);
   const [selectedSiHua, setSelectedSiHua] = useState<{ starName: string; siHua: string; view: TimeView } | null>(null);
@@ -52,6 +67,12 @@ export default function TransitWorkspace({ conversationId }: { conversationId: s
         setMessages(data.messages ?? []);
         const birthYear = data.conversation!.birthInfo?.year ?? year;
         setYear(current => Math.max(birthYear, Math.min(birthYear + 130, current)));
+        const birth = data.conversation!.birthInfo;
+        if (birth) {
+          const earliest = `${birth.year}-${String(birth.month).padStart(2, '0')}-${String(birth.day).padStart(2, '0')}`;
+          const latest = `${Math.min(birth.year + 130, 2200)}-12-31`;
+          setObservationDate(current => clampDate(current, earliest, latest));
+        }
       })
       .catch(loadError => {
         if (loadError instanceof DOMException && loadError.name === 'AbortError') return;
@@ -70,27 +91,28 @@ export default function TransitWorkspace({ conversationId }: { conversationId: s
     setReport(null);
     setReportVersions([]);
     setReportError('');
-    fetch(`/api/conversations/${conversationId}/transits?level=year&date=${year}`, {
+    const targetDate = analysisLevel === 'year' ? String(year) : observationDate;
+    fetch(`/api/conversations/${conversationId}/transits?level=${analysisLevel}&date=${targetDate}`, {
       cache: 'no-store',
       signal: controller.signal,
     })
       .then(async response => {
         const data = await response.json() as { transit?: TransitSnapshotRecord; error?: string };
-        if (!response.ok || !data.transit) throw new Error(data.error || '年度分析加载失败');
+        if (!response.ok || !data.transit) throw new Error(data.error || '运限分析加载失败');
         return data.transit.snapshot;
       })
       .then(setSnapshot)
       .catch(loadError => {
         if (loadError instanceof DOMException && loadError.name === 'AbortError') return;
         setSnapshot(null);
-        setError(loadError instanceof Error ? loadError.message : '年度分析加载失败');
+        setError(loadError instanceof Error ? loadError.message : '运限分析加载失败');
       })
       .finally(() => setLoadingTransit(false));
     return () => controller.abort();
-  }, [chart, conversationId, year]);
+  }, [analysisLevel, chart, conversationId, observationDate, year]);
 
   useEffect(() => {
-    if (!snapshot || snapshot.selectedYear !== year) return;
+    if (!snapshot || snapshot.level !== 'year' || snapshot.selectedYear !== year || analysisLevel !== 'year') return;
     const controller = new AbortController();
     reportRequestRef.current?.abort();
     reportRequestRef.current = controller;
@@ -109,7 +131,7 @@ export default function TransitWorkspace({ conversationId }: { conversationId: s
         if (!controller.signal.aborted) setLoadingReport(false);
       });
     return () => controller.abort();
-  }, [conversationId, snapshot, year]);
+  }, [analysisLevel, conversationId, snapshot, year]);
 
   const toggleHistory = () => {
     setHistoryCollapsed(current => {
@@ -121,13 +143,18 @@ export default function TransitWorkspace({ conversationId }: { conversationId: s
 
   const minYear = chart?.birthInfo.year ?? year;
   const maxYear = Math.min(minYear + 130, 2200);
-  const selectedNominalAge = chart ? year - chart.birthInfo.year + 1 : 0;
+  const minDate = chart
+    ? `${chart.birthInfo.year}-${String(chart.birthInfo.month).padStart(2, '0')}-${String(chart.birthInfo.day).padStart(2, '0')}`
+    : `${minYear}-01-01`;
+  const maxDate = `${maxYear}-12-31`;
+  const displayYear = analysisLevel === 'month' ? Number.parseInt(observationDate.slice(0, 4), 10) : year;
+  const selectedNominalAge = chart ? displayYear - chart.birthInfo.year + 1 : 0;
   const selectedDaXian = chart?.daXians.find(item => (
     selectedNominalAge >= item.startAge && selectedNominalAge <= item.endAge
   ));
 
   const regenerateReport = () => {
-    if (!snapshot || snapshot.selectedYear !== year || loadingReport) return;
+    if (!snapshot || snapshot.level !== 'year' || snapshot.selectedYear !== year || loadingReport) return;
     const controller = new AbortController();
     reportRequestRef.current?.abort();
     reportRequestRef.current = controller;
@@ -168,6 +195,38 @@ export default function TransitWorkspace({ conversationId }: { conversationId: s
       });
   };
 
+  const changeObservationDate = (nextDate: string) => {
+    const safeDate = clampDate(nextDate, minDate, maxDate);
+    setObservationDate(safeDate);
+    setYear(Number.parseInt(safeDate.slice(0, 4), 10));
+    router.replace(`/chart/${conversationId}/timeline?level=month&date=${safeDate}`, { scroll: false });
+  };
+
+  const changeAnnualYear = (nextYear: number) => {
+    const safeYear = Math.min(maxYear, Math.max(minYear, nextYear));
+    setYear(safeYear);
+    router.replace(`/chart/${conversationId}/timeline?level=year&year=${safeYear}`, { scroll: false });
+  };
+
+  const changeChartYear = (nextYear: number) => {
+    const safeYear = Math.min(maxYear, Math.max(minYear, nextYear));
+    if (analysisLevel === 'month') {
+      changeObservationDate(replaceDateYear(observationDate, safeYear));
+    } else {
+      changeAnnualYear(safeYear);
+    }
+  };
+
+  const changeAnalysisLevel = (level: 'year' | 'month') => {
+    setAnalysisLevel(level);
+    setError('');
+    if (level === 'month') {
+      changeObservationDate(replaceDateYear(observationDate, year));
+    } else {
+      changeAnnualYear(year);
+    }
+  };
+
   return (
     <main className="mx-auto max-w-[1800px] px-3 py-4 md:px-4">
       <div className={`grid grid-cols-1 items-start gap-4 ${historyCollapsed ? 'xl:grid-cols-[64px_minmax(0,1fr)]' : 'xl:grid-cols-[260px_minmax(0,1fr)]'}`}>
@@ -193,9 +252,28 @@ export default function TransitWorkspace({ conversationId }: { conversationId: s
               </button>
             </div>
             <div className="text-right">
-              <h1 className="text-sm font-medium" style={{ color: 'var(--t-text)' }}>年度时间运势</h1>
-              <p className="mt-0.5 text-[9px]" style={{ color: 'var(--t-faint)' }}>M1 第一版 · 年度确定性快照</p>
+              <h1 className="text-sm font-medium" style={{ color: 'var(--t-text)' }}>时间运势</h1>
+              <p className="mt-0.5 text-[9px]" style={{ color: 'var(--t-faint)' }}>M1-2 · 年度与流月确定性快照</p>
             </div>
+          </div>
+
+          <div className="mb-4 flex w-fit rounded-xl p-1" style={{ border: '1px solid var(--t-border)', background: 'var(--t-card)' }}>
+            {([
+              ['year', '年度分析'],
+              ['month', '流月分析'],
+            ] as const).map(([level, label]) => (
+              <button
+                key={level}
+                type="button"
+                onClick={() => changeAnalysisLevel(level)}
+                className="rounded-lg px-4 py-2 text-xs transition-colors"
+                style={analysisLevel === level
+                  ? { background: 'rgba(212,168,67,.16)', color: 'var(--t-gold)', border: '1px solid rgba(212,168,67,.28)' }
+                  : { color: 'var(--t-faint)', border: '1px solid transparent' }}
+              >
+                {label}
+              </button>
+            ))}
           </div>
 
           {loadingConversation && (
@@ -208,23 +286,36 @@ export default function TransitWorkspace({ conversationId }: { conversationId: s
                 <ChartBoard
                   chart={chart}
                   timeView={timeView}
-                  liunianYear={year}
+                  liunianYear={displayYear}
                   onTimeViewChange={setTimeView}
-                  onLiunianYearChange={next => setYear(Math.min(maxYear, Math.max(minYear, next)))}
+                  onLiunianYearChange={changeChartYear}
                   activeDaXian={selectedDaXian}
                   onPalaceSelect={setSelectedPalace}
                   onSiHuaClick={(starName, siHua, view) => setSelectedSiHua({ starName, siHua, view })}
                 />
-                <AnnualTransitPanel
-                  snapshot={snapshot}
-                  year={year}
-                  minYear={minYear}
-                  maxYear={maxYear}
-                  loading={loadingTransit}
-                  error={error}
-                  onYearChange={setYear}
-                />
-                {snapshot?.selectedYear === year && (
+                {analysisLevel === 'year' && (
+                  <AnnualTransitPanel
+                    snapshot={snapshot?.level === 'year' ? snapshot : null}
+                    year={year}
+                    minYear={minYear}
+                    maxYear={maxYear}
+                    loading={loadingTransit}
+                    error={error}
+                    onYearChange={changeAnnualYear}
+                  />
+                )}
+                {analysisLevel === 'month' && (
+                  <MonthlyTransitPanel
+                    snapshot={snapshot?.level === 'month' ? snapshot : null}
+                    observationDate={observationDate}
+                    minDate={minDate}
+                    maxDate={maxDate}
+                    loading={loadingTransit}
+                    error={error}
+                    onDateChange={changeObservationDate}
+                  />
+                )}
+                {analysisLevel === 'year' && snapshot?.level === 'year' && snapshot.selectedYear === year && (
                   <AnnualReportPanel
                     year={year}
                     report={report}
@@ -244,7 +335,15 @@ export default function TransitWorkspace({ conversationId }: { conversationId: s
                   initialMessages={messages}
                   selectedPalace={selectedPalace}
                   selectedSiHua={selectedSiHua}
-                  transitContext={{ level: 'year', targetDate: String(year) }}
+                  transitContext={analysisLevel === 'month'
+                    ? snapshot?.level === 'month'
+                      ? {
+                          level: 'month',
+                          targetDate: snapshot.targetDate,
+                          label: `${snapshot.lunarMonth.year} 年${snapshot.lunarMonth.label}`,
+                        }
+                      : null
+                    : { level: 'year', targetDate: String(year), label: `${year} 年` }}
                   autoGenerate={false}
                 />
               </div>
@@ -346,4 +445,30 @@ function abortableDelay(milliseconds: number, signal: AbortSignal): Promise<void
     };
     signal.addEventListener('abort', onAbort, { once: true });
   });
+}
+
+function normalizeObservationDate(value: string | null): string {
+  if (value && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    const [year, month, day] = value.split('-').map(Number);
+    const parsed = new Date(Date.UTC(year, month - 1, day));
+    if (parsed.getUTCFullYear() === year && parsed.getUTCMonth() === month - 1 && parsed.getUTCDate() === day) {
+      return value;
+    }
+  }
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+}
+
+function clampDate(date: string, minDate: string, maxDate: string): string {
+  return date < minDate ? minDate : date > maxDate ? maxDate : date;
+}
+
+function replaceDateYear(date: string, year: number): string {
+  const month = Number.parseInt(date.slice(5, 7), 10);
+  const day = Number.parseInt(date.slice(8, 10), 10);
+  const value = new Date(Date.UTC(year, month - 1, day));
+  if (value.getUTCMonth() !== month - 1) {
+    return `${year}-${String(month).padStart(2, '0')}-${String(new Date(Date.UTC(year, month, 0)).getUTCDate()).padStart(2, '0')}`;
+  }
+  return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
 }

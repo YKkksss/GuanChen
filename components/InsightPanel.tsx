@@ -28,7 +28,7 @@ interface InsightPanelProps {
   initialMessages?: ConversationMessage[];
   selectedPalace?: Palace | null;
   selectedSiHua?: SelectedSiHua | null;
-  transitContext?: { level: 'year'; targetDate: string } | null;
+  transitContext?: { level: 'year' | 'month'; targetDate: string; label?: string } | null;
   autoGenerate?: boolean;
 }
 
@@ -422,7 +422,7 @@ ${selectedSiHua.starName}化${selectedSiHua.siHua}落在【${palaceName}】，�
           </span>
           <div className="min-w-0">
             <div className="eastern-insight-title">
-              {transitContext ? `${transitContext.targetDate} 年 AI 解读` : 'AI 命理解读'}
+              {transitContext ? `${transitContext.label ?? `${transitContext.targetDate} 年`} AI 解读` : 'AI 命理解读'}
             </div>
             <div className="eastern-insight-subtitle">融合东方智慧与结构化分析</div>
           </div>
@@ -529,7 +529,7 @@ ${selectedSiHua.starName}化${selectedSiHua.siHua}落在【${palaceName}】，�
                 handleSend();
               }
             }}
-            placeholder={transitContext ? `询问 ${transitContext.targetDate} 年的事业、感情或财运…` : '继续追问，如：今年适合换工作吗？'}
+            placeholder={transitContext ? `询问${transitContext.label ?? `${transitContext.targetDate} 年`}的事业、感情或财运…` : '继续追问，如：今年适合换工作吗？'}
             disabled={loading}
             className="eastern-chat-input"
           />

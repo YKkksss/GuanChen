@@ -66,13 +66,67 @@ export interface AnnualTransitSnapshot {
   evidence: TransitRuleEvidence[];
 }
 
-export interface TransitSnapshotRecord {
+export interface MonthlyTransitSnapshot {
+  level: 'month';
+  targetDate: string;
+  representativeDate: string;
+  boundaryPolicy: 'lunar-month-first-day';
+  engineVersion: string;
+  lunarDate: string;
+  nominalAge: number;
+  lunarMonth: {
+    year: number;
+    month: number;
+    isLeap: boolean;
+    label: string;
+    startDate: string;
+    endDate: string;
+    dayCount: number;
+  };
+  year: {
+    heavenlyStem: string;
+    earthlyBranch: string;
+    ganZhi: string;
+  };
+  decadal: {
+    startAge: number | null;
+    endAge: number | null;
+    palaceBranch: number;
+    nativePalaceName: string;
+    heavenlyStem: string;
+    earthlyBranch: string;
+  };
+  flowYear: {
+    palaceBranch: number;
+    nativePalaceName: string;
+    heavenlyStem: string;
+    earthlyBranch: string;
+  };
+  flowMonth: {
+    palaceBranch: number;
+    nativePalaceName: string;
+    heavenlyStem: string;
+    earthlyBranch: string;
+    ganZhi: string;
+  };
+  yearlyTransformations: TransitTransform[];
+  transformations: TransitTransform[];
+  relatedPalaceBranches: number[];
+  palaceMappings: TransitPalaceMapping[];
+  keyPalaces: TransitKeyPalace[];
+  topicPalaces: Record<'career' | 'relationship' | 'wealth' | 'health', number>;
+  evidence: TransitRuleEvidence[];
+}
+
+export type TransitSnapshot = AnnualTransitSnapshot | MonthlyTransitSnapshot;
+
+export interface TransitSnapshotRecord<TSnapshot extends TransitSnapshot = TransitSnapshot> {
   id: string;
   conversationId: string;
   level: TransitLevel;
   targetDate: string;
   engineVersion: string;
-  snapshot: AnnualTransitSnapshot;
+  snapshot: TSnapshot;
   createdAt: number;
   updatedAt: number;
 }
