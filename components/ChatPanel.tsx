@@ -1,7 +1,9 @@
 'use client';
-import { useState, useRef, useEffect } from 'react';
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { ZiweiChart } from '@/lib/ziwei/types';
+import { useSmartChatScroll } from '@/lib/ui/use-smart-chat-scroll';
+import ChatScrollToLatestButton from './ChatScrollToLatestButton';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -25,13 +27,15 @@ export default function ChatPanel({ chart }: ChatPanelProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
-  const scrollRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-    }
-  }, [messages]);
+  const {
+    scrollRef,
+    showLatestButton,
+    handleScroll,
+    handleWheel,
+    handleTouchMove,
+    handleKeyDown,
+    scrollToLatest,
+  } = useSmartChatScroll<HTMLDivElement>(messages);
 
   const sendMessage = async (text: string) => {
     if (!text.trim() || loading) return;
@@ -39,6 +43,7 @@ export default function ChatPanel({ chart }: ChatPanelProps) {
     setMessages(prev => [...prev, userMsg]);
     setInput('');
     setLoading(true);
+    scrollToLatest('auto');
 
     try {
       const res = await fetch('/api/interpret', {
@@ -97,7 +102,19 @@ export default function ChatPanel({ chart }: ChatPanelProps) {
       </div>
 
       {/* 消息列表 */}
-      <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-3 min-h-0">
+      <div className="relative min-h-0 flex-1">
+        <div
+          ref={scrollRef}
+          role="log"
+          aria-label="AI 命盘解读消息"
+          aria-live="polite"
+          tabIndex={0}
+          onScroll={handleScroll}
+          onWheel={handleWheel}
+          onTouchMove={handleTouchMove}
+          onKeyDown={handleKeyDown}
+          className="h-full space-y-3 overflow-y-auto p-4"
+        >
         {messages.length === 0 && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-8">
             <div className="text-4xl mb-3" style={{ color: 'var(--t-gold)', opacity: 0.15 }}>✦</div>
@@ -141,6 +158,12 @@ export default function ChatPanel({ chart }: ChatPanelProps) {
             </motion.div>
           ))}
         </AnimatePresence>
+        </div>
+        <ChatScrollToLatestButton
+          visible={showLatestButton}
+          loading={loading}
+          onClick={() => scrollToLatest('smooth')}
+        />
       </div>
 
       {/* 预设问题 */}

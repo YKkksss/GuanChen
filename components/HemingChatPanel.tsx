@@ -1,9 +1,11 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { Brain, ChatCircleDots, PaperPlaneTilt } from '@phosphor-icons/react';
 import { isHiddenSource, type ConversationMessage } from '@/lib/conversations/types';
 import type { RelationshipType } from '@/lib/heming/types';
+import { useSmartChatScroll } from '@/lib/ui/use-smart-chat-scroll';
+import ChatScrollToLatestButton from './ChatScrollToLatestButton';
 import ContextMemoryPanel from './ContextMemoryPanel';
 
 interface DisplayMessage {
@@ -91,11 +93,15 @@ export default function HemingChatPanel({
   const [loading, setLoading] = useState(false);
   const [memoryOpen, setMemoryOpen] = useState(false);
   const loadingRef = useRef(false);
-  const scrollRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
-  }, [messages]);
+  const {
+    scrollRef,
+    showLatestButton,
+    handleScroll,
+    handleWheel,
+    handleTouchMove,
+    handleKeyDown,
+    scrollToLatest,
+  } = useSmartChatScroll<HTMLDivElement>(messages);
 
   async function streamResponse(text: string, source: 'question' | 'topic' | 'auto') {
     try {
@@ -158,6 +164,7 @@ export default function HemingChatPanel({
     if (!content || loadingRef.current) return;
     loadingRef.current = true;
     setLoading(true);
+    scrollToLatest('auto');
     setMessages(previous => [...previous, { role: 'user', content, hidden: options.hidden }]);
     setInput('');
     void streamResponse(content, options.source ?? 'question');
@@ -189,7 +196,19 @@ export default function HemingChatPanel({
         </div>
       </div>
 
-      <div ref={scrollRef} className="min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-contain p-4">
+      <div className="relative min-h-0 flex-1">
+        <div
+          ref={scrollRef}
+          role="log"
+          aria-label="AI 合盘对话消息"
+          aria-live="polite"
+          tabIndex={0}
+          onScroll={handleScroll}
+          onWheel={handleWheel}
+          onTouchMove={handleTouchMove}
+          onKeyDown={handleKeyDown}
+          className="h-full space-y-4 overflow-y-auto overscroll-contain p-4"
+        >
         {visibleCount === 0 && (
           <div className="flex h-full flex-col items-center justify-center px-5 text-center">
             <div className="mb-3 text-4xl opacity-10" style={{ color: 'var(--t-gold)' }}>☯</div>
@@ -209,6 +228,12 @@ export default function HemingChatPanel({
             </div>
           );
         })}
+        </div>
+        <ChatScrollToLatestButton
+          visible={showLatestButton}
+          loading={loading}
+          onClick={() => scrollToLatest('smooth')}
+        />
       </div>
 
       <div className="shrink-0 px-3 pb-3 pt-2.5" style={{ borderTop: '1px solid var(--t-border)', background: 'var(--t-card)' }}>

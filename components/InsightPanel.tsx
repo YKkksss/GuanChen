@@ -4,6 +4,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Brain, ChatCircleDots, PaperPlaneTilt, Sparkle } from '@phosphor-icons/react';
 import { isHiddenSource, type ConversationMessage } from '@/lib/conversations/types';
 import type { ZiweiChart, Palace } from '@/lib/ziwei/types';
+import { useSmartChatScroll } from '@/lib/ui/use-smart-chat-scroll';
+import ChatScrollToLatestButton from './ChatScrollToLatestButton';
 import ContextMemoryPanel from './ContextMemoryPanel';
 import LifeEventCandidateInbox from './LifeEventCandidateInbox';
 import type { TimeView } from './TimeNav';
@@ -226,17 +228,18 @@ export default function InsightPanel({
   const autoLoaded = useRef(false);
   const lastPalaceBranch = useRef<number | undefined>(undefined);
   const lastSiHuaKey = useRef<string | undefined>(undefined);
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const {
+    scrollRef,
+    showLatestButton,
+    handleScroll,
+    handleWheel,
+    handleTouchMove,
+    handleKeyDown,
+    scrollToLatest,
+  } = useSmartChatScroll<HTMLDivElement>(messages);
 
   // 保持加载状态引用同步，避免快速连点重复发送。
   useEffect(() => { loadingRef.current = loading; }, [loading]);
-
-  // Auto-scroll
-  useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-    }
-  }, [messages]);
 
   // Auto-generate 命格总览 on mount
   useEffect(() => {
@@ -387,6 +390,7 @@ ${selectedSiHua.starName}化${selectedSiHua.siHua}落在【${palaceName}】，�
     if (!text.trim() || loadingRef.current) return;
     loadingRef.current = true;
     setLoading(true);
+    scrollToLatest('auto');
 
     const userMsg: Message = { role: 'user', content: text, hidden: options.hidden };
 
@@ -461,7 +465,19 @@ ${selectedSiHua.starName}化${selectedSiHua.siHua}落在【${palaceName}】，�
       </div>
 
       {/* ── Messages ── */}
-      <div ref={scrollRef} className="eastern-message-list">
+      <div className="relative min-h-0 flex-1">
+        <div
+          ref={scrollRef}
+          role="log"
+          aria-label="AI 对话消息"
+          aria-live="polite"
+          tabIndex={0}
+          onScroll={handleScroll}
+          onWheel={handleWheel}
+          onTouchMove={handleTouchMove}
+          onKeyDown={handleKeyDown}
+          className="eastern-message-list h-full"
+        >
 
         {/* Loading state before first message */}
         {messages.length === 0 && (
@@ -512,6 +528,12 @@ ${selectedSiHua.starName}化${selectedSiHua.siHua}落在【${palaceName}】，�
             );
           })}
         </AnimatePresence>
+        </div>
+        <ChatScrollToLatestButton
+          visible={showLatestButton}
+          loading={loading}
+          onClick={() => scrollToLatest('smooth')}
+        />
       </div>
 
       <LifeEventCandidateInbox conversationId={conversationId} />

@@ -17,6 +17,8 @@ import type {
   BaziConversationListItem,
   BaziConversationMessage,
 } from '@/lib/bazi/conversation-types';
+import { useSmartChatScroll } from '@/lib/ui/use-smart-chat-scroll';
+import ChatScrollToLatestButton from './ChatScrollToLatestButton';
 
 const QUICK_PROMPTS = [
   '请按精确片段比较今天各格局检查的静态状态、岁运既有角色和流月流日新增角色，不判断成格破格',
@@ -86,7 +88,15 @@ export default function BaziChatWorkspace({ conversationId }: { conversationId: 
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [error, setError] = useState('');
   const sendingRef = useRef(false);
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const {
+    scrollRef,
+    showLatestButton,
+    handleScroll,
+    handleWheel,
+    handleTouchMove,
+    handleKeyDown,
+    scrollToLatest,
+  } = useSmartChatScroll<HTMLDivElement>(messages);
 
   const loadHistory = useCallback(async () => {
     const response = await fetch('/api/bazi/conversations?status=active&limit=100', { cache: 'no-store' });
@@ -119,10 +129,6 @@ export default function BaziChatWorkspace({ conversationId }: { conversationId: 
     return () => controller.abort();
   }, [conversationId]);
 
-  useEffect(() => {
-    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
-  }, [messages]);
-
   const sendMessage = async (raw: string, source: 'question' | 'quick_prompt' = 'question') => {
     const content = raw.trim();
     if (!content || sendingRef.current) return;
@@ -130,6 +136,7 @@ export default function BaziChatWorkspace({ conversationId }: { conversationId: 
     setSending(true);
     setError('');
     setInput('');
+    scrollToLatest('auto');
     setMessages(previous => [...previous, { role: 'user', content }, { role: 'assistant', content: '', status: 'streaming' }]);
     try {
       const response = await fetch(`/api/bazi/conversations/${conversationId}/respond`, {
@@ -342,11 +349,29 @@ export default function BaziChatWorkspace({ conversationId }: { conversationId: 
 
           <div className="flex min-h-0 flex-col overflow-hidden" style={{ background: 'var(--bg-card)' }}>
             <div className="shrink-0 overflow-x-auto border-b px-3 py-2" style={{ borderColor: 'var(--bdr)' }}><div className="flex min-w-max gap-2">{QUICK_PROMPTS.map(prompt => <button key={prompt} type="button" disabled={sending} onClick={() => void sendMessage(prompt, 'quick_prompt')} className="rounded-lg border px-3 py-1.5 text-[10px] disabled:opacity-40" style={{ borderColor: 'var(--bdr)', color: 'var(--tx-3)' }}>{prompt}</button>)}</div></div>
-            <div ref={scrollRef} className="min-h-0 flex-1 space-y-5 overflow-y-auto overscroll-contain px-4 py-5 md:px-8">
+            <div className="relative min-h-0 flex-1">
+              <div
+                ref={scrollRef}
+                role="log"
+                aria-label="八字 AI 对话消息"
+                aria-live="polite"
+                tabIndex={0}
+                onScroll={handleScroll}
+                onWheel={handleWheel}
+                onTouchMove={handleTouchMove}
+                onKeyDown={handleKeyDown}
+                className="h-full space-y-5 overflow-y-auto overscroll-contain px-4 py-5 md:px-8"
+              >
               {messages.length === 0 && <div className="flex h-full flex-col items-center justify-center text-center"><ChatCircleDots size={42} className="mb-4 opacity-20" /><h2 className="text-base font-semibold">从这份已保存的规则快照开始解读</h2><p className="mt-2 max-w-md text-xs leading-6" style={{ color: 'var(--tx-3)' }}>可以指定日期核对五层关系、显隐透根、藏干触达、三层方向和格局条件角色映射；消息会保存在本地，刷新后仍可继续。</p></div>}
               {messages.map((message, index) => message.role === 'user'
                 ? <div key={message.id ?? index} className="flex justify-end"><div className="max-w-[85%] rounded-2xl px-4 py-2.5 text-sm leading-6" style={{ color: 'var(--ac)', background: 'var(--ac-bg)', border: '1px solid var(--ac-bdr)' }}>{message.content}</div></div>
                 : <div key={message.id ?? index} className="max-w-3xl"><div className="mb-2 flex items-center gap-2 text-[10px] tracking-wider" style={{ color: 'var(--ac-dim)' }}><ShieldCheck size={13} /> 八字基础解读</div><AiContent text={message.content} streaming={sending && index === messages.length - 1} /></div>)}
+              </div>
+              <ChatScrollToLatestButton
+                visible={showLatestButton}
+                loading={sending}
+                onClick={() => scrollToLatest('smooth')}
+              />
             </div>
             <div className="shrink-0 border-t p-3 md:px-6" style={{ borderColor: 'var(--bdr)', background: 'var(--bg-card)' }}>
               {error && <p role="alert" className="mb-2 text-xs" style={{ color: 'var(--ji)' }}>{error}</p>}
