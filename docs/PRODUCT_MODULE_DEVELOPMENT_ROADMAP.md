@@ -402,7 +402,7 @@ interface TransitContext {
 
 ## 9. M2：人生事件时间轴
 
-> 实施状态（2026-09-01）：M2 第一版、M2-1、M2-2 与 M2-3 已完成。当前支持手动事件 CRUD、日期精度、分类筛选、JSON 导出、时间轴、聊天事件智能提取与用户核对确认；已确认事件会按精度挂接流年、流月、流日，其中区间事件仅展开覆盖年度和起止月／日，避免逐日膨胀。事件专项 AI 回溯采用不可变版本、依据指纹、证据快照和本地缓存，严格分开已确认事实、程序时间结构、谨慎解释与待验证项；事件或运限依据变化时提示更新，不覆盖旧版本。SQLite 已升级至 v46。年龄轴切换和批量导入仍待后续增强。实现细节见 `docs/M2_LIFE_EVENTS_IMPLEMENTATION.md`、`docs/M2_1_LIFE_EVENT_CANDIDATE_CONFIRMATION_IMPLEMENTATION.md`、`docs/M2_2_EVENT_TRANSIT_PRECISION_IMPLEMENTATION.md` 与 `docs/M2_3_EVENT_RETROSPECTIVE_ANALYSIS_IMPLEMENTATION.md`。
+> 实施状态（2026-09-01）：M2 第一版、M2-1、M2-2、M2-3 与 M2-4 已完成。当前支持手动事件 CRUD、日期精度、分类筛选、JSON 导出、聊天事件智能提取与用户核对确认；已确认事件会按精度挂接流年、流月、流日，其中区间事件仅展开覆盖年度和起止月／日，避免逐日膨胀。事件专项 AI 回溯采用不可变版本、依据指纹、证据快照和本地缓存，严格分开已确认事实、程序时间结构、谨慎解释与待验证项；事件或运限依据变化时提示更新，不覆盖旧版本。自然年份／虚岁年龄双轴、筛选后跨度摘要、节点快速定位和区间虚岁展示也已完成，SQLite 维持 v46。批量导入与完整备份恢复仍待后续增强。实现细节见 `docs/M2_LIFE_EVENTS_IMPLEMENTATION.md`、`docs/M2_1_LIFE_EVENT_CANDIDATE_CONFIRMATION_IMPLEMENTATION.md`、`docs/M2_2_EVENT_TRANSIT_PRECISION_IMPLEMENTATION.md`、`docs/M2_3_EVENT_RETROSPECTIVE_ANALYSIS_IMPLEMENTATION.md` 与 `docs/M2_4_EVENT_DUAL_AXIS_IMPLEMENTATION.md`。
 
 ### 9.1 产品目标
 
@@ -1482,4 +1482,4 @@ interface RuleEvidence {
 - 报告和历史可以持续积累。
 - 用户始终拥有本地数据控制权。
 
-当前 M1-4“全年流月时间轴与重点月份对比”已经完成：系统能按农历流年展示连续 12／13 个真实流月，正确保留闰月，复用月度快照缓存，并由用户选择两个重点月份比较四化和宫位差异，不进行吉凶打分或最佳月份排名。下一步进入 M2-2 人生事件与流年、流月、流日精确挂接；之后再补事件专项回溯、年龄轴与公共数据能力。M10 独立术数产品线最后单独立项。
+当前 M1 年度、流月、流日和全年流月浏览，M2 人生事件记录、聊天候选确认、年月日精确挂接、专项回溯与年份／虚岁双轴，以及 M3 至 M9 的既定核心闭环均已完成。下一步优先补齐本地档案的版本化备份与安全恢复，再评估跨设备同步和 M10 独立术数产品线；不在缺少规则验证时提前混合多个术数体系。

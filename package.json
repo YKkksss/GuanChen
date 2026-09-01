@@ -12,6 +12,7 @@
     "test:monthly-transit-year": "tsx scripts/test-monthly-transit-year.ts",
     "test:daily-transits": "tsx scripts/test-daily-transits.ts",
     "test:events": "tsx scripts/test-life-events.ts",
+    "test:event-axis": "tsx scripts/test-life-event-axis.ts",
     "test:event-candidates": "tsx scripts/test-life-event-candidates.ts",
     "test:event-analyses": "tsx scripts/test-event-analyses.ts",
     "test:reports": "tsx scripts/test-reports.ts",
