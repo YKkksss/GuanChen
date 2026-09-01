@@ -115,11 +115,17 @@
 *, *::before, *::after { box-sizing: border-box; }
 
 html {
+  width: 100%;
+  min-height: 100%;
+  overflow-x: clip;
   background: var(--bg-0);
   scroll-behavior: smooth;
 }
 
 body {
+  width: 100%;
+  min-height: 100dvh;
+  overflow-x: clip;
   background: var(--bg-0);
   color: var(--tx-1);
   font-family: var(--font);
@@ -647,6 +653,12 @@ body.eastern-home-body {
   color: var(--ew-cinnabar);
   border-color: var(--ew-line);
   background: var(--ew-paper-strong);
+}
+
+.eastern-mobile-history-button,
+.eastern-history-backdrop,
+.eastern-mobile-view-tabs {
+  display: none;
 }
 
 .eastern-shell {
@@ -1182,27 +1194,201 @@ body.eastern-home-body {
   .eastern-insight-region { min-height: 640px; }
 }
 
-@media (max-width: 760px) {
+@media (min-width: 980px) and (max-width: 1080px) {
+  .eastern-shell.is-history-collapsed .eastern-content-grid,
+  .eastern-shell.is-history-collapsed .eastern-content-grid.is-learning-mode {
+    grid-template-columns: minmax(540px, 1fr) minmax(320px, 340px);
+    overflow-y: hidden;
+  }
+
+  .eastern-shell.is-history-collapsed .eastern-chart-region,
+  .eastern-shell.is-history-collapsed .eastern-insight-region {
+    min-height: 0;
+  }
+
+  .eastern-shell.is-history-collapsed .eastern-chart-board {
+    min-width: 0;
+  }
+}
+
+@media (max-width: 900px) {
   .eastern-workbench { height: auto; min-height: 100dvh; overflow: visible; }
   .eastern-app-header { height: 64px; padding: 0 12px; gap: 10px; position: sticky; top: 0; }
   .eastern-brand img { width: 32px; height: 32px; }
+  .eastern-brand { min-height: 44px; }
   .eastern-brand-copy strong { font-size: 15px; }
   .eastern-brand-copy small { display: none; }
+  .eastern-app-actions { justify-content: flex-start; margin-left: auto; }
+  .eastern-app-actions button { width: 44px; height: 44px; }
+  .eastern-mobile-history-button { display: inline-flex !important; }
   .eastern-shell,
   .eastern-shell.is-history-collapsed { height: auto; min-height: calc(100dvh - 64px); display: block; }
-  .eastern-history { max-height: 250px; border-right: 0; border-bottom: 1px solid var(--ew-line); }
-  .eastern-history.is-collapsed { max-height: 72px; }
-  .eastern-history.is-collapsed .eastern-history-tools { flex-direction: row; }
-  .eastern-history.is-collapsed .eastern-history-head { display: flex; justify-content: flex-end; }
-  .eastern-history.is-collapsed .eastern-history-list { display: none; }
-  .eastern-main { min-height: 720px; overflow: visible; padding: 12px; }
+  .eastern-history {
+    position: fixed;
+    top: 64px;
+    bottom: 0;
+    left: 0;
+    z-index: 80;
+    width: min(86vw, 360px);
+    max-height: none;
+    border-right: 1px solid var(--ew-line);
+    border-bottom: 0;
+    background: rgba(251, 248, 241, 0.985);
+    box-shadow: 18px 0 48px rgba(55, 38, 23, 0.16);
+    transform: translateX(0);
+    visibility: visible;
+    transition: transform 180ms ease, visibility 180ms ease;
+  }
+  .eastern-history.is-collapsed {
+    max-height: none;
+    transform: translateX(-105%);
+    visibility: hidden;
+  }
+  .eastern-history .eastern-new-chart,
+  .eastern-history .eastern-history-toggle { height: 44px; }
+  .eastern-history-item-actions { opacity: 1; }
+  .eastern-history-item-actions button { min-height: 44px; padding: 8px 2px; }
+  .eastern-history-backdrop {
+    position: fixed;
+    inset: 64px 0 0;
+    z-index: 75;
+    display: block;
+    border: 0;
+    background: rgba(42, 36, 31, 0.34);
+    opacity: 0;
+    pointer-events: none;
+    visibility: hidden;
+    transition: opacity 180ms ease, visibility 180ms ease;
+  }
+  .eastern-history-backdrop.is-visible {
+    opacity: 1;
+    pointer-events: auto;
+    visibility: visible;
+  }
+  .eastern-main { min-height: calc(100dvh - 64px); overflow: visible; padding: 12px; }
+  .eastern-birth-panel,
+  .eastern-state-panel { width: 100%; margin: 0; padding: 24px 20px; }
+  .birth-form { padding: 20px 16px !important; }
   .eastern-context-bar { align-items: flex-start; }
   .eastern-context-meta { flex-wrap: wrap; }
+  .eastern-mobile-view-tabs {
+    position: sticky;
+    top: 64px;
+    z-index: 30;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px;
+    margin-bottom: 10px;
+    padding: 4px;
+    border: 1px solid var(--ew-line);
+    border-radius: 8px;
+    background: rgba(251, 248, 241, 0.96);
+    box-shadow: 0 6px 16px rgba(70, 54, 37, 0.06);
+    backdrop-filter: blur(12px);
+  }
+  .eastern-mobile-view-tabs button {
+    min-height: 44px;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--ew-muted);
+    cursor: pointer;
+    font-size: 12px;
+  }
+  .eastern-mobile-view-tabs button.is-active {
+    background: var(--ew-cinnabar);
+    color: #fffaf4;
+    font-weight: 600;
+  }
   .eastern-content-grid,
-  .eastern-content-grid.is-learning-mode { display: flex; flex-direction: column; overflow: visible; }
-  .eastern-chart-region { min-height: 0; }
-  .eastern-insight-region { height: 620px; min-height: 0; }
-  .eastern-chart-board { min-width: 540px; }
+  .eastern-content-grid.is-learning-mode { display: block; overflow: visible; }
+  .eastern-content-grid[data-mobile-pane='chart'] .eastern-insight-region,
+  .eastern-content-grid[data-mobile-pane='insight'] .eastern-chart-region { display: none; }
+  .eastern-chart-region { min-height: 0; padding: 10px; overflow: hidden; }
+  .eastern-insight-region { height: max(560px, calc(100dvh - 224px)); min-height: 0; }
+  .eastern-chart-board { min-width: 0; height: auto; min-height: 0; }
+  .eastern-time-tabs { grid-template-columns: 0.85fr 1fr 1.35fr; }
+  .eastern-time-tab,
+  .eastern-year-tab { height: 44px; font-size: 11px; }
+  .eastern-year-tab { padding-left: 3px; }
+  .eastern-year-control { gap: 0; padding-right: 2px; }
+  .eastern-year-control button { width: 36px; height: 44px; }
+  .eastern-year-value { min-width: 38px; font-size: 9px; }
+  .eastern-chart-caption { gap: 8px; padding-inline: 2px; }
+  .eastern-chart-caption-primary { gap: 6px; }
+  .eastern-chart-caption-primary span + span::before { margin-right: 6px; }
+  .eastern-chart-caption-hint { display: none; }
+  .eastern-palace-grid {
+    min-height: 448px;
+    grid-template-rows: repeat(4, minmax(88px, 1fr)) !important;
+  }
+  .eastern-palace-cell { min-height: 88px; padding: 6px 5px 5px; }
+  .eastern-palace-ganzhi { top: 5px; left: 5px; font-size: 7px; }
+  .eastern-palace-heading { left: 5px; bottom: 5px; gap: 2px; padding-right: 30px; }
+  .eastern-palace-name { font-size: 9px; letter-spacing: 0.03em; }
+  .eastern-palace-age { right: 5px; bottom: 5px; font-size: 7px; }
+  .eastern-palace-mark { font-size: 6px; }
+  .eastern-palace-stars { gap: 2px; padding: 14px 0 18px; }
+  .eastern-major-star { font-size: 12px; }
+  .eastern-minor-stars { gap: 1px 3px; padding-bottom: 18px; }
+  .eastern-minor-star { font-size: 7px; }
+  .eastern-sihua-badge { margin-left: 1px; padding: 1px 2px; font-size: 6px; }
+  .eastern-chart-center { gap: 5px; padding: 7px; }
+  .eastern-chart-center img { width: 28px; height: 28px; }
+  .eastern-chart-center-kicker { font-size: 6px; letter-spacing: 0.14em; }
+  .eastern-chart-center h2 { font-size: 17px; letter-spacing: 0.06em; }
+  .eastern-chart-center-data { font-size: 7px; line-height: 1.45; }
+  .eastern-current-daxian { gap: 0 4px; padding: 3px 6px; }
+  .eastern-current-daxian span { font-size: 6px; }
+  .eastern-current-daxian strong { font-size: 8px; }
+  .eastern-current-daxian small { font-size: 7px; }
+  .eastern-lunar-date { font-size: 6px; }
+  .eastern-chart-legend { margin-top: 7px; }
+  .eastern-topic-button { min-height: 44px; height: 44px; }
+  .eastern-memory-button { min-height: 44px; padding-inline: 10px; }
+  .eastern-chat-hint { display: none; }
+}
+
+@media (max-width: 520px) {
+  .eastern-app-header { padding-inline: 10px; }
+  .eastern-brand { gap: 7px; padding-right: 0; }
+  .eastern-brand-copy strong { font-size: 14px; letter-spacing: 0.06em; }
+  .eastern-app-actions { max-width: calc(100vw - 128px); }
+  .eastern-result-notice { margin-bottom: 10px; }
+  .eastern-main { padding: 10px; }
+  .eastern-birth-panel,
+  .eastern-state-panel { padding: 22px 14px; }
+  .eastern-birth-panel h1 { font-size: 25px; }
+  .eastern-birth-panel > p { margin-bottom: 20px; font-size: 12px; }
+  .eastern-chart-region { padding: 8px 6px; }
+  .eastern-time-tabs { grid-template-columns: 0.75fr 0.95fr 1.5fr; }
+  .eastern-year-label { display: none; }
+  .eastern-year-tab { display: flex; justify-content: center; padding-left: 0; }
+  .eastern-year-control { width: 100%; justify-content: space-between; padding-right: 0; }
+  .eastern-year-control button { width: 44px; }
+  .eastern-year-value { min-width: 40px; }
+  .eastern-insight-header { min-height: 58px; padding: 9px 10px; }
+  .eastern-insight-status > span { display: none; }
+  .eastern-topic-bar { padding: 7px 8px; overflow-x: auto; }
+  .eastern-topic-grid { display: flex; min-width: max-content; }
+  .eastern-topic-button { min-width: 58px; padding-inline: 10px; }
+  .eastern-message-list { padding: 12px 10px 16px; }
+  .eastern-chat-composer { padding: 9px 9px max(9px, env(safe-area-inset-bottom)); }
+}
+
+@media (max-width: 820px) {
+  input:not([type='checkbox']):not([type='radio']),
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .eastern-history,
+  .eastern-history-backdrop {
+    transition: none;
+  }
 }
 
 /* ─── 打印样式 ───────────────────────────────────────────── */

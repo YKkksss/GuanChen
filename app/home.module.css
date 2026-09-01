@@ -47,6 +47,7 @@
   display: inline-flex;
   align-items: center;
   gap: 10px;
+  min-height: 44px;
   color: var(--home-ink);
   text-decoration: none;
 }
@@ -95,8 +96,8 @@
 .headerActions .headerCta:hover { background: var(--home-cinnabar); color: #fffaf4; }
 .headerActions .headerCta:active { transform: scale(0.98); }
 .menuButton {
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   display: none;
   align-items: center;
   justify-content: center;
@@ -377,7 +378,7 @@
     overflow: hidden;
     background: var(--home-line);
   }
-  .mobileNav a { padding: 13px 16px; background: var(--home-paper-strong); color: var(--home-ink-soft); text-decoration: none; font-size: 12px; }
+  .mobileNav a { min-height: 46px; display: flex; align-items: center; padding: 13px 16px; background: var(--home-paper-strong); color: var(--home-ink-soft); text-decoration: none; font-size: 12px; }
   .hero { min-height: 0; }
   .heroInner { width: 100%; min-height: 0; grid-template-columns: 1fr; }
   .heroCopy { min-height: 560px; padding: 86px 32px 74px; border-right: 0; border-bottom: 1px solid var(--home-line); }
@@ -400,7 +401,7 @@
   .brand img { width: 34px; height: 34px; }
   .brand span { font-size: 15px; letter-spacing: 0.06em; }
   .headerActions { gap: 8px; }
-  .headerActions .headerCta { height: 38px; margin-left: 0; padding: 0 13px; font-size: 11px; }
+  .headerActions .headerCta { height: 44px; margin-left: 0; padding: 0 13px; font-size: 11px; }
   .heroCopy { min-height: 500px; padding: 72px 22px 60px; }
   .heroMessage h1 { max-width: 10ch; font-size: clamp(40px, 12vw, 56px); line-height: 1.2; }
   .heroLead { max-width: 18ch; font-size: 18px; line-height: 1.6; }

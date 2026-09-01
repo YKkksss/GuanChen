@@ -9,6 +9,7 @@ import {
   ClockCounterClockwise,
   FileText,
   GraduationCap,
+  SidebarSimple,
   TrendUp,
 } from '@phosphor-icons/react';
 import BirthForm from '@/components/BirthForm';
@@ -35,17 +36,30 @@ export default function ChartWorkspace({ conversationId }: ChartWorkspaceProps) 
   const [error, setError] = useState('');
   const [historyCollapsed, setHistoryCollapsed] = useState(false);
   const [learningMode, setLearningMode] = useState(false);
+  const [mobilePane, setMobilePane] = useState<'chart' | 'insight'>('chart');
 
   useEffect(() => {
-    setHistoryCollapsed(window.localStorage.getItem('ziwei-history-collapsed') === 'true');
+    const compactMedia = window.matchMedia('(max-width: 1080px)');
+    const syncHistoryState = () => {
+      setHistoryCollapsed(compactMedia.matches || window.localStorage.getItem('ziwei-history-collapsed') === 'true');
+    };
+    syncHistoryState();
+    compactMedia.addEventListener('change', syncHistoryState);
+    return () => compactMedia.removeEventListener('change', syncHistoryState);
   }, []);
 
   const toggleHistory = () => {
     setHistoryCollapsed(current => {
       const next = !current;
-      window.localStorage.setItem('ziwei-history-collapsed', String(next));
+      if (!window.matchMedia('(max-width: 1080px)').matches) {
+        window.localStorage.setItem('ziwei-history-collapsed', String(next));
+      }
       return next;
     });
+  };
+
+  const closeMobileHistory = () => {
+    if (window.matchMedia('(max-width: 900px)').matches) setHistoryCollapsed(true);
   };
 
   useEffect(() => {
@@ -125,6 +139,16 @@ export default function ChartWorkspace({ conversationId }: ChartWorkspaceProps) 
         </button>
 
         <nav className="eastern-app-actions" aria-label="命盘功能导航">
+          <button
+            type="button"
+            className="eastern-mobile-history-button"
+            onClick={toggleHistory}
+            aria-expanded={!historyCollapsed}
+            aria-label={historyCollapsed ? '打开历史对话' : '关闭历史对话'}
+          >
+            <SidebarSimple size={16} aria-hidden="true" />
+            <span>历史</span>
+          </button>
           <button type="button" onClick={() => router.push('/learn')}>
             <BookOpen size={16} aria-hidden="true" />
             <span>学习中心</span>
@@ -163,6 +187,14 @@ export default function ChartWorkspace({ conversationId }: ChartWorkspaceProps) 
           activeConversationId={conversationId}
           collapsed={historyCollapsed}
           onToggle={toggleHistory}
+          onNavigate={closeMobileHistory}
+        />
+        <button
+          type="button"
+          className={`eastern-history-backdrop ${historyCollapsed ? '' : 'is-visible'}`}
+          onClick={toggleHistory}
+          aria-label="关闭历史对话"
+          tabIndex={historyCollapsed ? -1 : 0}
         />
 
         <section className="eastern-main">
@@ -199,7 +231,27 @@ export default function ChartWorkspace({ conversationId }: ChartWorkspaceProps) 
 
           {!loading && chart && conversationId && (
             <>
-              <div className={`eastern-content-grid ${learningMode ? 'is-learning-mode' : ''}`}>
+              <div className="eastern-mobile-view-tabs" role="tablist" aria-label="命盘工作区视图">
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={mobilePane === 'chart'}
+                  className={mobilePane === 'chart' ? 'is-active' : ''}
+                  onClick={() => setMobilePane('chart')}
+                >
+                  查看命盘
+                </button>
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={mobilePane === 'insight'}
+                  className={mobilePane === 'insight' ? 'is-active' : ''}
+                  onClick={() => setMobilePane('insight')}
+                >
+                  AI 解读
+                </button>
+              </div>
+              <div className={`eastern-content-grid ${learningMode ? 'is-learning-mode' : ''}`} data-mobile-pane={mobilePane}>
                 <section className="eastern-chart-region" aria-label="紫微斗数命盘">
                   <ChartBoard chart={chart} selectedBranch={selectedPalace?.branch ?? null} onPalaceSelect={setSelectedPalace} />
                 </section>

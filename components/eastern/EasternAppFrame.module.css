@@ -126,11 +126,23 @@
 .homeLink {
   display: inline-flex;
   align-items: center;
-  justify-self: end;
   gap: 6px;
+  min-height: 40px;
   color: #74665b;
   font-size: 11px;
   text-decoration: none;
+}
+
+.topbarActions {
+  display: flex;
+  align-items: center;
+  justify-self: end;
+  gap: 8px;
+}
+
+.menuButton,
+.sidebarBackdrop {
+  display: none;
 }
 
 .body {
@@ -305,62 +317,119 @@
 
   .body {
     display: block;
+    min-height: calc(100dvh - 56px);
   }
 
   .sidebar {
-    position: sticky;
+    position: fixed;
     top: 56px;
-    z-index: 70;
-    display: block;
+    bottom: 0;
+    left: 0;
+    z-index: 80;
+    display: flex;
+    width: min(86vw, 330px);
     min-height: 0;
     max-height: none;
-    padding: 0 10px;
-    overflow: hidden;
-    background: rgba(251, 248, 240, 0.96);
-    border-right: 0;
-    border-bottom: 1px solid rgba(121, 91, 61, 0.17);
+    padding: 18px 14px max(18px, env(safe-area-inset-bottom));
+    overflow-y: auto;
+    background: rgba(251, 248, 240, 0.985);
+    border-right: 1px solid rgba(121, 91, 61, 0.2);
+    border-bottom: 0;
+    box-shadow: 18px 0 48px rgba(55, 38, 23, 0.16);
+    transform: translateX(-105%);
+    visibility: hidden;
+    transition: transform 180ms ease, visibility 180ms ease;
   }
 
-  .sideBrand,
-  .collapseHint {
-    display: none;
+  .sidebarOpen {
+    transform: translateX(0);
+    visibility: visible;
+  }
+
+  .sideBrand {
+    display: block;
+    margin: 0 8px 12px;
+    font-size: 12px;
   }
 
   .sidebar nav {
-    display: flex;
-    gap: 2px;
-    overflow-x: auto;
-    scrollbar-width: none;
-  }
-
-  .sidebar nav::-webkit-scrollbar {
-    display: none;
+    display: grid;
+    gap: 3px;
   }
 
   .sidebar nav a {
-    flex: none;
-    min-height: 45px;
-    padding: 8px 10px;
-    border-right: 0;
-    border-bottom: 2px solid transparent;
-    border-left: 0;
+    min-height: 46px;
+    padding: 10px 12px;
+    border-bottom: 0;
+    border-left: 2px solid transparent;
+    font-size: 12px;
   }
 
   .sidebar nav .activeSide {
-    border-bottom-color: #b42b22;
-    border-left-color: transparent;
+    border-bottom-color: transparent;
+    border-left-color: #b42b22;
   }
 
-  .sidebar nav a span {
-    white-space: nowrap;
+  .collapseHint {
+    display: block;
+    min-height: 44px;
+    padding: 15px 8px 0;
   }
 
   .homeLink span {
     display: none;
   }
+
+  .homeLink {
+    width: 44px;
+    min-height: 44px;
+    justify-content: center;
+  }
+
+  .menuButton {
+    min-width: 72px;
+    height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 0 10px;
+    border: 1px solid rgba(121, 91, 61, 0.2);
+    border-radius: 6px;
+    background: rgba(255, 253, 248, 0.72);
+    color: #65584f;
+    cursor: pointer;
+    font-family: var(--font-serif);
+    font-size: 11px;
+  }
+
+  .sidebarBackdrop {
+    position: fixed;
+    inset: 56px 0 0;
+    z-index: 75;
+    display: block;
+    border: 0;
+    background: rgba(42, 36, 31, 0.34);
+    opacity: 0;
+    pointer-events: none;
+    visibility: hidden;
+    transition: opacity 180ms ease, visibility 180ms ease;
+  }
+
+  .sidebarBackdropVisible {
+    opacity: 1;
+    pointer-events: auto;
+    visibility: visible;
+  }
+
+  .content {
+    min-height: calc(100dvh - 56px);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .sidebar,
+  .sidebarBackdrop,
   .sidebar nav a {
     transition: none;
   }

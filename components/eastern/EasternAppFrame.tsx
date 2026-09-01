@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -16,8 +17,10 @@ import {
   GraduationCap,
   GridFour,
   House,
+  List,
   Path,
   UsersThree,
+  X,
 } from '@phosphor-icons/react';
 import type { Icon } from '@phosphor-icons/react';
 import ResultNotice from './ResultNotice';
@@ -77,6 +80,25 @@ function resolveSideHref(item: NavItem, pathname: string) {
 
 export default function EasternAppFrame({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
+
+  useEffect(() => {
+    setMobileNavOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    if (!mobileNavOpen) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setMobileNavOpen(false);
+    };
+    window.addEventListener('keydown', closeOnEscape);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener('keydown', closeOnEscape);
+    };
+  }, [mobileNavOpen]);
 
   if (!shouldUseFrame(pathname)) return children;
 
@@ -95,11 +117,35 @@ export default function EasternAppFrame({ children }: { children: React.ReactNod
             <Link key={item.href} href={item.href} className={item.matches(pathname) ? styles.activeTop : ''}>{item.label}</Link>
           ))}
         </nav>
-        <Link className={styles.homeLink} href="/"><House size={16} aria-hidden="true" /><span>首页</span></Link>
+        <div className={styles.topbarActions}>
+          <Link className={styles.homeLink} href="/"><House size={16} aria-hidden="true" /><span>首页</span></Link>
+          <button
+            type="button"
+            className={styles.menuButton}
+            onClick={() => setMobileNavOpen(open => !open)}
+            aria-controls="eastern-mobile-navigation"
+            aria-expanded={mobileNavOpen}
+            aria-label={mobileNavOpen ? '关闭功能导航' : '打开功能导航'}
+          >
+            {mobileNavOpen ? <X size={20} aria-hidden="true" /> : <List size={20} aria-hidden="true" />}
+            <span>功能</span>
+          </button>
+        </div>
       </header>
 
       <div className={styles.body}>
-        <aside className={styles.sidebar} aria-label="东方书院功能目录">
+        <button
+          type="button"
+          className={`${styles.sidebarBackdrop} ${mobileNavOpen ? styles.sidebarBackdropVisible : ''}`}
+          onClick={() => setMobileNavOpen(false)}
+          aria-label="关闭功能导航"
+          tabIndex={mobileNavOpen ? 0 : -1}
+        />
+        <aside
+          id="eastern-mobile-navigation"
+          className={`${styles.sidebar} ${mobileNavOpen ? styles.sidebarOpen : ''}`}
+          aria-label="东方书院功能目录"
+        >
           <div className={styles.sideBrand}>紫微命盘</div>
           <nav>
             {SIDE_NAV.map(item => {
@@ -107,7 +153,7 @@ export default function EasternAppFrame({ children }: { children: React.ReactNod
               const active = item.matches(pathname);
               const href = resolveSideHref(item, pathname);
               return (
-                <Link key={`${item.href}-${item.label}`} href={href} className={active ? styles.activeSide : ''} aria-current={active ? 'page' : undefined}>
+                <Link key={`${item.href}-${item.label}`} href={href} className={active ? styles.activeSide : ''} aria-current={active ? 'page' : undefined} onClick={() => setMobileNavOpen(false)}>
                   <IconComponent size={16} weight={active ? 'fill' : 'regular'} aria-hidden="true" />
                   <span>{item.label}</span>
                 </Link>

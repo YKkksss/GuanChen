@@ -9,6 +9,7 @@ interface ConversationHistoryProps {
   activeConversationId?: string | null;
   collapsed: boolean;
   onToggle: () => void;
+  onNavigate?: () => void;
   conversationType?: ConversationType;
 }
 
@@ -16,6 +17,7 @@ export default function ConversationHistory({
   activeConversationId,
   collapsed,
   onToggle,
+  onNavigate,
   conversationType = 'chart',
 }: ConversationHistoryProps) {
   const router = useRouter();
@@ -76,7 +78,10 @@ export default function ConversationHistory({
         <div className="eastern-history-tools">
           <button
             type="button"
-            onClick={() => router.push(basePath)}
+            onClick={() => {
+              onNavigate?.();
+              router.push(basePath);
+            }}
             title={conversationType === 'heming' ? '新建合盘' : '新建命盘'}
             aria-label={conversationType === 'heming' ? '新建合盘' : '新建命盘'}
             className="eastern-new-chart"
@@ -115,7 +120,10 @@ export default function ConversationHistory({
                 type="button"
                 title={item.title}
                 aria-label={`打开会话：${item.title}`}
-                onClick={() => router.push(`${basePath}/${item.id}`)}
+                onClick={() => {
+                  onNavigate?.();
+                  router.push(`${basePath}/${item.id}`);
+                }}
                 className="eastern-history-icon"
               >
                 <ChatCircleDots size={18} weight={active ? 'fill' : 'regular'} aria-hidden="true" />
@@ -124,7 +132,10 @@ export default function ConversationHistory({
               <div className="eastern-history-copy">
               <button
                 type="button"
-                onClick={() => router.push(`${basePath}/${item.id}`)}
+                onClick={() => {
+                  onNavigate?.();
+                  router.push(`${basePath}/${item.id}`);
+                }}
                 className="eastern-history-open"
               >
                 <div className="eastern-history-item-title">
