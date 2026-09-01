@@ -3,7 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev -p 30001",
+    "dev": "next dev -H 0.0.0.0 -p 30001",
+    "dev:local": "next dev -H 127.0.0.1 -p 30001",
     "build": "next build",
     "test:conversations": "tsx scripts/test-conversations.ts",
     "test:context": "tsx scripts/test-context-management.ts",
@@ -65,7 +66,8 @@
     "test:backup-lifecycle": "tsx scripts/test-backup-lifecycle.ts",
     "test:encrypted-backups": "tsx scripts/test-encrypted-backups.ts",
     "test:chart-transfer": "tsx scripts/test-chart-transfer.ts",
-    "start": "next start -p 30001",
+    "start": "next start -H 0.0.0.0 -p 30001",
+    "start:local": "next start -H 127.0.0.1 -p 30001",
     "build:cf": "npx @cloudflare/next-on-pages",
     "preview:cf": "npx wrangler pages dev",
     "prepare": "husky"
