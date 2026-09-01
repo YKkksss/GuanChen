@@ -5,6 +5,8 @@ import path from 'node:path';
 declare global {
   // eslint-disable-next-line no-var
   var __ziweiSqlite: Database.Database | undefined;
+  // eslint-disable-next-line no-var
+  var __ziweiSqliteMaintenanceToken: symbol | undefined;
 }
 
 function resolveDatabasePath(): string {
@@ -2629,10 +2631,51 @@ function createDatabase(): Database.Database {
 }
 
 export function getDatabase(): Database.Database {
+  if (globalThis.__ziweiSqliteMaintenanceToken) {
+    throw new Error('本地数据库正在执行维护，请稍后重试');
+  }
   if (!globalThis.__ziweiSqlite) {
     globalThis.__ziweiSqlite = createDatabase();
   }
   return globalThis.__ziweiSqlite;
+}
+
+/** 在极短的整库文件替换窗口内，阻止其他请求重新打开数据库。 */
+export function beginDatabaseMaintenance(): symbol {
+  if (globalThis.__ziweiSqliteMaintenanceToken) {
+    throw new Error('本地数据库已有维护操作正在进行');
+  }
+  const token = Symbol('ziwei-sqlite-maintenance');
+  globalThis.__ziweiSqliteMaintenanceToken = token;
+  return token;
+}
+
+/** 仅供持有本次维护令牌的恢复流程重新打开并复核数据库。 */
+export function getDatabaseDuringMaintenance(token: symbol): Database.Database {
+  if (globalThis.__ziweiSqliteMaintenanceToken !== token) {
+    throw new Error('本地数据库维护令牌无效');
+  }
+  if (!globalThis.__ziweiSqlite) {
+    globalThis.__ziweiSqlite = createDatabase();
+  }
+  return globalThis.__ziweiSqlite;
+}
+
+export function endDatabaseMaintenance(token: symbol): void {
+  if (globalThis.__ziweiSqliteMaintenanceToken === token) {
+    globalThis.__ziweiSqliteMaintenanceToken = undefined;
+  }
+}
+
+/**
+ * 在整库恢复等维护操作前释放 SQLite 文件句柄。
+ * 调用方完成文件替换后再次调用 getDatabase() 即可重新建立连接并执行迁移检查。
+ */
+export function closeDatabaseConnection(): void {
+  if (globalThis.__ziweiSqlite?.open) {
+    globalThis.__ziweiSqlite.close();
+  }
+  globalThis.__ziweiSqlite = undefined;
 }
 
 export function getDatabasePath(): string {

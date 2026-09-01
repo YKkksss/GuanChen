@@ -15,6 +15,7 @@ import {
   ChatCircleText,
   ClockCounterClockwise,
   Compass,
+  Database,
   Heart,
   List,
   MapTrifold,
@@ -43,6 +44,7 @@ const MODULES = [
   { href: '/rectification', icon: ClockCounterClockwise, title: '生时校正', description: '通过人生事件评估可能的出生时辰。', className: styles.moduleCompact },
   { href: '/cases', icon: Notebook, title: '案例研习', description: '用匿名案例训练命盘结构判断。', className: styles.moduleCompact },
   { href: '/reminders', icon: BellSimple, title: '人生提醒', description: '按流年、生日与重要事件建立本地提醒。', className: styles.moduleCompact },
+  { href: '/settings/data', icon: Database, title: '数据保险箱', description: '导出、预检并安全恢复完整本地档案。', className: styles.moduleCompact },
 ];
 
 function Reveal({ children, className = '', delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) {
@@ -136,7 +138,7 @@ export default function HomePage() {
           >
             {[
               ['/chart', '命盘'], ['/heming', '合盘'], ['/learn', '学习'], ['/cases', '案例'],
-              ['/rectification', '校时'], ['/bazi', '八字'], ['/reminders', '提醒'],
+              ['/rectification', '校时'], ['/bazi', '八字'], ['/reminders', '提醒'], ['/settings/data', '数据'],
             ].map(([href, label]) => (
               <Link key={href} href={href} onClick={() => setMobileMenuOpen(false)}>{label}</Link>
             ))}

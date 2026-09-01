@@ -9,6 +9,7 @@ import {
   Books,
   ChartDonut,
   ClockCounterClockwise,
+  Database,
   Exam,
   FileText,
   FolderOpen,
@@ -42,6 +43,7 @@ const SIDE_NAV: NavItem[] = [
   { label: '古籍原典', href: '/library', icon: Books, matches: path => path.startsWith('/library') },
   { label: '练习中心', href: '/practice', icon: Exam, matches: path => path.startsWith('/practice') },
   { label: '匿名案例', href: '/cases', icon: FolderOpen, matches: path => path.startsWith('/cases') },
+  { label: '数据保险箱', href: '/settings/data', icon: Database, matches: path => path.startsWith('/settings/data') },
 ];
 
 const TOP_NAV = [
@@ -53,7 +55,7 @@ const TOP_NAV = [
 
 function shouldUseFrame(pathname: string) {
   if (pathname === '/' || pathname === '/chart' || /^\/chart\/[^/]+$/.test(pathname)) return false;
-  return ['/heming', '/bazi', '/rectification', '/reminders', '/reviews', '/learn', '/knowledge', '/library', '/practice', '/cases', '/chart/']
+  return ['/heming', '/bazi', '/rectification', '/reminders', '/reviews', '/learn', '/knowledge', '/library', '/practice', '/cases', '/settings', '/chart/']
     .some(prefix => pathname.startsWith(prefix));
 }
 
