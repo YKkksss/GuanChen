@@ -2,6 +2,7 @@ export const LOCAL_BACKUP_KIND = 'ziwei-local-backup' as const;
 export const LOCAL_BACKUP_FORMAT_VERSION = 1 as const;
 export const LOCAL_BACKUP_EXTENSION = '.ziweibackup' as const;
 export const LOCAL_BACKUP_CONFIRMATION = '覆盖本地数据' as const;
+export const LOCAL_BACKUP_DELETE_CONFIRMATION = '删除本地备份' as const;
 
 export type BackupTableCount = {
   name: string;
@@ -71,6 +72,42 @@ export type LocalDataSummary = {
     byteSize: number;
     createdAt: string;
   }>;
+};
+
+export type BackupPolicy = {
+  enabled: boolean;
+  intervalHours: number;
+  retentionCount: number;
+  lastAutomaticBackupAt: string | null;
+  updatedAt: string;
+};
+
+export type ManagedBackupSource = 'scheduled' | 'manual' | 'pre_restore';
+export type ManagedBackupHealth = 'unchecked' | 'healthy' | 'incompatible' | 'damaged';
+
+export type ManagedBackupItem = {
+  fileName: string;
+  source: ManagedBackupSource;
+  byteSize: number;
+  createdAt: string;
+  health: ManagedBackupHealth;
+  lastVerifiedAt: string | null;
+  healthMessage: string | null;
+};
+
+export type BackupLifecycleSummary = {
+  policy: BackupPolicy;
+  managedBackups: ManagedBackupItem[];
+  nextAutomaticBackupAt: string | null;
+};
+
+export type DataVaultSummary = LocalDataSummary & BackupLifecycleSummary;
+
+export type AutomaticBackupCheckResult = {
+  status: 'created' | 'not_due' | 'disabled' | 'busy';
+  createdFileName: string | null;
+  nextAutomaticBackupAt: string | null;
+  prunedFileNames: string[];
 };
 
 export type BackupArchiveResult = {

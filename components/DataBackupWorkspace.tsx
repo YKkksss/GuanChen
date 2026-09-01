@@ -3,20 +3,28 @@
 import Link from 'next/link';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
+  ArrowsClockwise,
   CheckCircle,
+  Clock,
   Database,
   DownloadSimple,
   FileArrowUp,
+  FloppyDisk,
   FolderOpen,
   ShieldCheck,
   SpinnerGap,
+  Trash,
   WarningCircle,
 } from '@phosphor-icons/react';
-import { LOCAL_BACKUP_CONFIRMATION } from '@/lib/backups/types';
+import {
+  LOCAL_BACKUP_CONFIRMATION,
+  LOCAL_BACKUP_DELETE_CONFIRMATION,
+} from '@/lib/backups/types';
 import type {
   BackupContentSummary,
   BackupPreview,
-  LocalDataSummary,
+  DataVaultSummary,
+  ManagedBackupItem,
   RestoreBackupResult,
 } from '@/lib/backups/types';
 import ChartTransferPanel from './ChartTransferPanel';
@@ -26,20 +34,22 @@ type ApiError = { error?: string };
 export default function DataBackupWorkspace() {
   const [view, setView] = useState<'full' | 'chart'>('full');
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [summary, setSummary] = useState<LocalDataSummary | null>(null);
+  const [summary, setSummary] = useState<DataVaultSummary | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<BackupPreview | null>(null);
   const [confirmation, setConfirmation] = useState('');
   const [busy, setBusy] = useState<'loading' | 'exporting' | 'inspecting' | 'restoring' | ''>('loading');
+  const [lifecycleBusy, setLifecycleBusy] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState<RestoreBackupResult | null>(null);
+  const [lifecycleNotice, setLifecycleNotice] = useState('');
 
   const loadSummary = useCallback(async () => {
     setBusy('loading');
     setError('');
     try {
       const response = await fetch('/api/backups', { cache: 'no-store' });
-      const data = await response.json() as { summary?: LocalDataSummary; error?: string };
+      const data = await response.json() as { summary?: DataVaultSummary; error?: string };
       if (!response.ok || !data.summary) throw new Error(data.error || '本地数据概览读取失败');
       setSummary(data.summary);
     } catch (loadError) {
@@ -48,6 +58,100 @@ export default function DataBackupWorkspace() {
       setBusy('');
     }
   }, []);
+
+  async function updatePolicy(changes: Partial<DataVaultSummary['policy']>) {
+    if (!summary) return;
+    setLifecycleBusy('policy');
+    setError('');
+    setLifecycleNotice('');
+    try {
+      const response = await fetch('/api/backups/policy', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(changes),
+      });
+      const data = await response.json() as {
+        summary?: Pick<DataVaultSummary, 'policy' | 'managedBackups' | 'nextAutomaticBackupAt'>;
+        error?: string;
+      };
+      if (!response.ok || !data.summary) throw new Error(data.error || '自动备份设置保存失败');
+      setSummary(current => current ? { ...current, ...data.summary } : current);
+      setLifecycleNotice('自动备份设置已保存。');
+    } catch (policyError) {
+      setError(policyError instanceof Error ? policyError.message : '自动备份设置保存失败');
+    } finally {
+      setLifecycleBusy('');
+    }
+  }
+
+  async function createStoredBackup() {
+    setLifecycleBusy('create');
+    setError('');
+    setLifecycleNotice('');
+    try {
+      const response = await fetch('/api/backups/managed', { method: 'POST' });
+      const data = await response.json() as {
+        backup?: ManagedBackupItem;
+        summary?: Pick<DataVaultSummary, 'policy' | 'managedBackups' | 'nextAutomaticBackupAt'>;
+        error?: string;
+      };
+      if (!response.ok || !data.backup || !data.summary) throw new Error(data.error || '本机保留备份创建失败');
+      setSummary(current => current ? { ...current, ...data.summary } : current);
+      setLifecycleNotice(`已在本机安全保留“${data.backup.fileName}”。`);
+    } catch (createError) {
+      setError(createError instanceof Error ? createError.message : '本机保留备份创建失败');
+    } finally {
+      setLifecycleBusy('');
+    }
+  }
+
+  async function verifyBackup(fileName: string) {
+    setLifecycleBusy(`verify:${fileName}`);
+    setError('');
+    setLifecycleNotice('');
+    try {
+      const response = await fetch(`/api/backups/managed/${encodeURIComponent(fileName)}/verify`, { method: 'POST' });
+      const data = await response.json() as { backup?: ManagedBackupItem; error?: string };
+      if (!response.ok || !data.backup) throw new Error(data.error || '备份健康检查失败');
+      setSummary(current => current ? {
+        ...current,
+        managedBackups: current.managedBackups.map(item => item.fileName === fileName ? data.backup! : item),
+      } : current);
+      setLifecycleNotice(data.backup.health === 'healthy'
+        ? `“${fileName}”已通过完整性检查。`
+        : `“${fileName}”未通过检查，请查看状态说明。`);
+    } catch (verifyError) {
+      setError(verifyError instanceof Error ? verifyError.message : '备份健康检查失败');
+    } finally {
+      setLifecycleBusy('');
+    }
+  }
+
+  async function deleteBackup(fileName: string) {
+    const confirmation = window.prompt(`删除后无法从数据保险箱找回。请输入“${LOCAL_BACKUP_DELETE_CONFIRMATION}”继续：`) ?? '';
+    if (confirmation !== LOCAL_BACKUP_DELETE_CONFIRMATION) return;
+    setLifecycleBusy(`delete:${fileName}`);
+    setError('');
+    setLifecycleNotice('');
+    try {
+      const response = await fetch(`/api/backups/managed/${encodeURIComponent(fileName)}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ confirmation }),
+      });
+      const data = await response.json() as {
+        summary?: Pick<DataVaultSummary, 'policy' | 'managedBackups' | 'nextAutomaticBackupAt'>;
+        error?: string;
+      };
+      if (!response.ok || !data.summary) throw new Error(data.error || '本地备份删除失败');
+      setSummary(current => current ? { ...current, ...data.summary } : current);
+      setLifecycleNotice(`已删除本地备份“${fileName}”。`);
+    } catch (deleteError) {
+      setError(deleteError instanceof Error ? deleteError.message : '本地备份删除失败');
+    } finally {
+      setLifecycleBusy('');
+    }
+  }
 
   useEffect(() => { void loadSummary(); }, [loadSummary]);
 
@@ -143,6 +247,7 @@ export default function DataBackupWorkspace() {
       </header>
 
       {error && <StatusMessage tone="error" icon={<WarningCircle size={17} />} text={error} />}
+      {lifecycleNotice && <StatusMessage tone="success" icon={<CheckCircle size={17} />} text={lifecycleNotice} />}
       {success && (
         <StatusMessage
           tone="success"
@@ -157,9 +262,9 @@ export default function DataBackupWorkspace() {
         <VaultTab active={view === 'chart'} title="单命盘迁移" subtitle="导入为副本，不覆盖当前档案" onClick={() => setView('chart')} />
       </section>
 
-      {view === 'full' ? <section className="grid gap-5 lg:grid-cols-[1.02fr_.98fr]">
-        <div className="space-y-5">
-          <article className="card-glass rounded-2xl p-5 sm:p-6">
+      {view === 'full' ? <section className="grid min-w-0 gap-5 lg:grid-cols-[1.02fr_.98fr]">
+        <div className="min-w-0 space-y-5">
+          <article className="card-glass min-w-0 overflow-hidden rounded-2xl p-5 sm:p-6">
             <div className="flex items-start justify-between gap-4">
               <div className="flex items-start gap-3">
                 <div className="rounded-xl p-2.5" style={{ color: 'var(--t-gold)', background: 'var(--ac-bg)' }}><Database size={21} /></div>
@@ -175,7 +280,7 @@ export default function DataBackupWorkspace() {
             </div>
           </article>
 
-          <article className="card-glass rounded-2xl p-5 sm:p-6">
+          <article className="card-glass min-w-0 overflow-hidden rounded-2xl p-5 sm:p-6">
             <div className="flex items-start gap-3"><ShieldCheck size={20} style={{ color: '#22c55e' }} /><div><h2 className="text-sm font-semibold" style={{ color: 'var(--t-text)' }}>备份包包含什么</h2><p className="mt-2 text-xs leading-6" style={{ color: 'var(--t-text2)' }}>完整 SQLite 一致性快照、数据库版本、各表记录数、SHA-256 完整性指纹，以及数据库中仍有效的 PDF 导出文件。</p></div></div>
             <div className="mt-5 grid gap-3 sm:grid-cols-3">
               <TrustItem title="可预检" text="恢复前只读检查，不接触现有数据" />
@@ -184,16 +289,67 @@ export default function DataBackupWorkspace() {
             </div>
           </article>
 
-          <article className="card-glass rounded-2xl p-5 sm:p-6">
-            <h2 className="text-sm font-semibold" style={{ color: 'var(--t-text)' }}>最近的恢复前自动备份</h2>
-            <p className="mt-2 text-[10px] leading-5" style={{ color: 'var(--t-faint)' }}>仅在执行恢复前自动生成，最多显示最近 10 份；可下载后重新走右侧预检流程。</p>
+          <article className="card-glass min-w-0 overflow-hidden rounded-2xl p-5 sm:p-6">
+            <div className="flex flex-wrap items-start justify-between gap-4">
+              <div className="flex items-start gap-3">
+                <div className="rounded-xl p-2.5" style={{ color: 'var(--t-gold)', background: 'var(--ac-bg)' }}><Clock size={20} /></div>
+                <div className="min-w-0">
+                  <h2 className="text-sm font-semibold" style={{ color: 'var(--t-text)' }}>自动备份与本机留存</h2>
+                  <p className="mt-1 text-[10px] leading-5" style={{ color: 'var(--t-faint)' }}>
+                    应用打开后在后台检查到期状态；只自动轮换周期备份，不会自动删除手动备份和恢复前保险副本。
+                  </p>
+                </div>
+              </div>
+              <button type="button" onClick={() => void createStoredBackup()} disabled={Boolean(lifecycleBusy)} className="flex items-center gap-2 rounded-xl px-3 py-2 text-[10px] disabled:opacity-50" style={{ color: '#fffaf3', background: 'var(--ac)' }}>
+                {lifecycleBusy === 'create' ? <SpinnerGap className="animate-spin" size={14} /> : <FloppyDisk size={14} />}
+                {lifecycleBusy === 'create' ? '正在保存…' : '立即保留一份'}
+              </button>
+            </div>
+
+            {summary && <div className="mt-5 grid min-w-0 max-w-full gap-3 rounded-2xl p-4 sm:grid-cols-[1fr_1fr_1fr]" style={{ border: '1px solid var(--t-border)', background: 'var(--t-card)' }}>
+              <label className="flex items-center justify-between gap-3 text-[10px]" style={{ color: 'var(--t-text2)' }}>
+                <span>自动备份</span>
+                <button type="button" role="switch" aria-checked={summary.policy.enabled} disabled={lifecycleBusy === 'policy'} onClick={() => void updatePolicy({ enabled: !summary.policy.enabled })} className="relative h-6 w-11 rounded-full transition-colors disabled:opacity-50" style={{ background: summary.policy.enabled ? 'var(--ac)' : 'var(--t-border)' }}>
+                  <span className="absolute top-1 h-4 w-4 rounded-full bg-white transition-all" style={{ left: summary.policy.enabled ? '23px' : '4px' }} />
+                </button>
+              </label>
+              <label className="text-[9px]" style={{ color: 'var(--t-faint)' }}>
+                检查周期
+                <select value={summary.policy.intervalHours} disabled={lifecycleBusy === 'policy'} onChange={event => void updatePolicy({ intervalHours: Number(event.target.value) })} className="field-control mt-1 !py-2 text-[10px]">
+                  <option value={6}>每 6 小时</option>
+                  <option value={12}>每 12 小时</option>
+                  <option value={24}>每天</option>
+                  <option value={72}>每 3 天</option>
+                  <option value={168}>每 7 天</option>
+                </select>
+              </label>
+              <label className="text-[9px]" style={{ color: 'var(--t-faint)' }}>
+                自动保留
+                <select value={summary.policy.retentionCount} disabled={lifecycleBusy === 'policy'} onChange={event => void updatePolicy({ retentionCount: Number(event.target.value) })} className="field-control mt-1 !py-2 text-[10px]">
+                  {[3, 5, 7, 10, 15, 30].map(value => <option key={value} value={value}>最近 {value} 份</option>)}
+                </select>
+              </label>
+              <div className="text-[9px] leading-5 sm:col-span-3" style={{ color: 'var(--t-faint)' }}>
+                {summary.policy.enabled
+                  ? `下次检查目标：${formatDate(summary.nextAutomaticBackupAt ?? new Date().toISOString())}`
+                  : '自动备份已暂停；现有备份不会因此被删除。'}
+              </div>
+            </div>}
+
+            <div className="mt-5 flex items-center justify-between gap-3">
+              <div><h3 className="text-xs font-semibold" style={{ color: 'var(--t-text)' }}>本机备份记录</h3><p className="mt-1 text-[9px]" style={{ color: 'var(--t-faint)' }}>点击“验证”会完整解包并检查 SQLite、外键、数据清单与 PDF 附件。</p></div>
+              {lifecycleBusy === 'policy' && <SpinnerGap className="animate-spin" size={16} style={{ color: 'var(--t-gold)' }} />}
+            </div>
             <div className="mt-4 space-y-2">
-              {summary?.automaticBackups.length ? summary.automaticBackups.map(item => (
-                <a key={item.fileName} href={`/api/backups/automatic/${encodeURIComponent(item.fileName)}`} className="flex items-center justify-between gap-3 rounded-xl px-4 py-3 text-xs" style={{ border: '1px solid var(--t-border)', color: 'var(--t-text2)' }}>
-                  <span className="min-w-0 truncate"><FolderOpen className="mr-2 inline" size={14} />{item.fileName}</span>
-                  <span className="shrink-0 text-[9px]" style={{ color: 'var(--t-faint)' }}>{formatBytes(item.byteSize)}</span>
-                </a>
-              )) : <p className="rounded-xl px-4 py-5 text-center text-[10px]" style={{ border: '1px dashed var(--t-border)', color: 'var(--t-faint)' }}>尚未执行过数据恢复，因此没有自动备份。</p>}
+              {summary?.managedBackups.length ? summary.managedBackups.map(item => (
+                <ManagedBackupRow
+                  key={item.fileName}
+                  item={item}
+                  busy={lifecycleBusy}
+                  onVerify={verifyBackup}
+                  onDelete={deleteBackup}
+                />
+              )) : <p className="rounded-xl px-4 py-5 text-center text-[10px]" style={{ border: '1px dashed var(--t-border)', color: 'var(--t-faint)' }}>还没有本机备份。自动备份将在应用后台完成首次检查，你也可以立即保留一份。</p>}
             </div>
           </article>
         </div>
@@ -234,6 +390,57 @@ export default function DataBackupWorkspace() {
 function VaultTab({ active, title, subtitle, onClick }: { active: boolean; title: string; subtitle: string; onClick: () => void }) {
   return <button type="button" onClick={onClick} className="rounded-lg px-3 py-3 text-left sm:px-5" style={active ? { color: '#fffaf3', background: 'var(--ac)' } : { color: 'var(--t-text2)' }}><strong className="block text-xs font-medium">{title}</strong><span className="mt-1 hidden text-[9px] opacity-70 sm:block">{subtitle}</span></button>;
 }
+
+function ManagedBackupRow({
+  item,
+  busy,
+  onVerify,
+  onDelete,
+}: {
+  item: ManagedBackupItem;
+  busy: string;
+  onVerify: (fileName: string) => Promise<void>;
+  onDelete: (fileName: string) => Promise<void>;
+}) {
+  const health = BACKUP_HEALTH[item.health];
+  const isVerifying = busy === `verify:${item.fileName}`;
+  const isDeleting = busy === `delete:${item.fileName}`;
+  return <div className="min-w-0 rounded-xl px-4 py-3" style={{ border: '1px solid var(--t-border)', background: 'var(--t-card)' }}>
+    <div className="flex min-w-0 flex-col items-start gap-3 sm:flex-row sm:justify-between">
+      <div className="w-full min-w-0">
+        <div className="flex flex-wrap items-center gap-2">
+          <FolderOpen size={14} style={{ color: 'var(--t-gold)' }} />
+          <strong className="block min-w-0 max-w-full truncate text-[10px]" title={item.fileName} style={{ color: 'var(--t-text)' }}>{item.fileName}</strong>
+          <span className="rounded-full px-2 py-0.5 text-[8px]" style={{ color: SOURCE_LABEL[item.source].color, background: SOURCE_LABEL[item.source].background }}>{SOURCE_LABEL[item.source].text}</span>
+          <span className="rounded-full px-2 py-0.5 text-[8px]" style={{ color: health.color, background: health.background }}>{health.text}</span>
+        </div>
+        <p className="mt-2 text-[9px] leading-5" style={{ color: 'var(--t-faint)' }}>
+          {formatDate(item.createdAt)} · {formatBytes(item.byteSize)}
+          {item.lastVerifiedAt ? ` · ${formatDate(item.lastVerifiedAt)}验证` : ''}
+        </p>
+        {item.healthMessage && <p className="mt-1 text-[9px] leading-5" style={{ color: health.color }}>{item.healthMessage}</p>}
+      </div>
+      <div className="flex shrink-0 items-center gap-1 self-end sm:self-auto">
+        <a href={`/api/backups/automatic/${encodeURIComponent(item.fileName)}`} aria-label={`下载 ${item.fileName}`} title="下载" className="rounded-lg p-2" style={{ color: 'var(--t-text2)', border: '1px solid var(--t-border)' }}><DownloadSimple size={13} /></a>
+        <button type="button" aria-label={`验证 ${item.fileName}`} title="验证完整性" disabled={Boolean(busy)} onClick={() => void onVerify(item.fileName)} className="rounded-lg p-2 disabled:opacity-40" style={{ color: 'var(--t-text2)', border: '1px solid var(--t-border)' }}>{isVerifying ? <SpinnerGap className="animate-spin" size={13} /> : <ArrowsClockwise size={13} />}</button>
+        <button type="button" aria-label={`删除 ${item.fileName}`} title="删除" disabled={Boolean(busy)} onClick={() => void onDelete(item.fileName)} className="rounded-lg p-2 disabled:opacity-40" style={{ color: '#ef4444', border: '1px solid rgba(239,68,68,.25)' }}>{isDeleting ? <SpinnerGap className="animate-spin" size={13} /> : <Trash size={13} />}</button>
+      </div>
+    </div>
+  </div>;
+}
+
+const SOURCE_LABEL: Record<ManagedBackupItem['source'], { text: string; color: string; background: string }> = {
+  scheduled: { text: '周期自动', color: '#22c55e', background: 'rgba(34,197,94,.10)' },
+  manual: { text: '手动保留', color: '#b88a35', background: 'var(--ac-bg)' },
+  pre_restore: { text: '恢复前保险', color: '#3b82f6', background: 'rgba(59,130,246,.10)' },
+};
+
+const BACKUP_HEALTH: Record<ManagedBackupItem['health'], { text: string; color: string; background: string }> = {
+  unchecked: { text: '待验证', color: 'var(--t-faint)', background: 'var(--t-bg2)' },
+  healthy: { text: '健康', color: '#22c55e', background: 'rgba(34,197,94,.10)' },
+  incompatible: { text: '版本不兼容', color: '#f59e0b', background: 'rgba(245,158,11,.10)' },
+  damaged: { text: '已损坏', color: '#ef4444', background: 'rgba(239,68,68,.10)' },
+};
 
 function BackupPreviewCard({ preview }: { preview: BackupPreview }) {
   return <section className="mt-5 rounded-2xl p-4" style={{ border: `1px solid ${preview.compatible ? 'rgba(34,197,94,.3)' : 'rgba(239,68,68,.35)'}`, background: preview.compatible ? 'rgba(34,197,94,.06)' : 'rgba(239,68,68,.06)' }}>

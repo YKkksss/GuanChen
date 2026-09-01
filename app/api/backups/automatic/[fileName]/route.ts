@@ -1,4 +1,5 @@
-import { BackupValidationError, readAutomaticBackupArchive } from '@/lib/backups/service';
+import { readManagedBackupArchive } from '@/lib/backups/lifecycle';
+import { BackupValidationError } from '@/lib/backups/service';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -9,7 +10,7 @@ export async function GET(
 ) {
   try {
     const { fileName } = await context.params;
-    const buffer = await readAutomaticBackupArchive(fileName);
+    const buffer = await readManagedBackupArchive(fileName);
     const encodedName = encodeURIComponent(fileName);
     return new Response(new Uint8Array(buffer), {
       headers: {
@@ -21,7 +22,7 @@ export async function GET(
     });
   } catch (error) {
     return Response.json({
-      error: error instanceof Error ? error.message : '自动备份读取失败',
+      error: error instanceof Error ? error.message : '本地备份读取失败',
     }, { status: error instanceof BackupValidationError ? 404 : 500 });
   }
 }

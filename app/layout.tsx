@@ -4,6 +4,7 @@ import { ThemeProvider } from '@/components/ThemeProvider';
 import EasternAppFrame from '@/components/eastern/EasternAppFrame';
 import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from '@vercel/speed-insights/next';
+import AutomaticBackupBootstrap from '@/components/AutomaticBackupBootstrap';
 
 export const metadata: Metadata = {
   title: '紫微命盘 · 东方书院',
@@ -44,6 +45,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="min-h-screen">
         <ThemeProvider>
+          <AutomaticBackupBootstrap />
           <EasternAppFrame>{children}</EasternAppFrame>
         </ThemeProvider>
         <Analytics />
