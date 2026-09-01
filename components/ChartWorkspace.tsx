@@ -9,8 +9,10 @@ import {
   ClockCounterClockwise,
   FileText,
   GraduationCap,
+  List,
   SidebarSimple,
   TrendUp,
+  X,
 } from '@phosphor-icons/react';
 import BirthForm from '@/components/BirthForm';
 import ChartBoard from '@/components/ChartBoard';
@@ -37,6 +39,7 @@ export default function ChartWorkspace({ conversationId }: ChartWorkspaceProps) 
   const [historyCollapsed, setHistoryCollapsed] = useState(false);
   const [learningMode, setLearningMode] = useState(false);
   const [mobilePane, setMobilePane] = useState<'chart' | 'insight'>('chart');
+  const [mobileActionsOpen, setMobileActionsOpen] = useState(false);
 
   useEffect(() => {
     const compactMedia = window.matchMedia('(max-width: 1080px)');
@@ -59,8 +62,32 @@ export default function ChartWorkspace({ conversationId }: ChartWorkspaceProps) 
   };
 
   const closeMobileHistory = () => {
-    if (window.matchMedia('(max-width: 900px)').matches) setHistoryCollapsed(true);
+    if (window.matchMedia('(max-width: 1080px)').matches) setHistoryCollapsed(true);
   };
+
+  useEffect(() => {
+    const compactMedia = window.matchMedia('(max-width: 1080px)');
+    const previousOverflow = document.body.style.overflow;
+    const syncBodyLock = () => {
+      document.body.style.overflow = compactMedia.matches && (!historyCollapsed || mobileActionsOpen)
+        ? 'hidden'
+        : previousOverflow;
+    };
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') return;
+      setMobileActionsOpen(false);
+      setHistoryCollapsed(true);
+    };
+
+    syncBodyLock();
+    compactMedia.addEventListener('change', syncBodyLock);
+    window.addEventListener('keydown', closeOnEscape);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      compactMedia.removeEventListener('change', syncBodyLock);
+      window.removeEventListener('keydown', closeOnEscape);
+    };
+  }, [historyCollapsed, mobileActionsOpen]);
 
   useEffect(() => {
     if (!conversationId) {
@@ -127,6 +154,11 @@ export default function ChartWorkspace({ conversationId }: ChartWorkspaceProps) 
     });
   };
 
+  const navigateFromActions = (href: string) => {
+    setMobileActionsOpen(false);
+    router.push(href);
+  };
+
   return (
     <main className="eastern-workbench">
       <header className="eastern-app-header">
@@ -138,48 +170,77 @@ export default function ChartWorkspace({ conversationId }: ChartWorkspaceProps) 
           </span>
         </button>
 
-        <nav className="eastern-app-actions" aria-label="命盘功能导航">
+        <div className="eastern-mobile-header-controls">
           <button
             type="button"
             className="eastern-mobile-history-button"
-            onClick={toggleHistory}
+            onClick={() => { setMobileActionsOpen(false); toggleHistory(); }}
             aria-expanded={!historyCollapsed}
             aria-label={historyCollapsed ? '打开历史对话' : '关闭历史对话'}
           >
             <SidebarSimple size={16} aria-hidden="true" />
             <span>历史</span>
           </button>
-          <button type="button" onClick={() => router.push('/learn')}>
+          <button
+            type="button"
+            className="eastern-mobile-actions-button"
+            onClick={() => { setHistoryCollapsed(true); setMobileActionsOpen(open => !open); }}
+            aria-controls="eastern-chart-actions"
+            aria-expanded={mobileActionsOpen}
+          >
+            {mobileActionsOpen ? <X size={17} aria-hidden="true" /> : <List size={17} aria-hidden="true" />}
+            <span>功能</span>
+          </button>
+        </div>
+
+        <nav id="eastern-chart-actions" className={`eastern-app-actions ${mobileActionsOpen ? 'is-mobile-open' : ''}`} aria-label="命盘功能导航">
+          <div className="eastern-mobile-actions-heading">
+            <div>
+              <strong>命盘功能</strong>
+              <span>选择接下来要查看的内容</span>
+            </div>
+            <button type="button" onClick={() => setMobileActionsOpen(false)} aria-label="关闭功能导航">
+              <X size={18} aria-hidden="true" />
+            </button>
+          </div>
+          <button type="button" onClick={() => navigateFromActions('/learn')}>
             <BookOpen size={16} aria-hidden="true" />
             <span>学习中心</span>
           </button>
           {chart && (
-            <button type="button" onClick={toggleLearningMode} aria-pressed={learningMode} className={learningMode ? 'is-active' : ''}>
+            <button type="button" onClick={() => { toggleLearningMode(); setMobileActionsOpen(false); }} aria-pressed={learningMode} className={learningMode ? 'is-active' : ''}>
               <GraduationCap size={16} aria-hidden="true" />
               <span>{learningMode ? '退出学习' : '学习模式'}</span>
             </button>
           )}
           {conversationId && (
             <>
-              <button type="button" onClick={() => router.push(`/chart/${conversationId}/reports`)}>
+              <button type="button" onClick={() => navigateFromActions(`/chart/${conversationId}/reports`)}>
                 <FileText size={16} aria-hidden="true" />
                 <span>专题报告</span>
               </button>
-              <button type="button" onClick={() => router.push(`/chart/${conversationId}/events`)}>
+              <button type="button" onClick={() => navigateFromActions(`/chart/${conversationId}/events`)}>
                 <CalendarDots size={16} aria-hidden="true" />
                 <span>人生事件</span>
               </button>
-              <button type="button" onClick={() => router.push(`/chart/${conversationId}/timeline`)}>
+              <button type="button" onClick={() => navigateFromActions(`/chart/${conversationId}/timeline`)}>
                 <TrendUp size={16} aria-hidden="true" />
                 <span>年度分析</span>
               </button>
-              <button type="button" onClick={() => router.push(`/rectification?conversationId=${conversationId}`)}>
+              <button type="button" onClick={() => navigateFromActions(`/rectification?conversationId=${conversationId}`)}>
                 <ClockCounterClockwise size={16} aria-hidden="true" />
                 <span>校正时辰</span>
               </button>
             </>
           )}
         </nav>
+        <button
+          type="button"
+          className={`eastern-actions-backdrop ${mobileActionsOpen ? 'is-visible' : ''}`}
+          onClick={() => setMobileActionsOpen(false)}
+          aria-label="关闭功能导航"
+          tabIndex={mobileActionsOpen ? 0 : -1}
+        />
       </header>
 
       <div className={`eastern-shell ${historyCollapsed ? 'is-history-collapsed' : ''}`}>

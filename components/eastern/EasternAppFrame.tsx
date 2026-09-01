@@ -164,7 +164,7 @@ export default function EasternAppFrame({ children }: { children: React.ReactNod
         </aside>
 
         <div className={styles.content}>
-          {shouldShowNotice(pathname) && <ResultNotice compact />}
+          {shouldShowNotice(pathname) && <div className={styles.noticeWrap}><ResultNotice compact /></div>}
           {children}
         </div>
       </div>

@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
+import { ArrowsOut, SquaresFour } from '@phosphor-icons/react';
 import type { ZiweiChart, Palace, Star, DaXian } from '@/lib/ziwei/types';
 import { BRANCHES, STEMS } from '@/lib/ziwei/constants';
 import PalaceCell from './PalaceCell';
@@ -72,6 +73,7 @@ export default function ChartBoard({
   activeDaXian,
 }: ChartBoardProps) {
   const [internalSelectedBranch, setInternalSelectedBranch] = useState<number | null>(null);
+  const [mobileBoardMode, setMobileBoardMode] = useState<'overview' | 'readable'>('readable');
   const selectedBranch = controlledSelectedBranch === undefined ? internalSelectedBranch : controlledSelectedBranch;
   const [internalTimeView, setInternalTimeView] = useState<TimeView>('mingpan');
   const [internalLiunianYear, setInternalLiunianYear] = useState<number>(new Date().getFullYear());
@@ -140,15 +142,33 @@ export default function ChartBoard({
         <span className="eastern-chart-caption-hint">点击宫位查看三方四正</span>
       </motion.div>
 
+      <div className="eastern-chart-mobile-toolbar" aria-label="手机命盘显示方式">
+        <div className="eastern-chart-mobile-toolbar-copy">
+          <strong>命盘显示</strong>
+          <span>{mobileBoardMode === 'readable' ? '左右滑动可查看完整十二宫' : '整体查看盘面结构'}</span>
+        </div>
+        <div className="eastern-chart-mobile-mode-switch" role="group" aria-label="切换命盘显示方式">
+          <button type="button" className={mobileBoardMode === 'overview' ? 'is-active' : ''} onClick={() => setMobileBoardMode('overview')} aria-pressed={mobileBoardMode === 'overview'}>
+            <SquaresFour size={15} aria-hidden="true" />
+            总览
+          </button>
+          <button type="button" className={mobileBoardMode === 'readable' ? 'is-active' : ''} onClick={() => setMobileBoardMode('readable')} aria-pressed={mobileBoardMode === 'readable'}>
+            <ArrowsOut size={15} aria-hidden="true" />
+            放大
+          </button>
+        </div>
+      </div>
+
       {/* 4x4 命盘网格（含 SVG 叠加层） */}
-      <div
-        className="eastern-palace-grid grid overflow-hidden relative"
-        style={{
-          gridTemplateColumns: 'repeat(4, 1fr)',
-          gridTemplateRows: 'repeat(4, minmax(104px, 1fr))',
-          gap: '1px',
-        }}
-      >
+      <div className={`eastern-palace-viewport is-${mobileBoardMode}`}>
+        <div
+          className="eastern-palace-grid grid overflow-hidden relative"
+          style={{
+            gridTemplateColumns: 'repeat(4, 1fr)',
+            gridTemplateRows: 'repeat(4, minmax(104px, 1fr))',
+            gap: '1px',
+          }}
+        >
         {ANIMATION_ORDER.map((branch, i) => {
           const [row, col] = BRANCH_GRID_POS[branch];
           const palace = palaceMap[branch];
@@ -282,6 +302,7 @@ export default function ChartBoard({
             </motion.div>
           )}
         </AnimatePresence>
+        </div>
       </div>
 
       {/* 图例 */}

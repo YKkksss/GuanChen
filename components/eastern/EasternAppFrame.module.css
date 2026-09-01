@@ -222,6 +222,10 @@
   background: rgba(251, 248, 240, 0.32);
 }
 
+.noticeWrap {
+  padding: 12px 18px 0;
+}
+
 .content :global(.card),
 .content :global(.card-flat),
 .content :global(.card-glass) {
@@ -307,7 +311,7 @@
   .topbar {
     grid-template-columns: 1fr auto;
     height: 56px;
-    padding-inline: 14px;
+    padding-inline: 20px;
   }
 
   .brand small,
@@ -424,6 +428,37 @@
 
   .content {
     min-height: calc(100dvh - 56px);
+  }
+
+  .noticeWrap {
+    padding: 14px 28px 0;
+  }
+
+  .content :global(main.mx-auto) {
+    padding-right: 28px !important;
+    padding-left: 28px !important;
+  }
+
+  .content :global(.eastern-module-page > header > div),
+  .content :global(.eastern-module-page > div) {
+    padding-right: 28px !important;
+    padding-left: 28px !important;
+  }
+}
+
+@media (max-width: 600px) {
+  .topbar { padding-inline: 18px; }
+  .noticeWrap { padding: 12px 20px 0; }
+
+  .content :global(main.mx-auto) {
+    padding-right: 20px !important;
+    padding-left: 20px !important;
+  }
+
+  .content :global(.eastern-module-page > header > div),
+  .content :global(.eastern-module-page > div) {
+    padding-right: 20px !important;
+    padding-left: 20px !important;
   }
 }
 

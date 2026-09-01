@@ -397,20 +397,20 @@
 }
 
 @media (max-width: 620px) {
-  .headerInner { width: calc(100% - 28px); height: 66px; gap: 12px; }
+  .headerInner { width: calc(100% - 36px); height: 66px; gap: 12px; }
   .brand img { width: 34px; height: 34px; }
   .brand span { font-size: 15px; letter-spacing: 0.06em; }
   .headerActions { gap: 8px; }
   .headerActions .headerCta { height: 44px; margin-left: 0; padding: 0 13px; font-size: 11px; }
-  .heroCopy { min-height: 500px; padding: 72px 22px 60px; }
+  .heroCopy { min-height: 500px; padding: 72px 26px 60px; }
   .heroMessage h1 { max-width: 10ch; font-size: clamp(40px, 12vw, 56px); line-height: 1.2; }
   .heroLead { max-width: 18ch; font-size: 18px; line-height: 1.6; }
   .heroDescription { max-width: 29ch; margin-top: 26px; font-size: 12px; }
   .orbitWatermark { left: -45%; width: 700px; }
   .capabilityGrid { width: 100%; grid-template-columns: 1fr; }
-  .capability { min-height: 120px; padding: 24px; border-right: 0 !important; }
+  .capability { min-height: 120px; padding: 26px; border-right: 0 !important; }
   .methodSection, .modulesSection { padding: 78px 0; }
-  .sectionInner, .modulesInner, .sourcesInner, .footerInner { width: calc(100% - 32px); }
+  .sectionInner, .modulesInner, .sourcesInner, .footerInner { width: calc(100% - 40px); }
   .moduleGrid { grid-template-columns: 1fr; }
   .moduleWide, .moduleTall, .moduleCompact { grid-column: 1; }
   .moduleWide .moduleLink, .moduleTall .moduleLink, .moduleLink { min-height: 148px; align-items: flex-start; flex-direction: row; padding: 24px; }

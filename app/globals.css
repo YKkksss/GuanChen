@@ -656,7 +656,11 @@ body.eastern-home-body {
 }
 
 .eastern-mobile-history-button,
+.eastern-mobile-actions-button,
+.eastern-mobile-header-controls,
+.eastern-mobile-actions-heading,
 .eastern-history-backdrop,
+.eastern-actions-backdrop,
 .eastern-mobile-view-tabs {
   display: none;
 }
@@ -1023,6 +1027,13 @@ body.eastern-home-body {
   border: 1px solid var(--ew-line);
   box-shadow: 0 2px 12px rgba(70,54,37,0.035);
 }
+.eastern-palace-viewport {
+  min-width: 0;
+  min-height: 0;
+  flex: 1;
+  display: flex;
+}
+.eastern-chart-mobile-toolbar { display: none; }
 .eastern-palace-slot { background: var(--ew-paper-strong); }
 .eastern-palace-cell {
   min-height: 104px;
@@ -1186,41 +1197,103 @@ body.eastern-home-body {
 }
 
 @media (max-width: 1080px) {
-  .eastern-app-actions button span { display: none; }
-  .eastern-app-actions button { width: 36px; padding: 0; justify-content: center; }
-  .eastern-content-grid,
-  .eastern-content-grid.is-learning-mode { grid-template-columns: 1fr; overflow-y: auto; }
-  .eastern-chart-region { overflow: auto; min-height: 610px; }
-  .eastern-insight-region { min-height: 640px; }
-}
-
-@media (min-width: 980px) and (max-width: 1080px) {
-  .eastern-shell.is-history-collapsed .eastern-content-grid,
-  .eastern-shell.is-history-collapsed .eastern-content-grid.is-learning-mode {
-    grid-template-columns: minmax(540px, 1fr) minmax(320px, 340px);
-    overflow-y: hidden;
-  }
-
-  .eastern-shell.is-history-collapsed .eastern-chart-region,
-  .eastern-shell.is-history-collapsed .eastern-insight-region {
-    min-height: 0;
-  }
-
-  .eastern-shell.is-history-collapsed .eastern-chart-board {
-    min-width: 0;
-  }
-}
-
-@media (max-width: 900px) {
   .eastern-workbench { height: auto; min-height: 100dvh; overflow: visible; }
-  .eastern-app-header { height: 64px; padding: 0 12px; gap: 10px; position: sticky; top: 0; }
+  .eastern-app-header { height: 64px; padding: 0 clamp(16px, 3vw, 26px); gap: 12px; position: sticky; top: 0; }
   .eastern-brand img { width: 32px; height: 32px; }
   .eastern-brand { min-height: 44px; }
   .eastern-brand-copy strong { font-size: 15px; }
   .eastern-brand-copy small { display: none; }
-  .eastern-app-actions { justify-content: flex-start; margin-left: auto; }
-  .eastern-app-actions button { width: 44px; height: 44px; }
-  .eastern-mobile-history-button { display: inline-flex !important; }
+  .eastern-mobile-header-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: auto;
+  }
+  .eastern-mobile-history-button,
+  .eastern-mobile-actions-button {
+    min-width: 58px;
+    height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 0 10px;
+    border: 1px solid var(--ew-line);
+    border-radius: 7px;
+    background: rgba(255, 253, 248, 0.76);
+    color: var(--ew-ink-soft);
+    cursor: pointer;
+    font-size: 11px;
+  }
+  .eastern-mobile-history-button:hover,
+  .eastern-mobile-actions-button:hover { color: var(--ew-cinnabar); border-color: rgba(164,63,49,0.28); }
+  .eastern-app-actions {
+    position: fixed;
+    top: 64px;
+    right: 0;
+    bottom: 0;
+    z-index: 85;
+    width: min(84vw, 380px);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    align-content: start;
+    justify-content: stretch;
+    gap: 4px;
+    margin: 0;
+    padding: 18px 16px max(20px, env(safe-area-inset-bottom));
+    overflow-x: hidden;
+    overflow-y: auto;
+    background: rgba(251, 248, 241, 0.99);
+    border-left: 1px solid var(--ew-line);
+    box-shadow: -18px 0 48px rgba(55, 38, 23, 0.16);
+    transform: translateX(105%);
+    visibility: hidden;
+    transition: transform 180ms ease, visibility 180ms ease;
+  }
+  .eastern-app-actions.is-mobile-open { transform: translateX(0); visibility: visible; }
+  .eastern-app-actions button {
+    width: 100%;
+    height: 48px;
+    justify-content: flex-start;
+    gap: 11px;
+    padding: 0 14px;
+    border-radius: 7px;
+    font-size: 12px;
+  }
+  .eastern-app-actions button span { display: inline; }
+  .eastern-mobile-actions-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 8px;
+    padding: 2px 2px 14px;
+    border-bottom: 1px solid var(--ew-line-soft);
+  }
+  .eastern-mobile-actions-heading > div { display: grid; gap: 3px; }
+  .eastern-mobile-actions-heading strong { font-family: 'Noto Serif SC', 'Songti SC', serif; font-size: 15px; letter-spacing: 0.08em; }
+  .eastern-mobile-actions-heading span { color: var(--ew-muted); font-size: 10px; }
+  .eastern-mobile-actions-heading button {
+    width: 44px;
+    height: 44px;
+    flex: 0 0 auto;
+    justify-content: center;
+    padding: 0;
+    border: 1px solid var(--ew-line);
+  }
+  .eastern-actions-backdrop {
+    position: fixed;
+    inset: 64px 0 0;
+    z-index: 80;
+    display: block;
+    border: 0;
+    background: rgba(42, 36, 31, 0.34);
+    opacity: 0;
+    pointer-events: none;
+    visibility: hidden;
+    transition: opacity 180ms ease, visibility 180ms ease;
+  }
+  .eastern-actions-backdrop.is-visible { opacity: 1; pointer-events: auto; visibility: visible; }
   .eastern-shell,
   .eastern-shell.is-history-collapsed { height: auto; min-height: calc(100dvh - 64px); display: block; }
   .eastern-history {
@@ -1265,10 +1338,11 @@ body.eastern-home-body {
     pointer-events: auto;
     visibility: visible;
   }
-  .eastern-main { min-height: calc(100dvh - 64px); overflow: visible; padding: 12px; }
+  .eastern-main { min-height: calc(100dvh - 64px); overflow: visible; padding: clamp(18px, 3vw, 28px); }
   .eastern-birth-panel,
-  .eastern-state-panel { width: 100%; margin: 0; padding: 24px 20px; }
-  .birth-form { padding: 20px 16px !important; }
+  .eastern-state-panel { width: 100%; margin: 0; padding: clamp(26px, 4vw, 38px); }
+  .birth-form { padding: clamp(20px, 3vw, 28px) !important; }
+  .eastern-result-notice { margin-bottom: 14px; }
   .eastern-context-bar { align-items: flex-start; }
   .eastern-context-meta { flex-wrap: wrap; }
   .eastern-mobile-view-tabs {
@@ -1278,8 +1352,8 @@ body.eastern-home-body {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 4px;
-    margin-bottom: 10px;
-    padding: 4px;
+    margin-bottom: 14px;
+    padding: 5px;
     border: 1px solid var(--ew-line);
     border-radius: 8px;
     background: rgba(251, 248, 241, 0.96);
@@ -1304,8 +1378,8 @@ body.eastern-home-body {
   .eastern-content-grid.is-learning-mode { display: block; overflow: visible; }
   .eastern-content-grid[data-mobile-pane='chart'] .eastern-insight-region,
   .eastern-content-grid[data-mobile-pane='insight'] .eastern-chart-region { display: none; }
-  .eastern-chart-region { min-height: 0; padding: 10px; overflow: hidden; }
-  .eastern-insight-region { height: max(560px, calc(100dvh - 224px)); min-height: 0; }
+  .eastern-chart-region { min-height: 0; padding: clamp(14px, 2.4vw, 22px); overflow: hidden; }
+  .eastern-insight-region { height: max(620px, calc(100dvh - 238px)); min-height: 0; }
   .eastern-chart-board { min-width: 0; height: auto; min-height: 0; }
   .eastern-time-tabs { grid-template-columns: 0.85fr 1fr 1.35fr; }
   .eastern-time-tab,
@@ -1318,62 +1392,96 @@ body.eastern-home-body {
   .eastern-chart-caption-primary { gap: 6px; }
   .eastern-chart-caption-primary span + span::before { margin-right: 6px; }
   .eastern-chart-caption-hint { display: none; }
-  .eastern-palace-grid {
-    min-height: 448px;
-    grid-template-rows: repeat(4, minmax(88px, 1fr)) !important;
-  }
-  .eastern-palace-cell { min-height: 88px; padding: 6px 5px 5px; }
-  .eastern-palace-ganzhi { top: 5px; left: 5px; font-size: 7px; }
-  .eastern-palace-heading { left: 5px; bottom: 5px; gap: 2px; padding-right: 30px; }
-  .eastern-palace-name { font-size: 9px; letter-spacing: 0.03em; }
-  .eastern-palace-age { right: 5px; bottom: 5px; font-size: 7px; }
-  .eastern-palace-mark { font-size: 6px; }
-  .eastern-palace-stars { gap: 2px; padding: 14px 0 18px; }
-  .eastern-major-star { font-size: 12px; }
-  .eastern-minor-stars { gap: 1px 3px; padding-bottom: 18px; }
-  .eastern-minor-star { font-size: 7px; }
-  .eastern-sihua-badge { margin-left: 1px; padding: 1px 2px; font-size: 6px; }
-  .eastern-chart-center { gap: 5px; padding: 7px; }
-  .eastern-chart-center img { width: 28px; height: 28px; }
-  .eastern-chart-center-kicker { font-size: 6px; letter-spacing: 0.14em; }
-  .eastern-chart-center h2 { font-size: 17px; letter-spacing: 0.06em; }
-  .eastern-chart-center-data { font-size: 7px; line-height: 1.45; }
-  .eastern-current-daxian { gap: 0 4px; padding: 3px 6px; }
-  .eastern-current-daxian span { font-size: 6px; }
-  .eastern-current-daxian strong { font-size: 8px; }
-  .eastern-current-daxian small { font-size: 7px; }
-  .eastern-lunar-date { font-size: 6px; }
   .eastern-chart-legend { margin-top: 7px; }
   .eastern-topic-button { min-height: 44px; height: 44px; }
   .eastern-memory-button { min-height: 44px; padding-inline: 10px; }
   .eastern-chat-hint { display: none; }
 }
 
-@media (max-width: 520px) {
-  .eastern-app-header { padding-inline: 10px; }
+@media (max-width: 600px) {
+  .eastern-app-header { padding-inline: 14px; }
   .eastern-brand { gap: 7px; padding-right: 0; }
   .eastern-brand-copy strong { font-size: 14px; letter-spacing: 0.06em; }
-  .eastern-app-actions { max-width: calc(100vw - 128px); }
-  .eastern-result-notice { margin-bottom: 10px; }
-  .eastern-main { padding: 10px; }
+  .eastern-result-notice { margin-bottom: 12px; }
+  .eastern-main { padding: 18px; }
   .eastern-birth-panel,
-  .eastern-state-panel { padding: 22px 14px; }
+  .eastern-state-panel { padding: 26px 18px; }
   .eastern-birth-panel h1 { font-size: 25px; }
   .eastern-birth-panel > p { margin-bottom: 20px; font-size: 12px; }
-  .eastern-chart-region { padding: 8px 6px; }
+  .eastern-chart-region { padding: 14px; }
   .eastern-time-tabs { grid-template-columns: 0.75fr 0.95fr 1.5fr; }
   .eastern-year-label { display: none; }
   .eastern-year-tab { display: flex; justify-content: center; padding-left: 0; }
   .eastern-year-control { width: 100%; justify-content: space-between; padding-right: 0; }
   .eastern-year-control button { width: 44px; }
   .eastern-year-value { min-width: 40px; }
+  .eastern-chart-mobile-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 3px 0 12px;
+    padding: 10px 11px;
+    border: 1px solid var(--ew-line-soft);
+    border-radius: 8px;
+    background: rgba(255,253,248,0.72);
+  }
+  .eastern-chart-mobile-toolbar-copy { min-width: 0; display: grid; gap: 2px; }
+  .eastern-chart-mobile-toolbar-copy strong { color: var(--ew-ink); font-size: 11px; }
+  .eastern-chart-mobile-toolbar-copy span { color: var(--ew-muted); font-size: 8px; white-space: nowrap; }
+  .eastern-chart-mobile-mode-switch { flex: 0 0 auto; display: flex; gap: 3px; padding: 3px; border: 1px solid var(--ew-line); border-radius: 7px; background: var(--ew-paper); }
+  .eastern-chart-mobile-mode-switch button { min-width: 52px; height: 34px; display: inline-flex; align-items: center; justify-content: center; gap: 4px; padding: 0 7px; border: 0; border-radius: 5px; background: transparent; color: var(--ew-muted); cursor: pointer; font-size: 9px; }
+  .eastern-chart-mobile-mode-switch button.is-active { background: var(--ew-cinnabar); color: #fffaf4; }
+  .eastern-palace-viewport { width: 100%; flex: none; overflow-x: auto; overflow-y: hidden; overscroll-behavior-inline: contain; scrollbar-width: thin; }
+  .eastern-palace-viewport.is-readable .eastern-palace-grid {
+    width: 620px;
+    min-width: 620px;
+    min-height: 548px;
+    grid-template-rows: repeat(4, minmax(132px, 1fr)) !important;
+  }
+  .eastern-palace-viewport.is-overview .eastern-palace-grid {
+    width: 100%;
+    min-width: 0;
+    min-height: 448px;
+    grid-template-rows: repeat(4, minmax(88px, 1fr)) !important;
+  }
+  .eastern-palace-viewport.is-overview .eastern-palace-cell { min-height: 88px; padding: 6px 5px 5px; }
+  .eastern-palace-viewport.is-overview .eastern-palace-ganzhi { top: 5px; left: 5px; font-size: 7px; }
+  .eastern-palace-viewport.is-overview .eastern-palace-heading { left: 5px; bottom: 5px; gap: 2px; padding-right: 30px; }
+  .eastern-palace-viewport.is-overview .eastern-palace-name { font-size: 9px; letter-spacing: 0.03em; }
+  .eastern-palace-viewport.is-overview .eastern-palace-age { right: 5px; bottom: 5px; font-size: 7px; }
+  .eastern-palace-viewport.is-overview .eastern-palace-mark { font-size: 6px; }
+  .eastern-palace-viewport.is-overview .eastern-palace-stars { gap: 2px; padding: 14px 0 18px; }
+  .eastern-palace-viewport.is-overview .eastern-major-star { font-size: 12px; }
+  .eastern-palace-viewport.is-overview .eastern-minor-stars { gap: 1px 3px; padding-bottom: 18px; }
+  .eastern-palace-viewport.is-overview .eastern-minor-star { font-size: 7px; }
+  .eastern-palace-viewport.is-overview .eastern-sihua-badge { margin-left: 1px; padding: 1px 2px; font-size: 6px; }
+  .eastern-palace-viewport.is-overview .eastern-chart-center { gap: 5px; padding: 7px; }
+  .eastern-palace-viewport.is-overview .eastern-chart-center img { width: 28px; height: 28px; }
+  .eastern-palace-viewport.is-overview .eastern-chart-center-kicker { font-size: 6px; letter-spacing: 0.14em; }
+  .eastern-palace-viewport.is-overview .eastern-chart-center h2 { font-size: 17px; letter-spacing: 0.06em; }
+  .eastern-palace-viewport.is-overview .eastern-chart-center-data { font-size: 7px; line-height: 1.45; }
+  .eastern-palace-viewport.is-overview .eastern-current-daxian { gap: 0 4px; padding: 3px 6px; }
+  .eastern-palace-viewport.is-overview .eastern-current-daxian span { font-size: 6px; }
+  .eastern-palace-viewport.is-overview .eastern-current-daxian strong { font-size: 8px; }
+  .eastern-palace-viewport.is-overview .eastern-current-daxian small { font-size: 7px; }
+  .eastern-palace-viewport.is-overview .eastern-lunar-date { font-size: 6px; }
   .eastern-insight-header { min-height: 58px; padding: 9px 10px; }
   .eastern-insight-status > span { display: none; }
   .eastern-topic-bar { padding: 7px 8px; overflow-x: auto; }
   .eastern-topic-grid { display: flex; min-width: max-content; }
   .eastern-topic-button { min-width: 58px; padding-inline: 10px; }
-  .eastern-message-list { padding: 12px 10px 16px; }
-  .eastern-chat-composer { padding: 9px 9px max(9px, env(safe-area-inset-bottom)); }
+  .eastern-message-list { padding: 16px 14px 20px; }
+  .eastern-chat-composer { padding: 12px 12px max(12px, env(safe-area-inset-bottom)); }
+}
+
+@media (max-width: 359px) {
+  .eastern-mobile-history-button,
+  .eastern-mobile-actions-button { min-width: 44px; width: 44px; padding: 0; }
+  .eastern-mobile-history-button span,
+  .eastern-mobile-actions-button span { display: none; }
+  .eastern-main { padding-inline: 14px; }
+  .eastern-chart-region { padding-inline: 10px; }
 }
 
 @media (max-width: 820px) {
@@ -1386,7 +1494,9 @@ body.eastern-home-body {
 
 @media (prefers-reduced-motion: reduce) {
   .eastern-history,
-  .eastern-history-backdrop {
+  .eastern-history-backdrop,
+  .eastern-app-actions,
+  .eastern-actions-backdrop {
     transition: none;
   }
 }
