@@ -194,8 +194,32 @@
 
 .solarTime {
   flex: 0 0 auto;
+  margin-left: auto;
   color: #9a672d;
   font-size: 9px;
+}
+
+.timeControl {
+  gap: 7px;
+}
+
+.timeControl > svg {
+  flex: 0 0 auto;
+}
+
+.timeControl select {
+  width: auto;
+  flex: 0 1 76px;
+  color-scheme: light;
+  cursor: pointer;
+  font-variant-numeric: tabular-nums;
+}
+
+.timeSeparator {
+  flex: 0 0 auto;
+  color: #8b8175;
+  font-size: 13px;
+  font-weight: 700;
 }
 
 .locationGrid {
@@ -290,6 +314,14 @@
 
   .birthDateControl:first-child svg {
     display: none;
+  }
+
+  .timeControl > svg {
+    display: none;
+  }
+
+  .timeControl select {
+    flex: 1;
   }
 }
 
