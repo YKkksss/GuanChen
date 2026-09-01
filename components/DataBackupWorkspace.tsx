@@ -19,10 +19,12 @@ import type {
   LocalDataSummary,
   RestoreBackupResult,
 } from '@/lib/backups/types';
+import ChartTransferPanel from './ChartTransferPanel';
 
 type ApiError = { error?: string };
 
 export default function DataBackupWorkspace() {
+  const [view, setView] = useState<'full' | 'chart'>('full');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [summary, setSummary] = useState<LocalDataSummary | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -131,13 +133,13 @@ export default function DataBackupWorkspace() {
           <div className="mt-5 text-[10px] font-medium tracking-[.28em]" style={{ color: 'var(--t-gold)' }}>LOCAL DATA VAULT</div>
           <h1 className="mt-2 text-2xl font-semibold sm:text-3xl" style={{ color: 'var(--t-text)' }}>本地数据保险箱</h1>
           <p className="mt-3 max-w-3xl text-xs leading-7" style={{ color: 'var(--t-text2)' }}>
-            将命盘、对话、记忆、事件、报告、学习进度、提醒与已生成 PDF 封装成一个版本化备份包。所有处理都在本机完成，不会上传到云端。
+            在整库保险备份和单命盘迁移之间按需选择。所有导出、预检与导入都在本机完成，不会上传到云端。
           </p>
         </div>
-        <button type="button" onClick={() => void exportBackup()} disabled={Boolean(busy)} className="btn-primary !px-5 !py-3 disabled:opacity-50">
+        {view === 'full' && <button type="button" onClick={() => void exportBackup()} disabled={Boolean(busy)} className="btn-primary !px-5 !py-3 disabled:opacity-50">
           {busy === 'exporting' ? <SpinnerGap className="animate-spin" size={16} /> : <DownloadSimple size={16} />}
           {busy === 'exporting' ? '正在生成一致性快照…' : '导出完整备份'}
-        </button>
+        </button>}
       </header>
 
       {error && <StatusMessage tone="error" icon={<WarningCircle size={17} />} text={error} />}
@@ -150,7 +152,12 @@ export default function DataBackupWorkspace() {
         />
       )}
 
-      <section className="grid gap-5 lg:grid-cols-[1.02fr_.98fr]">
+      <section className="mb-6 grid grid-cols-2 rounded-xl p-1" style={{ border: '1px solid var(--t-border)', background: 'var(--t-card)' }}>
+        <VaultTab active={view === 'full'} title="整库备份与恢复" subtitle="适合整台设备迁移与灾难恢复" onClick={() => setView('full')} />
+        <VaultTab active={view === 'chart'} title="单命盘迁移" subtitle="导入为副本，不覆盖当前档案" onClick={() => setView('chart')} />
+      </section>
+
+      {view === 'full' ? <section className="grid gap-5 lg:grid-cols-[1.02fr_.98fr]">
         <div className="space-y-5">
           <article className="card-glass rounded-2xl p-5 sm:p-6">
             <div className="flex items-start justify-between gap-4">
@@ -219,9 +226,13 @@ export default function DataBackupWorkspace() {
             </div>
           )}
         </article>
-      </section>
+      </section> : <ChartTransferPanel />}
     </main>
   );
+}
+
+function VaultTab({ active, title, subtitle, onClick }: { active: boolean; title: string; subtitle: string; onClick: () => void }) {
+  return <button type="button" onClick={onClick} className="rounded-lg px-3 py-3 text-left sm:px-5" style={active ? { color: '#fffaf3', background: 'var(--ac)' } : { color: 'var(--t-text2)' }}><strong className="block text-xs font-medium">{title}</strong><span className="mt-1 hidden text-[9px] opacity-70 sm:block">{subtitle}</span></button>;
 }
 
 function BackupPreviewCard({ preview }: { preview: BackupPreview }) {
