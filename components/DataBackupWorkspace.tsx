@@ -11,12 +11,14 @@ import {
   FileArrowUp,
   FloppyDisk,
   FolderOpen,
+  LockKey,
   ShieldCheck,
   SpinnerGap,
   Trash,
   WarningCircle,
 } from '@phosphor-icons/react';
 import {
+  ENCRYPTED_LOCAL_BACKUP_MIN_PASSWORD_LENGTH,
   LOCAL_BACKUP_CONFIRMATION,
   LOCAL_BACKUP_DELETE_CONFIRMATION,
 } from '@/lib/backups/types';
@@ -38,11 +40,16 @@ export default function DataBackupWorkspace() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<BackupPreview | null>(null);
   const [confirmation, setConfirmation] = useState('');
-  const [busy, setBusy] = useState<'loading' | 'exporting' | 'inspecting' | 'restoring' | ''>('loading');
+  const [busy, setBusy] = useState<'loading' | 'exporting' | 'exporting-encrypted' | 'inspecting' | 'restoring' | ''>('loading');
   const [lifecycleBusy, setLifecycleBusy] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState<RestoreBackupResult | null>(null);
   const [lifecycleNotice, setLifecycleNotice] = useState('');
+  const [showEncryptedExport, setShowEncryptedExport] = useState(false);
+  const [exportPassword, setExportPassword] = useState('');
+  const [exportPasswordConfirmation, setExportPasswordConfirmation] = useState('');
+  const [selectedEncrypted, setSelectedEncrypted] = useState(false);
+  const [selectedPassword, setSelectedPassword] = useState('');
 
   const loadSummary = useCallback(async () => {
     setBusy('loading');
@@ -164,18 +171,36 @@ export default function DataBackupWorkspace() {
         const data = await response.json().catch(() => ({})) as ApiError;
         throw new Error(data.error || '备份导出失败');
       }
-      const blob = await response.blob();
-      const fileName = resolveDownloadName(response.headers.get('content-disposition'));
-      const url = URL.createObjectURL(blob);
-      const anchor = document.createElement('a');
-      anchor.href = url;
-      anchor.download = fileName;
-      document.body.appendChild(anchor);
-      anchor.click();
-      anchor.remove();
-      URL.revokeObjectURL(url);
+      await downloadResponse(response, '紫微命盘本地备份.ziweibackup');
     } catch (exportError) {
       setError(exportError instanceof Error ? exportError.message : '备份导出失败');
+    } finally {
+      setBusy('');
+    }
+  }
+
+  async function exportEncryptedBackup() {
+    if (!isStrongEnoughPassword(exportPassword) || exportPassword !== exportPasswordConfirmation) return;
+    setBusy('exporting-encrypted');
+    setError('');
+    setLifecycleNotice('');
+    try {
+      const response = await fetch('/api/backups/export/encrypted', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: exportPassword }),
+      });
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({})) as ApiError;
+        throw new Error(data.error || '加密备份导出失败');
+      }
+      await downloadResponse(response, '紫微命盘加密备份.ziweibackupx');
+      setExportPassword('');
+      setExportPasswordConfirmation('');
+      setShowEncryptedExport(false);
+      setLifecycleNotice('加密备份已生成并下载。请妥善保存密码，系统无法找回。');
+    } catch (exportError) {
+      setError(exportError instanceof Error ? exportError.message : '加密备份导出失败');
     } finally {
       setBusy('');
     }
@@ -187,15 +212,28 @@ export default function DataBackupWorkspace() {
     setConfirmation('');
     setSuccess(null);
     setError('');
+    setSelectedPassword('');
+    setSelectedEncrypted(false);
+    if (!file) return;
+    const magic = await file.slice(0, 14).text().catch(() => '');
+    const encrypted = magic === 'ZIWEIBACKUPX1\n' || file.name.toLowerCase().endsWith('.ziweibackupx');
+    setSelectedEncrypted(encrypted);
+    if (encrypted) return;
+    await inspectSelectedBackup(file, '');
+  }
+
+  async function inspectSelectedBackup(file = selectedFile, password = selectedPassword) {
     if (!file) return;
     setBusy('inspecting');
     try {
       const form = new FormData();
       form.set('backup', file);
+      if (password) form.set('password', password);
       const response = await fetch('/api/backups/inspect', { method: 'POST', body: form });
-      const data = await response.json() as { preview?: BackupPreview; error?: string };
+      const data = await response.json() as { preview?: BackupPreview; encrypted?: boolean; error?: string };
       if (!response.ok || !data.preview) throw new Error(data.error || '备份预检失败');
       setPreview(data.preview);
+      setSelectedEncrypted(Boolean(data.encrypted));
     } catch (inspectError) {
       setError(inspectError instanceof Error ? inspectError.message : '备份预检失败');
     } finally {
@@ -213,6 +251,7 @@ export default function DataBackupWorkspace() {
       const form = new FormData();
       form.set('backup', selectedFile);
       form.set('confirmation', confirmation);
+      if (selectedEncrypted) form.set('password', selectedPassword);
       const response = await fetch('/api/backups/restore', { method: 'POST', body: form });
       const data = await response.json() as { result?: RestoreBackupResult; error?: string };
       if (!response.ok || !data.result) throw new Error(data.error || '本地数据恢复失败');
@@ -220,6 +259,8 @@ export default function DataBackupWorkspace() {
       setSelectedFile(null);
       setPreview(null);
       setConfirmation('');
+      setSelectedEncrypted(false);
+      setSelectedPassword('');
       if (fileInputRef.current) fileInputRef.current.value = '';
       await loadSummary();
     } catch (restoreError) {
@@ -228,6 +269,9 @@ export default function DataBackupWorkspace() {
       setBusy('');
     }
   }
+
+  const exportPasswordValid = isStrongEnoughPassword(exportPassword);
+  const exportPasswordsMatch = exportPassword === exportPasswordConfirmation;
 
   return (
     <main className="case-form mx-auto min-h-screen max-w-[1180px] px-4 py-7 sm:px-6 sm:py-10">
@@ -240,10 +284,15 @@ export default function DataBackupWorkspace() {
             在整库保险备份和单命盘迁移之间按需选择。所有导出、预检与导入都在本机完成，不会上传到云端。
           </p>
         </div>
-        {view === 'full' && <button type="button" onClick={() => void exportBackup()} disabled={Boolean(busy)} className="btn-primary !px-5 !py-3 disabled:opacity-50">
-          {busy === 'exporting' ? <SpinnerGap className="animate-spin" size={16} /> : <DownloadSimple size={16} />}
-          {busy === 'exporting' ? '正在生成一致性快照…' : '导出完整备份'}
-        </button>}
+        {view === 'full' && <div className="flex flex-wrap gap-2">
+          <button type="button" onClick={() => setShowEncryptedExport(value => !value)} disabled={Boolean(busy)} className="flex items-center gap-2 rounded-xl px-4 py-3 text-xs disabled:opacity-50" style={{ color: 'var(--t-gold)', border: '1px solid var(--t-border-acc)', background: 'var(--ac-bg)' }}>
+            <LockKey size={16} />加密导出
+          </button>
+          <button type="button" onClick={() => void exportBackup()} disabled={Boolean(busy)} className="btn-primary !px-5 !py-3 disabled:opacity-50">
+            {busy === 'exporting' ? <SpinnerGap className="animate-spin" size={16} /> : <DownloadSimple size={16} />}
+            {busy === 'exporting' ? '正在生成一致性快照…' : '普通导出'}
+          </button>
+        </div>}
       </header>
 
       {error && <StatusMessage tone="error" icon={<WarningCircle size={17} />} text={error} />}
@@ -261,6 +310,35 @@ export default function DataBackupWorkspace() {
         <VaultTab active={view === 'full'} title="整库备份与恢复" subtitle="适合整台设备迁移与灾难恢复" onClick={() => setView('full')} />
         <VaultTab active={view === 'chart'} title="单命盘迁移" subtitle="导入为副本，不覆盖当前档案" onClick={() => setView('chart')} />
       </section>
+
+      {view === 'full' && showEncryptedExport && <article className="card-glass mb-6 rounded-2xl p-5 sm:p-6">
+        <div className="flex items-start gap-3">
+          <div className="rounded-xl p-2.5" style={{ color: 'var(--t-gold)', background: 'var(--ac-bg)' }}><LockKey size={20} /></div>
+          <div className="min-w-0">
+            <h2 className="text-sm font-semibold" style={{ color: 'var(--t-text)' }}>生成密码保护的完整备份</h2>
+            <p className="mt-1 text-[10px] leading-5" style={{ color: 'var(--t-faint)' }}>使用 scrypt 派生密钥和 AES-256-GCM 认证加密。密码不会被保存，遗忘后系统也无法找回。</p>
+          </div>
+        </div>
+        <div className="mt-5 grid gap-4 sm:grid-cols-2">
+          <label className="text-[10px]" style={{ color: 'var(--t-text2)' }}>
+            加密密码
+            <input type="password" value={exportPassword} onChange={event => setExportPassword(event.target.value)} className="field-control mt-2" autoComplete="new-password" placeholder={`至少 ${ENCRYPTED_LOCAL_BACKUP_MIN_PASSWORD_LENGTH} 个字符`} />
+            <span className="mt-1 block text-[9px]" style={{ color: exportPassword && !exportPasswordValid ? '#ef4444' : 'var(--t-faint)' }}>{exportPassword && !exportPasswordValid ? `还需要至少 ${ENCRYPTED_LOCAL_BACKUP_MIN_PASSWORD_LENGTH} 个字符` : '建议使用不重复的长密码或密码短语'}</span>
+          </label>
+          <label className="text-[10px]" style={{ color: 'var(--t-text2)' }}>
+            再次输入密码
+            <input type="password" value={exportPasswordConfirmation} onChange={event => setExportPasswordConfirmation(event.target.value)} className="field-control mt-2" autoComplete="new-password" placeholder="再次输入，防止手误" />
+            <span className="mt-1 block text-[9px]" style={{ color: exportPasswordConfirmation && !exportPasswordsMatch ? '#ef4444' : 'var(--t-faint)' }}>{exportPasswordConfirmation && !exportPasswordsMatch ? '两次输入的密码不一致' : '只在当前导出请求的内存中使用'}</span>
+          </label>
+        </div>
+        <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t pt-4" style={{ borderColor: 'var(--t-border)' }}>
+          <p className="max-w-2xl text-[9px] leading-5" style={{ color: 'var(--t-faint)' }}>加密包扩展名为 .ziweibackupx。它适合复制到移动硬盘或云盘，但仍建议保留至少两个不同位置的副本。</p>
+          <button type="button" disabled={Boolean(busy) || !exportPasswordValid || !exportPasswordsMatch} onClick={() => void exportEncryptedBackup()} className="btn-primary !px-5 !py-3 disabled:cursor-not-allowed disabled:opacity-40">
+            {busy === 'exporting-encrypted' ? <SpinnerGap className="animate-spin" size={16} /> : <LockKey size={16} />}
+            {busy === 'exporting-encrypted' ? '正在加密并生成…' : '生成加密备份'}
+          </button>
+        </div>
+      </article>}
 
       {view === 'full' ? <section className="grid min-w-0 gap-5 lg:grid-cols-[1.02fr_.98fr]">
         <div className="min-w-0 space-y-5">
@@ -357,17 +435,26 @@ export default function DataBackupWorkspace() {
         <article className="card-glass h-fit rounded-2xl p-5 sm:p-6 lg:sticky lg:top-24">
           <div className="flex items-start gap-3">
             <div className="rounded-xl p-2.5" style={{ color: 'var(--t-gold)', background: 'var(--ac-bg)' }}><FileArrowUp size={21} /></div>
-            <div><h2 className="text-base font-semibold" style={{ color: 'var(--t-text)' }}>预检并恢复</h2><p className="mt-1 text-[10px] leading-5" style={{ color: 'var(--t-faint)' }}>第一版只支持整库替换，避免跨库合并破坏会话、事件与报告之间的关联。</p></div>
+            <div><h2 className="text-base font-semibold" style={{ color: 'var(--t-text)' }}>预检并恢复</h2><p className="mt-1 text-[10px] leading-5" style={{ color: 'var(--t-faint)' }}>支持普通与密码保护备份。加密文件先在本机解锁，再进入同一套完整性预检和安全恢复流程。</p></div>
           </div>
 
           <label className="mt-5 flex cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed px-5 py-8 text-center" style={{ borderColor: 'var(--t-border-acc)', background: 'var(--ac-bg)' }}>
             {busy === 'inspecting' ? <SpinnerGap className="animate-spin" size={26} style={{ color: 'var(--t-gold)' }} /> : <FileArrowUp size={26} style={{ color: 'var(--t-gold)' }} />}
-            <strong className="mt-3 text-xs" style={{ color: 'var(--t-text)' }}>{selectedFile?.name || '选择 .ziweibackup 文件'}</strong>
-            <span className="mt-1 text-[9px]" style={{ color: 'var(--t-faint)' }}>{selectedFile ? formatBytes(selectedFile.size) : '最大 128 MB，选择后只做只读检查'}</span>
-            <input ref={fileInputRef} type="file" accept=".ziweibackup,application/gzip" className="sr-only" disabled={Boolean(busy)} onChange={event => void chooseFile(event.target.files?.[0] ?? null)} />
+            <strong className="mt-3 max-w-full truncate text-xs" style={{ color: 'var(--t-text)' }}>{selectedFile?.name || '选择备份文件'}</strong>
+            <span className="mt-1 text-[9px]" style={{ color: 'var(--t-faint)' }}>{selectedFile ? `${formatBytes(selectedFile.size)} · ${selectedEncrypted ? '密码保护备份' : '普通备份'}` : '支持 .ziweibackup 和 .ziweibackupx，选择后只做只读检查'}</span>
+            <input ref={fileInputRef} type="file" accept=".ziweibackup,.ziweibackupx,application/gzip,application/octet-stream" className="sr-only" disabled={Boolean(busy)} onChange={event => void chooseFile(event.target.files?.[0] ?? null)} />
           </label>
 
-          {preview && <BackupPreviewCard preview={preview} />}
+          {selectedFile && selectedEncrypted && !preview && <section className="mt-5 rounded-2xl p-4" style={{ border: '1px solid var(--t-border-acc)', background: 'var(--ac-bg)' }}>
+            <div className="flex items-start gap-2"><LockKey className="mt-0.5 shrink-0" size={16} style={{ color: 'var(--t-gold)' }} /><div><strong className="text-xs" style={{ color: 'var(--t-text)' }}>请输入这个备份的密码</strong><p className="mt-1 text-[9px] leading-5" style={{ color: 'var(--t-faint)' }}>密码只用于本次解锁；密码错误和文件被修改会统一拒绝。</p></div></div>
+            <input type="password" value={selectedPassword} onChange={event => { setSelectedPassword(event.target.value); setError(''); }} className="field-control mt-3" autoComplete="current-password" placeholder="备份密码" onKeyDown={event => { if (event.key === 'Enter' && isStrongEnoughPassword(selectedPassword)) void inspectSelectedBackup(); }} />
+            <button type="button" disabled={busy === 'inspecting' || !isStrongEnoughPassword(selectedPassword)} onClick={() => void inspectSelectedBackup()} className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-xs disabled:cursor-not-allowed disabled:opacity-40" style={{ color: '#fffaf3', background: 'var(--ac)' }}>
+              {busy === 'inspecting' ? <SpinnerGap className="animate-spin" size={15} /> : <LockKey size={15} />}
+              {busy === 'inspecting' ? '正在解密并完整检查…' : '解密并预检'}
+            </button>
+          </section>}
+
+          {preview && <BackupPreviewCard preview={preview} encrypted={selectedEncrypted} />}
 
           {preview?.compatible && (
             <div className="mt-5 border-t pt-5" style={{ borderColor: 'var(--t-border)' }}>
@@ -442,9 +529,9 @@ const BACKUP_HEALTH: Record<ManagedBackupItem['health'], { text: string; color: 
   damaged: { text: '已损坏', color: '#ef4444', background: 'rgba(239,68,68,.10)' },
 };
 
-function BackupPreviewCard({ preview }: { preview: BackupPreview }) {
+function BackupPreviewCard({ preview, encrypted = false }: { preview: BackupPreview; encrypted?: boolean }) {
   return <section className="mt-5 rounded-2xl p-4" style={{ border: `1px solid ${preview.compatible ? 'rgba(34,197,94,.3)' : 'rgba(239,68,68,.35)'}`, background: preview.compatible ? 'rgba(34,197,94,.06)' : 'rgba(239,68,68,.06)' }}>
-    <div className="flex items-center gap-2 text-xs font-semibold" style={{ color: preview.compatible ? '#22c55e' : '#ef4444' }}>{preview.compatible ? <CheckCircle size={16} /> : <WarningCircle size={16} />}{preview.compatible ? '预检通过，可以恢复' : '版本不兼容，已阻止恢复'}</div>
+    <div className="flex flex-wrap items-center gap-2 text-xs font-semibold" style={{ color: preview.compatible ? '#22c55e' : '#ef4444' }}>{preview.compatible ? <CheckCircle size={16} /> : <WarningCircle size={16} />}{preview.compatible ? '预检通过，可以恢复' : '版本不兼容，已阻止恢复'}{encrypted && <span className="rounded-full px-2 py-0.5 text-[8px]" style={{ color: 'var(--t-gold)', background: 'var(--ac-bg)' }}>已认证解密</span>}</div>
     <dl className="mt-4 grid grid-cols-2 gap-3 text-[10px]">
       <PreviewItem label="备份时间" value={formatDate(preview.createdAt)} />
       <PreviewItem label="数据库版本" value={`v${preview.schemaVersion} / 当前 v${preview.currentSchemaVersion}`} />
@@ -480,10 +567,27 @@ function StatusMessage({ tone, icon, text, action }: { tone: 'error' | 'success'
   return <div className="mb-5 flex items-start gap-2 rounded-xl p-4 text-xs leading-6" style={{ color, border: `1px solid ${color}55`, background: `${color}0f` }}><span className="mt-1 shrink-0">{icon}</span><span>{text} {action}</span></div>;
 }
 
-function resolveDownloadName(disposition: string | null): string {
+function resolveDownloadName(disposition: string | null, fallbackName: string): string {
   const encoded = disposition?.match(/filename\*=UTF-8''([^;]+)/i)?.[1];
-  if (!encoded) return '紫微命盘本地备份.ziweibackup';
-  try { return decodeURIComponent(encoded); } catch { return '紫微命盘本地备份.ziweibackup'; }
+  if (!encoded) return fallbackName;
+  try { return decodeURIComponent(encoded); } catch { return fallbackName; }
+}
+
+async function downloadResponse(response: Response, fallbackName: string): Promise<void> {
+  const blob = await response.blob();
+  const fileName = resolveDownloadName(response.headers.get('content-disposition'), fallbackName);
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement('a');
+  anchor.href = url;
+  anchor.download = fileName;
+  document.body.appendChild(anchor);
+  anchor.click();
+  anchor.remove();
+  URL.revokeObjectURL(url);
+}
+
+function isStrongEnoughPassword(value: string): boolean {
+  return [...value.normalize('NFC')].length >= ENCRYPTED_LOCAL_BACKUP_MIN_PASSWORD_LENGTH;
 }
 
 function formatBytes(value: number): string {

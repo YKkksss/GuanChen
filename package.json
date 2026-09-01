@@ -63,6 +63,7 @@
     "test:chat-scroll": "tsx scripts/test-chat-scroll.ts",
     "test:backups": "tsx scripts/test-local-backups.ts",
     "test:backup-lifecycle": "tsx scripts/test-backup-lifecycle.ts",
+    "test:encrypted-backups": "tsx scripts/test-encrypted-backups.ts",
     "test:chart-transfer": "tsx scripts/test-chart-transfer.ts",
     "start": "next start -p 30001",
     "build:cf": "npx @cloudflare/next-on-pages",

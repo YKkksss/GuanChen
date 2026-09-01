@@ -1,6 +1,10 @@
 export const LOCAL_BACKUP_KIND = 'ziwei-local-backup' as const;
 export const LOCAL_BACKUP_FORMAT_VERSION = 1 as const;
 export const LOCAL_BACKUP_EXTENSION = '.ziweibackup' as const;
+export const ENCRYPTED_LOCAL_BACKUP_KIND = 'ziwei-encrypted-local-backup' as const;
+export const ENCRYPTED_LOCAL_BACKUP_FORMAT_VERSION = 1 as const;
+export const ENCRYPTED_LOCAL_BACKUP_EXTENSION = '.ziweibackupx' as const;
+export const ENCRYPTED_LOCAL_BACKUP_MIN_PASSWORD_LENGTH = 10 as const;
 export const LOCAL_BACKUP_CONFIRMATION = '覆盖本地数据' as const;
 export const LOCAL_BACKUP_DELETE_CONFIRMATION = '删除本地备份' as const;
 
@@ -32,6 +36,38 @@ export type LocalBackupEnvelope = {
   inventory: {
     tableCounts: BackupTableCount[];
   };
+};
+
+export type EncryptedLocalBackupHeader = {
+  kind: typeof ENCRYPTED_LOCAL_BACKUP_KIND;
+  formatVersion: typeof ENCRYPTED_LOCAL_BACKUP_FORMAT_VERSION;
+  createdAt: string;
+  cipher: {
+    name: 'aes-256-gcm';
+    iv: string;
+    authTagLength: 16;
+  };
+  kdf: {
+    name: 'scrypt';
+    salt: string;
+    N: 32768;
+    r: 8;
+    p: 1;
+    keyLength: 32;
+  };
+  inner: {
+    kind: typeof LOCAL_BACKUP_KIND;
+    formatVersion: typeof LOCAL_BACKUP_FORMAT_VERSION;
+    fileName: string;
+    byteSize: number;
+    sha256: string;
+  };
+};
+
+export type DecryptedLocalBackup = {
+  buffer: Buffer;
+  fileName: string;
+  encryptedCreatedAt: string;
 };
 
 export type BackupContentSummary = {
