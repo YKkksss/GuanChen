@@ -25,8 +25,7 @@ import {
   SLUG_TO_STAR,
 } from '@/lib/seo/knowledge';
 
-// 允许动态参数：如果某个 star/topic 组合不在 generateStaticParams 列表中
-// 也允许运行时按需渲染，避免中文 URL 编码问题导致 404
+// 只允许访问确实有内容的专题；开源版会为十四主星生成基础总览页。
 export const dynamicParams = false;
 
 export async function generateStaticParams() {
@@ -35,16 +34,21 @@ export async function generateStaticParams() {
   return routes.map(r => ({ star: r.slug, topic: r.topic }));
 }
 
+function formatPalaceName(palaceName: string) {
+  return palaceName.endsWith('宫') ? palaceName : `${palaceName}宫`;
+}
+
 export async function generateMetadata({ params }: { params: Promise<{ star: string; topic: string }> }) {
   const { star: slug, topic } = await params;
   const star = SLUG_TO_STAR[slug];
   if (!star) return {};
   const data = getKnowledge(star, topic as TopicKey);
   if (!data.exists) return {};
+  const palaceName = formatPalaceName(data.palaceName);
 
-  const title = `${star}入${data.palaceName}宫 · ${data.topicLabel} · 倪海夏体系详解`;
+  const title = `${star}入${palaceName} · ${data.topicLabel} · 倪海夏体系详解`;
   const description = data.parsed.dingdiao
-    || `${star}入${data.palaceName}宫的紫微斗数解读 — 基于倪海夏《天纪》体系与古籍《紫微斗数全集》《骨髓赋》。`;
+    || `${star}入${palaceName}的紫微斗数解读 — 基于倪海夏《天纪》体系与古籍《紫微斗数全集》《骨髓赋》。`;
 
   return {
     title,
@@ -72,6 +76,7 @@ export default async function KnowledgePage({ params }: { params: Promise<{ star
   if (!star) notFound();
   const data = getKnowledge(star, topic as TopicKey);
   if (!data.exists) notFound();
+  const palaceName = formatPalaceName(data.palaceName);
 
   // 同主星其他 topic
   const otherTopicsForStar = ALL_TOPICS.filter(t => t !== topic && getKnowledge(star, t).exists);
@@ -82,7 +87,7 @@ export default async function KnowledgePage({ params }: { params: Promise<{ star
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Article',
-    headline: `${star}入${data.palaceName}宫 · ${data.topicLabel}`,
+    headline: `${star}入${palaceName} · ${data.topicLabel}`,
     description: data.parsed.dingdiao,
     author: { '@type': 'Organization', name: '紫微研究 · 倪海夏正宗' },
     publisher: {
@@ -124,7 +129,7 @@ export default async function KnowledgePage({ params }: { params: Promise<{ star
           <span style={{ margin: '0 8px' }}>/</span>
           <span>{star}</span>
           <span style={{ margin: '0 8px' }}>·</span>
-          <span style={{ color: 'var(--ac)' }}>{data.palaceName}宫</span>
+          <span style={{ color: 'var(--ac)' }}>{palaceName}</span>
         </nav>
 
         {/* 标题区 */}
@@ -133,7 +138,7 @@ export default async function KnowledgePage({ params }: { params: Promise<{ star
             {data.topicLabel} · 倪海夏体系详解
           </div>
           <h1 style={{ fontSize: 'clamp(28px, 5vw, 44px)', fontWeight: 700, color: 'var(--tx-0)', letterSpacing: '0.1em', lineHeight: 1.2 }}>
-            {star}入{data.palaceName}宫
+            {star}入{palaceName}
           </h1>
           {STAR_BRIEF_SEO[star] && (
             <p style={{ fontSize: '13px', color: 'var(--tx-2)', marginTop: '14px', lineHeight: 1.8 }}>
@@ -233,7 +238,7 @@ export default async function KnowledgePage({ params }: { params: Promise<{ star
         </Section>
 
         {/* 内链：同 topic 其他主星 */}
-        <Section title={`其他主星入${data.palaceName}宫的解读`} minimal>
+        <Section title={`其他主星入${palaceName}的解读`} minimal>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
             {otherStarsForTopic.slice(0, 13).map(s => (
               <Link

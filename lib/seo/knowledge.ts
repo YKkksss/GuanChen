@@ -8,6 +8,7 @@
 import { STAR_DB } from '@/lib/ziwei/db-analysis';
 import type { TopicKey } from '@/lib/ziwei/db-analysis';
 import { TOPIC_PALACE_NAME, TOPIC_LABEL } from '@/lib/ziwei/db-analysis';
+import { STAR_DESCRIPTIONS } from '@/lib/ziwei/constants';
 
 export const ALL_STARS = [
   '紫微', '天机', '太阳', '武曲', '天同', '廉贞', '天府',
@@ -108,6 +109,25 @@ function parseStarContent(content: string): ParsedContent {
   return out;
 }
 
+/**
+ * 开源版没有随仓库提供完整的 14 主星 × 13 宫位论断库。
+ * 主星入口至少应展示仓库内已有且可核对的基础星性，避免把用户送到 404。
+ */
+function buildStarOverviewFallback(star: string): string {
+  const brief = STAR_BRIEF_SEO[star];
+  const description = STAR_DESCRIPTIONS[star];
+  if (!brief || !description) return '';
+
+  return [
+    '**【一句话定调】**',
+    brief,
+    '',
+    '**【核心论断】**',
+    `${star}星的核心关键词为“${description.keywords}”，五行属${description.element}，星性为${description.nature}。`,
+    '阅读主星时，还需要结合所在宫位、庙旺利陷、同宫与会照星曜以及四化综合判断，不能仅凭单颗主星直接下结论。',
+  ].join('\n');
+}
+
 export interface KnowledgeData {
   star: string;
   topic: TopicKey;
@@ -120,7 +140,8 @@ export interface KnowledgeData {
 export function getKnowledge(star: string, topic: TopicKey): KnowledgeData {
   const profile = STAR_DB[star] as StarContent | undefined;
   const field = TOPIC_TO_FIELD[topic];
-  const content = profile && field ? (profile[field] as string | undefined) ?? '' : '';
+  const fullContent = profile && field ? (profile[field] as string | undefined) ?? '' : '';
+  const content = fullContent || (topic === 'overview' ? buildStarOverviewFallback(star) : '');
   return {
     star,
     topic,

@@ -4,17 +4,25 @@
  */
 
 import Link from 'next/link';
-import { ALL_STARS, ALL_TOPICS, getKnowledge, STAR_BRIEF_SEO, STAR_TO_SLUG } from '@/lib/seo/knowledge';
+import {
+  ALL_STARS,
+  ALL_TOPICS,
+  getAllKnowledgeRoutes,
+  getKnowledge,
+  STAR_BRIEF_SEO,
+  STAR_TO_SLUG,
+} from '@/lib/seo/knowledge';
 import { TOPIC_LABEL } from '@/lib/ziwei/db-analysis';
 
 export const metadata = {
-  title: '紫微斗数知识库 · 14 主星 × 13 宫位 · 倪海夏正宗体系',
-  description: '基于倪海夏《天纪》体系与古籍《紫微斗数全集》《骨髓赋》编纂的紫微斗数知识库。覆盖 14 主星在 13 个宫位的完整论断，含一句话定调、核心论断、命盘依据、经典出处。',
+  title: '紫微斗数知识库 · 十四主星基础知识',
+  description: '紫微斗数十四主星基础知识库，介绍紫微、天机、太阳等主星的星性、五行与核心关键词，并提供传统文化学习参考。',
   keywords: ['紫微斗数', '倪海夏', '倪海厦紫微斗数', '紫微斗数全集', '紫微斗数全书', '14 主星', '12 宫位'],
 };
 
 export default function KnowledgeHomePage() {
   const STAR_DESCRIPTIONS_QUICK = STAR_BRIEF_SEO;
+  const availableRoutes = getAllKnowledgeRoutes();
 
   return (
     <div style={{ background: 'var(--bg-page)', minHeight: '100vh' }}>
@@ -43,8 +51,8 @@ export default function KnowledgeHomePage() {
           紫微斗数知识库
         </h1>
         <p style={{ fontSize: '14px', color: 'var(--tx-2)', letterSpacing: '0.08em', maxWidth: '600px', margin: '0 auto', lineHeight: 1.7 }}>
-          14 主星 × 13 宫位 = <strong style={{ color: 'var(--ac)' }}>{ALL_STARS.length * ALL_TOPICS.length}</strong> 项专题<br />
-          基于倪海夏《天纪》体系编纂 · 含古籍引证
+          已收录 <strong style={{ color: 'var(--ac)' }}>{availableRoutes.length}</strong> 项可阅读专题<br />
+          十四主星基础星性 · 宫位专题随内容校订逐步开放
         </p>
       </div>
 
