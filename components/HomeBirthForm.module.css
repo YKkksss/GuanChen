@@ -3,6 +3,37 @@
   color: #2a241f;
 }
 
+.workbench {
+  --workbench-control-height: 44px;
+}
+
+.workbench .field,
+.workbench .fieldset {
+  margin-bottom: 14px;
+}
+
+.workbench .control {
+  min-height: var(--workbench-control-height);
+  border-radius: 5px;
+  background: rgba(255, 253, 248, 0.88);
+}
+
+.workbench .gender,
+.workbench .genderActive,
+.workbench .submit {
+  border-radius: 5px;
+}
+
+.workbench .submit {
+  min-height: 48px;
+  margin-top: 7px;
+  box-shadow: none;
+}
+
+.workbench .privacy {
+  margin-top: 9px;
+}
+
 .heading {
   margin-bottom: 26px;
 }

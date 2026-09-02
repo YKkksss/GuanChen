@@ -56,6 +56,7 @@ export interface ConversationListItem {
   type: ConversationType;
   title: string;
   status: ConversationStatus;
+  birthInfo: BirthInfo | null;
   messageCount: number;
   lastMessagePreview: string;
   createdAt: number;

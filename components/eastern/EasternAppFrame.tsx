@@ -19,6 +19,7 @@ import {
   House,
   List,
   Path,
+  SidebarSimple,
   UsersThree,
   X,
 } from '@phosphor-icons/react';
@@ -33,20 +34,40 @@ type NavItem = {
   matches: (pathname: string) => boolean;
 };
 
-const SIDE_NAV: NavItem[] = [
-  { label: '命盘', href: '/chart', icon: ChartDonut, matches: path => path === '/chart' || /^\/chart\/[^/]+$/.test(path) },
-  { label: '紫微合盘', href: '/heming', icon: UsersThree, matches: path => path.startsWith('/heming') },
-  { label: '八字分析', href: '/bazi', icon: GridFour, matches: path => path.startsWith('/bazi') },
-  { label: '生时校正', href: '/rectification', icon: ClockCounterClockwise, matches: path => path.startsWith('/rectification') },
-  { label: '年度报告', href: '/reviews', icon: FileText, matches: path => path.startsWith('/reviews') || path.includes('/reports') },
-  { label: '人生时间轴', href: '/chart', icon: Path, matches: path => path.includes('/timeline') || path.includes('/events') },
-  { label: '本地提醒', href: '/reminders', icon: Bell, matches: path => path.startsWith('/reminders') },
-  { label: '学习中心', href: '/learn', icon: GraduationCap, matches: path => path.startsWith('/learn') },
-  { label: '紫微知识库', href: '/knowledge', icon: BookOpenText, matches: path => path.startsWith('/knowledge') },
-  { label: '古籍原典', href: '/library', icon: Books, matches: path => path.startsWith('/library') },
-  { label: '练习中心', href: '/practice', icon: Exam, matches: path => path.startsWith('/practice') },
-  { label: '匿名案例', href: '/cases', icon: FolderOpen, matches: path => path.startsWith('/cases') },
-  { label: '数据保险箱', href: '/settings/data', icon: Database, matches: path => path.startsWith('/settings/data') },
+const SIDE_NAV: Array<{ label: string; items: NavItem[] }> = [
+  {
+    label: '命理工具',
+    items: [
+      { label: '命盘', href: '/chart', icon: ChartDonut, matches: path => path === '/chart' || /^\/chart\/[^/]+$/.test(path) },
+      { label: '紫微合盘', href: '/heming', icon: UsersThree, matches: path => path.startsWith('/heming') },
+      { label: '八字分析', href: '/bazi', icon: GridFour, matches: path => path.startsWith('/bazi') },
+      { label: '生时校正', href: '/rectification', icon: ClockCounterClockwise, matches: path => path.startsWith('/rectification') },
+    ],
+  },
+  {
+    label: '档案报告',
+    items: [
+      { label: '年度报告', href: '/reviews', icon: FileText, matches: path => path.startsWith('/reviews') || path.includes('/reports') },
+      { label: '人生时间轴', href: '/chart', icon: Path, matches: path => path.includes('/timeline') || path.includes('/events') },
+      { label: '本地提醒', href: '/reminders', icon: Bell, matches: path => path.startsWith('/reminders') },
+    ],
+  },
+  {
+    label: '学习研究',
+    items: [
+      { label: '学习中心', href: '/learn', icon: GraduationCap, matches: path => path.startsWith('/learn') },
+      { label: '紫微知识库', href: '/knowledge', icon: BookOpenText, matches: path => path.startsWith('/knowledge') },
+      { label: '古籍原典', href: '/library', icon: Books, matches: path => path.startsWith('/library') },
+      { label: '练习中心', href: '/practice', icon: Exam, matches: path => path.startsWith('/practice') },
+      { label: '匿名案例', href: '/cases', icon: FolderOpen, matches: path => path.startsWith('/cases') },
+    ],
+  },
+  {
+    label: '数据管理',
+    items: [
+      { label: '数据保险箱', href: '/settings/data', icon: Database, matches: path => path.startsWith('/settings/data') },
+    ],
+  },
 ];
 
 const TOP_NAV = [
@@ -57,13 +78,15 @@ const TOP_NAV = [
 ];
 
 function shouldUseFrame(pathname: string) {
-  if (pathname === '/' || pathname === '/chart' || /^\/chart\/[^/]+$/.test(pathname)) return false;
+  if (pathname === '/' || /^\/chart\/[^/]+$/.test(pathname)) return false;
+  if (pathname === '/chart') return true;
   return ['/heming', '/bazi', '/rectification', '/reminders', '/reviews', '/learn', '/knowledge', '/library', '/practice', '/cases', '/settings', '/chart/']
     .some(prefix => pathname.startsWith(prefix));
 }
 
 function shouldShowNotice(pathname: string) {
-  return pathname.startsWith('/heming')
+  return pathname === '/chart'
+    || pathname.startsWith('/heming')
     || pathname.startsWith('/bazi')
     || pathname.startsWith('/rectification')
     || /^\/chart\/[^/]+\/(reports|timeline|events)/.test(pathname);
@@ -81,10 +104,30 @@ function resolveSideHref(item: NavItem, pathname: string) {
 export default function EasternAppFrame({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   useEffect(() => {
     setMobileNavOpen(false);
   }, [pathname]);
+
+  useEffect(() => {
+    const tabletMedia = window.matchMedia('(min-width: 821px) and (max-width: 1240px)');
+    const syncCollapsedState = () => {
+      const stored = window.localStorage.getItem('ziwei-workbench-sidebar-collapsed') === 'true';
+      setSidebarCollapsed(tabletMedia.matches || stored);
+    };
+    syncCollapsedState();
+    tabletMedia.addEventListener('change', syncCollapsedState);
+    return () => tabletMedia.removeEventListener('change', syncCollapsedState);
+  }, []);
+
+  const toggleSidebar = () => {
+    setSidebarCollapsed(current => {
+      const next = !current;
+      window.localStorage.setItem('ziwei-workbench-sidebar-collapsed', String(next));
+      return next;
+    });
+  };
 
   useEffect(() => {
     if (!mobileNavOpen) return;
@@ -133,7 +176,7 @@ export default function EasternAppFrame({ children }: { children: React.ReactNod
         </div>
       </header>
 
-      <div className={styles.body}>
+      <div className={`${styles.body} ${sidebarCollapsed ? styles.bodyCollapsed : ''}`}>
         <button
           type="button"
           className={`${styles.sidebarBackdrop} ${mobileNavOpen ? styles.sidebarBackdropVisible : ''}`}
@@ -143,24 +186,35 @@ export default function EasternAppFrame({ children }: { children: React.ReactNod
         />
         <aside
           id="eastern-mobile-navigation"
-          className={`${styles.sidebar} ${mobileNavOpen ? styles.sidebarOpen : ''}`}
+          className={`${styles.sidebar} ${sidebarCollapsed ? styles.sidebarCollapsed : ''} ${mobileNavOpen ? styles.sidebarOpen : ''}`}
           aria-label="东方书院功能目录"
         >
-          <div className={styles.sideBrand}>紫微命盘</div>
+          <div className={styles.sideBrand}>功能目录</div>
+          <button type="button" className={styles.sidebarToggle} onClick={toggleSidebar} aria-expanded={!sidebarCollapsed} title={sidebarCollapsed ? '展开侧栏' : '收起侧栏'}>
+            <SidebarSimple size={18} weight={sidebarCollapsed ? 'fill' : 'regular'} aria-hidden="true" />
+            <span>{sidebarCollapsed ? '展开侧栏' : '收起侧栏'}</span>
+          </button>
           <nav>
-            {SIDE_NAV.map(item => {
-              const IconComponent = item.icon;
-              const active = item.matches(pathname);
-              const href = resolveSideHref(item, pathname);
-              return (
-                <Link key={`${item.href}-${item.label}`} href={href} className={active ? styles.activeSide : ''} aria-current={active ? 'page' : undefined} onClick={() => setMobileNavOpen(false)}>
-                  <IconComponent size={16} weight={active ? 'fill' : 'regular'} aria-hidden="true" />
-                  <span>{item.label}</span>
-                </Link>
-              );
-            })}
+            {SIDE_NAV.map(group => (
+              <section key={group.label} className={styles.navGroup} aria-label={group.label}>
+                <h2>{group.label}</h2>
+                <div>
+                  {group.items.map(item => {
+                    const IconComponent = item.icon;
+                    const active = item.matches(pathname);
+                    const href = resolveSideHref(item, pathname);
+                    return (
+                      <Link key={`${item.href}-${item.label}`} href={href} title={sidebarCollapsed ? item.label : undefined} className={active ? styles.activeSide : ''} aria-current={active ? 'page' : undefined} onClick={() => setMobileNavOpen(false)}>
+                        <IconComponent size={17} weight={active ? 'fill' : 'regular'} aria-hidden="true" />
+                        <span>{item.label}</span>
+                      </Link>
+                    );
+                  })}
+                </div>
+              </section>
+            ))}
           </nav>
-          <Link href="/" className={styles.collapseHint}>返回首页</Link>
+          <Link href="/" className={styles.collapseHint}><House size={16} aria-hidden="true" /><span>返回首页</span></Link>
         </aside>
 
         <div className={styles.content}>

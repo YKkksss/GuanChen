@@ -1,5 +1,5 @@
-import ChartWorkspace from '@/components/ChartWorkspace';
+import ChartWorkbenchLanding from '@/components/ChartWorkbenchLanding';
 
 export default function ChartPage() {
-  return <ChartWorkspace />;
+  return <ChartWorkbenchLanding />;
 }

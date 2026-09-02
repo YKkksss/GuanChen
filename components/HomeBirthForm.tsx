@@ -16,6 +16,7 @@ import styles from './HomeBirthForm.module.css';
 interface HomeBirthFormProps {
   loading?: boolean;
   error?: string;
+  variant?: 'home' | 'workbench';
   onSubmit: (birthInfo: BirthInfo) => void;
 }
 
@@ -61,7 +62,7 @@ function calculateTrueSolarBranch(clockHour: number, clockMinute: number, longit
   return Math.floor((solarMinutes - 60) / 120) + 1;
 }
 
-export default function HomeBirthForm({ loading = false, error = '', onSubmit }: HomeBirthFormProps) {
+export default function HomeBirthForm({ loading = false, error = '', variant = 'home', onSubmit }: HomeBirthFormProps) {
   const [form, setForm] = useState<FormState>({
     name: '',
     gender: 'male',
@@ -176,12 +177,14 @@ export default function HomeBirthForm({ loading = false, error = '', onSubmit }:
   };
 
   return (
-    <form id="home-chart-form" className={styles.form} onSubmit={submit} noValidate>
-      <div className={styles.heading}>
-        <p>建立命档</p>
-        <h2>开始你的命盘</h2>
-        <span>填写准确出生信息，生成专属命盘</span>
-      </div>
+    <form id="home-chart-form" className={`${styles.form} ${variant === 'workbench' ? styles.workbench : ''}`} onSubmit={submit} noValidate>
+      {variant === 'home' && (
+        <div className={styles.heading}>
+          <p>建立命档</p>
+          <h2>开始你的命盘</h2>
+          <span>填写准确出生信息，生成专属命盘</span>
+        </div>
+      )}
 
       <div className={styles.field}>
         <label htmlFor="home-name">姓名 <span>选填</span></label>

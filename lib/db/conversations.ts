@@ -178,7 +178,7 @@ export function listConversations(input: {
 
   const rows = db.prepare(`
     SELECT
-      c.id, c.type, c.title, c.status, c.created_at, c.updated_at,
+      c.id, c.type, c.title, c.status, c.birth_info_json, c.created_at, c.updated_at,
       COUNT(m.id) AS message_count,
       COALESCE((
         SELECT content
@@ -199,6 +199,7 @@ export function listConversations(input: {
     type: ConversationType;
     title: string;
     status: ConversationStatus;
+    birth_info_json: string | null;
     created_at: number;
     updated_at: number;
     message_count: number;
@@ -210,6 +211,7 @@ export function listConversations(input: {
     type: row.type,
     title: row.title,
     status: row.status,
+    birthInfo: parseJson<BirthInfo>(row.birth_info_json),
     messageCount: row.message_count,
     lastMessagePreview: row.last_message_preview.slice(0, 120),
     createdAt: row.created_at,

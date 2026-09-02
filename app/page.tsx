@@ -116,7 +116,7 @@ export default function HomePage() {
             <Link href="/rectification">校时</Link>
             <span className={styles.actionDivider} aria-hidden="true" />
             <Link href="/bazi">八字</Link>
-            <a href="#home-chart-form" className={styles.headerCta}>开始起盘</a>
+            <Link href="/chart" className={styles.headerCta}>开始起盘</Link>
             <button
               type="button"
               className={styles.menuButton}
