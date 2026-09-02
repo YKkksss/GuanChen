@@ -804,6 +804,19 @@ body.eastern-home-body {
 
 /* 对话历史 */
 .eastern-history {
+  /*
+   * ConversationHistory 也会被合盘、流年等独立工作台复用。
+   * 这些页面不一定处在 .eastern-workbench 作用域内，因此组件需要自带
+   * 最小颜色令牌，避免 var(--ew-*) 失效后按钮背景和文字一起消失。
+   */
+  --ew-paper: #fbf8f1;
+  --ew-ink: #2a241f;
+  --ew-muted: #8b8175;
+  --ew-line: #ded3c2;
+  --ew-line-soft: #ebe3d6;
+  --ew-cinnabar: #a43f31;
+  --ew-cinnabar-soft: rgba(164, 63, 49, 0.09);
+
   min-width: 0;
   min-height: 0;
   display: flex;
@@ -842,6 +855,14 @@ body.eastern-home-body {
   font-size: 11px;
 }
 .eastern-new-chart:hover { background: #91372b; }
+.eastern-new-chart:focus-visible,
+.eastern-history-toggle:focus-visible,
+.eastern-history-icon:focus-visible,
+.eastern-history-open:focus-visible,
+.eastern-history-item-actions button:focus-visible {
+  outline: 2px solid rgba(164, 63, 49, 0.42);
+  outline-offset: 2px;
+}
 .eastern-history-toggle {
   width: 36px;
   height: 36px;
