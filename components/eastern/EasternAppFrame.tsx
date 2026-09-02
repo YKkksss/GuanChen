@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import {
   Bell,
   BookOpenText,
@@ -20,6 +20,7 @@ import {
   List,
   Path,
   SidebarSimple,
+  SpinnerGap,
   UsersThree,
   X,
 } from '@phosphor-icons/react';
@@ -77,6 +78,12 @@ const TOP_NAV = [
   { label: '案例', href: '/cases', matches: (path: string) => path.startsWith('/cases') },
 ];
 
+const DEV_WARMUP_ROUTES = Array.from(new Set([
+  ...TOP_NAV.map(item => item.href),
+  ...SIDE_NAV.flatMap(group => group.items.map(item => item.href)),
+]));
+let devWarmupStarted = false;
+
 function shouldUseFrame(pathname: string) {
   if (pathname === '/' || /^\/chart\/[^/]+$/.test(pathname)) return false;
   if (pathname === '/chart') return true;
@@ -102,13 +109,48 @@ function resolveSideHref(item: NavItem, pathname: string) {
 }
 
 export default function EasternAppFrame({ children }: { children: React.ReactNode }) {
+  const router = useRouter();
   const pathname = usePathname();
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [pendingHref, setPendingHref] = useState<string | null>(null);
 
   useEffect(() => {
     setMobileNavOpen(false);
+    setPendingHref(null);
   }, [pathname]);
+
+  useEffect(() => {
+    if (!pendingHref) return;
+    const timeout = window.setTimeout(() => setPendingHref(null), 12_000);
+    return () => window.clearTimeout(timeout);
+  }, [pendingHref]);
+
+  useEffect(() => {
+    if (process.env.NODE_ENV !== 'development' || devWarmupStarted) return;
+    devWarmupStarted = true;
+
+    const controller = new AbortController();
+    const initialTimer = window.setTimeout(() => {
+      void (async () => {
+        for (const href of DEV_WARMUP_ROUTES) {
+          if (href === window.location.pathname) continue;
+          try {
+            // 开发模式不会自动预取视口内的 Link；顺序请求页面可提前完成路由编译，
+            // 且不会像并发预热那样一次占满本地开发服务器。
+            await fetch(href, { cache: 'no-store', signal: controller.signal });
+          } catch {
+            if (controller.signal.aborted) return;
+          }
+        }
+      })();
+    }, 700);
+
+    return () => {
+      window.clearTimeout(initialTimer);
+      controller.abort();
+    };
+  }, []);
 
   useEffect(() => {
     const tabletMedia = window.matchMedia('(min-width: 821px) and (max-width: 1240px)');
@@ -127,6 +169,15 @@ export default function EasternAppFrame({ children }: { children: React.ReactNod
       window.localStorage.setItem('ziwei-workbench-sidebar-collapsed', String(next));
       return next;
     });
+  };
+
+  const beginNavigation = (href: string) => {
+    setMobileNavOpen(false);
+    if (href !== pathname) setPendingHref(href);
+  };
+
+  const warmRoute = (href: string) => {
+    if (href !== pathname) router.prefetch(href);
   };
 
   useEffect(() => {
@@ -156,9 +207,23 @@ export default function EasternAppFrame({ children }: { children: React.ReactNod
           </span>
         </Link>
         <nav className={styles.topnav} aria-label="主要功能">
-          {TOP_NAV.map(item => (
-            <Link key={item.href} href={item.href} className={item.matches(pathname) ? styles.activeTop : ''}>{item.label}</Link>
-          ))}
+          {TOP_NAV.map(item => {
+            const pending = pendingHref === item.href;
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                aria-busy={pending || undefined}
+                className={`${item.matches(pathname) ? styles.activeTop : ''} ${pending ? styles.pendingTop : ''}`}
+                onFocus={() => warmRoute(item.href)}
+                onTouchStart={() => warmRoute(item.href)}
+                onNavigate={() => beginNavigation(item.href)}
+              >
+                {pending && <SpinnerGap className={styles.pendingSpinner} size={13} aria-hidden="true" />}
+                {item.label}
+              </Link>
+            );
+          })}
         </nav>
         <div className={styles.topbarActions}>
           <Link className={styles.homeLink} href="/"><House size={16} aria-hidden="true" /><span>首页</span></Link>
@@ -175,6 +240,12 @@ export default function EasternAppFrame({ children }: { children: React.ReactNod
           </button>
         </div>
       </header>
+
+      {pendingHref && (
+        <div className={styles.navigationProgress} role="status" aria-live="polite">
+          <span className={styles.srOnly}>正在打开新页面</span>
+        </div>
+      )}
 
       <div className={`${styles.body} ${sidebarCollapsed ? styles.bodyCollapsed : ''}`}>
         <button
@@ -203,9 +274,22 @@ export default function EasternAppFrame({ children }: { children: React.ReactNod
                     const IconComponent = item.icon;
                     const active = item.matches(pathname);
                     const href = resolveSideHref(item, pathname);
+                    const pending = pendingHref === href;
                     return (
-                      <Link key={`${item.href}-${item.label}`} href={href} title={sidebarCollapsed ? item.label : undefined} className={active ? styles.activeSide : ''} aria-current={active ? 'page' : undefined} onClick={() => setMobileNavOpen(false)}>
-                        <IconComponent size={17} weight={active ? 'fill' : 'regular'} aria-hidden="true" />
+                      <Link
+                        key={`${item.href}-${item.label}`}
+                        href={href}
+                        title={sidebarCollapsed ? item.label : undefined}
+                        className={`${active ? styles.activeSide : ''} ${pending ? styles.pendingSide : ''}`}
+                        aria-current={active ? 'page' : undefined}
+                        aria-busy={pending || undefined}
+                        onFocus={() => warmRoute(href)}
+                        onTouchStart={() => warmRoute(href)}
+                        onNavigate={() => beginNavigation(href)}
+                      >
+                        {pending
+                          ? <SpinnerGap className={styles.pendingSpinner} size={17} aria-hidden="true" />
+                          : <IconComponent size={17} weight={active ? 'fill' : 'regular'} aria-hidden="true" />}
                         <span>{item.label}</span>
                       </Link>
                     );

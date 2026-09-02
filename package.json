@@ -3,8 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev -H 0.0.0.0 -p 30001",
-    "dev:local": "next dev -H 127.0.0.1 -p 30001",
+    "dev": "next dev --turbopack -H 0.0.0.0 -p 30001",
+    "dev:local": "next dev --turbopack -H 127.0.0.1 -p 30001",
+    "dev:webpack": "next dev -H 0.0.0.0 -p 30001",
     "build": "next build",
     "test:conversations": "tsx scripts/test-conversations.ts",
     "test:context": "tsx scripts/test-context-management.ts",
