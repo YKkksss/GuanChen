@@ -230,6 +230,13 @@
   font-size: 9px;
 }
 
+.timePolicy {
+  margin: 7px 1px 0;
+  color: #9d342a;
+  font-size: 10px;
+  line-height: 1.65;
+}
+
 .timeControl {
   gap: 7px;
 }

@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import type { BirthInfo } from '@/lib/ziwei/types';
 import { SHICHEN } from '@/lib/ziwei/constants';
 import { PROVINCES } from '@/lib/ziwei/cities';
+import { calcTrueSolarBranch, formToBirthInfo } from '@/lib/ziwei/share';
 
 export interface BirthFormState {
   name: string;
@@ -29,15 +30,6 @@ interface BirthFormProps {
 }
 
 const SHICHEN_NAMES = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥'];
-
-/** 根据北京时间 + 经度计算真太阳时时辰支 (0-11) */
-function calcTrueSolarBranch(clockHour: number, clockMinute: number, longitude: number): number {
-  const clockMins = clockHour * 60 + clockMinute;
-  const offset = (longitude - 120) * 4;
-  const solar = ((clockMins + offset) % 1440 + 1440) % 1440;
-  if (solar >= 1380 || solar < 60) return 0;
-  return Math.floor((solar - 60) / 120) + 1;
-}
 
 /** 检查日期是否合法 */
 function isValidDate(y: number, m: number, d: number): boolean {
@@ -141,7 +133,7 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
     setTouched({ year: true, month: true, day: true });
     if (hasError) return;
     onFormSave?.({ ...form });
-    onSubmit({ year: y, month: m, day: d, hour: branch, gender: form.gender, name: form.name || undefined, province: form.province || undefined, city: form.city || undefined, longitude: form.province ? form.longitude : undefined });
+    onSubmit(formToBirthInfo({ ...form, year: String(y), month: String(m), day: String(d) }));
   };
 
   // ─── 样式变量 ────────────────────────────────────────────
@@ -383,9 +375,11 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
             style={{ width: '14px', height: '14px', borderRadius: '4px', cursor: 'pointer' }}
           />
           <span style={{ fontSize: '10px', color: '#8d7e72' }}>
-            不知道出生时间，以子时（23:00–01:00）起盘
+            不知道出生时间，暂按子时试排，并保留“时辰未知”标记
           </span>
         </label>
+        {form.unknownTime && <p role="status" style={{ marginTop: '7px', color: '#9d2821', fontSize: '10px', lineHeight: 1.6 }}>试排结果仅用于初步查看，建议结合生时校正后再作深入分析。</p>}
+        {!form.unknownTime && form.clockHour === '23' && <p style={{ marginTop: '7px', color: '#9d2821', fontSize: '10px', lineHeight: 1.6 }}>晚子时采用 23:00 起按次日排盘的统一口径。</p>}
       </div>
 
       {/* ── 性别 ── */}

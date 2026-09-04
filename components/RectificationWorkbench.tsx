@@ -208,13 +208,16 @@ export default function RectificationWorkbench({ sessionId }: { sessionId: strin
     });
   };
 
-  const removeEvent = (eventId: string) => runAction(`delete-${eventId}`, async () => {
+  const removeEvent = (eventId: string, title: string) => {
+    if (!window.confirm(`确定删除事件“${title}”吗？删除后会影响候选时辰评分和后续报告，且当前页面无法撤销。`)) return;
+    void runAction(`delete-${eventId}`, async () => {
     const response = await fetch(`/api/rectifications/${sessionId}/events/${eventId}`, { method: 'DELETE' });
     if (!response.ok) {
       const result = await response.json() as { error?: string };
       throw new Error(result.error || '删除事件失败');
     }
-  });
+    });
+  };
 
   const selectCandidate = () => runAction('selection', async () => {
     if (!evaluation || !data?.evaluationState.isCurrent) throw new Error('请先运行或更新评估');
@@ -377,7 +380,7 @@ export default function RectificationWorkbench({ sessionId }: { sessionId: strin
                       candidateEvaluations={candidateEvaluations}
                       expandedCell={expandedCell}
                       onExpand={setExpandedCell}
-                      onRemove={() => removeEvent(event.id)}
+                      onRemove={() => removeEvent(event.id, event.snapshot.title)}
                       deleting={busy === `delete-${event.id}`}
                     />
                   ))}

@@ -1,5 +1,19 @@
-import type { BirthFormState } from '@/components/BirthForm';
 import type { BirthInfo } from './types';
+
+/** 所有紫微起盘入口共享的原始出生信息结构。 */
+export interface ZiweiBirthFormState {
+  name: string;
+  year: string;
+  month: string;
+  day: string;
+  clockHour: string;
+  clockMinute: string;
+  unknownTime: boolean;
+  province: string;
+  city: string;
+  longitude: number;
+  gender: 'male' | 'female';
+}
 
 /** 根据北京时间 + 经度计算真太阳时时辰支 (0-11) */
 export function calcTrueSolarBranch(clockHour: number, clockMinute: number, longitude: number): number {
@@ -10,14 +24,14 @@ export function calcTrueSolarBranch(clockHour: number, clockMinute: number, long
   return Math.floor((solar - 60) / 120) + 1;
 }
 
-/** BirthFormState → BirthInfo
+/** 表单出生信息 → BirthInfo
  *
  * 子时规则（倪海厦体系/三合派标准）：
  * · 23:00-23:59 = 晚子时，**按次日**排盘（日期 +1）
  * · 00:00-00:59 = 早子时，按本日排盘
  * 这与「时辰支同为子(0)」并不冲突——子时分早晚两段，需要在日期上区分。
  */
-export function formToBirthInfo(form: BirthFormState): BirthInfo {
+export function formToBirthInfo(form: ZiweiBirthFormState): BirthInfo {
   let y = parseInt(form.year) || 0;
   let m = parseInt(form.month) || 0;
   let d = parseInt(form.day) || 0;
@@ -48,8 +62,8 @@ export function formToBirthInfo(form: BirthFormState): BirthInfo {
   };
 }
 
-/** BirthFormState → URLSearchParams（用于分享链接） */
-export function formToSearchParams(form: BirthFormState): URLSearchParams {
+/** 表单出生信息 → URLSearchParams（用于分享链接） */
+export function formToSearchParams(form: ZiweiBirthFormState): URLSearchParams {
   const p = new URLSearchParams();
   if (form.name) p.set('n', form.name);
   p.set('y', form.year);
@@ -68,8 +82,8 @@ export function formToSearchParams(form: BirthFormState): URLSearchParams {
   return p;
 }
 
-/** URLSearchParams → Partial<BirthFormState>，不完整时返回 null */
-export function searchParamsToForm(params: URLSearchParams): Partial<BirthFormState> | null {
+/** URLSearchParams → 表单出生信息，不完整时返回 null */
+export function searchParamsToForm(params: URLSearchParams): Partial<ZiweiBirthFormState> | null {
   const year = params.get('y');
   const month = params.get('m');
   const day = params.get('d');

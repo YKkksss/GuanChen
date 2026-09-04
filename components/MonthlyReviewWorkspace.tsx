@@ -12,6 +12,7 @@ import type {
   MonthlyReviewMatch,
   MonthlyReviewScores,
 } from '@/lib/monthly-reviews/types';
+import { useUnsavedChanges } from '@/hooks/useUnsavedChanges';
 
 const DIMENSIONS: Array<{ key: MonthlyReviewDimension; label: string; hint: string }> = [
   { key: 'career', label: '事业', hint: '工作、学业与执行状态' },
@@ -48,6 +49,10 @@ export default function MonthlyReviewWorkspace({
   const [dirty, setDirty] = useState(false);
   const [error, setError] = useState('');
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const confirmDiscardDraft = useUnsavedChanges(
+    dirty,
+    '当前复盘有未保存的修改，确定切换吗？未保存内容将被放弃。',
+  );
 
   const loadData = useCallback(async () => {
     setLoading(true);
@@ -81,6 +86,7 @@ export default function MonthlyReviewWorkspace({
   );
 
   async function startReview() {
+    if (!confirmDiscardDraft()) return;
     if (!conversationId) { setError('请先选择需要复盘的单人命盘'); return; }
     setSaving(true);
     setError('');
@@ -104,6 +110,13 @@ export default function MonthlyReviewWorkspace({
     } finally {
       setSaving(false);
     }
+  }
+
+  function openReview(review: MonthlyReview) {
+    if (active?.id === review.id) return;
+    if (!confirmDiscardDraft()) return;
+    setActive(review);
+    setDirty(false);
   }
 
   function updateActive(patch: Partial<MonthlyReview>) {
@@ -187,8 +200,8 @@ export default function MonthlyReviewWorkspace({
       <header className="mb-7 flex flex-wrap items-start justify-between gap-4">
         <div>
           <div className="flex items-center gap-4 text-xs" style={{ color: 'var(--t-faint)' }}>
-            <Link href="/reminders">← 返回提醒中心</Link>
-            <Link href="/">首页</Link>
+            <Link href="/reminders" onClick={event => { if (!confirmDiscardDraft()) event.preventDefault(); }}>← 返回提醒中心</Link>
+            <Link href="/" onClick={event => { if (!confirmDiscardDraft()) event.preventDefault(); }}>首页</Link>
           </div>
           <div className="mt-5 text-[10px] font-medium tracking-[.28em]" style={{ color: 'var(--t-gold)' }}>MONTHLY REALITY REVIEW</div>
           <h1 className="mt-2 text-2xl font-semibold sm:text-3xl" style={{ color: 'var(--t-text)' }}>月度复盘</h1>
@@ -212,7 +225,7 @@ export default function MonthlyReviewWorkspace({
       <div className="grid gap-6 lg:grid-cols-[290px_minmax(0,1fr)]">
         <aside>
           <div className="mb-3 flex items-end justify-between"><div><h2 className="text-sm font-semibold" style={{ color: 'var(--t-text)' }}>复盘记录</h2><p className="mt-1 text-[9px]" style={{ color: 'var(--t-faint)' }}>每个命盘每月一份</p></div><span className="text-[9px]" style={{ color: 'var(--t-gold)' }}>{reviews.length} 份</span></div>
-          {loading ? <PanelState text="正在加载复盘…" /> : !reviews.length ? <PanelState text="还没有复盘记录。" /> : <div className="space-y-2">{reviews.map(review => <ReviewListItem key={review.id} review={review} active={active?.id === review.id} conversationTitle={conversationNames.get(review.conversationId) || '未知命盘'} onOpen={() => { setActive(review); setDirty(false); }} onDelete={() => void deleteDraft(review)} />)}</div>}
+          {loading ? <PanelState text="正在加载复盘…" /> : !reviews.length ? <PanelState text="还没有复盘记录。" /> : <div className="space-y-2">{reviews.map(review => <ReviewListItem key={review.id} review={review} active={active?.id === review.id} conversationTitle={conversationNames.get(review.conversationId) || '未知命盘'} onOpen={() => openReview(review)} onDelete={() => void deleteDraft(review)} />)}</div>}
         </aside>
 
         <section className="min-w-0">

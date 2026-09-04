@@ -5,6 +5,7 @@ import { Brain, ChatCircleDots, PaperPlaneTilt, Sparkle } from '@phosphor-icons/
 import { isHiddenSource, type ConversationMessage } from '@/lib/conversations/types';
 import type { ZiweiChart, Palace } from '@/lib/ziwei/types';
 import { useSmartChatScroll } from '@/lib/ui/use-smart-chat-scroll';
+import { shouldSendChatMessage } from '@/lib/client/chat-keyboard';
 import ChatScrollToLatestButton from './ChatScrollToLatestButton';
 import ContextMemoryPanel from './ContextMemoryPanel';
 import LifeEventCandidateInbox from './LifeEventCandidateInbox';
@@ -546,7 +547,7 @@ ${selectedSiHua.starName}化${selectedSiHua.siHua}落在【${palaceName}】，�
             value={input}
             onChange={e => setInput(e.target.value)}
             onKeyDown={e => {
-              if (e.key === 'Enter' && !e.shiftKey) {
+              if (shouldSendChatMessage(e)) {
                 e.preventDefault();
                 handleSend();
               }

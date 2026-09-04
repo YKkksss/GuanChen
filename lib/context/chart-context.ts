@@ -9,7 +9,8 @@ export function buildCompactChartBase(chart: ZiweiChart): string {
   const base = {
     birth: {
       date: `${birth.year}-${pad(birth.month)}-${pad(birth.day)}`,
-      hourBranch: BRANCHES[birth.hour] ?? birth.hour,
+      hourBranch: birth.unknownTime ? null : BRANCHES[birth.hour] ?? birth.hour,
+      timeConfidence: birth.unknownTime ? 'unknown' : 'known',
       gender: birth.gender,
     },
     lunar: {

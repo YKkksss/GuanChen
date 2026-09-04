@@ -12,6 +12,7 @@ import {
   List,
   SidebarSimple,
   TrendUp,
+  WarningCircle,
   X,
 } from '@phosphor-icons/react';
 import BirthForm from '@/components/BirthForm';
@@ -40,6 +41,7 @@ export default function ChartWorkspace({ conversationId }: ChartWorkspaceProps) 
   const [learningMode, setLearningMode] = useState(false);
   const [mobilePane, setMobilePane] = useState<'chart' | 'insight'>('chart');
   const [mobileActionsOpen, setMobileActionsOpen] = useState(false);
+  const [learningNoteDirty, setLearningNoteDirty] = useState(false);
 
   useEffect(() => {
     const compactMedia = window.matchMedia('(max-width: 1080px)');
@@ -147,11 +149,18 @@ export default function ChartWorkspace({ conversationId }: ChartWorkspaceProps) 
   };
 
   const toggleLearningMode = () => {
+    if (learningMode && learningNoteDirty && !window.confirm('当前学习笔记尚未正式保存。确定退出学习模式吗？草稿仍会暂存在这个浏览器中。')) return;
     setLearningMode(current => {
       const next = !current;
       if (next && chart) setSelectedPalace(chart.palaces.find(palace => palace.branch === chart.mingGongBranch) ?? null);
       return next;
     });
+  };
+
+  const selectPalace = (palace: Palace | null) => {
+    if (learningMode && learningNoteDirty && palace?.branch !== selectedPalace?.branch
+      && !window.confirm('当前学习笔记尚未正式保存。确定切换宫位吗？草稿仍会暂存在这个浏览器中。')) return;
+    setSelectedPalace(palace);
   };
 
   const navigateFromActions = (href: string) => {
@@ -264,6 +273,12 @@ export default function ChartWorkspace({ conversationId }: ChartWorkspaceProps) 
               <ResultNotice compact />
             </div>
           )}
+          {chart?.birthInfo.unknownTime && conversationId && (
+            <div role="status" className="mb-3 flex flex-wrap items-center justify-between gap-3 rounded-lg border px-3 py-2.5 text-[11px] leading-5" style={{ color: '#9d342a', borderColor: 'rgba(164,63,49,.28)', background: 'rgba(164,63,49,.06)' }}>
+              <span className="flex min-w-0 items-start gap-2"><WarningCircle className="mt-0.5 shrink-0" size={15} aria-hidden="true" />出生时辰未知，当前命盘按子时试排；与时辰相关的解读已降低置信度。</span>
+              <button type="button" onClick={() => router.push(`/rectification?conversationId=${conversationId}`)} className="shrink-0 font-medium underline underline-offset-2">前往生时校正</button>
+            </div>
+          )}
           {loading && (
             <div className="eastern-state-panel">
               正在恢复命盘与聊天记录…
@@ -314,14 +329,18 @@ export default function ChartWorkspace({ conversationId }: ChartWorkspaceProps) 
               </div>
               <div className={`eastern-content-grid ${learningMode ? 'is-learning-mode' : ''}`} data-mobile-pane={mobilePane}>
                 <section className="eastern-chart-region" aria-label="紫微斗数命盘">
-                  <ChartBoard chart={chart} selectedBranch={selectedPalace?.branch ?? null} onPalaceSelect={setSelectedPalace} />
+                  <ChartBoard chart={chart} selectedBranch={selectedPalace?.branch ?? null} onPalaceSelect={selectPalace} />
                 </section>
                 <aside className="eastern-insight-region" aria-label={learningMode ? '学习解读' : 'AI 命理解读'}>
                   {learningMode && selectedPalace ? (
                     <LearningPanel
                       conversationId={conversationId}
                       branch={selectedPalace.branch}
-                      onNavigate={branch => setSelectedPalace(chart.palaces.find(palace => palace.branch === branch) ?? null)}
+                      onNavigate={branch => {
+                        const palace = chart.palaces.find(item => item.branch === branch);
+                        if (palace) selectPalace(palace);
+                      }}
+                      onDirtyChange={setLearningNoteDirty}
                     />
                   ) : (
                     <InsightPanel

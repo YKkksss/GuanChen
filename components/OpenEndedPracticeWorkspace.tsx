@@ -31,6 +31,23 @@ export default function OpenEndedPracticeWorkspace() {
   const [submitting, setSubmitting] = useState(false);
   const [retrying, setRetrying] = useState(false);
   const [error, setError] = useState('');
+  const [answerDirty, setAnswerDirty] = useState(false);
+
+  const draftKey = useMemo(
+    () => conversationId ? `ziwei-open-practice-draft:${conversationId}:${templateId}` : '',
+    [conversationId, templateId],
+  );
+
+  useEffect(() => {
+    if (!draftKey) {
+      setAnswer('');
+      setAnswerDirty(false);
+      return;
+    }
+    const draft = window.localStorage.getItem(draftKey);
+    setAnswer(draft ?? '');
+    setAnswerDirty(draft !== null);
+  }, [draftKey]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -56,7 +73,6 @@ export default function OpenEndedPracticeWorkspace() {
     setExercise(null);
     setCurrentAttempt(null);
     setAttempts([]);
-    setAnswer('');
     setParentAttemptId(null);
     try {
       const response = await fetch(`/api/learning/practice/open-ended?conversationId=${encodeURIComponent(conversationId)}&templateId=${encodeURIComponent(templateId)}`, { cache: 'no-store' });
@@ -84,6 +100,8 @@ export default function OpenEndedPracticeWorkspace() {
       setCurrentAttempt(data.attempt);
       setAttempts(current => [data.attempt!, ...current.filter(item => item.id !== data.attempt!.id)]);
       setParentAttemptId(null);
+      setAnswerDirty(false);
+      if (draftKey) window.localStorage.removeItem(draftKey);
       window.scrollTo({ top: document.body.scrollHeight * 0.45, behavior: 'smooth' });
     } catch (submitError) {
       setError(submitError instanceof Error ? submitError.message : '开放式练习提交失败');
@@ -110,9 +128,17 @@ export default function OpenEndedPracticeWorkspace() {
 
   const revise = (attempt: LearningOpenPracticeAttempt) => {
     setAnswer(attempt.answer);
+    setAnswerDirty(false);
+    if (draftKey) window.localStorage.removeItem(draftKey);
     setParentAttemptId(attempt.id);
     setCurrentAttempt(attempt);
     window.scrollTo({ top: 360, behavior: 'smooth' });
+  };
+
+  const updateAnswer = (value: string) => {
+    setAnswer(value);
+    setAnswerDirty(true);
+    if (draftKey) window.localStorage.setItem(draftKey, value);
   };
 
   const evidenceById = useMemo(() => new Map(exercise?.evidencePoints.map(item => [item.id, item]) ?? []), [exercise]);
@@ -171,7 +197,8 @@ export default function OpenEndedPracticeWorkspace() {
                   <span className="text-[10px]" style={{ color: answer.replace(/\s+/g, '').length < 120 ? 'var(--t-faint)' : '#22c55e' }}>{answer.replace(/\s+/g, '').length} 字符</span>
                 </div>
                 {parentAttemptId && <div className="mt-3 rounded-lg px-3 py-2 text-[10px]" style={{ color: 'var(--t-gold)', background: 'var(--ac-bg)' }}>正在基于上一版答案修订；提交后会保留版本关联。</div>}
-                <textarea value={answer} onChange={event => setAnswer(event.target.value)} rows={15} placeholder="建议按“盘面事实 → 结构关系 → 传统解释 → 现实验证边界”的顺序作答……" className="mt-4 w-full resize-y rounded-xl px-4 py-4 text-xs leading-7 outline-none" style={{ color: 'var(--t-text)', background: 'var(--t-card)', border: '1px solid var(--t-border)' }} />
+                <textarea value={answer} onChange={event => updateAnswer(event.target.value)} rows={15} placeholder="建议按“盘面事实 → 结构关系 → 传统解释 → 现实验证边界”的顺序作答……" className="mt-4 w-full resize-y rounded-xl px-4 py-4 text-xs leading-7 outline-none" style={{ color: 'var(--t-text)', background: 'var(--t-card)', border: '1px solid var(--t-border)' }} />
+                {answerDirty && <p className="mt-2 text-[9px]" style={{ color: '#f59e0b' }}>未提交答案已暂存在这个浏览器中，切换命盘或题型后仍可恢复。</p>}
                 <button type="button" disabled={submitting || !answer.trim()} onClick={submit} className="mt-4 w-full rounded-lg px-5 py-3 text-xs disabled:cursor-not-allowed disabled:opacity-50" style={{ color: '#fffaf3', background: 'var(--ac)' }}>
                   {submitting ? '程序评分完成，正在生成 AI 学习反馈…' : '提交答案并获取反馈'}
                 </button>

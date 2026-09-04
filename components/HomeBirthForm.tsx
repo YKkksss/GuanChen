@@ -10,6 +10,7 @@ import {
   User,
 } from '@phosphor-icons/react';
 import { PROVINCES } from '@/lib/ziwei/cities';
+import { calcTrueSolarBranch, formToBirthInfo } from '@/lib/ziwei/share';
 import type { BirthInfo } from '@/lib/ziwei/types';
 import styles from './HomeBirthForm.module.css';
 
@@ -54,14 +55,6 @@ function formatBirthDate(year: string, month: string, day: string): string {
   return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
 }
 
-function calculateTrueSolarBranch(clockHour: number, clockMinute: number, longitude: number): number {
-  const clockMinutes = clockHour * 60 + clockMinute;
-  const longitudeOffset = (longitude - 120) * 4;
-  const solarMinutes = ((clockMinutes + longitudeOffset) % 1440 + 1440) % 1440;
-  if (solarMinutes >= 1380 || solarMinutes < 60) return 0;
-  return Math.floor((solarMinutes - 60) / 120) + 1;
-}
-
 export default function HomeBirthForm({ loading = false, error = '', variant = 'home', onSubmit }: HomeBirthFormProps) {
   const [form, setForm] = useState<FormState>({
     name: '',
@@ -90,7 +83,7 @@ export default function HomeBirthForm({ loading = false, error = '', variant = '
   const trueSolarBranch = useMemo(() => {
     if (form.unknownTime) return 0;
     const [hour, minute] = form.birthTime.split(':').map(Number);
-    return calculateTrueSolarBranch(hour || 0, minute || 0, form.longitude);
+    return calcTrueSolarBranch(hour || 0, minute || 0, form.longitude);
   }, [form.birthTime, form.longitude, form.unknownTime]);
 
   const handleProvinceChange = (provinceName: string) => {
@@ -163,17 +156,19 @@ export default function HomeBirthForm({ loading = false, error = '', variant = '
       return;
     }
 
-    onSubmit({
-      year,
-      month,
-      day,
-      hour: trueSolarBranch,
+    onSubmit(formToBirthInfo({
+      year: String(year),
+      month: String(month),
+      day: String(day),
+      clockHour: submittedHour,
+      clockMinute: submittedMinute,
+      unknownTime: form.unknownTime,
       gender: form.gender,
-      name: form.name.trim() || undefined,
-      province: form.province || undefined,
-      city: form.city || undefined,
-      longitude: form.province ? form.longitude : undefined,
-    });
+      name: form.name.trim(),
+      province: form.province,
+      city: form.city,
+      longitude: form.longitude,
+    }));
   };
 
   return (
@@ -303,8 +298,14 @@ export default function HomeBirthForm({ loading = false, error = '', variant = '
           >
             {BIRTH_MINUTE_OPTIONS.map(minute => <option key={minute} value={minute}>{minute} 分</option>)}
           </select>
-          <span className={styles.solarTime}>真太阳时：{BRANCH_NAMES[trueSolarBranch]}时</span>
+          <span className={styles.solarTime}>{form.unknownTime ? '暂按子时试排' : `真太阳时：${BRANCH_NAMES[trueSolarBranch]}时`}</span>
         </div>
+        {form.unknownTime && (
+          <p className={styles.timePolicy} role="status">当前暂按子时生成试排盘，并会在档案中保留“时辰未知”标记；建议结合生时校正后再作深入分析。</p>
+        )}
+        {!form.unknownTime && birthHour === '23' && (
+          <p className={styles.timePolicy}>晚子时采用 23:00 起按次日排盘的统一口径。</p>
+        )}
       </div>
 
       <div className={styles.field}>

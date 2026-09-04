@@ -5,6 +5,7 @@ import { Brain, ChatCircleDots, PaperPlaneTilt } from '@phosphor-icons/react';
 import { isHiddenSource, type ConversationMessage } from '@/lib/conversations/types';
 import type { RelationshipType } from '@/lib/heming/types';
 import { useSmartChatScroll } from '@/lib/ui/use-smart-chat-scroll';
+import { shouldSendChatMessage } from '@/lib/client/chat-keyboard';
 import ChatScrollToLatestButton from './ChatScrollToLatestButton';
 import ContextMemoryPanel from './ContextMemoryPanel';
 
@@ -238,7 +239,7 @@ export default function HemingChatPanel({
 
       <div className="shrink-0 px-3 pb-3 pt-2.5" style={{ borderTop: '1px solid var(--t-border)', background: 'var(--t-card)' }}>
         <div className="flex items-end gap-2">
-          <textarea rows={2} value={input} onChange={event => setInput(event.target.value)} onKeyDown={event => { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); sendMessage(input); } }} disabled={loading} placeholder="继续追问双方的沟通、边界或阶段影响…" className="min-h-[52px] flex-1 resize-none rounded-lg px-3 py-2 text-[11px] leading-relaxed outline-none disabled:opacity-60" style={{ color: 'var(--t-text)', border: '1px solid var(--t-border)', background: 'var(--t-card)' }} />
+          <textarea rows={2} value={input} onChange={event => setInput(event.target.value)} onKeyDown={event => { if (shouldSendChatMessage(event)) { event.preventDefault(); sendMessage(input); } }} disabled={loading} placeholder="继续追问双方的沟通、边界或阶段影响…" className="min-h-[52px] flex-1 resize-none rounded-lg px-3 py-2 text-[11px] leading-relaxed outline-none disabled:opacity-60" style={{ color: 'var(--t-text)', border: '1px solid var(--t-border)', background: 'var(--t-card)' }} />
           <button onClick={() => sendMessage(input)} disabled={loading || !input.trim()} aria-label="发送消息" className="flex h-[52px] w-11 items-center justify-center rounded-lg disabled:opacity-30" style={{ color: 'var(--t-gold)', border: '1px solid rgba(212,168,67,.25)', background: 'rgba(212,168,67,.15)' }}>{loading ? '…' : <PaperPlaneTilt size={17} weight="fill" />}</button>
         </div>
         <div className="mt-1.5 text-[9px]" style={{ color: 'var(--t-faint)' }}>Enter 发送，Shift + Enter 换行</div>

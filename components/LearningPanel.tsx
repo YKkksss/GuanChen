@@ -4,15 +4,18 @@ import { ArrowSquareOut, BookOpen, CheckCircle, FloppyDisk, NotePencil, WarningC
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import type { LearningLessonResponse } from '@/lib/learning/types';
+import { useUnsavedChanges } from '@/hooks/useUnsavedChanges';
 
 export default function LearningPanel({
   conversationId,
   branch,
   onNavigate,
+  onDirtyChange,
 }: {
   conversationId: string;
   branch: number;
   onNavigate: (branch: number) => void;
+  onDirtyChange?: (dirty: boolean) => void;
 }) {
   const [data, setData] = useState<LearningLessonResponse | null>(null);
   const [note, setNote] = useState('');
@@ -20,6 +23,15 @@ export default function LearningPanel({
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState('');
+  const [noteDirty, setNoteDirty] = useState(false);
+  useUnsavedChanges(noteDirty, '当前学习笔记尚未保存，确定离开吗？草稿仍会保存在这个浏览器中。');
+
+  const draftKey = `ziwei-learning-note-draft:${conversationId}:${branch}`;
+
+  useEffect(() => {
+    onDirtyChange?.(noteDirty);
+    return () => onDirtyChange?.(false);
+  }, [noteDirty, onDirtyChange]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -28,7 +40,10 @@ export default function LearningPanel({
       .then(async response => {
         const result = await response.json() as LearningLessonResponse & { error?: string };
         if (!response.ok || !result.lesson) throw new Error(result.error || '学习讲解加载失败');
-        setData(result); setNote(result.note?.content ?? '');
+        const localDraft = window.localStorage.getItem(draftKey);
+        setData(result);
+        setNote(localDraft ?? result.note?.content ?? '');
+        setNoteDirty(localDraft !== null && localDraft !== (result.note?.content ?? ''));
       })
       .catch(loadError => {
         if (loadError instanceof DOMException && loadError.name === 'AbortError') return;
@@ -36,7 +51,14 @@ export default function LearningPanel({
       })
       .finally(() => setLoading(false));
     return () => controller.abort();
-  }, [branch, conversationId]);
+  }, [branch, conversationId, draftKey]);
+
+  const updateNote = (value: string) => {
+    setNote(value);
+    setSaved(false);
+    setNoteDirty(true);
+    window.localStorage.setItem(draftKey, value);
+  };
 
   const save = async () => {
     setSaving(true); setSaved(false); setError('');
@@ -47,6 +69,8 @@ export default function LearningPanel({
       const result = await response.json() as { error?: string };
       if (!response.ok) throw new Error(result.error || '学习笔记保存失败');
       setSaved(true);
+      setNoteDirty(false);
+      window.localStorage.removeItem(draftKey);
     } catch (saveError) { setError(saveError instanceof Error ? saveError.message : '学习笔记保存失败'); }
     finally { setSaving(false); }
   };
@@ -95,8 +119,8 @@ export default function LearningPanel({
 
             <section className="mt-5 rounded-lg border p-3" style={{ borderColor: 'var(--t-border)' }}>
               <div className="flex items-center gap-2"><NotePencil size={16} style={{ color: 'var(--t-gold)' }} /><h3 className="text-xs font-semibold" style={{ color: 'var(--t-text)' }}>我的学习笔记</h3></div>
-              <textarea value={note} onChange={event => { setNote(event.target.value); setSaved(false); }} maxLength={4000} rows={5} placeholder="记录你对这个宫位的观察、疑问或自己的分析步骤…" className="mt-3 w-full resize-y rounded-lg border px-3 py-2 text-xs leading-6 outline-none" style={{ color: 'var(--t-text)', background: 'var(--t-bg)', borderColor: 'var(--t-border)' }} />
-              <div className="mt-2 flex items-center justify-between gap-3"><span className="text-[9px]" style={{ color: saved ? '#4ade80' : 'var(--t-faint)' }}>{saved ? <span className="inline-flex items-center gap-1"><CheckCircle size={12} />已保存到本地</span> : `${note.length}/4000`}</span><button type="button" disabled={saving} onClick={() => void save()} className="rounded-lg px-3 py-1.5 text-[10px] disabled:opacity-50" style={{ color: 'var(--t-gold)', border: '1px solid rgba(212,168,67,.28)' }}><FloppyDisk className="mr-1 inline" size={13} />{saving ? '保存中…' : note.trim() ? '保存笔记' : '清空笔记'}</button></div>
+              <textarea value={note} onChange={event => updateNote(event.target.value)} maxLength={4000} rows={5} placeholder="记录你对这个宫位的观察、疑问或自己的分析步骤…" className="mt-3 w-full resize-y rounded-lg border px-3 py-2 text-xs leading-6 outline-none" style={{ color: 'var(--t-text)', background: 'var(--t-bg)', borderColor: 'var(--t-border)' }} />
+              <div className="mt-2 flex items-center justify-between gap-3"><span className="text-[9px]" style={{ color: saved ? '#4ade80' : noteDirty ? '#f59e0b' : 'var(--t-faint)' }}>{saved ? <span className="inline-flex items-center gap-1"><CheckCircle size={12} />已保存到本地</span> : noteDirty ? `草稿已暂存在本浏览器 · ${note.length}/4000` : `${note.length}/4000`}</span><button type="button" disabled={saving || !noteDirty} onClick={() => void save()} className="rounded-lg px-3 py-1.5 text-[10px] disabled:opacity-50" style={{ color: 'var(--t-gold)', border: '1px solid rgba(212,168,67,.28)' }}><FloppyDisk className="mr-1 inline" size={13} />{saving ? '保存中…' : note.trim() ? '保存笔记' : '清空笔记'}</button></div>
             </section>
 
             <section className="mt-5">

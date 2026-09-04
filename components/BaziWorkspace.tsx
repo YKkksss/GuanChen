@@ -126,6 +126,11 @@ const PROFILE_FIELDS = new Set<keyof FormState>([
   'longitude', 'unknownTime', 'locationLabel', 'notes',
 ]);
 
+const CALCULATION_FIELDS = new Set<keyof FormState>([
+  'birthDate', 'birthTime', 'gender', 'timeStandard', 'timeZoneId',
+  'longitude', 'lateZiPolicy', 'unknownTime',
+]);
+
 const ELEMENT_COLORS: Record<BaziElement, string> = {
   木: '#2f855a', 火: '#c05640', 土: '#a87832', 金: '#8a7a45', 水: '#3f6d99',
 };
@@ -143,6 +148,7 @@ export default function BaziWorkspace() {
   const [startingChat, setStartingChat] = useState(false);
   const [busyId, setBusyId] = useState('');
   const [error, setError] = useState('');
+  const [calculationNotice, setCalculationNotice] = useState('');
   const [selectedAnnualYear, setSelectedAnnualYear] = useState(new Date().getFullYear());
   const [selectedFlowDate, setSelectedFlowDate] = useState('');
 
@@ -335,6 +341,10 @@ export default function BaziWorkspace() {
   const update = <K extends keyof FormState>(key: K, value: FormState[K]) => {
     setForm(current => ({ ...current, [key]: value }));
     if (PROFILE_FIELDS.has(key)) setSelectedProfile(null);
+    if (CALCULATION_FIELDS.has(key) && result) {
+      setResult(null);
+      setCalculationNotice('出生信息或排盘规则已经修改，请重新生成后再保存。旧结果已停止显示，避免与新输入混用。');
+    }
     setCurrentChartId(null);
   };
 
@@ -342,6 +352,7 @@ export default function BaziWorkspace() {
     event.preventDefault();
     setLoading(true);
     setError('');
+    setCalculationNotice('');
     try {
       const response = await fetch('/api/bazi/calculate', {
         method: 'POST',
@@ -393,6 +404,7 @@ export default function BaziWorkspace() {
     });
     setResult(chart?.result ?? null);
     setCurrentChartId(chart?.id ?? null);
+    setCalculationNotice('');
   };
 
   const startNewProfile = () => {
@@ -401,6 +413,7 @@ export default function BaziWorkspace() {
     setResult(null);
     setForm(INITIAL_FORM);
     setError('');
+    setCalculationNotice('');
   };
 
   const saveCurrent = async () => {
@@ -591,6 +604,7 @@ export default function BaziWorkspace() {
               </select>
             </Field>
 
+            {calculationNotice && <div role="status" className="rounded-lg border px-3 py-2 text-xs leading-5" style={{ borderColor: 'rgba(180,125,35,.35)', color: 'var(--ac-dim)', background: 'rgba(180,125,35,.06)' }}>{calculationNotice}</div>}
             {error && <div role="alert" className="rounded-lg border px-3 py-2 text-sm" style={{ borderColor: 'rgba(180,55,45,.35)', color: 'var(--ji)', background: 'rgba(180,55,45,.06)' }}>{error}</div>}
 
             <button type="submit" disabled={loading} className="btn-accent w-full justify-center disabled:cursor-wait disabled:opacity-60">

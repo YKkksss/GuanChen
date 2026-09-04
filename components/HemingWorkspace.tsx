@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { SidebarSimple } from '@phosphor-icons/react';
 import BirthForm, { type BirthFormState } from '@/components/BirthForm';
 import ConversationHistory from '@/components/ConversationHistory';
 import HemingWorkbench from '@/components/HemingWorkbench';
@@ -31,6 +32,49 @@ export default function HemingWorkspace({ conversationId }: HemingWorkspaceProps
   const [formB, setFormB] = useState<BirthFormState | null>(null);
   const [creating, setCreating] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const compactMedia = window.matchMedia('(max-width: 1080px)');
+    const syncHistoryState = () => {
+      setHistoryCollapsed(compactMedia.matches || window.localStorage.getItem('ziwei-heming-history-collapsed') === 'true');
+    };
+    syncHistoryState();
+    compactMedia.addEventListener('change', syncHistoryState);
+    return () => compactMedia.removeEventListener('change', syncHistoryState);
+  }, []);
+
+  const toggleHistory = useCallback(() => {
+    setHistoryCollapsed(current => {
+      const next = !current;
+      if (!window.matchMedia('(max-width: 1080px)').matches) {
+        window.localStorage.setItem('ziwei-heming-history-collapsed', String(next));
+      }
+      return next;
+    });
+  }, []);
+
+  const closeMobileHistory = useCallback(() => {
+    if (window.matchMedia('(max-width: 1080px)').matches) setHistoryCollapsed(true);
+  }, []);
+
+  useEffect(() => {
+    const compactMedia = window.matchMedia('(max-width: 1080px)');
+    const previousOverflow = document.body.style.overflow;
+    const syncBodyLock = () => {
+      document.body.style.overflow = compactMedia.matches && !historyCollapsed ? 'hidden' : previousOverflow;
+    };
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setHistoryCollapsed(true);
+    };
+    syncBodyLock();
+    compactMedia.addEventListener('change', syncBodyLock);
+    window.addEventListener('keydown', closeOnEscape);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      compactMedia.removeEventListener('change', syncBodyLock);
+      window.removeEventListener('keydown', closeOnEscape);
+    };
+  }, [historyCollapsed]);
 
   useEffect(() => {
     if (!conversationId) { setLoadingConversation(false); return; }
@@ -104,10 +148,27 @@ export default function HemingWorkspace({ conversationId }: HemingWorkspaceProps
         <div style={{ width: '1px', height: '20px', background: 'var(--bdr-med)' }} />
         <span style={{ fontSize: '12px', color: 'var(--ac)', letterSpacing: '0.2em' }}>合盘分析</span><div style={{ flex: 1 }} />
         <span style={{ fontSize: '11px', color: 'var(--tx-3)' }}>双盘隔离 · 规则可追溯 · 对话可恢复</span>
+        <button
+          type="button"
+          className="eastern-mobile-history-button"
+          onClick={toggleHistory}
+          aria-expanded={!historyCollapsed}
+          aria-label={historyCollapsed ? '打开合盘历史' : '关闭合盘历史'}
+        >
+          <SidebarSimple size={16} aria-hidden="true" />
+          <span>历史</span>
+        </button>
       </header>
 
       <div className={`heming-shell ${historyCollapsed ? 'history-collapsed' : ''}`} style={{ maxWidth: '1600px', margin: '0 auto', padding: '20px 20px 72px' }}>
-        <ConversationHistory conversationType="heming" activeConversationId={conversationId} collapsed={historyCollapsed} onToggle={() => setHistoryCollapsed(value => !value)} />
+        <ConversationHistory conversationType="heming" activeConversationId={conversationId} collapsed={historyCollapsed} onToggle={toggleHistory} onNavigate={closeMobileHistory} />
+        <button
+          type="button"
+          className={`eastern-history-backdrop ${historyCollapsed ? '' : 'is-visible'}`}
+          onClick={() => setHistoryCollapsed(true)}
+          aria-label="关闭合盘历史"
+          tabIndex={historyCollapsed ? -1 : 0}
+        />
         <main style={{ minWidth: 0 }}>
           {!conversationId && (
             <>

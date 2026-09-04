@@ -11,6 +11,7 @@ import {
   X,
 } from '@phosphor-icons/react';
 import { useEffect, useState } from 'react';
+import { useUnsavedChanges } from '@/hooks/useUnsavedChanges';
 import type { ReportContent } from '@/lib/reports/types';
 import type { ReportExportKind } from '@/lib/report-exports/types';
 import type {
@@ -39,6 +40,17 @@ export default function ReportReviewPanel({
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState('');
   const [error, setError] = useState('');
+  const [savedNote, setSavedNote] = useState('');
+  const editDirty = editing && Boolean(editDraft) && JSON.stringify(editDraft) !== JSON.stringify(revision?.editedContent ?? originalContent);
+  const noteDirty = note !== savedNote;
+  const hasUnsavedChanges = editDirty || noteDirty;
+  useUnsavedChanges(hasUnsavedChanges, '当前报告备注或人工修订尚未保存，确定离开吗？草稿仍会保存在这个浏览器中。');
+
+  const draftKey = `ziwei-report-review-draft:${sourceKind}:${reportId}:${version}`;
+
+  const keepLocalDraft = (nextNote: string, nextEditDraft: ReportEditableContent | null, nextEditing: boolean) => {
+    window.localStorage.setItem(draftKey, JSON.stringify({ note: nextNote, editDraft: nextEditDraft, editing: nextEditing }));
+  };
 
   useEffect(() => {
     const controller = new AbortController();
@@ -57,8 +69,13 @@ export default function ReportReviewPanel({
         const data = await response.json().catch(() => ({})) as { revision?: ReportUserRevision | null; error?: string };
         if (!response.ok) throw new Error(data.error || '报告确认信息加载失败');
         const next = data.revision ?? null;
+        const nextSavedNote = next?.note ?? '';
+        const localDraft = readReportDraft(draftKey);
         setRevision(next);
-        setNote(next?.note ?? '');
+        setSavedNote(nextSavedNote);
+        setNote(localDraft?.note ?? nextSavedNote);
+        setEditDraft(localDraft?.editDraft ?? null);
+        setEditing(Boolean(localDraft?.editing && localDraft.editDraft));
         onRevisionChange(next);
       })
       .catch(loadError => {
@@ -67,7 +84,7 @@ export default function ReportReviewPanel({
       })
       .finally(() => setLoading(false));
     return () => controller.abort();
-  }, [onRevisionChange, reportId, sourceKind, version]);
+  }, [draftKey, onRevisionChange, reportId, sourceKind, version]);
 
   const persist = async (input: {
     action: string;
@@ -94,6 +111,8 @@ export default function ReportReviewPanel({
       if (!response.ok || !data.revision) throw new Error(data.error || '保存失败');
       setRevision(data.revision);
       setNote(data.revision.note);
+      setSavedNote(data.revision.note);
+      window.localStorage.removeItem(draftKey);
       onRevisionChange(data.revision);
       return data.revision;
     } catch (saveError) {
@@ -106,8 +125,10 @@ export default function ReportReviewPanel({
 
   const effectiveContent = revision?.editedContent ?? originalContent;
   const openEditor = () => {
-    setEditDraft(cloneEditableContent(effectiveContent));
+    const nextDraft = cloneEditableContent(effectiveContent);
+    setEditDraft(nextDraft);
     setEditing(true);
+    keepLocalDraft(note, nextDraft, true);
   };
   const saveEdits = async () => {
     if (!editDraft) return;
@@ -118,6 +139,7 @@ export default function ReportReviewPanel({
     }
   };
   const restoreOriginal = async () => {
+    if (!window.confirm('确定恢复 AI 原文吗？当前人工修订内容将从正在使用的版本中移除，但 AI 原始版本仍会保留。')) return;
     const saved = await persist({ action: 'restore', reviewStatus: 'draft', editedContent: null });
     if (saved) {
       setEditing(false);
@@ -150,10 +172,10 @@ export default function ReportReviewPanel({
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <ActionButton onClick={() => void changeStatus('confirmed')} disabled={loading || Boolean(busy)} active={status === 'confirmed'}>
+          <ActionButton onClick={() => void changeStatus('confirmed')} disabled={loading || Boolean(busy) || editing} active={status === 'confirmed'}>
             <CheckCircle size={14} />{busy === 'confirmed' ? '正在确认…' : '确认此版本'}
           </ActionButton>
-          <ActionButton onClick={() => void changeStatus('needs_revision')} disabled={loading || Boolean(busy)} active={status === 'needs_revision'} danger>
+          <ActionButton onClick={() => void changeStatus('needs_revision')} disabled={loading || Boolean(busy) || editing} active={status === 'needs_revision'} danger>
             <WarningCircle size={14} />{busy === 'needs_revision' ? '正在标记…' : '标记待调整'}
           </ActionButton>
           {!editing && (
@@ -172,7 +194,11 @@ export default function ReportReviewPanel({
       <div className="grid gap-3 px-4 pb-4 sm:grid-cols-[1fr_auto] sm:px-5">
         <textarea
           value={note}
-          onChange={event => setNote(event.target.value)}
+          onChange={event => {
+            const value = event.target.value;
+            setNote(value);
+            keepLocalDraft(value, editDraft, editing);
+          }}
           maxLength={4000}
           rows={2}
           placeholder="记录你对这个版本的个人看法、待核实信息或现实反馈……"
@@ -185,7 +211,7 @@ export default function ReportReviewPanel({
             reviewStatus: revision?.reviewStatus ?? 'draft',
             editedContent: revision?.editedContent ?? null,
           })}
-          disabled={loading || Boolean(busy)}
+          disabled={loading || Boolean(busy) || editing}
         >
           {busy === 'note' ? <SpinnerGap className="animate-spin" size={14} /> : <FloppyDisk size={14} />}
           保存备注
@@ -200,19 +226,41 @@ export default function ReportReviewPanel({
               <p className="mt-1 text-[9px]" style={{ color: 'var(--t-faint, var(--tx-3))' }}>章节结构、证据映射和免责声明由系统锁定，只编辑解释文字与行动清单。</p>
             </div>
             <div className="flex gap-2">
-              <ActionButton onClick={() => { setEditing(false); setEditDraft(null); }} disabled={Boolean(busy)}><X size={14} />取消</ActionButton>
+              <ActionButton onClick={() => {
+                if (editDirty && !window.confirm('确定放弃尚未保存的人工修订吗？')) return;
+                setEditing(false);
+                setEditDraft(null);
+                if (noteDirty) keepLocalDraft(note, null, false);
+                else window.localStorage.removeItem(draftKey);
+              }} disabled={Boolean(busy)}><X size={14} />取消</ActionButton>
               <ActionButton onClick={() => void saveEdits()} disabled={Boolean(busy)} active><FloppyDisk size={14} />{busy === 'edit' ? '正在保存…' : '保存修订稿'}</ActionButton>
             </div>
           </div>
           {editDraft.format === 'plain_text'
-            ? <PlainTextEditor draft={editDraft} onChange={setEditDraft} />
-            : <StructuredEditor draft={editDraft.content} onChange={content => setEditDraft({ format: 'structured', content })} />}
+            ? <PlainTextEditor draft={editDraft} onChange={next => { setEditDraft(next); keepLocalDraft(note, next, true); }} />
+            : <StructuredEditor draft={editDraft.content} onChange={content => { const next = { format: 'structured' as const, content }; setEditDraft(next); keepLocalDraft(note, next, true); }} />}
         </div>
       )}
 
       {error && <div role="alert" className="border-t px-4 py-3 text-[10px] text-red-500 sm:px-5" style={{ borderColor: 'rgba(239,68,68,.2)' }}>{error}</div>}
     </section>
   );
+}
+
+function readReportDraft(key: string): { note: string; editDraft: ReportEditableContent | null; editing: boolean } | null {
+  try {
+    const raw = window.localStorage.getItem(key);
+    if (!raw) return null;
+    const value = JSON.parse(raw) as { note?: unknown; editDraft?: unknown; editing?: unknown };
+    return {
+      note: typeof value.note === 'string' ? value.note : '',
+      editDraft: value.editDraft && typeof value.editDraft === 'object' ? value.editDraft as ReportEditableContent : null,
+      editing: value.editing === true,
+    };
+  } catch {
+    window.localStorage.removeItem(key);
+    return null;
+  }
 }
 
 function StructuredEditor({ draft, onChange }: { draft: ReportContent; onChange: (content: ReportContent) => void }) {

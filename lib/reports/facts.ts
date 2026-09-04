@@ -20,7 +20,8 @@ export function buildReportEvidence(
       source: 'chart_snapshot',
       facts: {
         birthDate: `${chart.birthInfo.year}-${pad(chart.birthInfo.month)}-${pad(chart.birthInfo.day)}`,
-        hourBranch: BRANCHES[chart.birthInfo.hour] ?? chart.birthInfo.hour,
+        hourBranch: chart.birthInfo.unknownTime ? null : BRANCHES[chart.birthInfo.hour] ?? chart.birthInfo.hour,
+        birthTimeConfidence: chart.birthInfo.unknownTime ? 'unknown' : 'known',
         gender: chart.birthInfo.gender,
         lunarDate: `${chart.lunarInfo.lunarYear}-${chart.lunarInfo.lunarMonth}-${chart.lunarInfo.lunarDay}`,
         birthYearGanZhi: `${STEMS[chart.lunarInfo.yearStem] ?? ''}${BRANCHES[chart.lunarInfo.yearBranch] ?? ''}`,

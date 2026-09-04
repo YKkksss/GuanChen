@@ -84,7 +84,8 @@ export function buildAnnualReportMessages(
   const chartFacts = {
     birth: {
       date: `${chart.birthInfo.year}-${chart.birthInfo.month}-${chart.birthInfo.day}`,
-      hourBranch: BRANCHES[chart.birthInfo.hour],
+      hourBranch: chart.birthInfo.unknownTime ? null : BRANCHES[chart.birthInfo.hour],
+      birthTimeConfidence: chart.birthInfo.unknownTime ? 'unknown' : 'known',
       gender: chart.birthInfo.gender,
     },
     core: {
@@ -125,7 +126,7 @@ export function buildAnnualReportMessages(
 **【性格与人际表现】**
 **【年度行动建议】**
 
-每节控制在 180 至 320 个中文字符，完整报告控制在 1800 至 3000 个中文字符，避免重复同一条依据。每节应结合流年命宫、所在大限、流年四化、相关本命宫位和星曜说明依据。命格和性格属于本命底色，要说明当年如何被触发，不能写成性格每年彻底改变。不得使用“必然、一定、注定、百分百”等绝对措辞。健康、投资、婚姻等内容必须说明仅供传统文化研究和自我观察，不替代专业建议。`,
+每节控制在 180 至 320 个中文字符，完整报告控制在 1800 至 3000 个中文字符，避免重复同一条依据。每节应结合流年命宫、所在大限、流年四化、相关本命宫位和星曜说明依据。命格和性格属于本命底色，要说明当年如何被触发，不能写成性格每年彻底改变。不得使用“必然、一定、注定、百分百”等绝对措辞。健康、投资、婚姻等内容必须说明仅供传统文化研究和自我观察，不替代专业建议。birthTimeConfidence 为 unknown 时必须说明当前为子时试排，并降低与时辰相关结论的置信度。`,
     },
     {
       role: 'user',
