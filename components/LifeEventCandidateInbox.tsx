@@ -22,7 +22,7 @@ const PRECISIONS: Array<{ value: LifeEventDatePrecision; label: string }> = [
 
 type CandidateForm = ReturnType<typeof candidateToForm>;
 
-export default function LifeEventCandidateInbox({ conversationId, compact = false }: { conversationId: string; compact?: boolean }) {
+export default function LifeEventCandidateInbox({ conversationId, compact = false, defaultCollapsed = true }: { conversationId: string; compact?: boolean; defaultCollapsed?: boolean }) {
   const router = useRouter();
   const [candidates, setCandidates] = useState<LifeEventCandidate[]>([]);
   const [active, setActive] = useState<LifeEventCandidate | null>(null);
@@ -31,7 +31,9 @@ export default function LifeEventCandidateInbox({ conversationId, compact = fals
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [savedTitle, setSavedTitle] = useState('');
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = useState(!defaultCollapsed);
+
+  useEffect(() => { setExpanded(!defaultCollapsed); }, [defaultCollapsed, conversationId]);
 
   const reload = useCallback(async () => {
     try {

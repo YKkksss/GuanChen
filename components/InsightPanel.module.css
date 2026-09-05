@@ -1,0 +1,52 @@
+/* 仅命盘阅读区采用紧凑布局，运限等共用面板保留原外观。 */
+.reading:global(.eastern-insight-panel) { container: chart-chat / inline-size; }
+.reading:global(.eastern-insight-panel) :global(.eastern-insight-header) { min-height: 48px; padding: 6px 12px; gap: 8px; flex-shrink: 0; }
+.reading:global(.eastern-insight-panel) :global(.eastern-insight-title) { font-size: 14px; letter-spacing: 0; }
+.reading:global(.eastern-insight-panel) :global(.eastern-insight-status) { gap: 5px; flex: 0 0 auto; }
+.reading:global(.eastern-insight-panel) :global(.eastern-insight-status button) { align-items: center; justify-content: center; min-width: 34px; height: 34px; min-height: 34px; gap: 5px; padding: 0 8px; border: 1px solid var(--ew-line); border-radius: 6px; font-size: 12px; color: var(--ew-ink-soft); background: transparent; }
+.reading:global(.eastern-insight-panel) :global(.eastern-insight-status button:hover) { color: var(--ew-cinnabar); border-color: var(--ew-cinnabar); }
+.reading:global(.eastern-insight-panel) :global(.eastern-insight-status button:focus-visible) { outline: 2px solid var(--ew-cinnabar); outline-offset: 2px; }
+.settingsButton { display: inline-flex; }
+.settingsButton:disabled { opacity: .5; }
+.reading:global(.eastern-insight-panel) :global(.eastern-topic-bar) { padding: 4px 12px; }
+.reading:global(.eastern-insight-panel) :global(.eastern-topic-bar[hidden]) { display: none; }
+.reading:global(.eastern-insight-panel) :global(.eastern-topic-grid) { display: grid; min-width: 279px; grid-template-columns: repeat(6, minmax(44px, 1fr)); }
+.reading:global(.eastern-insight-panel) :global(.eastern-topic-button) { min-width: 0; min-height: 30px; height: 30px; padding-inline: 3px; border-radius: 5px; font-size: 12px; }
+.reading:global(.eastern-insight-panel) :global(.eastern-message-list) { padding: 14px 14px 8px; scroll-behavior: auto; }
+.reading:global(.eastern-insight-panel) :global(.eastern-message-list > *) { max-width: var(--chat-content-width); margin-inline: auto; }
+.reading:global(.eastern-insight-panel) :global(.eastern-message-list > * + *) { margin-top: var(--chat-message-gap); }
+.reading:global(.eastern-insight-panel) :global(.eastern-assistant-message) { padding: 0; border: 0; background: transparent; }
+.reading:global(.eastern-insight-panel) :global(.eastern-assistant-label) { font-size: 11px; margin-bottom: 5px; }
+.reading:global(.eastern-insight-panel) :global(.eastern-ai-content) { font-family: var(--chat-font-family); font-size: var(--chat-ai-font-size); line-height: var(--chat-line-height); }
+.reading:global(.eastern-insight-panel) :global(.eastern-ai-line) { font: inherit; overflow-wrap: anywhere; }
+.reading:global(.eastern-insight-panel) :global(.eastern-ai-section) { margin-top: 10px; margin-bottom: 5px; padding-top: 0; }
+.reading:global(.eastern-insight-panel) :global(.eastern-ai-section:first-child) { margin-top: 0; }
+.reading:global(.eastern-insight-panel) :global(.eastern-ai-section span) { font-family: inherit; font-size: 1.08em; line-height: inherit; }
+.reading:global(.eastern-insight-panel) :global(.eastern-ai-spacer) { height: 6px; }
+.reading:global(.eastern-insight-panel) :global(.eastern-ai-spacer + .eastern-ai-spacer) { display: none; }
+.reading:global(.eastern-insight-panel) :global(.eastern-user-message) { max-width: 92%; padding: 7px 11px; font: var(--chat-font-size)/var(--chat-line-height) var(--chat-font-family); overflow-wrap: anywhere; }
+.reading:global(.eastern-insight-panel) :global(.eastern-message-empty p) { font: var(--chat-font-size)/var(--chat-line-height) var(--chat-font-family); }
+.reading:global(.eastern-insight-panel) :global(.eastern-chat-composer) { padding: 8px 12px; }
+.reading:global(.eastern-insight-panel) :global(.eastern-chat-composer-row) { display: flex; align-items: flex-end; gap: 6px; padding: 5px; border: 1px solid var(--ew-line); border-radius: 8px; background: #fffdf9; width: 100%; max-width: var(--chat-content-width); margin-inline: auto; }
+.reading:global(.eastern-insight-panel) :global(.eastern-chat-composer-row:focus-within) { border-color: var(--ew-cinnabar); box-shadow: 0 0 0 2px var(--ew-cinnabar-soft); }
+.reading:global(.eastern-insight-panel) :global(.eastern-chat-input:focus-visible) { outline: none; }
+.reading:global(.eastern-insight-panel) :global(.eastern-chat-input) { flex: 1; min-width: 0; min-height: 44px; padding: 8px 7px; border: 0; border-radius: 5px; background: transparent; box-shadow: none; font: var(--chat-font-size)/1.65 var(--chat-font-family); }
+.reading:global(.eastern-insight-panel) :global(.eastern-chat-send) { display: inline-flex; align-items: center; justify-content: center; gap: 6px; width: 44px; min-width: 44px; height: 44px; padding: 0 10px; }
+.sendLabel { display: none; font-size: 12px; }
+.reading:global(.eastern-insight-panel) :global(.eastern-chat-hint) { display: block; position: absolute; width: 1px; height: 1px; padding: 0; margin: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.notice { position: absolute; left: 12px; right: 12px; bottom: 80px; z-index: 20; padding: 8px 12px; border: 1px solid var(--ew-line); border-radius: 6px; color: var(--ew-ink); background: var(--ew-paper-strong); box-shadow: var(--ew-shadow); font-size: 12px; pointer-events: none; }
+.reading[data-reduce-motion='true'] :global(.animate-pulse) { animation: none; }
+@container chart-chat (min-width: 600px) {
+  .reading:global(.eastern-insight-panel) :global(.eastern-chat-send) { width: auto; min-width: 76px; }
+  .sendLabel { display: inline; }
+}
+@container chart-chat (max-width: 480px) {
+  .reading:global(.eastern-insight-panel) :global(.eastern-chat-control-label) { display: none; }
+}
+@media (max-width: 820px), (pointer: coarse) {
+  .reading:global(.eastern-insight-panel) :global(.eastern-insight-status button),
+  .reading:global(.eastern-insight-panel) :global(.eastern-topic-button) { min-height: 44px; }
+  .reading:global(.eastern-insight-panel) :global(.eastern-insight-status button) { min-width: 44px; }
+  /* 覆盖全局移动表单的 16px 强制规则，同时保留防止输入聚焦缩放的下限。 */
+  .reading:global(.eastern-insight-panel) :global(.eastern-chat-input) { font-size: max(16px, var(--chat-font-size)) !important; }
+}

@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "test:chat-preferences": "tsx scripts/test-chat-preferences.ts",
     "test:chat-split": "tsx scripts/test-chat-split.ts",
     "dev": "next dev --turbopack -H 0.0.0.0 -p 30001",
     "dev:local": "next dev --turbopack -H 127.0.0.1 -p 30001",

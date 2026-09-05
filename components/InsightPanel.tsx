@@ -1,7 +1,7 @@
 'use client';
-import { forwardRef, useImperativeHandle, useState, useRef, useEffect, type ReactNode } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Brain, ChatCircleDots, PaperPlaneTilt, Sparkle } from '@phosphor-icons/react';
+import { forwardRef, useImperativeHandle, useState, useRef, useEffect, useMemo, useId, type ReactNode, type CSSProperties } from 'react';
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
+import { Brain, ChatCircleDots, PaperPlaneTilt, Sparkle, SlidersHorizontal } from '@phosphor-icons/react';
 import type { ConversationChat } from '@/lib/ui/use-conversation-chat';
 import { ChatRecoveryActions, ChatGenerationControls } from './ChatRecoveryActions';
 import type { ZiweiChart, Palace } from '@/lib/ziwei/types';
@@ -11,6 +11,11 @@ import ChatScrollToLatestButton from './ChatScrollToLatestButton';
 import ContextMemoryPanel from './ContextMemoryPanel';
 import LifeEventCandidateInbox from './LifeEventCandidateInbox';
 import type { TimeView } from './TimeNav';
+import ChatSettingsDialog from './ChatSettingsDialog';
+import { DEFAULT_CHAT_PREFERENCES, getChatFontFamily, type ChatPreferences } from '@/lib/ui/chat-preferences';
+import { useChatPreferences } from '@/lib/ui/use-chat-preferences';
+import { useChatInputSize } from '@/lib/ui/use-chat-input-size';
+import styles from './InsightPanel.module.css';
 
 interface SelectedSiHua {
   starName: string;
@@ -160,7 +165,7 @@ const PALACE_ROLES: Record<string, string> = {
 };
 
 /** Render AI markdown: **【Title】** → gold header, **bold** → strong */
-function AiContent({ text, streaming }: { text: string; streaming?: boolean }) {
+function AiContent({ text, streaming, reduceMotion }: { text: string; streaming?: boolean; reduceMotion?: boolean }) {
   const lines = text.split('\n');
   return (
     <div className="eastern-ai-content">
@@ -189,7 +194,7 @@ function AiContent({ text, streaming }: { text: string; streaming?: boolean }) {
       })}
       {streaming && (
         <span
-          className="inline-block w-1.5 h-3 ml-0.5 animate-pulse rounded-sm align-middle"
+          className={`inline-block w-1.5 h-3 ml-0.5 ${reduceMotion ? '' : 'animate-pulse'} rounded-sm align-middle`}
           style={{ background: 'var(--t-gold)', opacity: 0.6 }}
         />
       )}
@@ -215,6 +220,21 @@ const InsightPanel = forwardRef<InsightPanelHandle, InsightPanelProps>(function 
   const setInput = chat.session.setInput;
   const [activeTopic, setActiveTopic] = useState<string>('overview');
   const [memoryPanelOpen, setMemoryPanelOpen] = useState(false);
+  const reading = Boolean(readingControls);
+  const preferenceStore = useChatPreferences(reading);
+  const [preferenceDraft, setPreferenceDraft] = useState<ChatPreferences | null>(null);
+  const preferences = reading ? preferenceDraft ?? preferenceStore.saved : DEFAULT_CHAT_PREFERENCES;
+  const systemReducedMotion = useReducedMotion();
+  const reduceMotion = reading && (preferences.reduceMotion || Boolean(systemReducedMotion));
+  const inputRef = useChatInputSize(reading, input, preferences);
+  const hintId = useId();
+  const [settingsNotice, setSettingsNotice] = useState('');
+  useEffect(() => {
+    if (!settingsNotice) return;
+    const timer = window.setTimeout(() => setSettingsNotice(''), 3200);
+    return () => window.clearTimeout(timer);
+  }, [settingsNotice]);
+  const scrollVersion = useMemo(() => ({ messages, preferences }), [messages, preferences]);
   const autoLoaded = useRef(false);
   const lastSiHuaKey = useRef<string | undefined>(undefined);
   const {
@@ -225,7 +245,7 @@ const InsightPanel = forwardRef<InsightPanelHandle, InsightPanelProps>(function 
     handleTouchMove,
     handleKeyDown,
     scrollToLatest,
-  } = useSmartChatScroll<HTMLDivElement>(messages);
+  } = useSmartChatScroll<HTMLDivElement>(scrollVersion, !reading || preferences.autoFollow, reduceMotion);
 
   useEffect(() => { onLoadingChange?.(loading); }, [loading, onLoadingChange]);
 
@@ -320,8 +340,26 @@ ${selectedSiHua.starName}化${selectedSiHua.siHua}落在【${palaceName}】，�
     sendMessage(input);
   };
 
+  const readingStyle = reading ? {
+    '--chat-font-size': `${preferences.fontSize}px`,
+    '--chat-ai-font-size': `${preferences.separateAiSize ? preferences.aiFontSize : preferences.fontSize}px`,
+    '--chat-font-family': getChatFontFamily(preferences.font),
+    '--chat-line-height': preferences.lineHeight,
+    '--chat-message-gap': `${preferences.messageGap}px`,
+    '--chat-content-width': preferences.contentWidth === 'comfortable' ? '820px' : '100%',
+  } as CSSProperties : undefined;
+  const sendHint = reading && preferences.sendKey === 'modified' ? 'Ctrl / ⌘ + Enter 发送，Enter 换行' : 'Enter 发送，Shift + Enter 换行';
+
   return (
-    <div className="eastern-insight-panel">
+    <div className={`eastern-insight-panel ${reading ? styles.reading : ''}`} style={readingStyle} data-reduce-motion={reduceMotion}>
+
+      {preferenceDraft && <ChatSettingsDialog preferences={preferenceDraft} onChange={setPreferenceDraft}
+        onCancel={() => setPreferenceDraft(null)} onSave={() => {
+          const persisted = preferenceStore.save(preferenceDraft);
+          setPreferenceDraft(null);
+          setSettingsNotice(persisted ? '对话设置已保存' : '设置已应用；浏览器未允许保存，刷新后将恢复默认');
+        }} />}
+      {settingsNotice && <div className={styles.notice} role="status">{settingsNotice}</div>}
 
       <ContextMemoryPanel
         conversationId={conversationId}
@@ -347,9 +385,14 @@ ${selectedSiHua.starName}化${selectedSiHua.siHua}落在【${palaceName}】，�
             onClick={() => setMemoryPanelOpen(true)}
             className="eastern-memory-button"
             title="管理对话记忆"
+            aria-label="管理对话记忆"
           >
-            <Brain size={12} />记忆
+            <Brain size={14} aria-hidden="true" /><span className="eastern-chat-control-label">记忆</span>
           </button>
+          {reading && <button type="button" className={styles.settingsButton} aria-label="对话设置" title="对话框设置" disabled={!preferenceStore.ready}
+            onClick={() => { setSettingsNotice(''); setPreferenceDraft({ ...preferenceStore.saved }); }}>
+            <SlidersHorizontal size={16} aria-hidden="true" /><span className="eastern-chat-control-label">设置</span>
+          </button>}
           {(!readingControls || loading) && <span className={loading ? 'is-loading' : ''}>
             {loading ? '正在生成' : '可以继续追问'}
           </span>}
@@ -358,7 +401,7 @@ ${selectedSiHua.starName}化${selectedSiHua.siHua}落在【${palaceName}】，�
       </div>
 
       {/* ── Topic buttons ── */}
-      <div className="eastern-topic-bar">
+      <div className="eastern-topic-bar" hidden={reading && !preferences.showTopics}>
         <div className="eastern-topic-grid">
           {TOPICS.map(t => {
             const isActive = activeTopic === t.key;
@@ -409,7 +452,7 @@ ${selectedSiHua.starName}化${selectedSiHua.siHua}落在【${palaceName}】，�
               return (
                 <motion.div
                   key={i}
-                  initial={{ opacity: 0, y: 6 }}
+                  initial={reduceMotion ? false : { opacity: 0, y: 6 }}
                   animate={{ opacity: 1, y: 0 }}
                   className="flex justify-end"
                 >
@@ -427,7 +470,7 @@ ${selectedSiHua.starName}化${selectedSiHua.siHua}落在【${palaceName}】，�
             return (
               <motion.div
                 key={i}
-                initial={{ opacity: 0, y: 6 }}
+                initial={reduceMotion ? false : { opacity: 0, y: 6 }}
                 animate={{ opacity: 1, y: 0 }}
                 className="eastern-assistant-message"
               >
@@ -435,7 +478,7 @@ ${selectedSiHua.starName}化${selectedSiHua.siHua}落在【${palaceName}】，�
                   <Sparkle size={12} weight="fill" aria-hidden="true" />
                   命理解读
                 </div>
-                <AiContent text={msg.content} streaming={loading && isLastMsg} />
+                <AiContent text={msg.content} streaming={loading && isLastMsg} reduceMotion={reduceMotion} />
                 <ChatRecoveryActions message={msg} chat={chat} />
               </motion.div>
             );
@@ -449,23 +492,26 @@ ${selectedSiHua.starName}化${selectedSiHua.siHua}落在【${palaceName}】，�
         />
       </div>
 
-      <LifeEventCandidateInbox conversationId={conversationId} compact={Boolean(readingControls)} />
+      <LifeEventCandidateInbox conversationId={conversationId} compact={reading} defaultCollapsed={!reading || preferences.collapseCandidates} />
       <ChatGenerationControls chat={chat} />
 
       {/* ── Input ── */}
       <div className="eastern-chat-composer">
         <div className="eastern-chat-composer-row">
           <textarea
-            rows={2}
+            ref={inputRef}
+            rows={reading ? 1 : 2}
+            aria-label="聊天输入框"
+            aria-describedby={hintId}
             value={input}
             onChange={e => setInput(e.target.value)}
             onKeyDown={e => {
-              if (shouldSendChatMessage(e)) {
+              if (shouldSendChatMessage(e, reading ? preferences.sendKey : undefined)) {
                 e.preventDefault();
                 handleSend();
               }
             }}
-            placeholder={transitContext ? `询问${transitContext.label ?? `${transitContext.targetDate} 年`}的事业、感情或财运…` : '继续追问，如：今年适合换工作吗？'}
+            placeholder={transitContext ? `询问${transitContext.label ?? `${transitContext.targetDate} 年`}的事业、感情或财运…` : reading ? '输入你的问题…' : '继续追问，如：今年适合换工作吗？'}
             disabled={loading}
             className="eastern-chat-input"
           />
@@ -473,14 +519,15 @@ ${selectedSiHua.starName}化${selectedSiHua.siHua}落在【${palaceName}】，�
             onClick={handleSend}
             disabled={loading || !input.trim()}
             aria-label="发送消息"
-            title="发送消息"
+            title={`发送消息（${sendHint}）`}
             className="eastern-chat-send"
           >
             {loading ? <span className="text-[11px]">…</span> : <PaperPlaneTilt size={17} weight="fill" aria-hidden="true" />}
+            {reading && <span className={styles.sendLabel}>发送</span>}
           </button>
         </div>
-        <div className="eastern-chat-hint">
-          Enter 发送，Shift + Enter 换行
+        <div className="eastern-chat-hint" id={hintId}>
+          {sendHint}
         </div>
       </div>
 

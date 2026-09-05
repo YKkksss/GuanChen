@@ -372,10 +372,10 @@ export default function ChartWorkspace({ conversationId }: ChartWorkspaceProps) 
                       onLoadingChange={setAnalyzing}
                       readingControls={<>
                         <button type="button" className={styles.resetSplit} onClick={split.reset} aria-label="重置分栏比例" title="恢复默认分栏比例"><ArrowCounterClockwise size={16} aria-hidden="true" /></button>
-                        <button type="button" className={styles.focusButton} aria-pressed={chatFocused}
+                        <button type="button" className={styles.focusButton} aria-pressed={chatFocused} aria-label={chatFocused ? '退出专注' : '专注对话'} title={chatFocused ? '退出专注对话' : '专注对话'}
                           onClick={() => { setChatFocused(value => !value); setMobilePane('insight'); }}>
                           {chatFocused ? <ArrowsInSimple size={16} aria-hidden="true" /> : <ArrowsOutSimple size={16} aria-hidden="true" />}
-                          {chatFocused ? '退出专注' : '专注对话'}
+                          <span className="eastern-chat-control-label">{chatFocused ? '退出专注' : '专注对话'}</span>
                         </button>
                       </>}
                     />
