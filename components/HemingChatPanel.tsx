@@ -10,6 +10,7 @@ import { useSmartChatScroll } from '@/lib/ui/use-smart-chat-scroll';
 import { shouldSendChatMessage } from '@/lib/client/chat-keyboard';
 import ChatScrollToLatestButton from './ChatScrollToLatestButton';
 import ContextMemoryPanel from './ContextMemoryPanel';
+import AiMarkdown from './AiMarkdown';
 
 interface HemingChatPanelProps {
   conversationId: string;
@@ -45,29 +46,6 @@ const OVERVIEW_PROMPT = `请基于本次合盘的程序事实与规则评估，�
 列出会显著影响判断、但当前尚未确认的现实信息。
 
 不要输出匹配分数，不替用户作出婚姻、合作、医疗或财务决定。`;
-
-function AiContent({ text, streaming }: { text: string; streaming?: boolean }) {
-  return (
-    <div className="space-y-0.5">
-      {text.split('\n').map((line, index) => {
-        const section = line.match(/^\*\*【(.+?)】\*\*$/);
-        if (section) {
-          return <div key={index} className="pt-3 pb-0.5 first:pt-0 text-[11px] font-semibold tracking-wide" style={{ color: 'var(--t-gold)' }}>【{section[1]}】</div>;
-        }
-        if (!line.trim()) return <div key={index} className="h-1" />;
-        const parts = line.split(/\*\*(.+?)\*\*/);
-        return (
-          <div key={index} className="text-[11px] leading-relaxed" style={{ color: 'var(--t-text2)' }}>
-            {parts.map((part, partIndex) => partIndex % 2
-              ? <strong key={partIndex} className="font-medium" style={{ color: 'var(--t-text)' }}>{part}</strong>
-              : part)}
-          </div>
-        );
-      })}
-      {streaming && <span className="ml-0.5 inline-block h-3 w-1.5 animate-pulse rounded-sm align-middle" style={{ background: 'var(--t-gold)' }} />}
-    </div>
-  );
-}
 
 export default function HemingChatPanel({
   conversationId,
@@ -149,7 +127,7 @@ export default function HemingChatPanel({
           return (
             <div key={message.id ?? index}>
               <div className="mb-2 text-[9px] tracking-widest" style={{ color: 'var(--t-faint)' }}>✦ 合盘解读</div>
-              <AiContent text={message.content} streaming={loading && index === messages.length - 1} />
+              <AiMarkdown text={message.content} theme="heming" streaming={loading && index === messages.length - 1} incomplete={message.status === 'cancelled' || message.status === 'failed'} />
               <ChatRecoveryActions message={message} chat={chat} />
             </div>
           );

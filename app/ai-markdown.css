@@ -1,0 +1,56 @@
+/* AI 回复共用排版；字号从所在聊天区域继承，表格与代码只在块内横向滚动。 */
+.ai-markdown {
+  --md-text: var(--t-text2);
+  --md-strong: var(--t-text);
+  --md-accent: var(--t-gold);
+  --md-border: var(--t-border);
+  --md-surface: var(--t-card);
+  min-width: 0;
+  max-width: 100%;
+  color: var(--md-text);
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+.ai-markdown.eastern-ai-content { display: block; font-size: 12px; line-height: 1.76; --md-text: var(--ew-ink-soft); --md-strong: var(--ew-ink); --md-accent: var(--ew-bronze); --md-border: var(--ew-line); --md-surface: var(--ew-paper-strong); }
+.ai-markdown--heming { font-size: 11px; line-height: 1.65; }
+.ai-markdown--bazi { font-size: 14px; line-height: 2; --md-text: var(--tx-2); --md-strong: var(--tx-1); --md-accent: var(--ac-dim); --md-border: var(--bdr); --md-surface: var(--bg-1); }
+.ai-markdown > * { margin: 0; }
+.ai-markdown > * + * { margin-top: .6em; }
+.ai-markdown :is(h1, h2, h3, h4, h5, h6) { color: var(--md-accent); font-family: inherit; font-weight: 700; line-height: 1.5; margin: .9em 0 .35em; }
+.ai-markdown > :first-child { margin-top: 0; }
+.ai-markdown h1 { font-size: 1.3em; }
+.ai-markdown h2 { font-size: 1.2em; }
+.ai-markdown h3 { font-size: 1.1em; }
+.ai-markdown :is(h4, h5, h6) { font-size: 1em; }
+.ai-markdown strong { color: var(--md-strong); font-weight: 700; }
+.ai-markdown strong.ai-markdown-section { color: var(--md-accent); font-size: 1.08em; }
+.ai-markdown em { font-style: italic; }
+.ai-markdown del { text-decoration: line-through; }
+.ai-markdown ul { list-style: disc outside; padding-left: 1.5em; }
+.ai-markdown ol { list-style: decimal outside; padding-left: 1.75em; }
+.ai-markdown li + li { margin-top: .2em; }
+.ai-markdown li > :is(ul, ol, p) { margin-block: .25em; }
+.ai-markdown li > :first-child { margin-top: 0; }
+.ai-markdown li > :last-child { margin-bottom: 0; }
+.ai-markdown :is(ul, ol) :is(ul, ol) { margin-block: .25em; }
+.ai-markdown ul ul { list-style-type: circle; }
+.ai-markdown .task-list-item { list-style: none; }
+.ai-markdown .task-list-item > input { margin: 0 .35em 0 -1.3em; width: .95em; height: .95em; accent-color: var(--md-accent); }
+.ai-markdown blockquote { padding: .15em .8em; border-left: 3px solid var(--md-border); }
+.ai-markdown blockquote > p + p { margin-top: .5em; }
+.ai-markdown a { color: var(--md-accent); text-decoration: underline; text-underline-offset: .2em; }
+.ai-markdown hr { border: 0; border-top: 1px solid var(--md-border); margin-block: .9em; }
+.ai-markdown code { font-family: ui-monospace, Consolas, monospace; font-size: .9em; padding: .1em .3em; border-radius: 4px; background: var(--md-surface); }
+.ai-markdown pre { min-width: 0; max-width: 100%; overflow-x: auto; overscroll-behavior-x: contain; padding: .65em .8em; border: 1px solid var(--md-border); border-radius: 6px; background: var(--md-surface); white-space: pre; line-height: 1.65; }
+.ai-markdown pre code { display: block; font-size: .9em; padding: 0; white-space: inherit; overflow-wrap: normal; background: transparent; }
+.ai-markdown-table { max-width: 100%; overflow-x: auto; overscroll-behavior-x: contain; border: 1px solid var(--md-border); border-radius: 6px; }
+.ai-markdown table { width: 100%; border-collapse: collapse; font-size: inherit; line-height: 1.6; }
+.ai-markdown :is(th, td) { min-width: 5em; padding: .45em .65em; text-align: left; vertical-align: top; border-right: 1px solid var(--md-border); border-bottom: 1px solid var(--md-border); }
+.ai-markdown :is(th, td):last-child { border-right: 0; }
+.ai-markdown tbody tr:last-child td { border-bottom: 0; }
+.ai-markdown th { font-weight: 700; color: var(--md-strong); background: var(--md-surface); }
+.ai-markdown :is(a, pre, .ai-markdown-table):focus-visible { outline: 2px solid var(--md-accent); outline-offset: 2px; }
+.ai-markdown-cursor { display: inline-block; width: 6px; height: .85em; margin-left: 3px; border-radius: 2px; background: var(--md-accent); opacity: .6; animation: ai-markdown-pulse 1.2s ease-in-out infinite; }
+@keyframes ai-markdown-pulse { 50% { opacity: .2; } }
+.ai-markdown[data-reduce-motion='true'] .ai-markdown-cursor { animation: none; }
+@media (prefers-reduced-motion: reduce) { .ai-markdown-cursor { animation: none; } }

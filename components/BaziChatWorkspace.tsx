@@ -1,4 +1,5 @@
 'use client';
+import AiMarkdown from './AiMarkdown';
 
 import {
   ArrowLeft,
@@ -306,7 +307,7 @@ export default function BaziChatWorkspace({ conversationId }: { conversationId: 
               {messages.length === 0 && <div className="flex h-full flex-col items-center justify-center text-center"><ChatCircleDots size={42} className="mb-4 opacity-20" /><h2 className="text-base font-semibold">从这份已保存的规则快照开始解读</h2><p className="mt-2 max-w-md text-xs leading-6" style={{ color: 'var(--tx-3)' }}>可以指定日期核对五层关系、显隐透根、藏干触达、三层方向和格局条件角色映射；消息会保存在本地，刷新后仍可继续。</p></div>}
               {messages.map((message, index) => message.role === 'user'
                 ? <div key={message.id ?? index} className="flex justify-end"><div className="max-w-[85%] rounded-2xl px-4 py-2.5 text-sm leading-6" style={{ color: 'var(--ac)', background: 'var(--ac-bg)', border: '1px solid var(--ac-bdr)' }}>{message.content}</div></div>
-                : <div key={message.id ?? index} className="max-w-3xl"><div className="mb-2 flex items-center gap-2 text-[10px] tracking-wider" style={{ color: 'var(--ac-dim)' }}><ShieldCheck size={13} /> 八字基础解读</div><AiContent text={message.content} streaming={sending && index === messages.length - 1} /><ChatRecoveryActions message={message} chat={chat} /></div>)}
+                : <div key={message.id ?? index} className="max-w-3xl"><div className="mb-2 flex items-center gap-2 text-[10px] tracking-wider" style={{ color: 'var(--ac-dim)' }}><ShieldCheck size={13} /> 八字基础解读</div><AiMarkdown text={message.content} theme="bazi" streaming={sending && index === messages.length - 1} incomplete={message.status === 'cancelled' || message.status === 'failed'} /><ChatRecoveryActions message={message} chat={chat} /></div>)}
               </div>
               <ChatScrollToLatestButton
                 visible={showLatestButton}
@@ -325,15 +326,6 @@ export default function BaziChatWorkspace({ conversationId }: { conversationId: 
       </div>
     </main>
   );
-}
-
-function AiContent({ text, streaming }: { text: string; streaming: boolean }) {
-  return <div className="space-y-1 text-sm leading-7" style={{ color: 'var(--tx-2)' }}>{text.split('\n').map((line, index) => {
-    const section = line.match(/^(?:\*\*)?【(.+?)】(?:\*\*)?$/);
-    if (section) return <h3 key={index} className="pt-3 text-xs font-semibold tracking-wide first:pt-0" style={{ color: 'var(--ac-dim)' }}>【{section[1]}】</h3>;
-    if (!line.trim()) return <div key={index} className="h-1" />;
-    return <p key={index}>{line.replace(/\*\*/g, '')}</p>;
-  })}{streaming && <span className="inline-block h-3 w-1.5 animate-pulse rounded-sm" style={{ background: 'var(--ac-dim)' }} />}</div>;
 }
 
 function PageState({ text, error = false }: { text: string; error?: boolean }) {

@@ -132,3 +132,7 @@ Next 会自动调整 `next-env.d.ts` 和 `tsconfig.json` 的生成类型路径�
 手机结果仍为视口模拟，实体设备软键盘尚未实机验证。独立验收服务结束，临时脚本已移除，Next 类型路径恢复默认；缓存和合成数据库不进入提交。
 
 本轮 8 项专项测试通过：`test:chat-preferences`、`test:chat-keyboard`、`test:chat-split`、`test:chat-scroll`、`test:chat-generation`、`test:event-candidates`、`test:workspace-navigation`、`test:learning-open-practice`。最终 `npx tsc --noEmit` 与 `npm run build` 通过，生产构建完成 71 个静态页面及所有动态路由编译。开发服务已恢复到 30001。
+
+## 6. Markdown 后续修复
+
+`ebde982` 之后将逐行正则渲染替换为共用 Markdown 组件，补齐标题、列表、引用、表格、代码、链接、中文标点强调和流式部分回复。原有字号、紧凑布局和草稿/生成流程保持；宽表格和代码只在内容块内滚动。详见 [AI 聊天 Markdown 渲染修复](./AI_CHAT_MARKDOWN_IMPLEMENTATION.md)。

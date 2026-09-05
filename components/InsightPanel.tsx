@@ -16,6 +16,7 @@ import { DEFAULT_CHAT_PREFERENCES, getChatFontFamily, type ChatPreferences } fro
 import { useChatPreferences } from '@/lib/ui/use-chat-preferences';
 import { useChatInputSize } from '@/lib/ui/use-chat-input-size';
 import styles from './InsightPanel.module.css';
+import AiMarkdown from './AiMarkdown';
 
 interface SelectedSiHua {
   starName: string;
@@ -163,44 +164,6 @@ const PALACE_ROLES: Record<string, string> = {
   '福德宫': '精神享受、内心福分',
   '父母宫': '父母关系、文书契约',
 };
-
-/** Render AI markdown: **【Title】** → gold header, **bold** → strong */
-function AiContent({ text, streaming, reduceMotion }: { text: string; streaming?: boolean; reduceMotion?: boolean }) {
-  const lines = text.split('\n');
-  return (
-    <div className="eastern-ai-content">
-      {lines.map((line, i) => {
-        const sectionMatch = line.match(/^\*\*【(.+?)】\*\*$/);
-        if (sectionMatch) {
-          return (
-            <div key={i} className="eastern-ai-section">
-              <span>
-                【{sectionMatch[1]}】
-              </span>
-            </div>
-          );
-        }
-        if (line.trim() === '') return <div key={i} className="eastern-ai-spacer" />;
-        const parts = line.split(/\*\*(.+?)\*\*/);
-        return (
-          <div key={i} className="eastern-ai-line">
-            {parts.map((part, j) =>
-              j % 2 === 0
-                ? part
-                : <strong key={j}>{part}</strong>
-            )}
-          </div>
-        );
-      })}
-      {streaming && (
-        <span
-          className={`inline-block w-1.5 h-3 ml-0.5 ${reduceMotion ? '' : 'animate-pulse'} rounded-sm align-middle`}
-          style={{ background: 'var(--t-gold)', opacity: 0.6 }}
-        />
-      )}
-    </div>
-  );
-}
 
 export interface InsightPanelHandle {
   analyzePalace: (palace: Palace) => boolean;
@@ -478,7 +441,7 @@ ${selectedSiHua.starName}化${selectedSiHua.siHua}落在【${palaceName}】，�
                   <Sparkle size={12} weight="fill" aria-hidden="true" />
                   命理解读
                 </div>
-                <AiContent text={msg.content} streaming={loading && isLastMsg} reduceMotion={reduceMotion} />
+                <AiMarkdown text={msg.content} streaming={loading && isLastMsg} incomplete={msg.status === 'cancelled' || msg.status === 'failed'} reduceMotion={reduceMotion} />
                 <ChatRecoveryActions message={msg} chat={chat} />
               </motion.div>
             );

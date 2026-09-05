@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
+import './ai-markdown.css';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import EasternAppFrame from '@/components/eastern/EasternAppFrame';
 import { Analytics } from '@vercel/analytics/next';

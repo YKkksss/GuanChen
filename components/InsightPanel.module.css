@@ -18,12 +18,6 @@
 .reading:global(.eastern-insight-panel) :global(.eastern-assistant-message) { padding: 0; border: 0; background: transparent; }
 .reading:global(.eastern-insight-panel) :global(.eastern-assistant-label) { font-size: 11px; margin-bottom: 5px; }
 .reading:global(.eastern-insight-panel) :global(.eastern-ai-content) { font-family: var(--chat-font-family); font-size: var(--chat-ai-font-size); line-height: var(--chat-line-height); }
-.reading:global(.eastern-insight-panel) :global(.eastern-ai-line) { font: inherit; overflow-wrap: anywhere; }
-.reading:global(.eastern-insight-panel) :global(.eastern-ai-section) { margin-top: 10px; margin-bottom: 5px; padding-top: 0; }
-.reading:global(.eastern-insight-panel) :global(.eastern-ai-section:first-child) { margin-top: 0; }
-.reading:global(.eastern-insight-panel) :global(.eastern-ai-section span) { font-family: inherit; font-size: 1.08em; line-height: inherit; }
-.reading:global(.eastern-insight-panel) :global(.eastern-ai-spacer) { height: 6px; }
-.reading:global(.eastern-insight-panel) :global(.eastern-ai-spacer + .eastern-ai-spacer) { display: none; }
 .reading:global(.eastern-insight-panel) :global(.eastern-user-message) { max-width: 92%; padding: 7px 11px; font: var(--chat-font-size)/var(--chat-line-height) var(--chat-font-family); overflow-wrap: anywhere; }
 .reading:global(.eastern-insight-panel) :global(.eastern-message-empty p) { font: var(--chat-font-size)/var(--chat-line-height) var(--chat-font-family); }
 .reading:global(.eastern-insight-panel) :global(.eastern-chat-composer) { padding: 8px 12px; }
