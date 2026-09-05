@@ -1,21 +1,15 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useState } from 'react';
+import { useConversationChat } from '@/lib/ui/use-conversation-chat';
+import { ChatRecoveryActions, ChatGenerationControls } from './ChatRecoveryActions';
 import { Brain, ChatCircleDots, PaperPlaneTilt } from '@phosphor-icons/react';
-import { isHiddenSource, type ConversationMessage } from '@/lib/conversations/types';
+import { type ConversationMessage } from '@/lib/conversations/types';
 import type { RelationshipType } from '@/lib/heming/types';
 import { useSmartChatScroll } from '@/lib/ui/use-smart-chat-scroll';
 import { shouldSendChatMessage } from '@/lib/client/chat-keyboard';
 import ChatScrollToLatestButton from './ChatScrollToLatestButton';
 import ContextMemoryPanel from './ContextMemoryPanel';
-
-interface DisplayMessage {
-  id?: string;
-  role: 'user' | 'assistant';
-  content: string;
-  hidden?: boolean;
-  status?: ConversationMessage['status'];
-}
 
 interface HemingChatPanelProps {
   conversationId: string;
@@ -81,19 +75,10 @@ export default function HemingChatPanel({
   relationshipType,
   transitYear,
 }: HemingChatPanelProps) {
-  const [messages, setMessages] = useState<DisplayMessage[]>(() => initialMessages
-    .filter(message => message.role !== 'system' && Boolean(message.content))
-    .map(message => ({
-      id: message.id,
-      role: message.role as 'user' | 'assistant',
-      content: message.content,
-      hidden: message.role === 'user' && isHiddenSource(message.source),
-      status: message.status,
-    })));
-  const [input, setInput] = useState('');
-  const [loading, setLoading] = useState(false);
+  const chat = useConversationChat(conversationId, 'ziwei', initialMessages);
+  const { messages, input, busy: loading } = chat;
+  const setInput = chat.session.setInput;
   const [memoryOpen, setMemoryOpen] = useState(false);
-  const loadingRef = useRef(false);
   const {
     scrollRef,
     showLatestButton,
@@ -104,71 +89,10 @@ export default function HemingChatPanel({
     scrollToLatest,
   } = useSmartChatScroll<HTMLDivElement>(messages);
 
-  async function streamResponse(text: string, source: 'question' | 'topic' | 'auto') {
-    try {
-      const response = await fetch(`/api/conversations/${conversationId}/respond`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          message: text,
-          source,
-          topic: source === 'auto' ? 'heming_overview' : transitYear ? 'heming_transit' : null,
-          transitLevel: transitYear ? 'year' : null,
-          targetDate: transitYear ? String(transitYear) : null,
-        }),
-      });
-      if (!response.ok) {
-        const payload = await response.json().catch(() => ({})) as { error?: string };
-        throw new Error(payload.error || '请求失败');
-      }
-      if (!response.body) throw new Error('未收到响应流');
-
-      setMessages(previous => [...previous, { role: 'assistant', content: '' }]);
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
-      let assistantText = '';
-      let buffer = '';
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split(/\r?\n/);
-        buffer = lines.pop() ?? '';
-        for (const line of lines) {
-          if (!line.startsWith('data: ')) continue;
-          const data = line.slice(6);
-          if (data === '[DONE]') continue;
-          try {
-            assistantText += (JSON.parse(data) as { delta?: { text?: string } }).delta?.text ?? '';
-            setMessages(previous => {
-              const next = [...previous];
-              next[next.length - 1] = { role: 'assistant', content: assistantText };
-              return next;
-            });
-          } catch { /* 忽略不完整的事件行 */ }
-        }
-      }
-    } catch (error) {
-      setMessages(previous => [...previous, {
-        role: 'assistant',
-        content: error instanceof Error ? `分析暂时不可用：${error.message}` : '分析暂时不可用，请稍后重试。',
-      }]);
-    } finally {
-      setLoading(false);
-      loadingRef.current = false;
-      window.dispatchEvent(new Event('conversation-updated'));
-    }
-  }
-
   function sendMessage(text: string, options: { hidden?: boolean; source?: 'question' | 'topic' | 'auto' } = {}) {
-    const content = text.trim();
-    if (!content || loadingRef.current) return;
-    loadingRef.current = true;
-    setLoading(true);
-    scrollToLatest('auto');
-    setMessages(previous => [...previous, { role: 'user', content, hidden: options.hidden }]);
-    setInput('');
-    void streamResponse(content, options.source ?? 'question');
+    const source = options.source ?? 'question';
+    if (chat.session.send(text, { ...options, source, topic: source === 'auto' ? 'heming_overview' : transitYear ? 'heming_transit' : null,
+      transitLevel: transitYear ? 'year' : null, targetDate: transitYear ? String(transitYear) : null })) scrollToLatest('auto');
   }
 
   const visibleCount = messages.filter(message => !message.hidden).length;
@@ -226,6 +150,7 @@ export default function HemingChatPanel({
             <div key={message.id ?? index}>
               <div className="mb-2 text-[9px] tracking-widest" style={{ color: 'var(--t-faint)' }}>✦ 合盘解读</div>
               <AiContent text={message.content} streaming={loading && index === messages.length - 1} />
+              <ChatRecoveryActions message={message} chat={chat} />
             </div>
           );
         })}
@@ -237,6 +162,7 @@ export default function HemingChatPanel({
         />
       </div>
 
+      <ChatGenerationControls chat={chat} />
       <div className="shrink-0 px-3 pb-3 pt-2.5" style={{ borderTop: '1px solid var(--t-border)', background: 'var(--t-card)' }}>
         <div className="flex items-end gap-2">
           <textarea rows={2} value={input} onChange={event => setInput(event.target.value)} onKeyDown={event => { if (shouldSendChatMessage(event)) { event.preventDefault(); sendMessage(input); } }} disabled={loading} placeholder="继续追问双方的沟通、边界或阶段影响…" className="min-h-[52px] flex-1 resize-none rounded-lg px-3 py-2 text-[11px] leading-relaxed outline-none disabled:opacity-60" style={{ color: 'var(--t-text)', border: '1px solid var(--t-border)', background: 'var(--t-card)' }} />

@@ -38,6 +38,8 @@ async function main() {
     });
     const userMessage = appendMessage({ conversationId: conversation.id, role: 'user', content: '我在 2020 年完成了一次重要转岗。' });
     const assistantMessage = appendMessage({ conversationId: conversation.id, role: 'assistant', content: '已记录这次转岗，后续可以结合年度结构回看。', metadata: { sourceMessageId: userMessage.id } });
+    const { linkChatReply } = await import('../lib/db/chat-replies');
+    linkChatReply('ziwei', assistantMessage.id, userMessage.id, 'chart-transfer-request', null);
     const memory = upsertMemoryItem({ conversationId: conversation.id, category: 'confirmed_event', content: '2020 年完成重要转岗', normalizedKey: 'career:2020-transfer', sourceMessageId: userMessage.id });
     const lifeEvent = createLifeEvent(conversation.id, { title: '完成重要转岗', category: 'career', startDate: '2020-06-15', datePrecision: 'day', impactLevel: 4, sourceMessageId: userMessage.id, confirmedByUser: true });
     const transit = getOrCreateAnnualTransit(conversation.id, 2020);
@@ -108,6 +110,9 @@ async function main() {
     const importedMessages = getDatabase().prepare('SELECT * FROM messages WHERE conversation_id = ? ORDER BY seq').all(importedConversationId) as Array<{ id: string; content: string }>;
     assert.equal(importedMessages.length, 2);
     assert.notEqual(importedMessages[0].id, userMessage.id);
+    const importedReply = getDatabase().prepare('SELECT reply_to_message_id, request_id FROM messages WHERE id = ?').get(importedMessages[1].id) as { reply_to_message_id: string; request_id: string | null };
+    assert.equal(importedReply.reply_to_message_id, importedMessages[0].id, '副本的重试关系应指向副本问题');
+    assert.equal(importedReply.request_id, null, '副本不能携带原请求标识');
     const importedMemory = getDatabase().prepare('SELECT * FROM memory_items WHERE conversation_id = ?').get(importedConversationId) as { id: string; source_message_id: string };
     assert.notEqual(importedMemory.id, memory.id);
     assert.equal(importedMemory.source_message_id, importedMessages[0].id);

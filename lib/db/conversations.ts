@@ -38,6 +38,9 @@ interface ConversationRow {
 }
 
 interface MessageRow {
+  reply_to_message_id: string | null;
+  retry_of_message_id: string | null;
+  request_id: string | null;
   id: string;
   conversation_id: string;
   seq: number;
@@ -92,6 +95,9 @@ function mapConversation(row: ConversationRow): Conversation {
 
 function mapMessage(row: MessageRow): ConversationMessage {
   return {
+    replyToMessageId: row.reply_to_message_id,
+    retryOfMessageId: row.retry_of_message_id,
+    requestId: row.request_id,
     id: row.id,
     conversationId: row.conversation_id,
     seq: row.seq,

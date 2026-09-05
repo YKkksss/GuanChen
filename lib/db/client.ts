@@ -2558,6 +2558,19 @@ function migrate(db: Database.Database) {
     applyV46();
   }
 
+  if (!applied.has(47)) {
+    db.transaction(() => {
+      // 保留每次回答的原问题、重试来源和请求标识，刷新后仍可恢复操作。
+      for (const table of ['messages', 'bazi_messages']) {
+        db.exec(`ALTER TABLE ${table} ADD COLUMN reply_to_message_id TEXT;
+          ALTER TABLE ${table} ADD COLUMN retry_of_message_id TEXT;
+          ALTER TABLE ${table} ADD COLUMN request_id TEXT;
+          CREATE UNIQUE INDEX ${table}_request_id ON ${table}(request_id) WHERE request_id IS NOT NULL;`);
+      }
+      db.prepare('INSERT INTO schema_migrations (version, applied_at) VALUES (?, ?)').run(47, Date.now());
+    })();
+  }
+
   ensureMessageSearch(db);
 }
 

@@ -65,6 +65,7 @@
     "test:chat-scroll": "tsx scripts/test-chat-scroll.ts",
     "test:chat-keyboard": "tsx scripts/test-chat-keyboard.ts",
     "test:workspace-navigation": "tsx scripts/test-workspace-navigation.ts",
+    "test:chat-generation": "tsx scripts/test-chat-generation.ts",
     "test:backups": "tsx scripts/test-local-backups.ts",
     "test:backup-lifecycle": "tsx scripts/test-backup-lifecycle.ts",
     "test:encrypted-backups": "tsx scripts/test-encrypted-backups.ts",

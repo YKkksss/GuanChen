@@ -42,7 +42,7 @@ async function main() {
     const archive = await createLocalBackupArchive();
     assert.ok(archive.fileName.endsWith('.ziweibackup'));
     assert.equal(archive.buffer[0], 0x1f);
-    assert.equal(archive.preview.schemaVersion, 46);
+    assert.equal(archive.preview.schemaVersion, 47);
     assert.equal(archive.preview.content.conversations, 1);
     assert.equal(archive.preview.content.messages, 1);
     assert.equal(archive.preview.compatible, true);

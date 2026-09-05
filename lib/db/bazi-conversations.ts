@@ -73,6 +73,7 @@ interface ConversationRow {
 }
 
 interface MessageRow {
+  reply_to_message_id: string | null; retry_of_message_id: string | null; request_id: string | null;
   id: string; conversation_id: string; seq: number; role: BaziMessageRole; content: string;
   source: string; status: BaziMessageStatus; token_count: number; error_code: string | null;
   created_at: number; updated_at: number;
@@ -443,6 +444,7 @@ function mapConversation(row: ConversationRow): BaziConversation {
 
 function mapMessage(row: MessageRow): BaziConversationMessage {
   return {
+    replyToMessageId: row.reply_to_message_id, retryOfMessageId: row.retry_of_message_id, requestId: row.request_id,
     id: row.id, conversationId: row.conversation_id, seq: row.seq, role: row.role,
     content: row.content, source: row.source, status: row.status, tokenCount: row.token_count,
     errorCode: row.error_code, createdAt: row.created_at, updatedAt: row.updated_at,

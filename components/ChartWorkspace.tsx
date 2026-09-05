@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useConversationChat } from '@/lib/ui/use-conversation-chat';
 import {
   BookOpen,
   CalendarDots,
@@ -35,7 +36,8 @@ interface ChartWorkspaceProps {
 export default function ChartWorkspace({ conversationId }: ChartWorkspaceProps) {
   const router = useRouter();
   const [chart, setChart] = useState<ZiweiChart | null>(null);
-  const [messages, setMessages] = useState<ConversationMessage[]>([]);
+  const chat = useConversationChat(conversationId ?? '', 'ziwei', undefined, true);
+  const hydrateChat = chat.session.hydrate;
   const [selectedPalace, setSelectedPalace] = useState<Palace | null>(null);
   const [loading, setLoading] = useState(Boolean(conversationId));
   const [creating, setCreating] = useState(false);
@@ -54,7 +56,7 @@ export default function ChartWorkspace({ conversationId }: ChartWorkspaceProps) 
     setHistoryCollapsed(true);
     setMobileActionsOpen(false);
     setStarSelection(null);
-  }, [conversationId]);
+  }, [conversationId, hydrateChat]);
 
   const toggleHistory = () => {
     setHistoryCollapsed(current => !current);
@@ -82,7 +84,7 @@ export default function ChartWorkspace({ conversationId }: ChartWorkspaceProps) 
   useEffect(() => {
     if (!conversationId) {
       setChart(null);
-      setMessages([]);
+
       setLoading(false);
       setError('');
       return;
@@ -90,7 +92,7 @@ export default function ChartWorkspace({ conversationId }: ChartWorkspaceProps) 
 
     const controller = new AbortController();
     setChart(null);
-    setMessages([]);
+
     setLoading(true);
     setError('');
     fetch(`/api/conversations/${conversationId}`, { cache: 'no-store', signal: controller.signal })
@@ -102,10 +104,11 @@ export default function ChartWorkspace({ conversationId }: ChartWorkspaceProps) 
         return response.json() as Promise<{ conversation: Conversation; messages: ConversationMessage[] }>;
       })
       .then(data => {
+        if (controller.signal.aborted) return;
         if (!data.conversation.chartSnapshot) throw new Error('该会话缺少命盘快照');
         setChart(data.conversation.chartSnapshot);
         setSelectedPalace(null);
-        setMessages(data.messages);
+        hydrateChat(data.messages);
       })
       .catch(loadError => {
         if (loadError instanceof DOMException && loadError.name === 'AbortError') return;
@@ -113,7 +116,7 @@ export default function ChartWorkspace({ conversationId }: ChartWorkspaceProps) 
       })
       .finally(() => { if (!controller.signal.aborted) setLoading(false); });
     return () => controller.abort();
-  }, [conversationId]);
+  }, [conversationId, hydrateChat]);
 
   const createChartConversation = async (birthInfo: BirthInfo) => {
     setCreating(true);
@@ -342,7 +345,7 @@ export default function ChartWorkspace({ conversationId }: ChartWorkspaceProps) 
                       key={conversationId}
                       chart={chart}
                       conversationId={conversationId}
-                      initialMessages={messages}
+                      chat={chat}
                       onLoadingChange={setAnalyzing}
                     />
                   </div>

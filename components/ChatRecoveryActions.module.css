@@ -1,0 +1,10 @@
+.actions { margin-top: 8px; color: var(--t-faint, #847466); font-size: 11px; line-height: 1.8; }
+.actions > div { display: flex; flex-wrap: wrap; gap: 10px; }
+.actions button, .controls button { min-height: 36px; padding: 5px 8px; border: 1px solid var(--t-border, #d8ccbb); border-radius: 6px; color: var(--t-gold, #a43f31); background: transparent; font-size: 11px; }
+.actions button:disabled, .controls button:disabled { opacity: .5; cursor: wait; }
+.actions button:focus-visible, .controls button:focus-visible { outline: 2px solid #a43f31; outline-offset: 2px; }
+.controls { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; padding: 0 12px; flex-shrink: 0; }
+.controls:not(:empty) { padding-block: 8px; }
+.controls p { color: #a43f31; font-size: 12px; line-height: 1.8; }
+.status { color: var(--t-faint, #847466); font-size: 11px; }
+@media (max-width: 820px) { .actions button, .controls button { min-height: 44px; } }

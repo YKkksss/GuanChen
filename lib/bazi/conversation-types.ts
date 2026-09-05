@@ -94,6 +94,9 @@ export interface BaziConversationListItem extends BaziConversation {
 }
 
 export interface BaziConversationMessage {
+  replyToMessageId?: string | null;
+  retryOfMessageId?: string | null;
+  requestId?: string | null;
   id: string;
   conversationId: string;
   seq: number;

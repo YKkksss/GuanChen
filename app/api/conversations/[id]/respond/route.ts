@@ -1,9 +1,13 @@
 import { NextResponse } from 'next/server';
+import { randomUUID } from 'node:crypto';
+import { startGeneration, isRequestId, type GenerationJob } from '@/lib/chat/generations';
+import { generationStream, providerText } from '@/lib/chat/generation-stream';
+import { findChatRequest, linkChatReply, resolveRetryQuestion } from '@/lib/db/chat-replies';
+import type { ConversationMessage } from '@/lib/conversations/types';
 import {
   createChatCompletionStream,
   getProviderConfig,
   sseResponse,
-  toClientSseStream,
 } from '@/lib/ai/deepseek';
 import {
   buildConversationContext,
@@ -26,6 +30,8 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 interface RespondBody {
+  requestId?: unknown;
+  retryOfAssistantId?: unknown;
   message?: unknown;
   source?: unknown;
   topic?: unknown;
@@ -49,11 +55,26 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
 
   let assistantId: string | null = null;
   let contextRunId: string | null = null;
+  let job: GenerationJob | null = null;
+  let userId: string | null = null;
   try {
-    const body = await request.json() as RespondBody;
+    let body = await request.json() as RespondBody;
+    const retryOf = typeof body.retryOfAssistantId === 'string' ? body.retryOfAssistantId : null;
+    const retryQuestion = retryOf ? resolveRetryQuestion('ziwei', id, retryOf) as ConversationMessage : null;
+    if (retryQuestion) {
+      const transit = retryQuestion.metadata?.transit as { level?: string; targetDate?: string } | undefined;
+      body = { ...body, message: retryQuestion.content, source: retryQuestion.source, topic: retryQuestion.topic,
+        palaceBranch: retryQuestion.palaceBranch, sihuaType: retryQuestion.sihuaType,
+        transitLevel: transit?.level, targetDate: transit?.targetDate };
+    }
     const content = typeof body.message === 'string' ? body.message.trim() : '';
     if (!content) return NextResponse.json({ error: '消息不能为空' }, { status: 400 });
     if (content.length > 20_000) return NextResponse.json({ error: '消息内容过长' }, { status: 413 });
+    const requestId = body.requestId === undefined ? randomUUID() : body.requestId;
+    if (!isRequestId(requestId)) return NextResponse.json({ error: '请求标识无效' }, { status: 400 });
+    if (findChatRequest('ziwei', requestId)) return NextResponse.json({ error: '该请求已处理，请刷新查看结果。' }, { status: 409 });
+    job = startGeneration('ziwei', id, requestId);
+    if (!job) return NextResponse.json({ error: '该会话正在生成，请先停止或等待完成。' }, { status: 409 });
 
     const source = normalizeSource(body.source);
     const topic = typeof body.topic === 'string' ? body.topic.slice(0, 40) : null;
@@ -73,7 +94,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
       ? { transit: { level: transitLevel, targetDate } }
       : null;
 
-    const userMessage = appendMessage({
+    const userMessage = retryQuestion ?? appendMessage({
       conversationId: id,
       role: 'user',
       content,
@@ -84,6 +105,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
       metadata,
       status: 'completed',
     });
+    userId = userMessage.id;
     updateMessage(userMessage.id, { tokenCount: estimateTextTokens(content) });
     const assistant = appendMessage({
       conversationId: id,
@@ -93,6 +115,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
       status: 'streaming',
     });
     assistantId = assistant.id;
+    linkChatReply('ziwei', assistant.id, userMessage.id, requestId, retryOf);
 
     const provider = getProviderConfig();
     let builtContext;
@@ -147,26 +170,31 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     });
     contextRunId = contextRun.id;
 
-    const upstream = await createChatCompletionStream(builtContext.messages, {
-      temperature: conversation.type === 'heming' ? 0.62 : 0.72,
-      maxTokens: 2000,
-    });
-    const clientStream = toClientSseStream(upstream);
-    return sseResponse(persistAssistantStream(clientStream, {
-      conversationId: id,
-      userMessageId: userMessage.id,
-      assistantMessageId: assistant.id,
-      contextRunId: contextRun.id,
-      estimatedInputTokens: builtContext.estimatedInputTokens,
+    return sseResponse(generationStream({
+      job, requestSignal: request.signal,
+      async *produce(signal) {
+        yield* providerText(await createChatCompletionStream(builtContext.messages, {
+          temperature: conversation.type === 'heming' ? 0.62 : 0.72, maxTokens: 2000, signal,
+        }));
+      },
+      savePartial: text => { updateMessage(assistant.id, { content: text, status: 'streaming' }); },
+      finish(status, text, errorCode) {
+        const tokens = estimateTextTokens(text);
+        updateMessage(assistant.id, { content: text, status, tokenCount: tokens, errorCode });
+        completeContextRun(contextRun.id, { status: status === 'completed' ? 'completed' : 'failed', errorCode, actualOutputTokens: tokens });
+        if (status === 'completed') void maintainConversationContext({ conversationId: id, userMessageId: userMessage.id, assistantMessageId: assistant.id })
+          .catch(error => console.warn('对话摘要更新失败：', error));
+      },
     }), {
       'X-User-Message-Id': userMessage.id,
       'X-Assistant-Message-Id': assistant.id,
+      'X-Chat-Request-Id': requestId,
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'AI 解读失败';
     if (assistantId) {
       updateMessage(assistantId, {
-        content: '解读失败，请稍后重试。',
+        content: '',
         status: 'failed',
         errorCode: 'provider_error',
       });
@@ -174,94 +202,12 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     if (contextRunId) {
       completeContextRun(contextRunId, { status: 'failed', errorCode: 'provider_error' });
     }
-    return NextResponse.json({ error: message }, { status: 500 });
+    job?.release();
+    return NextResponse.json({ error: message, assistantMessageId: assistantId, userMessageId: userId }, { status: assistantId ? 500 : 400 });
   }
 }
 
 function normalizeSource(value: unknown): string {
   const allowed = new Set(['question', 'topic', 'palace', 'sihua', 'auto']);
   return typeof value === 'string' && allowed.has(value) ? value : 'question';
-}
-
-function persistAssistantStream(
-  stream: ReadableStream<Uint8Array>,
-  input: {
-    conversationId: string;
-    userMessageId: string;
-    assistantMessageId: string;
-    contextRunId: string;
-    estimatedInputTokens: number;
-  },
-): ReadableStream<Uint8Array> {
-  const decoder = new TextDecoder();
-  let parseBuffer = '';
-  let fullText = '';
-  let lastSavedLength = 0;
-  let lastSavedAt = Date.now();
-
-  return new ReadableStream<Uint8Array>({
-    async start(controller) {
-      const reader = stream.getReader();
-      try {
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          controller.enqueue(value);
-
-          parseBuffer += decoder.decode(value, { stream: true });
-          const lines = parseBuffer.split(/\r?\n/);
-          parseBuffer = lines.pop() ?? '';
-          for (const line of lines) {
-            if (!line.startsWith('data: ')) continue;
-            const data = line.slice(6).trim();
-            if (!data || data === '[DONE]') continue;
-            try {
-              const delta = JSON.parse(data).delta?.text;
-              if (typeof delta === 'string') fullText += delta;
-            } catch {
-              // 忽略单个格式异常的增量，最终状态仍由完整流决定。
-            }
-          }
-
-          if (fullText.length - lastSavedLength >= 300 || Date.now() - lastSavedAt >= 800) {
-            updateMessage(input.assistantMessageId, { content: fullText, status: 'streaming' });
-            lastSavedLength = fullText.length;
-            lastSavedAt = Date.now();
-          }
-        }
-        const outputTokens = estimateTextTokens(fullText);
-        updateMessage(input.assistantMessageId, {
-          content: fullText,
-          status: 'completed',
-          tokenCount: outputTokens,
-          errorCode: null,
-        });
-        completeContextRun(input.contextRunId, {
-          status: 'completed',
-          actualOutputTokens: outputTokens,
-        });
-        void maintainConversationContext({
-          conversationId: input.conversationId,
-          userMessageId: input.userMessageId,
-          assistantMessageId: input.assistantMessageId,
-        });
-        controller.close();
-      } catch (error) {
-        updateMessage(input.assistantMessageId, {
-          content: fullText,
-          status: 'failed',
-          tokenCount: estimateTextTokens(fullText),
-          errorCode: error instanceof Error ? 'stream_error' : 'unknown_stream_error',
-        });
-        completeContextRun(input.contextRunId, {
-          status: 'failed',
-          errorCode: error instanceof Error ? 'stream_error' : 'unknown_stream_error',
-          actualOutputTokens: estimateTextTokens(fullText),
-        });
-        controller.error(error);
-      } finally {
-        reader.releaseLock();
-      }
-    },
-  });
 }

@@ -10,7 +10,9 @@ import {
   Trash,
   X,
 } from '@phosphor-icons/react';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { useConversationChat } from '@/lib/ui/use-conversation-chat';
+import { ChatRecoveryActions, ChatGenerationControls } from './ChatRecoveryActions';
 import { useRouter } from 'next/navigation';
 import type {
   BaziConversationDetail,
@@ -71,24 +73,17 @@ const QUICK_PROMPTS = [
   '请比较月令格局、扶抑和调候三种取用语义',
 ];
 
-interface DisplayMessage {
-  id?: string;
-  role: 'user' | 'assistant';
-  content: string;
-  status?: BaziConversationMessage['status'];
-}
-
 export default function BaziChatWorkspace({ conversationId }: { conversationId: string }) {
   const router = useRouter();
   const [conversation, setConversation] = useState<BaziConversationDetail | null>(null);
   const [history, setHistory] = useState<BaziConversationListItem[]>([]);
-  const [messages, setMessages] = useState<DisplayMessage[]>([]);
-  const [input, setInput] = useState('');
+  const chat = useConversationChat(conversationId, 'bazi');
+  const { messages, input, busy: sending } = chat;
+  const setInput = chat.session.setInput;
+  const hydrateChat = chat.session.hydrate;
   const [loading, setLoading] = useState(true);
-  const [sending, setSending] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [error, setError] = useState('');
-  const sendingRef = useRef(false);
   const {
     scrollRef,
     showLatestButton,
@@ -116,79 +111,24 @@ export default function BaziChatWorkspace({ conversationId }: { conversationId: 
       const detail = await detailResponse.json() as { conversation?: BaziConversationDetail; messages?: BaziConversationMessage[]; error?: string };
       const historyData = await historyResponse.json() as { conversations?: BaziConversationListItem[] };
       if (!detailResponse.ok || !detail.conversation) throw new Error(detail.error || '八字会话加载失败');
+      if (controller.signal.aborted) return;
       setConversation(detail.conversation);
-      setMessages((detail.messages ?? []).filter(message => message.role !== 'system' && Boolean(message.content)).map(message => ({
-        id: message.id,
-        role: message.role as 'user' | 'assistant',
-        content: message.content,
-        status: message.status,
-      })));
+      hydrateChat(detail.messages ?? []);
       if (historyResponse.ok) setHistory(historyData.conversations ?? []);
     }).catch(loadError => {
       if (!controller.signal.aborted) setError(loadError instanceof Error ? loadError.message : '八字会话加载失败');
     }).finally(() => { if (!controller.signal.aborted) setLoading(false); });
     return () => controller.abort();
-  }, [conversationId]);
+  }, [conversationId, hydrateChat]);
 
-  const sendMessage = async (raw: string, source: 'question' | 'quick_prompt' = 'question') => {
-    const content = raw.trim();
-    if (!content || sendingRef.current) return;
-    sendingRef.current = true;
-    setSending(true);
-    setError('');
-    setInput('');
-    scrollToLatest('auto');
-    setMessages(previous => [...previous, { role: 'user', content }, { role: 'assistant', content: '', status: 'streaming' }]);
-    try {
-      const response = await fetch(`/api/bazi/conversations/${conversationId}/respond`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: content, source }),
-      });
-      if (!response.ok) {
-        const data = await response.json().catch(() => ({})) as { error?: string };
-        throw new Error(data.error || '八字解读失败');
-      }
-      if (!response.body) throw new Error('未收到模型响应');
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
-      let buffer = '';
-      let answer = '';
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split(/\r?\n/);
-        buffer = lines.pop() ?? '';
-        for (const line of lines) {
-          if (!line.startsWith('data: ')) continue;
-          const data = line.slice(6).trim();
-          if (!data || data === '[DONE]') continue;
-          answer += (JSON.parse(data) as { delta?: { text?: string } }).delta?.text ?? '';
-          setMessages(previous => {
-            const next = [...previous];
-            next[next.length - 1] = { role: 'assistant', content: answer, status: 'streaming' };
-            return next;
-          });
-        }
-      }
-      setMessages(previous => {
-        const next = [...previous];
-        next[next.length - 1] = { role: 'assistant', content: answer, status: 'completed' };
-        return next;
-      });
-      await loadHistory();
-    } catch (sendError) {
-      const message = sendError instanceof Error ? sendError.message : '八字解读失败';
-      setMessages(previous => {
-        const next = [...previous];
-        next[next.length - 1] = { role: 'assistant', content: `解读暂时不可用：${message}`, status: 'failed' };
-        return next;
-      });
-    } finally {
-      sendingRef.current = false;
-      setSending(false);
-    }
+  useEffect(() => {
+    const refreshHistory = () => { void loadHistory(); };
+    window.addEventListener('conversation-updated', refreshHistory);
+    return () => window.removeEventListener('conversation-updated', refreshHistory);
+  }, [loadHistory]);
+
+  const sendMessage = (raw: string, source: 'question' | 'quick_prompt' = 'question') => {
+    if (chat.session.send(raw, { source })) scrollToLatest('auto');
   };
 
   const createNew = async () => {
@@ -366,7 +306,7 @@ export default function BaziChatWorkspace({ conversationId }: { conversationId: 
               {messages.length === 0 && <div className="flex h-full flex-col items-center justify-center text-center"><ChatCircleDots size={42} className="mb-4 opacity-20" /><h2 className="text-base font-semibold">从这份已保存的规则快照开始解读</h2><p className="mt-2 max-w-md text-xs leading-6" style={{ color: 'var(--tx-3)' }}>可以指定日期核对五层关系、显隐透根、藏干触达、三层方向和格局条件角色映射；消息会保存在本地，刷新后仍可继续。</p></div>}
               {messages.map((message, index) => message.role === 'user'
                 ? <div key={message.id ?? index} className="flex justify-end"><div className="max-w-[85%] rounded-2xl px-4 py-2.5 text-sm leading-6" style={{ color: 'var(--ac)', background: 'var(--ac-bg)', border: '1px solid var(--ac-bdr)' }}>{message.content}</div></div>
-                : <div key={message.id ?? index} className="max-w-3xl"><div className="mb-2 flex items-center gap-2 text-[10px] tracking-wider" style={{ color: 'var(--ac-dim)' }}><ShieldCheck size={13} /> 八字基础解读</div><AiContent text={message.content} streaming={sending && index === messages.length - 1} /></div>)}
+                : <div key={message.id ?? index} className="max-w-3xl"><div className="mb-2 flex items-center gap-2 text-[10px] tracking-wider" style={{ color: 'var(--ac-dim)' }}><ShieldCheck size={13} /> 八字基础解读</div><AiContent text={message.content} streaming={sending && index === messages.length - 1} /><ChatRecoveryActions message={message} chat={chat} /></div>)}
               </div>
               <ChatScrollToLatestButton
                 visible={showLatestButton}
@@ -374,6 +314,7 @@ export default function BaziChatWorkspace({ conversationId }: { conversationId: 
                 onClick={() => scrollToLatest('smooth')}
               />
             </div>
+            <ChatGenerationControls chat={chat} />
             <div className="shrink-0 border-t p-3 md:px-6" style={{ borderColor: 'var(--bdr)', background: 'var(--bg-card)' }}>
               {error && <p role="alert" className="mb-2 text-xs" style={{ color: 'var(--ji)' }}>{error}</p>}
               <div className="mx-auto flex max-w-4xl items-end gap-2"><textarea rows={2} value={input} disabled={sending} onChange={event => setInput(event.target.value)} onKeyDown={event => { if (shouldSendChatMessage(event)) { event.preventDefault(); void sendMessage(input); } }} placeholder="询问这份八字基础盘…" className="min-h-[54px] flex-1 resize-none rounded-xl border px-4 py-3 text-sm outline-none disabled:opacity-60" style={{ color: 'var(--tx-1)', borderColor: 'var(--bdr)', background: 'var(--bg-1)' }} /><button type="button" aria-label="发送消息" disabled={sending || !input.trim()} onClick={() => void sendMessage(input)} className="flex h-[54px] w-12 items-center justify-center rounded-xl disabled:opacity-30" style={{ color: 'var(--ac)', border: '1px solid var(--ac-bdr)', background: 'var(--ac-bg)' }}>{sending ? '…' : <PaperPlaneTilt size={18} weight="fill" />}</button></div>

@@ -6,6 +6,7 @@ export interface ChatMessage {
 }
 
 interface ChatStreamOptions {
+  signal?: AbortSignal;
   temperature?: number;
   maxTokens?: number;
   thinking?: boolean;
@@ -55,6 +56,7 @@ export async function createChatCompletion(
   assertProviderConfig(config);
   const url = `${config.baseUrl.replace(/\/$/, '')}/chat/completions`;
   const res = await fetch(url, {
+    signal: options.signal,
     method: 'POST',
     headers: {
       Authorization: `Bearer ${config.apiKey}`,
@@ -107,6 +109,7 @@ export async function createChatCompletionStream(
 
   const url = `${config.baseUrl.replace(/\/$/, '')}/chat/completions`;
   const res = await fetch(url, {
+    signal: options.signal,
     method: 'POST',
     headers: {
       Authorization: `Bearer ${config.apiKey}`,

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useConversationChat } from '@/lib/ui/use-conversation-chat';
 import { useSearchParams } from 'next/navigation';
 import AnnualReportPanel from '@/components/AnnualReportPanel';
 import AnnualTransitPanel from '@/components/AnnualTransitPanel';
@@ -27,7 +28,8 @@ export default function TransitWorkspace({ conversationId }: { conversationId: s
   const router = useRouter();
   const searchParams = useSearchParams();
   const [chart, setChart] = useState<ZiweiChart | null>(null);
-  const [messages, setMessages] = useState<ConversationMessage[]>([]);
+  const chat = useConversationChat(conversationId ?? '', 'ziwei', undefined, true);
+  const hydrateChat = chat.session.hydrate;
   const requestedLevel: AnalysisLevel = searchParams.get('level') === 'month'
     ? 'month'
     : searchParams.get('level') === 'day'
@@ -73,8 +75,9 @@ export default function TransitWorkspace({ conversationId }: { conversationId: s
         return data;
       })
       .then(data => {
+        if (controller.signal.aborted) return;
         setChart(data.conversation!.chartSnapshot);
-        setMessages(data.messages ?? []);
+        hydrateChat(data.messages ?? []);
         const birthYear = data.conversation!.birthInfo?.year ?? year;
         setYear(current => Math.max(birthYear, Math.min(birthYear + 130, current)));
         const birth = data.conversation!.birthInfo;
@@ -90,7 +93,7 @@ export default function TransitWorkspace({ conversationId }: { conversationId: s
       })
       .finally(() => setLoadingConversation(false));
     return () => controller.abort();
-  }, [conversationId]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [conversationId, hydrateChat]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (!chart) return;
@@ -360,7 +363,7 @@ export default function TransitWorkspace({ conversationId }: { conversationId: s
                   key={conversationId}
                   chart={chart}
                   conversationId={conversationId}
-                  initialMessages={messages}
+                  chat={chat}
                   onLoadingChange={setAnalyzing}
                   selectedSiHua={selectedSiHua}
                   transitContext={analysisLevel === 'day'

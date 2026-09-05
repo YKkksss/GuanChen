@@ -64,6 +64,7 @@ type ForeignKeyInfo = { table: string; from: string; to: string };
 type TableSchema = { columns: ColumnInfo[]; foreignKeys: ForeignKeyInfo[] };
 
 const SOFT_REFERENCES: Partial<Record<PortableTable, Partial<Record<string, PortableTable>>>> = {
+  messages: { reply_to_message_id: 'messages', retry_of_message_id: 'messages' },
   transit_reports: { active_version_id: 'transit_report_versions' },
   transit_report_versions: { base_version_id: 'transit_report_versions' },
   reports: { active_version_id: 'report_versions' },
@@ -474,6 +475,8 @@ function remapRow(
   globalIdMap: Map<string, string>,
 ): PortableRow {
   const row = { ...source };
+  // 导入的是历史副本，不能复用原会话的幂等请求标识。
+  if (table === 'messages') row.request_id = null;
   row.id = idMaps.get(table)!.get(String(source.id))!;
   for (const foreignKey of schema.foreignKeys) {
     const value = row[foreignKey.from];

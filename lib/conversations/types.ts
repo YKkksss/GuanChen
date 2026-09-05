@@ -64,6 +64,9 @@ export interface ConversationListItem {
 }
 
 export interface ConversationMessage {
+  replyToMessageId?: string | null;
+  retryOfMessageId?: string | null;
+  requestId?: string | null;
   id: string;
   conversationId: string;
   seq: number;

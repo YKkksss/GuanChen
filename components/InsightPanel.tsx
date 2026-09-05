@@ -2,7 +2,8 @@
 import { forwardRef, useImperativeHandle, useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Brain, ChatCircleDots, PaperPlaneTilt, Sparkle } from '@phosphor-icons/react';
-import { isHiddenSource, type ConversationMessage } from '@/lib/conversations/types';
+import type { ConversationChat } from '@/lib/ui/use-conversation-chat';
+import { ChatRecoveryActions, ChatGenerationControls } from './ChatRecoveryActions';
 import type { ZiweiChart, Palace } from '@/lib/ziwei/types';
 import { useSmartChatScroll } from '@/lib/ui/use-smart-chat-scroll';
 import { shouldSendChatMessage } from '@/lib/client/chat-keyboard';
@@ -10,14 +11,6 @@ import ChatScrollToLatestButton from './ChatScrollToLatestButton';
 import ContextMemoryPanel from './ContextMemoryPanel';
 import LifeEventCandidateInbox from './LifeEventCandidateInbox';
 import type { TimeView } from './TimeNav';
-
-interface Message {
-  id?: string;
-  role: 'user' | 'assistant';
-  content: string;
-  hidden?: boolean; // don't show user bubble for auto/topic messages
-  status?: ConversationMessage['status'];
-}
 
 interface SelectedSiHua {
   starName: string;
@@ -28,7 +21,7 @@ interface SelectedSiHua {
 interface InsightPanelProps {
   chart: ZiweiChart;
   conversationId: string;
-  initialMessages?: ConversationMessage[];
+  chat: ConversationChat;
   onLoadingChange?: (loading: boolean) => void;
   selectedSiHua?: SelectedSiHua | null;
   transitContext?: { level: 'year' | 'month' | 'day'; targetDate: string; label?: string } | null;
@@ -210,26 +203,16 @@ export interface InsightPanelHandle {
 const InsightPanel = forwardRef<InsightPanelHandle, InsightPanelProps>(function InsightPanel({
   chart,
   conversationId,
-  initialMessages = [],
+  chat,
   onLoadingChange,
   selectedSiHua,
   transitContext,
   autoGenerate = true,
 }: InsightPanelProps, ref) {
-  const [messages, setMessages] = useState<Message[]>(() => initialMessages
-    .filter(message => message.role !== 'system' && message.content)
-    .map(message => ({
-      id: message.id,
-      role: message.role as 'user' | 'assistant',
-      content: message.content,
-      hidden: message.role === 'user' && isHiddenSource(message.source),
-      status: message.status,
-    })));
-  const [input, setInput] = useState('');
-  const [loading, setLoading] = useState(false);
+  const { messages, input, busy: loading } = chat;
+  const setInput = chat.session.setInput;
   const [activeTopic, setActiveTopic] = useState<string>('overview');
   const [memoryPanelOpen, setMemoryPanelOpen] = useState(false);
-  const loadingRef = useRef(false);
   const autoLoaded = useRef(false);
   const lastSiHuaKey = useRef<string | undefined>(undefined);
   const {
@@ -242,22 +225,20 @@ const InsightPanel = forwardRef<InsightPanelHandle, InsightPanelProps>(function 
     scrollToLatest,
   } = useSmartChatScroll<HTMLDivElement>(messages);
 
-  // 保持加载状态引用同步，避免快速连点重复发送。
-  useEffect(() => { loadingRef.current = loading; }, [loading]);
   useEffect(() => { onLoadingChange?.(loading); }, [loading, onLoadingChange]);
 
   // Auto-generate 命格总览 on mount
   useEffect(() => {
-    if (autoLoaded.current) return;
+    if (!chat.ready || autoLoaded.current) return;
     autoLoaded.current = true;
-    if (autoGenerate && initialMessages.length === 0) {
+    if (autoGenerate && messages.length === 0) {
       sendMessage(TOPIC_PROMPTS.overview, { hidden: true, source: 'auto', topic: 'overview' });
     }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [chat.ready]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // 宫位分析只能由明确的用户操作触发，选中状态本身不发送请求。
   const analyzePalace = (selectedPalace: Palace) => {
-    if (loadingRef.current) return false;
+    if (loading) return false;
     const majorStars = selectedPalace.stars.filter(s => s.type === 'major');
     const starDesc = majorStars.length > 0
       ? majorStars.map(s => `${s.name}${s.siHua ? '化' + s.siHua : ''}`).join('、')
@@ -279,8 +260,7 @@ ${selectedPalace.name}在命盘中的意义，以及这种星曜配置的整体�
 **【实际建议】**
 基于此宫的具体建议。`;
 
-    sendMessage(prompt, { hidden: true, source: 'palace', palaceBranch: selectedPalace.branch });
-    return true;
+    return sendMessage(prompt, { hidden: true, source: 'palace', palaceBranch: selectedPalace.branch });
   };
   useImperativeHandle(ref, () => ({ analyzePalace }));
 
@@ -322,91 +302,14 @@ ${selectedSiHua.starName}化${selectedSiHua.siHua}落在【${palaceName}】，�
     });
   }, [selectedSiHua]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const streamResponse = async (text: string, options: SendOptions) => {
-    try {
-      const res = await fetch(`/api/conversations/${conversationId}/respond`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          message: text,
-          source: options.source ?? 'question',
-          topic: options.topic ?? null,
-          palaceBranch: options.palaceBranch ?? null,
-          sihuaType: options.sihuaType ?? null,
-          transitLevel: transitContext?.level ?? null,
-          targetDate: transitContext?.targetDate ?? null,
-        }),
-      });
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({})) as { error?: string };
-        throw new Error(data.error || '请求失败');
-      }
-      if (!res.body) throw new Error('无响应流');
-      const sourceMessageId = res.headers.get('X-User-Message-Id');
-
-      const reader = res.body.getReader();
-      const decoder = new TextDecoder();
-      let assistantText = '';
-      let buffer = '';
-
-      setMessages(prev => [...prev, { role: 'assistant', content: '' }]);
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split(/\r?\n/);
-        buffer = lines.pop() ?? '';
-        for (const line of lines) {
-          if (!line.startsWith('data: ')) continue;
-          const data = line.slice(6);
-          if (data === '[DONE]') break;
-          try {
-            const delta = JSON.parse(data).delta?.text ?? '';
-            assistantText += delta;
-            setMessages(prev => {
-              const updated = [...prev];
-              updated[updated.length - 1] = { role: 'assistant', content: assistantText };
-              return updated;
-            });
-          } catch { /* skip */ }
-        }
-      }
-      if (sourceMessageId && (options.source ?? 'question') === 'question') {
-        void fetch(`/api/conversations/${conversationId}/event-candidates`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ sourceMessageId }),
-        }).then(response => {
-          if (response.ok) {
-            window.dispatchEvent(new CustomEvent('life-event-candidates-updated', { detail: { conversationId } }));
-          }
-        }).catch(() => undefined);
-      }
-    } catch {
-      setMessages(prev => [...prev, { role: 'assistant', content: '解读失败，请稍后重试。' }]);
-    } finally {
-      setLoading(false);
-      loadingRef.current = false;
-      window.dispatchEvent(new Event('conversation-updated'));
-    }
-  };
-
   const sendMessage = (text: string, options: SendOptions = {}) => {
-    if (!text.trim() || loadingRef.current) return;
-    loadingRef.current = true;
-    setLoading(true);
-    scrollToLatest('auto');
-
-    const userMsg: Message = { role: 'user', content: text, hidden: options.hidden };
-
-    setMessages(prev => [...prev, userMsg]);
-    setInput('');
-    streamResponse(text, options);
+    const sent = chat.session.send(text, { ...options, transitLevel: transitContext?.level ?? null, targetDate: transitContext?.targetDate ?? null });
+    if (sent) scrollToLatest('auto');
+    return sent;
   };
 
   const handleTopicClick = (topicKey: string) => {
-    if (loadingRef.current) return;
+    if (loading) return;
     setActiveTopic(topicKey);
     sendMessage(TOPIC_PROMPTS[topicKey], { hidden: true, source: 'topic', topic: topicKey });
   };
@@ -530,6 +433,7 @@ ${selectedSiHua.starName}化${selectedSiHua.siHua}落在【${palaceName}】，�
                   命理解读
                 </div>
                 <AiContent text={msg.content} streaming={loading && isLastMsg} />
+                <ChatRecoveryActions message={msg} chat={chat} />
               </motion.div>
             );
           })}
@@ -543,6 +447,7 @@ ${selectedSiHua.starName}化${selectedSiHua.siHua}落在【${palaceName}】，�
       </div>
 
       <LifeEventCandidateInbox conversationId={conversationId} />
+      <ChatGenerationControls chat={chat} />
 
       {/* ── Input ── */}
       <div className="eastern-chat-composer">
