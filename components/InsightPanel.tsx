@@ -1,5 +1,5 @@
 'use client';
-import { useState, useRef, useEffect } from 'react';
+import { forwardRef, useImperativeHandle, useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Brain, ChatCircleDots, PaperPlaneTilt, Sparkle } from '@phosphor-icons/react';
 import { isHiddenSource, type ConversationMessage } from '@/lib/conversations/types';
@@ -29,7 +29,7 @@ interface InsightPanelProps {
   chart: ZiweiChart;
   conversationId: string;
   initialMessages?: ConversationMessage[];
-  selectedPalace?: Palace | null;
+  onLoadingChange?: (loading: boolean) => void;
   selectedSiHua?: SelectedSiHua | null;
   transitContext?: { level: 'year' | 'month' | 'day'; targetDate: string; label?: string } | null;
   autoGenerate?: boolean;
@@ -203,15 +203,19 @@ function AiContent({ text, streaming }: { text: string; streaming?: boolean }) {
   );
 }
 
-export default function InsightPanel({
+export interface InsightPanelHandle {
+  analyzePalace: (palace: Palace) => boolean;
+}
+
+const InsightPanel = forwardRef<InsightPanelHandle, InsightPanelProps>(function InsightPanel({
   chart,
   conversationId,
   initialMessages = [],
-  selectedPalace,
+  onLoadingChange,
   selectedSiHua,
   transitContext,
   autoGenerate = true,
-}: InsightPanelProps) {
+}: InsightPanelProps, ref) {
   const [messages, setMessages] = useState<Message[]>(() => initialMessages
     .filter(message => message.role !== 'system' && message.content)
     .map(message => ({
@@ -227,7 +231,6 @@ export default function InsightPanel({
   const [memoryPanelOpen, setMemoryPanelOpen] = useState(false);
   const loadingRef = useRef(false);
   const autoLoaded = useRef(false);
-  const lastPalaceBranch = useRef<number | undefined>(undefined);
   const lastSiHuaKey = useRef<string | undefined>(undefined);
   const {
     scrollRef,
@@ -241,6 +244,7 @@ export default function InsightPanel({
 
   // 保持加载状态引用同步，避免快速连点重复发送。
   useEffect(() => { loadingRef.current = loading; }, [loading]);
+  useEffect(() => { onLoadingChange?.(loading); }, [loading, onLoadingChange]);
 
   // Auto-generate 命格总览 on mount
   useEffect(() => {
@@ -251,16 +255,15 @@ export default function InsightPanel({
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Inject palace analysis when palace selected
-  useEffect(() => {
-    if (!selectedPalace || selectedPalace.branch === lastPalaceBranch.current) return;
-    lastPalaceBranch.current = selectedPalace.branch;
-
+  // 宫位分析只能由明确的用户操作触发，选中状态本身不发送请求。
+  const analyzePalace = (selectedPalace: Palace) => {
+    if (loadingRef.current) return false;
     const majorStars = selectedPalace.stars.filter(s => s.type === 'major');
     const starDesc = majorStars.length > 0
       ? majorStars.map(s => `${s.name}${s.siHua ? '化' + s.siHua : ''}`).join('、')
       : '空宫（借对宫）';
-    const role = PALACE_ROLES[selectedPalace.name] ?? '';
+    const palaceName = selectedPalace.name === '仆役' ? '交友宫' : selectedPalace.name.endsWith('宫') ? selectedPalace.name : `${selectedPalace.name}宫`;
+    const role = PALACE_ROLES[palaceName] ?? '结合命盘结构判断';
 
     const prompt = `请重点分析【${selectedPalace.name}】（主管：${role}），该宫主星为${starDesc}，按以下结构输出：
 
@@ -277,7 +280,9 @@ ${selectedPalace.name}在命盘中的意义，以及这种星曜配置的整体�
 基于此宫的具体建议。`;
 
     sendMessage(prompt, { hidden: true, source: 'palace', palaceBranch: selectedPalace.branch });
-  }, [selectedPalace]); // eslint-disable-line react-hooks/exhaustive-deps
+    return true;
+  };
+  useImperativeHandle(ref, () => ({ analyzePalace }));
 
   // 注入四化飞化分析
   useEffect(() => {
@@ -573,4 +578,6 @@ ${selectedSiHua.starName}化${selectedSiHua.siHua}落在【${palaceName}】，�
 
     </div>
   );
-}
+});
+
+export default InsightPanel;

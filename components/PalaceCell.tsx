@@ -37,8 +37,10 @@ const SiHuaBadge = ({
   label?: string;
   onClick?: (e: React.MouseEvent) => void;
 }) => {
+  const Tag = onClick ? 'button' : 'span';
   return (
-    <span
+    <Tag
+      type={onClick ? 'button' : undefined}
       className={clsx(
         'eastern-sihua-badge',
         SIHUA_STYLES[siHua],
@@ -49,7 +51,7 @@ const SiHuaBadge = ({
     >
       {overlay && label && <span className="mr-px opacity-70">{label}</span>}
       {siHua}
-    </span>
+    </Tag>
   );
 };
 
@@ -63,6 +65,11 @@ export default function PalaceCell({
   const majorStars = stars.filter(s => s.type === 'major');
   const luckyStars = stars.filter(s => s.type === 'lucky');
   const shaStars = stars.filter(s => s.type === 'sha');
+  const starName = (star: Star, className?: string) => onStarClick ? (
+    <button type="button" className={clsx('eastern-star-button', className)}
+      aria-label={`查看${star.name}星曜知识`}
+      onClick={event => { event.stopPropagation(); onStarClick(star); }}>{star.name}</button>
+  ) : <span className={className}>{star.name}</span>;
 
   return (
     <motion.div
@@ -87,9 +94,9 @@ export default function PalaceCell({
 
       {/* 宫名行 */}
       <div className="eastern-palace-heading">
-        <span className={clsx('eastern-palace-name', isMingGong && 'is-ming', isShenGong && 'is-shen')}>
-          {name}
-        </span>
+        {onClick ? <button type="button" aria-label={`选择${name}`} aria-pressed={Boolean(isSelected)}
+          className={clsx('eastern-palace-name eastern-palace-select', isMingGong && 'is-ming', isShenGong && 'is-shen')}>{name}</button>
+          : <span className="eastern-palace-name">{name}</span>}
         {isMingGong && (
           <span className="eastern-palace-mark is-ming">命</span>
         )}
@@ -112,21 +119,18 @@ export default function PalaceCell({
             <div
               key={star.name}
               className="eastern-major-star-row"
-              onClick={e => { e.stopPropagation(); onStarClick?.(star); }}
             >
-              <span className={clsx('eastern-major-star', `is-${star.brightness ?? 'normal'}`)}>
-                {star.name}
-              </span>
+              {starName(star, clsx('eastern-major-star', `is-${star.brightness ?? 'normal'}`))}
               {star.siHua && <SiHuaBadge siHua={star.siHua} />}
               {overlaySiHua && (
                 <SiHuaBadge
                   siHua={overlaySiHua}
                   overlay
                   label={overlayLabel}
-                  onClick={e => {
+                  onClick={onSiHuaClick ? e => {
                     e.stopPropagation();
                     onSiHuaClick?.(star.name, overlaySiHua);
-                  }}
+                  } : undefined}
                 />
               )}
             </div>
@@ -141,17 +145,17 @@ export default function PalaceCell({
             const overlaySiHua = overlayStarSiHua?.[s.name];
             return (
               <span key={s.name} className="eastern-minor-star">
-                {s.name}
+                {starName(s)}
                 {s.siHua && <SiHuaBadge siHua={s.siHua} />}
                 {overlaySiHua && (
                   <SiHuaBadge
                     siHua={overlaySiHua}
                     overlay
                     label={overlayLabel}
-                    onClick={e => {
+                    onClick={onSiHuaClick ? e => {
                       e.stopPropagation();
                       onSiHuaClick?.(s.name, overlaySiHua);
-                    }}
+                    } : undefined}
                   />
                 )}
               </span>
@@ -165,7 +169,7 @@ export default function PalaceCell({
         <div className="eastern-minor-stars is-sha">
           {shaStars.map(s => (
             <span key={s.name} className="eastern-minor-star">
-              {s.name}{s.siHua && <SiHuaBadge siHua={s.siHua} />}
+              {starName(s)}{s.siHua && <SiHuaBadge siHua={s.siHua} />}
             </span>
           ))}
         </div>

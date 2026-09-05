@@ -1,8 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Image from 'next/image';
 import {
   BookOpen,
   CalendarDots,
@@ -18,12 +17,16 @@ import {
 import BirthForm from '@/components/BirthForm';
 import ChartBoard from '@/components/ChartBoard';
 import ConversationHistory from '@/components/ConversationHistory';
-import InsightPanel from '@/components/InsightPanel';
+import InsightPanel, { type InsightPanelHandle } from '@/components/InsightPanel';
+import PalaceFacts from '@/components/PalaceFacts';
+import StarKnowledgeDialog from '@/components/StarKnowledgeDialog';
 import LearningPanel from '@/components/LearningPanel';
 import ResultNotice from '@/components/eastern/ResultNotice';
 import { generateChart } from '@/lib/ziwei/algorithm';
 import type { Conversation, ConversationMessage } from '@/lib/conversations/types';
-import type { BirthInfo, Palace, ZiweiChart } from '@/lib/ziwei/types';
+import type { BirthInfo, Palace, Star, ZiweiChart } from '@/lib/ziwei/types';
+import { useBodyScrollLock } from '@/lib/ui/use-body-scroll-lock';
+import styles from './ChartWorkspace.module.css';
 
 interface ChartWorkspaceProps {
   conversationId?: string;
@@ -37,59 +40,44 @@ export default function ChartWorkspace({ conversationId }: ChartWorkspaceProps) 
   const [loading, setLoading] = useState(Boolean(conversationId));
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState('');
-  const [historyCollapsed, setHistoryCollapsed] = useState(false);
+  const [historyCollapsed, setHistoryCollapsed] = useState(true);
   const [learningMode, setLearningMode] = useState(false);
   const [mobilePane, setMobilePane] = useState<'chart' | 'insight'>('chart');
   const [mobileActionsOpen, setMobileActionsOpen] = useState(false);
   const [learningNoteDirty, setLearningNoteDirty] = useState(false);
+  const [starSelection, setStarSelection] = useState<{ star: Star; palace: Palace } | null>(null);
+  const [analyzing, setAnalyzing] = useState(false);
+  const insightRef = useRef<InsightPanelHandle>(null);
+  useBodyScrollLock(!historyCollapsed || mobileActionsOpen);
 
   useEffect(() => {
-    const compactMedia = window.matchMedia('(max-width: 1080px)');
-    const syncHistoryState = () => {
-      setHistoryCollapsed(compactMedia.matches || window.localStorage.getItem('ziwei-history-collapsed') === 'true');
-    };
-    syncHistoryState();
-    compactMedia.addEventListener('change', syncHistoryState);
-    return () => compactMedia.removeEventListener('change', syncHistoryState);
-  }, []);
+    setHistoryCollapsed(true);
+    setMobileActionsOpen(false);
+    setStarSelection(null);
+  }, [conversationId]);
 
   const toggleHistory = () => {
-    setHistoryCollapsed(current => {
-      const next = !current;
-      if (!window.matchMedia('(max-width: 1080px)').matches) {
-        window.localStorage.setItem('ziwei-history-collapsed', String(next));
-      }
-      return next;
-    });
+    setHistoryCollapsed(current => !current);
   };
 
   const closeMobileHistory = () => {
-    if (window.matchMedia('(max-width: 1080px)').matches) setHistoryCollapsed(true);
+    setHistoryCollapsed(true);
   };
 
   useEffect(() => {
-    const compactMedia = window.matchMedia('(max-width: 1080px)');
-    const previousOverflow = document.body.style.overflow;
-    const syncBodyLock = () => {
-      document.body.style.overflow = compactMedia.matches && (!historyCollapsed || mobileActionsOpen)
-        ? 'hidden'
-        : previousOverflow;
-    };
+    const closeOverlays = () => { setMobileActionsOpen(false); setHistoryCollapsed(true); };
     const closeOnEscape = (event: KeyboardEvent) => {
       if (event.key !== 'Escape') return;
-      setMobileActionsOpen(false);
-      setHistoryCollapsed(true);
+      closeOverlays();
     };
 
-    syncBodyLock();
-    compactMedia.addEventListener('change', syncBodyLock);
     window.addEventListener('keydown', closeOnEscape);
+    window.addEventListener('eastern-navigation-open', closeOverlays);
     return () => {
-      document.body.style.overflow = previousOverflow;
-      compactMedia.removeEventListener('change', syncBodyLock);
       window.removeEventListener('keydown', closeOnEscape);
+      window.removeEventListener('eastern-navigation-open', closeOverlays);
     };
-  }, [historyCollapsed, mobileActionsOpen]);
+  }, []);
 
   useEffect(() => {
     if (!conversationId) {
@@ -123,7 +111,7 @@ export default function ChartWorkspace({ conversationId }: ChartWorkspaceProps) 
         if (loadError instanceof DOMException && loadError.name === 'AbortError') return;
         setError(loadError instanceof Error ? loadError.message : '历史会话加载失败');
       })
-      .finally(() => setLoading(false));
+      .finally(() => { if (!controller.signal.aborted) setLoading(false); });
     return () => controller.abort();
   }, [conversationId]);
 
@@ -168,16 +156,17 @@ export default function ChartWorkspace({ conversationId }: ChartWorkspaceProps) 
     router.push(href);
   };
 
+  const analyzePalace = (palace: Palace) => {
+    if (learningMode && learningNoteDirty && !window.confirm('当前学习笔记尚未正式保存。确定切换到 AI 解读吗？草稿仍会暂存在这个浏览器中。')) return;
+    if (!insightRef.current?.analyzePalace(palace)) return;
+    setLearningMode(false);
+    setMobilePane('insight');
+  };
+
   return (
-    <main className="eastern-workbench">
+    <main className={`eastern-workbench ${styles.embedded}`}>
       <header className="eastern-app-header">
-        <button type="button" className="eastern-brand" onClick={() => router.push('/')} aria-label="返回首页">
-          <Image src="/assets/brand/ziwei-seal.png" alt="紫微命盘印章" width={38} height={38} priority />
-          <span className="eastern-brand-copy">
-            <strong>紫微命盘</strong>
-            <small>东方书院 · 知命而行</small>
-          </span>
-        </button>
+        <h1 className={styles.title}>命盘解读</h1>
 
         <div className="eastern-mobile-header-controls">
           <button
@@ -198,7 +187,7 @@ export default function ChartWorkspace({ conversationId }: ChartWorkspaceProps) 
             aria-expanded={mobileActionsOpen}
           >
             {mobileActionsOpen ? <X size={17} aria-hidden="true" /> : <List size={17} aria-hidden="true" />}
-            <span>功能</span>
+            <span>命盘工具</span>
           </button>
         </div>
 
@@ -208,7 +197,7 @@ export default function ChartWorkspace({ conversationId }: ChartWorkspaceProps) 
               <strong>命盘功能</strong>
               <span>选择接下来要查看的内容</span>
             </div>
-            <button type="button" onClick={() => setMobileActionsOpen(false)} aria-label="关闭功能导航">
+            <button type="button" onClick={() => setMobileActionsOpen(false)} aria-label="关闭命盘工具">
               <X size={18} aria-hidden="true" />
             </button>
           </div>
@@ -226,15 +215,15 @@ export default function ChartWorkspace({ conversationId }: ChartWorkspaceProps) 
             <>
               <button type="button" onClick={() => navigateFromActions(`/chart/${conversationId}/reports`)}>
                 <FileText size={16} aria-hidden="true" />
-                <span>专题报告</span>
+                <span>命盘报告</span>
               </button>
               <button type="button" onClick={() => navigateFromActions(`/chart/${conversationId}/events`)}>
                 <CalendarDots size={16} aria-hidden="true" />
-                <span>人生事件</span>
+                <span>人生时间轴</span>
               </button>
               <button type="button" onClick={() => navigateFromActions(`/chart/${conversationId}/timeline`)}>
                 <TrendUp size={16} aria-hidden="true" />
-                <span>年度分析</span>
+                <span>运限分析</span>
               </button>
               <button type="button" onClick={() => navigateFromActions(`/rectification?conversationId=${conversationId}`)}>
                 <ClockCounterClockwise size={16} aria-hidden="true" />
@@ -247,7 +236,7 @@ export default function ChartWorkspace({ conversationId }: ChartWorkspaceProps) 
           type="button"
           className={`eastern-actions-backdrop ${mobileActionsOpen ? 'is-visible' : ''}`}
           onClick={() => setMobileActionsOpen(false)}
-          aria-label="关闭功能导航"
+          aria-label="关闭命盘工具"
           tabIndex={mobileActionsOpen ? 0 : -1}
         />
       </header>
@@ -324,15 +313,19 @@ export default function ChartWorkspace({ conversationId }: ChartWorkspaceProps) 
                   className={mobilePane === 'insight' ? 'is-active' : ''}
                   onClick={() => setMobilePane('insight')}
                 >
-                  AI 解读
+                  {learningMode ? '学习解读' : 'AI 解读'}
                 </button>
               </div>
               <div className={`eastern-content-grid ${learningMode ? 'is-learning-mode' : ''}`} data-mobile-pane={mobilePane}>
                 <section className="eastern-chart-region" aria-label="紫微斗数命盘">
-                  <ChartBoard chart={chart} selectedBranch={selectedPalace?.branch ?? null} onPalaceSelect={selectPalace} />
+                  <div className={styles.boardPane}>
+                    <ChartBoard chart={chart} selectedBranch={selectedPalace?.branch ?? null} onPalaceSelect={selectPalace}
+                      onStarSelect={(star, palace) => setStarSelection({ star, palace })} />
+                  </div>
+                  <PalaceFacts palace={selectedPalace} busy={analyzing} onAnalyze={analyzePalace} />
                 </section>
                 <aside className="eastern-insight-region" aria-label={learningMode ? '学习解读' : 'AI 命理解读'}>
-                  {learningMode && selectedPalace ? (
+                  {learningMode && selectedPalace && (
                     <LearningPanel
                       conversationId={conversationId}
                       branch={selectedPalace.branch}
@@ -342,21 +335,24 @@ export default function ChartWorkspace({ conversationId }: ChartWorkspaceProps) 
                       }}
                       onDirtyChange={setLearningNoteDirty}
                     />
-                  ) : (
+                  )}
+                  <div hidden={learningMode && Boolean(selectedPalace)} className={styles.chatPane}>
                     <InsightPanel
+                      ref={insightRef}
                       key={conversationId}
                       chart={chart}
                       conversationId={conversationId}
                       initialMessages={messages}
-                      selectedPalace={selectedPalace}
+                      onLoadingChange={setAnalyzing}
                     />
-                  )}
+                  </div>
                 </aside>
               </div>
             </>
           )}
         </section>
       </div>
+      <StarKnowledgeDialog selection={starSelection} onClose={() => setStarSelection(null)} />
     </main>
   );
 }

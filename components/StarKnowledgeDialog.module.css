@@ -1,0 +1,14 @@
+.dialog { padding: 0; border: 1px solid #cfbfaa; border-radius: 12px; width: min(440px, calc(100vw - 32px)); max-height: calc(100dvh - 48px); overflow: auto; background: #fbf8f1; color: #493c31; box-shadow: 0 24px 80px #2a241f40; }
+.dialog::backdrop { background: #2a241f66; }
+.body { padding: 24px; }
+.body header { display: flex; justify-content: space-between; gap: 16px; align-items: flex-start; }
+.body small, .body a { color: #a42a22; }
+.body h2 { font: 28px var(--font-serif); margin: 4px 0 16px; }
+.body h3 { margin-top: 24px; font-size: 13px; }
+.body button { min-height: 44px; padding: 0 10px; border: 1px solid #d8ccbb; border-radius: 6px; }
+.body p { font-size: 13px; line-height: 1.9; }
+.body .keywords { font-size: 19px; margin: 8px 0 18px; }
+.body dl { display: grid; grid-template-columns: 84px 1fr; gap: 8px; font-size: 13px; }
+.note { color: #827366; margin: 20px 0; }
+.body a { display: inline-flex; align-items: center; min-height: 44px; font-size: 13px; }
+.body :is(button, a):focus-visible { outline: 2px solid #a42a22; outline-offset: 3px; }

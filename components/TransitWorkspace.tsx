@@ -8,7 +8,8 @@ import AnnualTransitPanel from '@/components/AnnualTransitPanel';
 import ChartBoard from '@/components/ChartBoard';
 import ConversationHistory from '@/components/ConversationHistory';
 import DailyTransitPanel from '@/components/DailyTransitPanel';
-import InsightPanel from '@/components/InsightPanel';
+import InsightPanel, { type InsightPanelHandle } from '@/components/InsightPanel';
+import PalaceFacts from '@/components/PalaceFacts';
 import MonthlyTransitPanel from '@/components/MonthlyTransitPanel';
 import type { Conversation, ConversationMessage } from '@/lib/conversations/types';
 import type {
@@ -47,6 +48,8 @@ export default function TransitWorkspace({ conversationId }: { conversationId: s
   const [observationDate, setObservationDate] = useState(requestedDate);
   const [timeView, setTimeView] = useState<TimeView>('liunian');
   const [selectedPalace, setSelectedPalace] = useState<Palace | null>(null);
+  const insightRef = useRef<InsightPanelHandle>(null);
+  const [analyzing, setAnalyzing] = useState(false);
   const [selectedSiHua, setSelectedSiHua] = useState<{ starName: string; siHua: string; view: TimeView } | null>(null);
   const [loadingConversation, setLoadingConversation] = useState(true);
   const [loadingTransit, setLoadingTransit] = useState(false);
@@ -351,12 +354,14 @@ export default function TransitWorkspace({ conversationId }: { conversationId: s
                 )}
               </div>
               <div className="min-w-0 lg:sticky lg:top-4">
+                <PalaceFacts palace={selectedPalace} busy={analyzing} onAnalyze={palace => { insightRef.current?.analyzePalace(palace); }} />
                 <InsightPanel
+                  ref={insightRef}
                   key={conversationId}
                   chart={chart}
                   conversationId={conversationId}
                   initialMessages={messages}
-                  selectedPalace={selectedPalace}
+                  onLoadingChange={setAnalyzing}
                   selectedSiHua={selectedSiHua}
                   transitContext={analysisLevel === 'day'
                     ? snapshot?.level === 'day'

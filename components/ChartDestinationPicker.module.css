@@ -1,0 +1,17 @@
+.picker { max-width: 920px; margin: 0 auto; padding: clamp(24px, 4vw, 48px); color: var(--tx, #3d332b); }
+.picker h1 { margin: 12px 0; font-family: var(--font-serif); font-size: clamp(22px, 3vw, 30px); }
+.picker p { line-height: 1.8; }
+.eyebrow { color: #a42a22; font-size: 12px; }
+.search { display: grid; gap: 8px; margin-top: 28px; font-size: 13px; }
+.search input { min-width: 0; min-height: 44px; padding: 10px 12px; border: 1px solid #d8ccbb; border-radius: 6px; background: #fffdf8; }
+.hint { color: #827366; font-size: 12px; margin: 8px 0 20px; }
+.entries { list-style: none; padding: 0; border-top: 1px solid #d8ccbb; }
+.entries a { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 18px 4px; border-bottom: 1px solid #d8ccbb; text-decoration: none; font-size: 12px; }
+.entries a:hover { color: #a42a22; background: #fffaf0; }
+.entries a > span:first-child { display: grid; gap: 5px; min-width: 0; overflow-wrap: anywhere; }
+.entries small { color: #827366; }
+.entries strong { font-size: 15px; }
+.entries a > span:last-child { flex-shrink: 0; }
+.actions { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 24px; font-size: 13px; }
+.actions a, .picker button { min-height: 44px; display: inline-flex; align-items: center; color: #a42a22; text-decoration: underline; text-underline-offset: 4px; }
+.picker :is(a, button, input):focus-visible { outline: 2px solid #a42a22; outline-offset: 3px; }

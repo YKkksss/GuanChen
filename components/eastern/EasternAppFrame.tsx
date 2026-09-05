@@ -27,8 +27,11 @@ import {
 import type { Icon } from '@phosphor-icons/react';
 import ResultNotice from './ResultNotice';
 import styles from './EasternAppFrame.module.css';
+import { resolveWorkspaceDestination, type WorkspaceDestination } from '@/lib/ui/workspace-navigation';
+import { useBodyScrollLock } from '@/lib/ui/use-body-scroll-lock';
 
 type NavItem = {
+  destination?: WorkspaceDestination;
   label: string;
   href: string;
   icon: Icon;
@@ -39,7 +42,7 @@ const SIDE_NAV: Array<{ label: string; items: NavItem[] }> = [
   {
     label: '命理工具',
     items: [
-      { label: '命盘', href: '/chart', icon: ChartDonut, matches: path => path === '/chart' || /^\/chart\/[^/]+$/.test(path) },
+      { label: '命盘', href: '/chart', icon: ChartDonut, matches: path => path === '/chart' || (path !== '/chart/select' && /^\/chart\/[^/]+$/.test(path)) },
       { label: '紫微合盘', href: '/heming', icon: UsersThree, matches: path => path.startsWith('/heming') },
       { label: '八字分析', href: '/bazi', icon: GridFour, matches: path => path.startsWith('/bazi') },
       { label: '生时校正', href: '/rectification', icon: ClockCounterClockwise, matches: path => path.startsWith('/rectification') },
@@ -48,8 +51,10 @@ const SIDE_NAV: Array<{ label: string; items: NavItem[] }> = [
   {
     label: '档案报告',
     items: [
-      { label: '年度报告', href: '/reviews', icon: FileText, matches: path => path.startsWith('/reviews') || path.includes('/reports') },
-      { label: '人生时间轴', href: '/chart', icon: Path, matches: path => path.includes('/timeline') || path.includes('/events') },
+      { label: '命盘报告', destination: 'reports', href: '/chart/select?target=reports', icon: FileText, matches: path => path.includes('/reports') },
+      { label: '人生时间轴', destination: 'events', href: '/chart/select?target=events', icon: Path, matches: path => path.includes('/events') },
+      { label: '运限分析', destination: 'timeline', href: '/chart/select?target=timeline', icon: ChartDonut, matches: path => path.includes('/timeline') },
+      { label: '月度复盘', href: '/reviews', icon: ClockCounterClockwise, matches: path => path.startsWith('/reviews') },
       { label: '本地提醒', href: '/reminders', icon: Bell, matches: path => path.startsWith('/reminders') },
     ],
   },
@@ -85,7 +90,7 @@ const DEV_WARMUP_ROUTES = Array.from(new Set([
 let devWarmupStarted = false;
 
 function shouldUseFrame(pathname: string) {
-  if (pathname === '/' || /^\/chart\/[^/]+$/.test(pathname)) return false;
+  if (pathname === '/') return false;
   if (pathname === '/chart') return true;
   return ['/heming', '/bazi', '/rectification', '/reminders', '/reviews', '/learn', '/knowledge', '/library', '/practice', '/cases', '/settings', '/chart/']
     .some(prefix => pathname.startsWith(prefix));
@@ -100,12 +105,7 @@ function shouldShowNotice(pathname: string) {
 }
 
 function resolveSideHref(item: NavItem, pathname: string) {
-  const context = pathname.match(/^\/(chart|heming|rectification)\/([^/]+)/);
-  if (!context) return item.href;
-  const [, section, id] = context;
-  if (item.label === '年度报告') return `/${section}/${id}/reports`;
-  if (item.label === '人生时间轴' && section !== 'rectification') return `/${section}/${id}/timeline`;
-  return item.href;
+  return item.destination ? resolveWorkspaceDestination(item.destination, pathname) : item.href;
 }
 
 export default function EasternAppFrame({ children }: { children: React.ReactNode }) {
@@ -114,6 +114,7 @@ export default function EasternAppFrame({ children }: { children: React.ReactNod
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [pendingHref, setPendingHref] = useState<string | null>(null);
+  useBodyScrollLock(mobileNavOpen);
 
   useEffect(() => {
     setMobileNavOpen(false);
@@ -173,7 +174,7 @@ export default function EasternAppFrame({ children }: { children: React.ReactNod
 
   const beginNavigation = (href: string) => {
     setMobileNavOpen(false);
-    if (href !== pathname) setPendingHref(href);
+    if (href !== pathname && !href.startsWith(`${pathname}?`)) setPendingHref(href);
   };
 
   const warmRoute = (href: string) => {
@@ -182,14 +183,11 @@ export default function EasternAppFrame({ children }: { children: React.ReactNod
 
   useEffect(() => {
     if (!mobileNavOpen) return;
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
     const closeOnEscape = (event: KeyboardEvent) => {
       if (event.key === 'Escape') setMobileNavOpen(false);
     };
     window.addEventListener('keydown', closeOnEscape);
     return () => {
-      document.body.style.overflow = previousOverflow;
       window.removeEventListener('keydown', closeOnEscape);
     };
   }, [mobileNavOpen]);
@@ -230,7 +228,10 @@ export default function EasternAppFrame({ children }: { children: React.ReactNod
           <button
             type="button"
             className={styles.menuButton}
-            onClick={() => setMobileNavOpen(open => !open)}
+            onClick={() => {
+              if (!mobileNavOpen) window.dispatchEvent(new Event('eastern-navigation-open'));
+              setMobileNavOpen(open => !open);
+            }}
             aria-controls="eastern-mobile-navigation"
             aria-expanded={mobileNavOpen}
             aria-label={mobileNavOpen ? '关闭功能导航' : '打开功能导航'}

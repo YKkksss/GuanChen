@@ -1,0 +1,46 @@
+.embedded { --workspace-top: 58px; height: auto; min-height: calc(100dvh - var(--workspace-top)); overflow: visible; }
+.title { font-family: var(--font-serif); font-size: 17px; font-weight: 600; white-space: nowrap; }
+.embedded :global(.eastern-app-header) { position: relative; top: auto; height: 64px; padding: 0 20px; gap: 12px; z-index: 60; }
+.embedded :global(.eastern-mobile-header-controls) { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+.embedded :global(.eastern-mobile-header-controls button) { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 44px; padding: 0 12px; border: 1px solid var(--ew-line); border-radius: 6px; font-size: 12px; background: var(--ew-paper); }
+.embedded :global(.eastern-shell), .embedded :global(.eastern-shell.is-history-collapsed) { display: block; height: auto; min-height: 0; }
+.embedded :global(.eastern-main) { min-height: 0; overflow: visible; padding: 16px 20px 24px; }
+.embedded :global(.eastern-content-grid), .embedded :global(.eastern-content-grid.is-learning-mode) { height: max(640px, calc(100dvh - 218px)); flex: auto; grid-template-columns: minmax(0, 1fr) minmax(320px, 360px); }
+.embedded :global(.eastern-chart-board) { height: auto; min-width: 0; }
+.chatPane { height: 100%; }
+.chatPane[hidden] { display: none; }
+.embedded :global(.eastern-chart-region) { display: flex; flex-direction: column; overflow: hidden; }
+.boardPane { flex: 1; min-height: 0; overflow: auto; overscroll-behavior: contain; }
+.embedded :global(.eastern-chart-region > section) { flex: 0 0 auto; }
+
+/* 全局导航之外，历史和当前命盘工具作为独立抽屉展开，不占据额外内容列。 */
+.embedded :global(.eastern-history) { position: fixed; top: var(--workspace-top); bottom: 0; left: 0; z-index: 80; width: min(86vw, 360px); max-height: none; border-right: 1px solid var(--ew-line); background: #fbf8f1; box-shadow: 18px 0 48px #37261729; }
+.embedded :global(.eastern-history.is-collapsed) { display: none; }
+.embedded :global(.eastern-history-backdrop), .embedded :global(.eastern-actions-backdrop) { position: fixed; inset: var(--workspace-top) 0 0; z-index: 75; display: none; border: 0; background: #2a241f57; }
+.embedded :global(.eastern-history-backdrop.is-visible), .embedded :global(.eastern-actions-backdrop.is-visible) { display: block; opacity: 1; visibility: visible; pointer-events: auto; }
+.embedded :global(.eastern-app-actions) { display: none; position: fixed; top: var(--workspace-top); right: 0; bottom: 0; width: min(86vw, 360px); z-index: 85; padding: 20px 16px; background: #fbf8f1; border-left: 1px solid var(--ew-line); box-shadow: -18px 0 48px #37261729; overflow-y: auto; }
+.embedded :global(.eastern-app-actions.is-mobile-open) { display: flex; flex-direction: column; justify-content: flex-start; align-items: stretch; gap: 6px; transform: none; visibility: visible; }
+.embedded :global(.eastern-app-actions button) { height: 48px; flex: 0 0 auto; justify-content: flex-start; font-size: 12px; }
+.embedded :global(.eastern-app-actions button span) { display: inline; }
+.embedded :global(.eastern-mobile-actions-heading) { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-bottom: 16px; border-bottom: 1px solid var(--ew-line); }
+.embedded :global(.eastern-mobile-actions-heading > div) { display: grid; gap: 4px; }
+.embedded :global(.eastern-mobile-actions-heading span) { color: var(--ew-muted); font-size: 11px; }
+.embedded :global(.eastern-mobile-actions-heading button) { width: 44px; justify-content: center; }
+
+@media (max-width: 1240px) {
+  .boardPane { flex: auto; overflow: visible; }
+  .embedded :global(.eastern-content-grid), .embedded :global(.eastern-content-grid.is-learning-mode) { display: block; height: auto; }
+  .embedded :global(.eastern-content-grid[data-mobile-pane='chart'] .eastern-insight-region),
+  .embedded :global(.eastern-content-grid[data-mobile-pane='insight'] .eastern-chart-region) { display: none; }
+  .embedded :global(.eastern-insight-region) { height: max(600px, calc(100dvh - 250px)); }
+  .embedded :global(.eastern-mobile-view-tabs) { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-bottom: 14px; padding: 5px; border: 1px solid var(--ew-line); border-radius: 8px; background: var(--ew-paper); top: var(--workspace-top); }
+  .embedded :global(.eastern-mobile-view-tabs button) { min-height: 44px; border-radius: 6px; font-size: 12px; }
+  .embedded :global(.eastern-mobile-view-tabs button.is-active) { background: var(--ew-cinnabar); color: #fffaf4; }
+}
+@media (max-width: 820px) { .embedded { --workspace-top: 56px; } }
+@media (max-width: 600px) {
+  .embedded :global(.eastern-app-header) { padding-inline: 14px; }
+  .embedded :global(.eastern-main) { padding: 12px; }
+  .embedded :global(.eastern-chart-region) { padding: 10px; }
+  .title { font-size: 15px; }
+}
