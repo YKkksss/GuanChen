@@ -3,8 +3,12 @@
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useConversationChat } from '@/lib/ui/use-conversation-chat';
+import { useChatSplit } from '@/lib/ui/use-chat-split';
 import {
   BookOpen,
+  ArrowsInSimple,
+  ArrowsOutSimple,
+  ArrowCounterClockwise,
   CalendarDots,
   ClockCounterClockwise,
   FileText,
@@ -49,6 +53,8 @@ export default function ChartWorkspace({ conversationId }: ChartWorkspaceProps) 
   const [learningNoteDirty, setLearningNoteDirty] = useState(false);
   const [starSelection, setStarSelection] = useState<{ star: Star; palace: Palace } | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
+  const [chatFocused, setChatFocused] = useState(false);
+  const split = useChatSplit(Boolean(chart && conversationId && !loading));
   const insightRef = useRef<InsightPanelHandle>(null);
   useBodyScrollLock(!historyCollapsed || mobileActionsOpen);
 
@@ -56,7 +62,17 @@ export default function ChartWorkspace({ conversationId }: ChartWorkspaceProps) 
     setHistoryCollapsed(true);
     setMobileActionsOpen(false);
     setStarSelection(null);
+    setChatFocused(false);
   }, [conversationId, hydrateChat]);
+
+  useEffect(() => {
+    if (!chatFocused) return;
+    const exitFocus = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && !event.defaultPrevented && !document.querySelector('dialog[open], [role="dialog"]')) setChatFocused(false);
+    };
+    window.addEventListener('keydown', exitFocus);
+    return () => window.removeEventListener('keydown', exitFocus);
+  }, [chatFocused]);
 
   const toggleHistory = () => {
     setHistoryCollapsed(current => !current);
@@ -167,7 +183,7 @@ export default function ChartWorkspace({ conversationId }: ChartWorkspaceProps) 
   };
 
   return (
-    <main className={`eastern-workbench ${styles.embedded}`}>
+    <main className={`eastern-workbench ${styles.embedded} ${chart ? styles.reading : ''} ${chatFocused ? styles.focused : ''}`}>
       <header className="eastern-app-header">
         <h1 className={styles.title}>命盘解读</h1>
 
@@ -262,7 +278,10 @@ export default function ChartWorkspace({ conversationId }: ChartWorkspaceProps) 
         <section className="eastern-main">
           {conversationId && (
             <div className="eastern-result-notice">
-              <ResultNotice compact />
+              <details className={styles.noticeDetails}>
+                <summary>传统文化学习参考，不替代现实判断<span>温馨提示</span></summary>
+                <ResultNotice compact />
+              </details>
             </div>
           )}
           {chart?.birthInfo.unknownTime && conversationId && (
@@ -298,7 +317,7 @@ export default function ChartWorkspace({ conversationId }: ChartWorkspaceProps) 
           )}
 
           {!loading && chart && conversationId && (
-            <>
+            <div className={styles.readingLayout}>
               <div className="eastern-mobile-view-tabs" role="tablist" aria-label="命盘工作区视图">
                 <button
                   type="button"
@@ -319,7 +338,7 @@ export default function ChartWorkspace({ conversationId }: ChartWorkspaceProps) 
                   {learningMode ? '学习解读' : 'AI 解读'}
                 </button>
               </div>
-              <div className={`eastern-content-grid ${learningMode ? 'is-learning-mode' : ''}`} data-mobile-pane={mobilePane}>
+              <div ref={split.gridRef} className={`eastern-content-grid ${learningMode ? 'is-learning-mode' : ''}`} data-mobile-pane={mobilePane} data-chat-focused={chatFocused}>
                 <section className="eastern-chart-region" aria-label="紫微斗数命盘">
                   <div className={styles.boardPane}>
                     <ChartBoard chart={chart} selectedBranch={selectedPalace?.branch ?? null} onPalaceSelect={selectPalace}
@@ -327,7 +346,11 @@ export default function ChartWorkspace({ conversationId }: ChartWorkspaceProps) 
                   </div>
                   <PalaceFacts palace={selectedPalace} busy={analyzing} onAnalyze={analyzePalace} />
                 </section>
-                <aside className="eastern-insight-region" aria-label={learningMode ? '学习解读' : 'AI 命理解读'}>
+                <div ref={split.dividerRef} className={styles.divider} role="separator" tabIndex={0}
+                  aria-label="调整命盘与对话宽度" aria-orientation="vertical" aria-controls="chart-reading-chat"
+                  aria-valuenow={45} aria-valuemin={20} aria-valuemax={80}
+                  title="拖动调整宽度；左右方向键微调，双击或 Enter 恢复默认" {...split.dividerEvents} />
+                <aside id="chart-reading-chat" className="eastern-insight-region" aria-label={learningMode ? '学习解读' : 'AI 命理解读'}>
                   {learningMode && selectedPalace && (
                     <LearningPanel
                       conversationId={conversationId}
@@ -347,11 +370,19 @@ export default function ChartWorkspace({ conversationId }: ChartWorkspaceProps) 
                       conversationId={conversationId}
                       chat={chat}
                       onLoadingChange={setAnalyzing}
+                      readingControls={<>
+                        <button type="button" className={styles.resetSplit} onClick={split.reset} aria-label="重置分栏比例" title="恢复默认分栏比例"><ArrowCounterClockwise size={16} aria-hidden="true" /></button>
+                        <button type="button" className={styles.focusButton} aria-pressed={chatFocused}
+                          onClick={() => { setChatFocused(value => !value); setMobilePane('insight'); }}>
+                          {chatFocused ? <ArrowsInSimple size={16} aria-hidden="true" /> : <ArrowsOutSimple size={16} aria-hidden="true" />}
+                          {chatFocused ? '退出专注' : '专注对话'}
+                        </button>
+                      </>}
                     />
                   </div>
                 </aside>
               </div>
-            </>
+            </div>
           )}
         </section>
       </div>

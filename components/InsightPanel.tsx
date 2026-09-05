@@ -1,5 +1,5 @@
 'use client';
-import { forwardRef, useImperativeHandle, useState, useRef, useEffect } from 'react';
+import { forwardRef, useImperativeHandle, useState, useRef, useEffect, type ReactNode } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Brain, ChatCircleDots, PaperPlaneTilt, Sparkle } from '@phosphor-icons/react';
 import type { ConversationChat } from '@/lib/ui/use-conversation-chat';
@@ -26,6 +26,7 @@ interface InsightPanelProps {
   selectedSiHua?: SelectedSiHua | null;
   transitContext?: { level: 'year' | 'month' | 'day'; targetDate: string; label?: string } | null;
   autoGenerate?: boolean;
+  readingControls?: ReactNode;
 }
 
 interface SendOptions {
@@ -208,6 +209,7 @@ const InsightPanel = forwardRef<InsightPanelHandle, InsightPanelProps>(function 
   selectedSiHua,
   transitContext,
   autoGenerate = true,
+  readingControls,
 }: InsightPanelProps, ref) {
   const { messages, input, busy: loading } = chat;
   const setInput = chat.session.setInput;
@@ -337,7 +339,7 @@ ${selectedSiHua.starName}化${selectedSiHua.siHua}落在【${palaceName}】，�
             <div className="eastern-insight-title">
               {transitContext ? `${transitContext.label ?? `${transitContext.targetDate} 年`} AI 解读` : 'AI 命理解读'}
             </div>
-            <div className="eastern-insight-subtitle">融合东方智慧与结构化分析</div>
+            {!readingControls && <div className="eastern-insight-subtitle">融合东方智慧与结构化分析</div>}
           </div>
         </div>
         <div className="eastern-insight-status">
@@ -348,9 +350,10 @@ ${selectedSiHua.starName}化${selectedSiHua.siHua}落在【${palaceName}】，�
           >
             <Brain size={12} />记忆
           </button>
-          <span className={loading ? 'is-loading' : ''}>
+          {(!readingControls || loading) && <span className={loading ? 'is-loading' : ''}>
             {loading ? '正在生成' : '可以继续追问'}
-          </span>
+          </span>}
+          {readingControls}
         </div>
       </div>
 
@@ -446,7 +449,7 @@ ${selectedSiHua.starName}化${selectedSiHua.siHua}落在【${palaceName}】，�
         />
       </div>
 
-      <LifeEventCandidateInbox conversationId={conversationId} />
+      <LifeEventCandidateInbox conversationId={conversationId} compact={Boolean(readingControls)} />
       <ChatGenerationControls chat={chat} />
 
       {/* ── Input ── */}

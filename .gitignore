@@ -1,5 +1,6 @@
 node_modules/
 .next/
+.next-*-qa/
 .vercel/
 .env*
 !.env.example

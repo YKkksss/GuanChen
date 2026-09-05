@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { CalendarCheck, Check, X } from '@phosphor-icons/react';
+import styles from './LifeEventCandidateInbox.module.css';
 import {
   LIFE_EVENT_CATEGORIES,
   LIFE_EVENT_CATEGORY_LABELS,
@@ -21,7 +22,7 @@ const PRECISIONS: Array<{ value: LifeEventDatePrecision; label: string }> = [
 
 type CandidateForm = ReturnType<typeof candidateToForm>;
 
-export default function LifeEventCandidateInbox({ conversationId }: { conversationId: string }) {
+export default function LifeEventCandidateInbox({ conversationId, compact = false }: { conversationId: string; compact?: boolean }) {
   const router = useRouter();
   const [candidates, setCandidates] = useState<LifeEventCandidate[]>([]);
   const [active, setActive] = useState<LifeEventCandidate | null>(null);
@@ -30,6 +31,7 @@ export default function LifeEventCandidateInbox({ conversationId }: { conversati
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [savedTitle, setSavedTitle] = useState('');
+  const [expanded, setExpanded] = useState(false);
 
   const reload = useCallback(async () => {
     try {
@@ -106,8 +108,14 @@ export default function LifeEventCandidateInbox({ conversationId }: { conversati
   const first = candidates[0];
 
   return <>
-    <div className="shrink-0 border-t px-3 py-2.5" style={{ borderColor: 'var(--t-border)', background: 'rgba(212,168,67,.045)' }}>
-      {savedTitle ? (
+    <div className={compact ? styles.compact : 'shrink-0 border-t px-3 py-2.5'} style={{ borderColor: 'var(--t-border)', background: 'rgba(212,168,67,.045)' }}>
+      {compact && <button type="button" className={styles.toggle} aria-expanded={expanded} onClick={() => setExpanded(value => !value)}>
+        <CalendarCheck size={15} aria-hidden="true" />
+        <span>{candidates.length ? `待核对事件 · ${candidates.length}` : '事件已保存'}</span>
+        <span className={styles.toggleHint}>{expanded ? '收起' : '展开'}</span>
+      </button>}
+      {(!compact || expanded) && <div className={compact ? styles.preview : undefined}>
+      {savedTitle && (!compact || !first) ? (
         <div className="flex items-center justify-between gap-2 text-[10px]">
           <span className="flex min-w-0 items-center gap-1.5" style={{ color: 'var(--t-gold)' }}><Check size={13} weight="bold" /><span className="truncate">已保存：{savedTitle}</span></span>
           <button type="button" onClick={() => router.push(`/chart/${conversationId}/events`)} style={{ color: 'var(--t-faint)' }}>查看时间轴 →</button>
@@ -131,6 +139,7 @@ export default function LifeEventCandidateInbox({ conversationId }: { conversati
           {error && <p className="mt-2 text-[9px] text-red-500">{error}</p>}
         </div>
       ) : null}
+      </div>}
     </div>
 
     {active && form && (
