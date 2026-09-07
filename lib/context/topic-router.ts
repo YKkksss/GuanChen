@@ -66,3 +66,27 @@ export function getTopicPalaceNames(topic: ContextTopic): string[] {
     case 'palace': return [];
   }
 }
+
+/** 只为明确的省略式追问延续范围，不让旧话题覆盖新的问题。 */
+export function resolveConversationFocus(current: ConversationMessage, history: ConversationMessage[]) {
+  let anchor = current;
+  const candidates = history.filter(message => message.conversationId === current.conversationId
+    && message.role === 'user' && message.status === 'completed' && message.seq < current.seq);
+  let index = candidates.length - 1;
+  while (isImplicitFollowUp(anchor) && index >= 0) anchor = candidates[index--];
+  return {
+    topic: classifyContextTopic(anchor),
+    palaceBranch: anchor.palaceBranch,
+    metadata: anchor.metadata,
+    inheritedFromMessageId: anchor.id === current.id ? null : anchor.id,
+  };
+}
+
+function isImplicitFollowUp(message: ConversationMessage): boolean {
+  if (message.topic || message.palaceBranch !== null || message.metadata?.transit
+    || !['question', 'followup'].includes(message.source)) return false;
+  if (KEYWORDS.some(([, pattern]) => pattern.test(message.content))) return false;
+  // 新的日期或时段不能沿用旧运限快照。
+  if (/\d{2,4}|今天|明天|昨天|下月|上月|明年|去年/.test(message.content)) return false;
+  return message.content.length <= 100 && /继续|详细|具体|展开|为什么|为何|怎么理解|什么意思|怎么做|怎么办|举个例|举例|刚才|上面|这个|这一点/.test(message.content);
+}

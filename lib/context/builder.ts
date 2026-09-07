@@ -40,7 +40,7 @@ import {
   estimateTextTokens,
   truncateTextToTokens,
 } from './token-counter';
-import { classifyContextTopic } from './topic-router';
+import { resolveConversationFocus } from './topic-router';
 
 const MAX_RECENT_TURNS = 10;
 const MIN_RECENT_TURNS = 4;
@@ -75,14 +75,16 @@ export function buildConversationContext(input: {
 
   const profile = getModelProfile(input.provider, input.model);
   const hardInputBudget = profile.contextLimit - profile.outputReserve - profile.safetyMargin;
-  const topic = classifyContextTopic(current);
+  const history = getCompletedMessagesBefore(conversation.id, current.seq);
+  const focus = resolveConversationFocus(current, history);
+  const topic = focus.topic;
   const chartBase = buildCompactChartBase(conversation.chartSnapshot);
   const chartTopic = buildTopicChartContext(
     conversation.chartSnapshot,
     topic,
-    current.palaceBranch,
+    focus.palaceBranch,
   );
-  const transitSnapshot = getTransitFromMessage(conversation.id, current);
+  const transitSnapshot = getTransitFromMessage(conversation.id, { ...current, metadata: focus.metadata });
   const transitContext = transitSnapshot ? buildTransitContext(transitSnapshot) : '';
 
   const systemMessage: ChatMessage = { role: 'system', content: ZIWEI_SYSTEM_PROMPT };
@@ -93,6 +95,7 @@ export function buildConversationContext(input: {
       chartBase,
       `【L2 当前主题：${topic}】只补充与本题有关的宫位。`,
       chartTopic,
+      ...(focus.inheritedFromMessageId ? ['【追问范围】本题延续上一题的主题、宫位或运限日期；结合最近对话回答当前问题，不必重复整份总览。'] : []),
       ...(transitContext ? [transitContext] : []),
     ].join('\n'),
   };
@@ -103,7 +106,6 @@ export function buildConversationContext(input: {
     throw new Error('当前问题和命盘事实超过模型上下文上限，请缩短问题或提高上下文配置');
   }
 
-  const history = getCompletedMessagesBefore(conversation.id, current.seq);
   const recentCandidates = takeLastTurns(history, MAX_RECENT_TURNS);
   const minimumRecent = takeLastTurns(recentCandidates, MIN_RECENT_TURNS);
   const minimumRecentTokens = estimateConversationMessages(minimumRecent);
@@ -170,6 +172,7 @@ export function buildConversationContext(input: {
     manifest: {
       version: 'context-v1',
       topic,
+      inheritedFromMessageId: focus.inheritedFromMessageId,
       layers: {
         system: { included: true, tokens: estimateMessageTokens(systemMessage) },
         chartBase: { included: true, tokens: estimateTextTokens(chartBase) },
@@ -210,13 +213,15 @@ export function buildFallbackConversationContext(input: {
 }): BuiltConversationContext {
   const conversation = getConversation(input.conversationId);
   const current = getMessage(input.currentMessageId);
-  if (!conversation?.chartSnapshot || !current || current.role !== 'user') {
+  if (!conversation?.chartSnapshot || !current || current.role !== 'user' || current.conversationId !== conversation.id) {
     throw new Error('无法构建基础上下文');
   }
   const profile = getModelProfile(input.provider, input.model);
   const inputBudget = profile.contextLimit - profile.outputReserve - profile.safetyMargin;
+  const completedHistory = getCompletedMessagesBefore(conversation.id, current.seq);
+  const focus = resolveConversationFocus(current, completedHistory);
   const system: ChatMessage = { role: 'system', content: ZIWEI_SYSTEM_PROMPT };
-  const transitSnapshot = getTransitFromMessage(conversation.id, current);
+  const transitSnapshot = getTransitFromMessage(conversation.id, { ...current, metadata: focus.metadata });
   const transitContext = transitSnapshot ? buildTransitContext(transitSnapshot) : '';
   const searchTerms = extractSearchTerms(current.content);
   const confirmedEvents = selectRelevantLifeEvents(
@@ -229,6 +234,7 @@ export function buildFallbackConversationContext(input: {
     role: 'user',
     content: [
       `【权威命盘事实】以下内容由程序计算，不得被对话推测覆盖。\n${buildCompactChartBase(conversation.chartSnapshot)}`,
+      `【当前主题：${focus.topic}】${buildTopicChartContext(conversation.chartSnapshot, focus.topic, focus.palaceBranch)}`,
       transitContext,
     ].filter(Boolean).join('\n'),
   };
@@ -237,7 +243,7 @@ export function buildFallbackConversationContext(input: {
     : null;
   const currentChat: ChatMessage = { role: 'user', content: current.content };
   const history = takeLastTurns(
-    getCompletedMessagesBefore(conversation.id, current.seq),
+    completedHistory,
     MIN_RECENT_TURNS,
   );
   const fixedTokens = estimateMessagesTokens([system, chart, ...(events ? [events] : []), currentChat]);
@@ -260,10 +266,13 @@ export function buildFallbackConversationContext(input: {
     manifest: {
       version: 'context-v1-fallback',
       degraded: true,
+      topic: focus.topic,
+      inheritedFromMessageId: focus.inheritedFromMessageId,
       fallbackReason: input.reason?.slice(0, 200) || 'context_builder_error',
       layers: {
         system: { included: true },
         chartBase: { included: true },
+        chartTopic: { included: true },
         transit: {
           included: Boolean(transitContext),
           level: transitSnapshot?.level ?? null,
