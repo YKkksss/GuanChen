@@ -28,6 +28,7 @@ import type { Icon } from '@phosphor-icons/react';
 import ResultNotice from './ResultNotice';
 import styles from './EasternAppFrame.module.css';
 import { resolveWorkspaceDestination, type WorkspaceDestination } from '@/lib/ui/workspace-navigation';
+import { useModalFocus } from '@/lib/ui/use-modal-focus';
 import { useBodyScrollLock } from '@/lib/ui/use-body-scroll-lock';
 
 type NavItem = {
@@ -116,6 +117,7 @@ export default function EasternAppFrame({ children }: { children: React.ReactNod
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [pendingHref, setPendingHref] = useState<string | null>(null);
   useBodyScrollLock(mobileNavOpen);
+  const mobileNavRef = useModalFocus<HTMLElement>(mobileNavOpen, () => setMobileNavOpen(false));
 
   useEffect(() => {
     setMobileNavOpen(false);
@@ -182,16 +184,7 @@ export default function EasternAppFrame({ children }: { children: React.ReactNod
     if (href !== pathname) router.prefetch(href);
   };
 
-  useEffect(() => {
-    if (!mobileNavOpen) return;
-    const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setMobileNavOpen(false);
-    };
-    window.addEventListener('keydown', closeOnEscape);
-    return () => {
-      window.removeEventListener('keydown', closeOnEscape);
-    };
-  }, [mobileNavOpen]);
+
 
   if (!shouldUseFrame(pathname)) return children;
 
@@ -258,11 +251,16 @@ export default function EasternAppFrame({ children }: { children: React.ReactNod
           tabIndex={mobileNavOpen ? 0 : -1}
         />
         <aside
+          ref={mobileNavRef}
+          tabIndex={-1}
+          role={mobileNavOpen ? 'dialog' : undefined}
+          aria-modal={mobileNavOpen || undefined}
           id="eastern-mobile-navigation"
           className={`${styles.sidebar} ${sidebarCollapsed ? styles.sidebarCollapsed : ''} ${mobileNavOpen ? styles.sidebarOpen : ''}`}
           aria-label="东方书院功能目录"
         >
           <div className={styles.sideBrand}>功能目录</div>
+          {mobileNavOpen && <button type="button" className="flex min-h-11 min-w-11 items-center justify-center" aria-label="关闭目录" onClick={() => setMobileNavOpen(false)}><X size={20} /></button>}
           <button type="button" className={styles.sidebarToggle} onClick={toggleSidebar} aria-expanded={!sidebarCollapsed} title={sidebarCollapsed ? '展开侧栏' : '收起侧栏'}>
             <SidebarSimple size={18} weight={sidebarCollapsed ? 'fill' : 'regular'} aria-hidden="true" />
             <span>{sidebarCollapsed ? '展开侧栏' : '收起侧栏'}</span>

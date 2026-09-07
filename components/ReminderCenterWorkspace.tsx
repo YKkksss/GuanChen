@@ -1,5 +1,8 @@
 'use client';
 
+import { useModalFocus } from '@/lib/ui/use-modal-focus';
+import { useBodyScrollLock } from '@/lib/ui/use-body-scroll-lock';
+
 import Link from 'next/link';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { FormEvent, ReactNode } from 'react';
@@ -251,8 +254,11 @@ function ReminderRuleForm({ conversations, onClose, onCreated }: { conversations
     }
   }
 
+  const closeDialog = () => { if (!saving) onClose(); };
+  const dialogRef = useModalFocus(true, closeDialog);
+  useBodyScrollLock(true);
   const eligibleEvents = events;
-  return <div className="fixed inset-0 z-[80] flex items-end justify-center bg-black/60 p-0 backdrop-blur-sm sm:items-center sm:p-5"><section role="dialog" aria-modal="true" aria-labelledby="reminder-form-title" className="max-h-[92vh] w-full max-w-[720px] overflow-y-auto rounded-t-2xl p-5 sm:rounded-2xl sm:p-6" style={{ background: 'var(--t-bg)', border: '1px solid var(--t-border-acc)' }}><div className="flex items-start justify-between gap-4"><div><div className="text-[9px] tracking-[.22em]" style={{ color: 'var(--t-gold)' }}>NEW LOCAL REMINDER</div><h2 id="reminder-form-title" className="mt-1 text-lg font-semibold" style={{ color: 'var(--t-text)' }}>新建本地提醒</h2><p className="mt-2 text-[10px] leading-5" style={{ color: 'var(--t-faint)' }}>提醒只保存在这台设备的 SQLite 中，应用未运行时不会弹出通知。</p></div><button type="button" aria-label="关闭新建提醒" onClick={onClose} className="rounded-lg p-2" style={{ color: 'var(--t-faint)', border: '1px solid var(--t-border)' }}><X size={15} /></button></div>
+  return <div ref={dialogRef} tabIndex={-1} className="v1-dialog fixed inset-0 z-[80] flex items-end justify-center bg-black/60 p-0 backdrop-blur-sm sm:items-center sm:p-5"><section role="dialog" aria-modal="true" aria-labelledby="reminder-form-title" className="max-h-[92vh] w-full max-w-[720px] overflow-y-auto rounded-t-2xl p-5 sm:rounded-2xl sm:p-6" style={{ background: 'var(--t-bg)', border: '1px solid var(--t-border-acc)' }}><div className="flex items-start justify-between gap-4"><div><div className="text-[9px] tracking-[.22em]" style={{ color: 'var(--t-gold)' }}>NEW LOCAL REMINDER</div><h2 id="reminder-form-title" className="mt-1 text-lg font-semibold" style={{ color: 'var(--t-text)' }}>新建本地提醒</h2><p className="mt-2 text-[10px] leading-5" style={{ color: 'var(--t-faint)' }}>提醒保存在部署电脑，局域网访问者共享；应用未运行时不会弹出通知。</p></div><button type="button" aria-label="关闭新建提醒" disabled={saving} onClick={closeDialog} className="rounded-lg p-2" style={{ color: 'var(--t-faint)', border: '1px solid var(--t-border)' }}><X size={15} /></button></div>
     <form onSubmit={submit} className="mt-6 space-y-5">
       <div className="grid gap-2 sm:grid-cols-5">{(Object.keys(KIND_LABELS) as ReminderKind[]).map(value => <button key={value} type="button" onClick={() => changeKind(value)} className="rounded-lg px-3 py-3 text-[10px]" style={kind === value ? { color: '#fffaf3', background: 'var(--ac)' } : { color: 'var(--t-text2)', border: '1px solid var(--t-border)' }}>{KIND_LABELS[value]}</button>)}</div>
       <Field label="提醒标题"><input required maxLength={80} value={title} onChange={event => setTitle(event.target.value)} className="field-control" /></Field>
@@ -266,7 +272,7 @@ function ReminderRuleForm({ conversations, onClose, onCreated }: { conversations
       <div className="grid gap-4 sm:grid-cols-2"><Field label="提醒小时"><input type="number" min={0} max={23} value={hour} onChange={event => setHour(Number(event.target.value))} className="field-control" /></Field><Field label="提醒分钟"><input type="number" min={0} max={59} value={minute} onChange={event => setMinute(Number(event.target.value))} className="field-control" /></Field></div>
       <div className="rounded-lg p-3 text-[10px] leading-5" style={{ color: 'var(--t-text2)', background: 'var(--ac-bg)', border: '1px solid var(--t-border)' }}>时区固定为中国标准时间（Asia/Shanghai）。流年和大限提醒只是观察待办，具体分析仍使用项目已有的确定性运限引擎。</div>
       {error && <div className="rounded-lg p-3 text-xs text-red-500" style={{ border: '1px solid rgba(239,68,68,.3)' }}>{error}</div>}
-      <div className="flex justify-end gap-2"><button type="button" onClick={onClose} className="rounded-lg px-5 py-3 text-xs" style={{ color: 'var(--t-text2)', border: '1px solid var(--t-border)' }}>取消</button><button type="submit" disabled={saving} className="rounded-lg px-5 py-3 text-xs disabled:opacity-40" style={{ color: '#fffaf3', background: 'var(--ac)' }}>{saving ? '正在生成提醒…' : '保存并生成提醒'}</button></div>
+      <div className="flex justify-end gap-2"><button type="button" disabled={saving} onClick={closeDialog} className="rounded-lg px-5 py-3 text-xs" style={{ color: 'var(--t-text2)', border: '1px solid var(--t-border)' }}>取消</button><button type="submit" disabled={saving} className="rounded-lg px-5 py-3 text-xs disabled:opacity-40" style={{ color: '#fffaf3', background: 'var(--ac)' }}>{saving ? '正在生成提醒…' : '保存并生成提醒'}</button></div>
     </form>
   </section></div>;
 }

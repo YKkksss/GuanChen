@@ -1,17 +1,6 @@
 import type { MetadataRoute } from 'next';
 
-const BASE_URL = 'https://wdyziweidoushu666.com';
-
+// 本地档案工作台不面向搜索引擎；此声明不替代访问控制。
 export default function robots(): MetadataRoute.Robots {
-  return {
-    rules: [
-      {
-        userAgent: '*',
-        allow: '/',
-        disallow: ['/api/', '/preview-versions/'],
-      },
-    ],
-    sitemap: `${BASE_URL}/sitemap.xml`,
-    host: BASE_URL,
-  };
+  return { rules: [{ userAgent: '*', disallow: '/' }] };
 }

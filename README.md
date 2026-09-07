@@ -1,210 +1,65 @@
-# 紫微斗数 · 开源排盘引擎
+# 紫微命盘 · 东方书院
 
-> 🎉 **网站已完成 ICP 备案**（渝ICP备2026013379号-1），主域名已正式上线、全部功能正常访问。
->
-> 直接访问主域名 **https://metisziwei.com** 即可，排盘 / AI 解读 / 命盘历史等全部功能均已开放。
->
-> 💕 **发财的小手点一下，小红书 / 抖音 / 闲鱼 / X 关注：王多鱼AI**，第一时间看上线 + 解锁更多紫微干货～
+面向个人与可信局域网的命理研究工作台。当前按 [v1 固定范围](docs/V1_FREEZE_SCOPE.md) 收尾，尚未正式冻结发布。
 
-基于**倪海夏《天纪》**教学体系的紫微斗数排盘系统，包含完整排盘算法、四化系统、格局知识库、古籍原文数据，以及 **51.8 万条命盘样本数据**。
+## 当前功能
 
-线上体验：[metisziwei.com](https://metisziwei.com)
+- 紫微排盘、合盘、八字与生时校正。
+- AI 对话、可调整聊天分栏、字号设置与 Markdown 渲染。
+- 历史档案、人生事件核对、时间轴、专题报告与导出。
+- 学习、案例、提醒与月度复盘。
+- 整库备份恢复、密码加密导出、单命盘导入导出。
 
----
+项目包含服务端 API、AI 请求与 SQLite 持久化，不需要另行实现这些接口。AI 功能需配置供应商密钥及可用网络；新增供应商的深度适配留到后续版本。
 
-## 51.8 万命盘样本数据
+## 安装与启动
 
-> **下载位置：本仓库右侧 [Releases](https://github.com/Renhuai123/ziwei-doushu/releases/tag/v3.0-samples) 页面**
+当前验证环境为 Node.js 24、Next.js 15、React 19。首次安装需要网络与本机可用的 SQLite 原生依赖。
 
-我们开源了一套完整的紫微斗数命盘样本数据集，覆盖 **51.8 万种排盘组合**（年 60 × 月 12 × 日 30 × 时 12 × 性别 2），每条样本包含完整的命盘结构和基于倪海夏体系的解读文本。
-
-### 数据规格
-
-| 项目 | 说明 |
-|------|------|
-| 样本数量 | **518,400 条** |
-| 总大小 | 5.5 GB（分 3 卷压缩） |
-| 体系 | 倪海夏《天纪》正统（纯飞星派已下线） |
-| 内容 | 命盘 JSON + 13 主题解读文本（命格总览、财运、事业、感情、健康等） |
-| 验证 | 男女命差异化 100%、健康含子午流注 100%、女命含妇科保养 100% |
-| 口径 | 与线上 [metisziwei.com](https://metisziwei.com) 完全一致 |
-
-### 下载方式
-
-前往 [Releases](https://github.com/Renhuai123/ziwei-doushu/releases/tag/v3.0-samples) 下载以下文件：
-
-```
-ziwei-samples-v3-part1.zip.001  (1.9 GB)
-ziwei-samples-v3-part2.zip.002  (1.9 GB)
-ziwei-samples-v3-part3.zip.003  (1.8 GB)
-SHA256SUMS.txt                  (校验文件)
-```
-
-下载后合并解压：
-
-```bash
-# macOS / Linux
-cat ziwei-samples-v3-part*.zip.* > combined.zip
-unzip combined.zip
-
-# Windows (PowerShell)
-Get-Content ziwei-samples-v3-part*.zip.* -Encoding Byte -ReadCount 0 | Set-Content combined.zip -Encoding Byte
-Expand-Archive combined.zip
-```
-
-### 用途
-
-- 微调小模型的训练语料（51.8 万 input-output 配对）
-- AI 对话的 RAG 检索源
-- 修改 `patterns.ts` 后做 A/B 基线对比
-- 紫微斗数研究与数据分析
-
-### 数据许可与引用
-
-📂 **完全开源 · 可自由商用** —— 你可以在任何项目里使用这套数据，包括但不限于：
-
-- 商业产品 / SaaS / 付费应用
-- AI 模型微调（开源或闭源模型均可）
-- 二次开发、再分发、衍生数据集
-- 学术研究、技术博客、教学课程
-
-无需付费、无需申请、无需事先告知。
-
-**唯一的要求是保留数据来源标注（attribution）**：
-
-> 本项目使用了 **紫微斗数开源样本数据集 v3.0**（518,400 条）
-> 来源：https://github.com/Renhuai123/ziwei-doushu
-> 作者：王多鱼AI
-
-放在哪里都行：
-
-- **网页 / 产品**：About 页 / 关于我们 / 数据来源 / 页脚，写一行链接即可
-- **AI 模型**：模型卡（Model Card）或数据集卡（Dataset Card）的 "Training Data" 字段
-- **学术论文**：参考文献或致谢章节
-- **二次发布的数据集**：README 或 metadata 文件里注明上游来源
-
-仅此一条，其余都自由。希望这套数据能帮你做出好东西 —— 做出来记得来小红书 / 抖音 / 闲鱼 **@王多鱼AI** 打个招呼 👋
-
----
-
-## 开源内容
-
-### 排盘算法（`lib/ziwei/`）
-
-| 文件 | 说明 |
-|------|------|
-| `algorithm.ts` | 完整排盘流程：安命宫、定五行局、安十四主星、安辅星、排大限流年 |
-| `constants.ts` | 天干地支、十四主星、辅星常量 |
-| `sihua.ts` | 四化飞星系统（禄权科忌），含各天干四化对照表 |
-| `patterns.ts` | **1100+ 行格局知识库**：紫府同宫、日月并明、七杀朝斗等经典格局判定规则 |
-| `heming-knowledge.ts` | 合盘方法论：倪师体系下双盘比对逻辑 |
-| `types.ts` | TypeScript 类型定义 |
-| `cities.ts` | 中国城市经纬度，用于真太阳时校正 |
-| `famous.ts` | 历史名人命盘示例数据 |
-
-### 古籍原文（`lib/classics/`）
-
-- **骨髓赋**（`gusuifu.ts`）— 紫微斗数核心歌诀
-- **紫微斗数全集**（`quanji.ts`）— 清代古本
-- **紫微斗数全书**（`quanshu.ts`）— 陈希夷传本
-
-### 前端界面（`app/` + `components/`）
-
-完整的 Next.js 14 前端，包含：
-
-- 排盘工作台（命盘方格、宫位详情、星曜面板）
-- 合盘分析页
-- 古籍阅读器（全文搜索）
-- 命理百科（14 主星 + 12 宫位知识页）
-- 亮色/暗色主题切换
-- 移动端适配
-
-### SEO 知识图谱（`lib/seo/`）
-
-14 主星 × 12 宫位的结构化知识数据，可用于内容生成或知识库构建。
-
----
-
-## 未包含的部分
-
-以下属于平台运营层，不在开源范围内：
-
-- **AI 解读 prompt**：基于倪海夏体系调教的命盘解读提示词
-- **后端 API**：`/api/interpret`、`/api/heming`、`/api/generate` 等路由实现
-- **用户系统**：登录、短信验证、会员、支付
-- **服务端安全**：签名校验、防刷、水印
-- **部署配置**：Vercel/Nginx/Docker/数据库
-
-如果你需要 AI 解读能力，可以参考 `lib/ziwei/patterns.ts` 和 `heming-knowledge.ts` 中的知识库，结合任意 LLM 自行构建 prompt。
-
----
-
-## 快速开始
-
-```bash
-# 克隆
-git clone https://github.com/Renhuai123/ziwei-doushu.git
-cd ziwei-doushu
-
-# 安装依赖
-npm install
-
-# 配置环境变量
-cp .env.example .env.local
-# 编辑 .env.local，填入你的 AI API Key
-
-# 启动开发服务器
+```powershell
+git clone https://github.com/YKkksss/ziweidoushu-ai.git
+cd ziweidoushu-ai
+git switch dev
+npm ci
+Copy-Item .env.example .env.local
+# 编辑 .env.local，填写实际 AI 供应商配置，不要将密钥提交到仓库。
 npm run dev
 ```
 
-开发服务默认监听 `0.0.0.0:30001`。启动后可以通过以下地址访问：
+访问 `http://localhost:30001`。默认监听 `0.0.0.0:30001`，可信局域网内使用 `http://部署电脑的局域网IPv4地址:30001` 访问；需部署电脑正在运行且防火墙允许该端口。仅本机使用可运行 `npm run dev:local`。
 
-- 当前电脑：`http://localhost:30001`
-- 同一局域网的手机或平板：`http://当前电脑的局域网IPv4地址:30001`
+生产运行：停止开发服务后执行 `npm run build`，成功后执行 `npm start`；仅本机监听使用 `npm run start:local`。构建与运行使用同一份部署配置，站点地址由 `NEXT_PUBLIC_SITE_URL` 设置。当前 SQLite 架构版本为 v47。
 
-Windows 可以运行 `ipconfig` 查看当前 IPv4 地址。如果只希望当前电脑访问，可使用 `npm run dev:local`。生产构建对应使用 `npm start` 或仅本机的 `npm run start:local`。
+## 数据保存与 AI
 
-> 局域网部署仍然是单实例本地模式，没有用户隔离。所有访问者会共享同一个 SQLite 命盘、对话、报告和备份数据。只应在可信家庭或办公网络中使用，不要在路由器上把 30001 端口映射到公网。
+默认数据库为部署电脑的 `data/ziweidoushu.sqlite`，可通过 `SQLITE_PATH` 指定。局域网设备访问的是同一部署，命盘、对话、报告和备份共享，没有多用户账号隔离。浏览器保存的主题和聊天偏好不等同于服务端档案。
 
-> 注意：开源版不含后端 API 路由，AI 解读功能需要你自行实现 `/api/interpret` 等接口。排盘算法和前端界面可独立运行。
+排盘计算由项目服务完成；AI 请求会把所需命盘上下文、对话及相关记忆或事件发送给配置的供应商，不是完全离线或完全匿名处理。默认 HTTP 部署不提供传输加密，HTTPS 由部署者配置。当前版本不默认加载第三方访问统计，也不向搜索引擎发布索引；搜索引擎声明不替代访问控制。
 
----
+## 备份、升级与恢复
 
-## 技术栈
+1. 更新前，在“数据保险箱”生成整库备份并下载到部署目录之外。普通备份和数据库默认不加密；需要保护导出文件时选择“加密导出”，另行妥善保存密码。
+2. 停止服务，保留环境配置与整个数据目录；有自定义数据库或导出目录时同时保留对应目录。服务完全停止后再复制数据库文件，不要仅复制正在写入的 SQLite 主文件。
+3. 记录当前提交，获取目标版本，安装匹配依赖并重新构建。启动时会执行所需数据库迁移。
+4. 启动后核对命盘数量、历史对话和报告。需要恢复时，在数据保险箱上传备份，先看预检，再明确确认整库替换；恢复前系统会自动生成备份。
+5. 若升级后无法进入页面，保留故障现场与现有数据，在独立目录恢复兼容版本及升级前备份，避免旧代码直接读写已迁移数据库。
 
-- **框架**：Next.js 14（App Router）
-- **语言**：TypeScript
-- **样式**：Tailwind CSS + CSS Variables 设计系统
-- **排盘**：基于 [iztro](https://github.com/SylarLong/iztro) + lunar-javascript
-- **动画**：Framer Motion
+加密导出只保护该备份文件，不为运行中的数据库加密。删除档案不会删除此前下载的副本或历史备份。自动备份依赖应用运行，不替代独立保存的副本。
 
----
+## 验证与已知限制
 
-## 项目理念
+常用检查：`npm run test:v1-intake-history`、`npm run test:reports`、`npm run test:backups`、`npm run test:encrypted-backups`、`npm run test:chart-transfer`、`npm run build`。开发验收使用独立数据库和合成资料。
 
-紫微斗数是中国传统命理学的瑰宝，倪海夏老师在《天纪》中系统梳理了正宗的紫微斗数体系。我们希望通过技术手段让更多人接触和学习这门学问。
+- 仅个人或可信局域网使用，不支持公网多用户账号、短信、会员和支付。
+- 服务进程退出后，不保证 AI 生成继续执行；重新进入后核对状态，必要时重新生成。
+- 应用未运行时，不保证提醒送达。
+- 知识内容存在简版与未收录项；命理与 AI 结果用于学习回顾，需要结合现实证据核对。
+- 真实手机、另一台局域网主机及最终完整流程仍按冻结清单验收；响应式模拟不替代实机。
 
-开源排盘算法和知识库，是因为我们相信：**算法是公开的传统智慧，不应该被锁在围墙里**。真正的价值在于解读的深度、用户体验的打磨、以及持续运营的积累。
+详细开发依据见 [开发路线](docs/PRODUCT_MODULE_DEVELOPMENT_ROADMAP.md)、[v1 范围与验收](docs/V1_FREEZE_SCOPE.md)、[2026-09-07 交接](docs/AI交接文档/交接文档-2026-09-07.md)。
 
-想自己搭？代码都在这里，拿去用。嫌麻烦？来 [metisziwei.com](https://metisziwei.com) 直接用。
+## 来源与许可
 
----
+本项目在上游紫微斗数项目基础上继续开发。上游来源：https://github.com/Renhuai123/ziwei-doushu ，作者：王多鱼AI。排盘依赖包括 iztro 与 lunar-javascript，另包含古籍与知识资料。
 
-## 协议
-
-本仓库分三部分授权，都是宽松协议，**商用没有任何限制**：
-
-| 内容 | 协议 | 简单说 |
-|------|------|--------|
-| **代码**（`lib/`、`app/`、`components/`） | [MIT License](./LICENSE) | 拿去随便用，保留 LICENSE 文件即可 |
-| **数据**（Releases 中的 51.8 万样本数据集 v3.0） | 自由使用 · 要求 attribution | 商用也行，**注明数据来源即可**，详见上文 [数据许可与引用](#数据许可与引用) |
-| **古籍原文**（骨髓赋、紫微斗数全集 / 全书等） | Public Domain | 古书都是公有领域，不存在版权 |
-
-**一句话**：拿去用，商用也行，把数据来源链接带上就行。
-
----
-
-## 联系
-
-- 线上平台：[metisziwei.com](https://metisziwei.com)
-- Issues：欢迎提 Bug 和建议
+代码许可见 [LICENSE](LICENSE)，保留原版权声明。上游另行发布的“紫微斗数开源样本数据集 v3.0（518,400 条）”不属于运行本工作台所必需的安装数据；如使用该数据集，请保留上述来源、作者及数据集名称，并遵守随数据提供的许可与来源标注要求。本次文档整理不修改 LICENSE 或上游资料许可。

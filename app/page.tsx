@@ -273,7 +273,7 @@ export default function HomePage() {
             <span>紫微命盘 <i /> 东方书院</span>
           </div>
           <p>内容仅供传统文化研究与个人成长参考，不构成医疗、投资或人生决策建议。</p>
-          <div className={styles.footerLinks}><Link href="/terms">服务条款</Link><Link href="/privacy">隐私政策</Link></div>
+          <div className={styles.footerLinks}><Link href="/terms">本地版使用说明</Link><Link href="/privacy">数据与隐私说明</Link></div>
         </div>
       </footer>
     </div>

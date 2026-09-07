@@ -13,6 +13,7 @@
  */
 
 import Link from 'next/link';
+import { SITE_URL } from '@/lib/site';
 import { notFound } from 'next/navigation';
 import type { TopicKey } from '@/lib/ziwei/db-analysis';
 import {
@@ -57,10 +58,10 @@ export async function generateMetadata({ params }: { params: Promise<{ star: str
       title,
       description,
       type: 'article',
-      url: `https://wdyziweidoushu666.com/knowledge/${slug}/${topic}`,
+      url: `${SITE_URL}/knowledge/${slug}/${topic}`,
     },
     alternates: {
-      canonical: `https://wdyziweidoushu666.com/knowledge/${slug}/${topic}`,
+      canonical: `${SITE_URL}/knowledge/${slug}/${topic}`,
     },
     keywords: [
       '紫微斗数', '倪海夏', star, data.palaceName, data.topicLabel,
@@ -93,11 +94,11 @@ export default async function KnowledgePage({ params }: { params: Promise<{ star
     publisher: {
       '@type': 'Organization',
       name: '紫微研究',
-      url: 'https://wdyziweidoushu666.com',
+      url: SITE_URL,
     },
     datePublished: '2026-04-28',
     dateModified: '2026-04-28',
-    mainEntityOfPage: `https://wdyziweidoushu666.com/knowledge/${slug}/${topic}`,
+    mainEntityOfPage: `${SITE_URL}/knowledge/${slug}/${topic}`,
     articleSection: '紫微斗数 · 倪海夏体系',
     keywords: [`紫微斗数`, star, data.palaceName, data.topicLabel].join(', '),
   };

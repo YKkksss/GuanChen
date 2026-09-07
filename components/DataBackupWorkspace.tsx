@@ -281,7 +281,7 @@ export default function DataBackupWorkspace() {
           <div className="mt-5 text-[10px] font-medium tracking-[.28em]" style={{ color: 'var(--t-gold)' }}>LOCAL DATA VAULT</div>
           <h1 className="mt-2 text-2xl font-semibold sm:text-3xl" style={{ color: 'var(--t-text)' }}>本地数据保险箱</h1>
           <p className="mt-3 max-w-3xl text-xs leading-7" style={{ color: 'var(--t-text2)' }}>
-            在整库保险备份和单命盘迁移之间按需选择。所有导出、预检与导入都在本机完成，不会上传到云端。
+            档案与备份保存在部署电脑，局域网访问者共享。导入、解锁与预检由部署电脑处理，下载文件保存在当前访问设备。普通备份与数据库默认不加密。
           </p>
         </div>
         {view === 'full' && <div className="flex flex-wrap gap-2">
@@ -435,7 +435,7 @@ export default function DataBackupWorkspace() {
         <article className="card-glass h-fit rounded-2xl p-5 sm:p-6 lg:sticky lg:top-24">
           <div className="flex items-start gap-3">
             <div className="rounded-xl p-2.5" style={{ color: 'var(--t-gold)', background: 'var(--ac-bg)' }}><FileArrowUp size={21} /></div>
-            <div><h2 className="text-base font-semibold" style={{ color: 'var(--t-text)' }}>预检并恢复</h2><p className="mt-1 text-[10px] leading-5" style={{ color: 'var(--t-faint)' }}>支持普通与密码保护备份。加密文件先在本机解锁，再进入同一套完整性预检和安全恢复流程。</p></div>
+            <div><h2 className="text-base font-semibold" style={{ color: 'var(--t-text)' }}>预检并恢复</h2><p className="mt-1 text-[10px] leading-5" style={{ color: 'var(--t-faint)' }}>支持普通与密码保护备份。加密文件先在部署电脑解锁，再进入同一套完整性预检和安全恢复流程。</p></div>
           </div>
 
           <label className="mt-5 flex cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed px-5 py-8 text-center" style={{ borderColor: 'var(--t-border-acc)', background: 'var(--ac-bg)' }}>

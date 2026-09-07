@@ -1532,3 +1532,8 @@ body.eastern-home-body {
   body { background: white; color: #1a1a18; }
   @page { margin: 1.2cm; size: A4 landscape; }
 }
+
+/* 提醒与复盘弹窗保留紧凑布局，同时保证触控目标及键盘焦点可见。 */
+.v1-dialog button, .v1-dialog input:not([type="checkbox"]), .v1-dialog select { min-height: 44px; }
+.v1-dialog button { min-width: 44px; }
+.v1-dialog :focus-visible { outline: 2px solid var(--ac); outline-offset: 3px; }
