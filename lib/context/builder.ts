@@ -40,6 +40,7 @@ import {
   estimateTextTokens,
   truncateTextToTokens,
 } from './token-counter';
+import { resolveAnnualQuestion } from './transit-intent';
 import { resolveConversationFocus } from './topic-router';
 
 const MAX_RECENT_TURNS = 10;
@@ -84,8 +85,9 @@ export function buildConversationContext(input: {
     topic,
     focus.palaceBranch,
   );
-  const transitSnapshot = getTransitFromMessage(conversation.id, { ...current, metadata: focus.metadata });
-  const transitContext = transitSnapshot ? buildTransitContext(transitSnapshot) : '';
+  const transit = buildQuestionTransit(conversation.id, focus.anchor, conversation.chartSnapshot.birthInfo.year);
+  const transitSnapshot = transit.snapshots[0] ?? null;
+  const transitContext = [...transit.snapshots.map(buildTransitContext), transit.notice].filter(Boolean).join('\n');
 
   const systemMessage: ChatMessage = { role: 'system', content: ZIWEI_SYSTEM_PROMPT };
   const chartMessage: ChatMessage = {
@@ -178,9 +180,12 @@ export function buildConversationContext(input: {
         chartBase: { included: true, tokens: estimateTextTokens(chartBase) },
         chartTopic: { included: true, tokens: estimateTextTokens(chartTopic) },
         transit: {
-          included: Boolean(transitContext),
+          included: transit.snapshots.length > 0,
           level: transitSnapshot?.level ?? null,
           targetDate: transitSnapshot?.targetDate ?? null,
+          targetDates: transit.snapshots.map(snapshot => snapshot.targetDate),
+          resolution: transit.resolution,
+          referenceYear: transit.referenceYear,
           tokens: estimateTextTokens(transitContext),
         },
         memories: { count: support.memoryCount, tokens: support.memoryTokens },
@@ -221,8 +226,9 @@ export function buildFallbackConversationContext(input: {
   const completedHistory = getCompletedMessagesBefore(conversation.id, current.seq);
   const focus = resolveConversationFocus(current, completedHistory);
   const system: ChatMessage = { role: 'system', content: ZIWEI_SYSTEM_PROMPT };
-  const transitSnapshot = getTransitFromMessage(conversation.id, { ...current, metadata: focus.metadata });
-  const transitContext = transitSnapshot ? buildTransitContext(transitSnapshot) : '';
+  const transit = buildQuestionTransit(conversation.id, focus.anchor, conversation.chartSnapshot.birthInfo.year);
+  const transitSnapshot = transit.snapshots[0] ?? null;
+  const transitContext = [...transit.snapshots.map(buildTransitContext), transit.notice].filter(Boolean).join('\n');
   const searchTerms = extractSearchTerms(current.content);
   const confirmedEvents = selectRelevantLifeEvents(
     listLifeEvents({ conversationId: conversation.id }).filter(event => event.confirmedByUser),
@@ -274,9 +280,12 @@ export function buildFallbackConversationContext(input: {
         chartBase: { included: true },
         chartTopic: { included: true },
         transit: {
-          included: Boolean(transitContext),
+          included: transit.snapshots.length > 0,
           level: transitSnapshot?.level ?? null,
           targetDate: transitSnapshot?.targetDate ?? null,
+          targetDates: transit.snapshots.map(snapshot => snapshot.targetDate),
+          resolution: transit.resolution,
+          referenceYear: transit.referenceYear,
         },
         confirmedEvents: { count: confirmedEvents.length, ids: confirmedEvents.map(event => event.id) },
         recent: { count: recent.length },
@@ -285,6 +294,24 @@ export function buildFallbackConversationContext(input: {
       estimatedInputTokens,
     },
   };
+}
+
+function buildQuestionTransit(conversationId: string, message: ConversationMessage, birthYear: number): {
+  snapshots: TransitSnapshot[]; notice: string; resolution: string; referenceYear: number | null;
+} {
+  if (message.metadata?.transit) {
+    const snapshot = getTransitFromMessage(conversationId, message);
+    return { snapshots: snapshot ? [snapshot] : [], notice: '', resolution: 'explicit', referenceYear: null };
+  }
+  const intent = resolveAnnualQuestion(message, birthYear);
+  if (intent.kind === 'years') {
+    return {
+      snapshots: intent.years.map(year => getOrCreateAnnualTransit(conversationId, year).snapshot),
+      notice: `【本题年份范围】${intent.years.join('、')} 年；相对年份以提问时北京时间所在的 ${intent.referenceYear} 年为基准。仅根据以上已计算的年份事实回答；多年份问题逐年说明依据与差异。`,
+      resolution: 'natural-year', referenceYear: intent.referenceYear,
+    };
+  }
+  return { snapshots: [], notice: intent.kind === 'clarify' ? `【需要澄清日期】${intent.notice}` : '', resolution: intent.kind, referenceYear: null };
 }
 
 function getTransitFromMessage(
