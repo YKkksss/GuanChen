@@ -12,6 +12,7 @@
     "dev:webpack": "next dev -H 0.0.0.0 -p 30001",
     "build": "next build",
     "test:conversations": "tsx scripts/test-conversations.ts",
+    "test:event-year-context": "tsx scripts/test-event-year-context.ts",
     "test:natural-transit": "tsx scripts/test-natural-transit-context.ts",
     "test:ziwei-followup": "tsx scripts/test-ziwei-followup-context.ts",
     "test:context": "tsx scripts/test-context-management.ts",

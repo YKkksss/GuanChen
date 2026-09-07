@@ -15,6 +15,7 @@ import {
   getConversation,
   getMessage,
 } from '@/lib/db/conversations';
+import { getEventYears } from '@/lib/events/service';
 import { listLifeEvents } from '@/lib/db/events';
 import {
   LIFE_EVENT_CATEGORY_LABELS,
@@ -120,8 +121,9 @@ export function buildConversationContext(input: {
   const searchTerms = extractSearchTerms(current.content);
   const confirmedEvents = selectRelevantLifeEvents(
     listLifeEvents({ conversationId: conversation.id }).filter(event => event.confirmedByUser),
-    current.content,
+    focus.inheritedFromMessageId ? `${focus.anchor.content}\n${current.content}` : current.content,
     searchTerms,
+    transit.snapshots.filter(snapshot => snapshot.level === 'year').map(snapshot => snapshot.targetDate),
   );
   const retrieved = retrieveOlderMessages({
     conversationId: conversation.id,
@@ -190,6 +192,7 @@ export function buildConversationContext(input: {
         },
         memories: { count: support.memoryCount, tokens: support.memoryTokens },
         confirmedEvents: {
+          requestedYears: transit.snapshots.filter(snapshot => snapshot.level === 'year').map(snapshot => snapshot.targetDate),
           count: support.confirmedEventIds.length,
           ids: support.confirmedEventIds,
           tokens: support.confirmedEventTokens,
@@ -232,8 +235,9 @@ export function buildFallbackConversationContext(input: {
   const searchTerms = extractSearchTerms(current.content);
   const confirmedEvents = selectRelevantLifeEvents(
     listLifeEvents({ conversationId: conversation.id }).filter(event => event.confirmedByUser),
-    current.content,
+    focus.inheritedFromMessageId ? `${focus.anchor.content}\n${current.content}` : current.content,
     searchTerms,
+    transit.snapshots.filter(snapshot => snapshot.level === 'year').map(snapshot => snapshot.targetDate),
   );
   const confirmedEventContext = buildConfirmedEventContext(confirmedEvents);
   const chart: ChatMessage = {
@@ -287,7 +291,7 @@ export function buildFallbackConversationContext(input: {
           resolution: transit.resolution,
           referenceYear: transit.referenceYear,
         },
-        confirmedEvents: { count: confirmedEvents.length, ids: confirmedEvents.map(event => event.id) },
+        confirmedEvents: { requestedYears: transit.snapshots.filter(snapshot => snapshot.level === 'year').map(snapshot => snapshot.targetDate), count: confirmedEvents.length, ids: confirmedEvents.map(event => event.id) },
         recent: { count: recent.length },
         current: { included: true },
       },
@@ -482,12 +486,16 @@ export function selectRelevantLifeEvents(
   events: LifeEventWithTransits[],
   question: string,
   terms: string[],
+  resolvedYears: string[] = [],
 ): LifeEventWithTransits[] {
-  const requestedYears = new Set(question.match(/(?:19|20)\d{2}/g) ?? []);
+  const requestedYears = new Set(resolvedYears.length ? resolvedYears : question.match(/(?:19|20|21)\d{2}/g) ?? []);
   return events
+    .filter(event => event.confirmedByUser)
+    // 只在年度事实已确定时限制年份；无日期的普通问题保留原来的主题检索。
+    .filter(event => !resolvedYears.length || getEventYears(event).some(year => requestedYears.has(String(year))))
     .map(event => {
       const categoryTerms = EVENT_CATEGORY_TERMS[event.category];
-      const eventYears = event.transitLinks.map(link => link.targetDate.slice(0, 4));
+      const eventYears = getEventYears(event).map(String);
       const score = eventYears.filter(year => requestedYears.has(year)).length * 12
         + categoryTerms.filter(term => question.includes(term)).length * 5
         + terms.filter(term => `${event.title}${event.description ?? ''}`.includes(term)).length * 4
@@ -513,7 +521,7 @@ function buildConfirmedEventContext(events: LifeEventWithTransits[], layer = 3):
     const transitAlignment = formatEventTransitAlignment(event);
     return `- [${event.id}] ${date} · ${category} · ${event.title}${event.description ? `：${event.description.slice(0, 240)}` : ''}${transitAlignment ? `；程序时间挂接：${transitAlignment}` : ''}`;
   });
-  return `【L${layer} 用户已确认人生事件】\n以下事件内容来自用户核对后的正式事件表，可以作为现实事实；“程序时间挂接”只表示事件日期与流年、流月、流日结构对齐，不证明命理结构造成了该事件。不得把未确认候选、助手推断或命理解释补写为新事件，也不得倒因为果。\n${lines.join('\n')}`;
+  return `【L${layer} 用户已确认人生事件】\n以下仅是本轮检索到的部分已确认事件，不是完整经历清单；未检索到不代表没有发生。事件日期以用户记录的精度为准，不得为仅知年份、月份或日期不详的事件补造具体日期。以下事件内容来自用户核对后的正式事件表，可以作为现实事实；“程序时间挂接”只表示事件日期与流年、流月、流日结构对齐，不证明命理结构造成了该事件。不得把未确认候选、助手推断或命理解释补写为新事件，也不得倒因为果。\n${lines.join('\n')}`;
 }
 
 function formatEventTransitAlignment(event: LifeEventWithTransits): string {
