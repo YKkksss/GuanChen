@@ -104,7 +104,7 @@ export default function HemingWorkspace({ conversationId }: HemingWorkspaceProps
     } catch { return null; }
   }, []);
 
-  const isFormReady = (form: BirthFormState | null): boolean => Boolean(form && form.year && form.month && form.day && form.gender && (form.unknownTime || (form.clockHour !== '' && form.clockMinute !== '')));
+  const isFormReady = (form: BirthFormState | null): form is BirthFormState & { gender: 'male' | 'female' } => Boolean(form && (!form.province || form.city) && form.year && form.month && form.day && form.gender && (form.unknownTime || (form.clockHour !== '' && form.clockMinute !== '')));
 
   const createHemingConversation = useCallback(async () => {
     setFormError(null);
@@ -112,8 +112,8 @@ export default function HemingWorkspace({ conversationId }: HemingWorkspaceProps
     if (relationshipType === 'custom' && !customRelationshipLabel.trim()) { setFormError('请填写自定义关系名称'); return; }
     setCreating(true);
     try {
-      const birthInfoA = formToBirthInfo(formA!);
-      const birthInfoB = formToBirthInfo(formB!);
+      const birthInfoA = formToBirthInfo(formA);
+      const birthInfoB = formToBirthInfo(formB);
       const [chartSnapshotA, chartSnapshotB] = await Promise.all([generateChart(birthInfoA), generateChart(birthInfoB)]);
       if (!chartSnapshotA || !chartSnapshotB) throw new Error('双方命盘生成失败，请稍后重试');
       const definition = getRelationshipDefinition(relationshipType);

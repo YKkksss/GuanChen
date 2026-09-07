@@ -1,5 +1,6 @@
 'use client';
 
+import { BirthDateFields, BirthTimeFields } from './BirthDateTimeFields';
 import {
   ArrowLeft,
   ArrowRight,
@@ -57,7 +58,7 @@ interface FormState {
   title: string;
   name: string;
   date: string;
-  gender: 'male' | 'female';
+  gender: '' | 'male' | 'female';
   province: string;
   city: string;
   longitude: string;
@@ -73,7 +74,7 @@ const INITIAL_FORM: FormState = {
   title: '',
   name: '',
   date: '',
-  gender: 'male',
+  gender: '',
   province: '',
   city: '',
   longitude: '',
@@ -303,26 +304,26 @@ export default function RectificationHome() {
                   <input value={form.name} onChange={event => updateForm('name', event.target.value)} placeholder="选填" className="rectification-input" />
                 </Field>
                 <Field label="性别">
-                  <select value={form.gender} onChange={event => updateForm('gender', event.target.value as FormState['gender'])} className="rectification-input">
-                    <option value="male">男</option>
+                  <select required aria-label="性别" value={form.gender} onChange={event => updateForm('gender', event.target.value as FormState['gender'])} className="rectification-input">
+                    <option value="">请选择性别</option><option value="male">男</option>
                     <option value="female">女</option>
                   </select>
                 </Field>
-                <Field label="出生日期" className="sm:col-span-2">
-                  <input type="date" min="1900-01-01" max="2100-12-31" required value={form.date} onChange={event => updateForm('date', event.target.value)} className="rectification-input" />
-                </Field>
+                <fieldset className="sm:col-span-2"><legend className="mb-1.5 text-xs">出生日期</legend><BirthDateFields value={form.date} onChange={value => updateForm('date', value)} /></fieldset>
                 <Field label="省份">
                   <input value={form.province} onChange={event => updateForm('province', event.target.value)} placeholder="选填" className="rectification-input" />
                 </Field>
                 <Field label="城市">
                   <input value={form.city} onChange={event => updateForm('city', event.target.value)} placeholder="选填" className="rectification-input" />
                 </Field>
+                <details className="sm:col-span-2 space-y-3 rounded-lg border p-3" style={{ borderColor: 'var(--bdr)' }}><summary className="cursor-pointer py-2 text-sm">高级设置 · 经度与历史时区</summary>
                 <Field label="出生地经度" hint="用于真太阳时换算">
                   <input type="number" min="-180" max="180" step="0.0001" value={form.longitude} onChange={event => updateForm('longitude', event.target.value)} placeholder="例如 116.4074" className="rectification-input" />
                 </Field>
                 <Field label="历史时区">
                   <input value={form.timezoneId} onChange={event => updateForm('timezoneId', event.target.value)} placeholder="Asia/Shanghai" className="rectification-input" />
                 </Field>
+                </details>
               </div>
 
               <div className="border-t pt-5" style={{ borderColor: 'var(--bdr)' }}>
@@ -343,14 +344,10 @@ export default function RectificationHome() {
                     </select>
                   </Field>
                   {form.precision !== 'unknown' && (
-                    <Field label="开始时间">
-                      <input type="time" required value={form.startTime} onChange={event => updateForm('startTime', event.target.value)} className="rectification-input" />
-                    </Field>
+                    <fieldset><legend className="mb-1.5 text-xs">开始时间</legend><BirthTimeFields label="开始" value={form.startTime} onChange={value => updateForm('startTime', value)} /></fieldset>
                   )}
                   {(form.precision === 'range' || form.precision === 'period') && (
-                    <Field label="结束时间">
-                      <input type="time" required value={form.endTime} onChange={event => updateForm('endTime', event.target.value)} className="rectification-input" />
-                    </Field>
+                    <fieldset><legend className="mb-1.5 text-xs">结束时间</legend><BirthTimeFields label="结束" value={form.endTime} onChange={value => updateForm('endTime', value)} /></fieldset>
                   )}
                   <Field label="补充说明" className="sm:col-span-2">
                     <textarea value={form.notes} onChange={event => updateForm('notes', event.target.value)} rows={2} placeholder="例如：家人记得接近中午" className="rectification-input resize-none" />

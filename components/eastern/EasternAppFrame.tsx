@@ -51,6 +51,7 @@ const SIDE_NAV: Array<{ label: string; items: NavItem[] }> = [
   {
     label: '档案报告',
     items: [
+      { label: '全部命盘档案', href: '/history', icon: FolderOpen, matches: path => path === '/history' },
       { label: '命盘报告', destination: 'reports', href: '/chart/select?target=reports', icon: FileText, matches: path => path.includes('/reports') },
       { label: '人生时间轴', destination: 'events', href: '/chart/select?target=events', icon: Path, matches: path => path.includes('/events') },
       { label: '运限分析', destination: 'timeline', href: '/chart/select?target=timeline', icon: ChartDonut, matches: path => path.includes('/timeline') },
@@ -91,7 +92,7 @@ let devWarmupStarted = false;
 
 function shouldUseFrame(pathname: string) {
   if (pathname === '/') return false;
-  if (pathname === '/chart') return true;
+  if (pathname === '/chart' || pathname === '/history') return true;
   return ['/heming', '/bazi', '/rectification', '/reminders', '/reviews', '/learn', '/knowledge', '/library', '/practice', '/cases', '/settings', '/chart/']
     .some(prefix => pathname.startsWith(prefix));
 }

@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ChatCircleDots, Plus, SidebarSimple } from '@phosphor-icons/react';
 import type { ConversationListItem, ConversationType } from '@/lib/conversations/types';
@@ -101,6 +102,8 @@ export default function ConversationHistory({
           </button>
         </div>
       </div>
+
+      <Link href="/history" onClick={onNavigate} className="flex min-h-11 items-center px-4 text-sm underline">查看全部档案</Link>
 
       <div className="eastern-history-list">
         {loading && <HistoryHint text={collapsed ? '…' : '正在读取历史记录…'} compact={collapsed} />}

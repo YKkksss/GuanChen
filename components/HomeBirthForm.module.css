@@ -160,7 +160,7 @@
 .fieldHelp {
   margin: 7px 1px 0;
   color: #74695e;
-  font-size: 10px;
+  font-size: 12px;
   line-height: 1.5;
 }
 
@@ -375,3 +375,6 @@
     transition: none;
   }
 }
+
+/* 原生选择器覆盖完整触控高度，避免只有文字区域可点击。 */
+.control select { min-height: 44px; }

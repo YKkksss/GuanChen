@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
   ArrowRight,
@@ -27,7 +28,7 @@ export default function ChartWorkbenchLanding() {
   const loadConversations = useCallback(async () => {
     try {
       setError('');
-      const response = await fetch('/api/conversations?type=chart&status=active&limit=20', { cache: 'no-store' });
+      const response = await fetch('/api/conversations?type=chart&status=active&limit=6', { cache: 'no-store' });
       if (!response.ok) throw new Error('最近命盘读取失败');
       const data = await response.json() as { conversations?: ConversationListItem[] };
       setConversations(data.conversations ?? []);
@@ -91,7 +92,7 @@ export default function ChartWorkbenchLanding() {
               <h2 id="recent-chart-title">最近命盘</h2>
               <p>继续上次的命盘分析和对话</p>
             </div>
-            <span>{conversations.length} 条</span>
+            <Link className="inline-flex min-h-11 items-center text-sm underline" href="/history">查看全部档案</Link>
           </div>
 
           <div className={styles.table} role="table" aria-label="最近命盘">
@@ -125,7 +126,7 @@ export default function ChartWorkbenchLanding() {
               </div>
             )}
 
-            {!loadingHistory && conversations.slice(0, 6).map(item => (
+            {!loadingHistory && conversations.map(item => (
               <article key={item.id} className={styles.tableRow} role="row">
                 <div className={styles.ownerCell} role="cell">
                   <span className={styles.avatar}>{getInitial(item)}</span>

@@ -2,13 +2,13 @@
 
 import { useMemo, useState } from 'react';
 import {
-  CalendarBlank,
-  Clock,
   LockKey,
   MapPin,
   SpinnerGap,
   User,
 } from '@phosphor-icons/react';
+import { BirthDateFields, BirthTimeFields } from './BirthDateTimeFields';
+import { isCompleteBirthTime } from '@/lib/birth-form';
 import { PROVINCES } from '@/lib/ziwei/cities';
 import { calcTrueSolarBranch, formToBirthInfo } from '@/lib/ziwei/share';
 import type { BirthInfo } from '@/lib/ziwei/types';
@@ -23,7 +23,7 @@ interface HomeBirthFormProps {
 
 interface FormState {
   name: string;
-  gender: 'male' | 'female';
+  gender: '' | 'male' | 'female';
   birthYear: string;
   birthMonth: string;
   birthDay: string;
@@ -35,21 +35,6 @@ interface FormState {
 }
 
 const BRANCH_NAMES = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥'];
-const MIN_BIRTH_YEAR = 1900;
-const MAX_BIRTH_YEAR = new Date().getFullYear();
-const BIRTH_YEAR_OPTIONS = Array.from(
-  { length: MAX_BIRTH_YEAR - MIN_BIRTH_YEAR + 1 },
-  (_, index) => MAX_BIRTH_YEAR - index,
-);
-const BIRTH_MONTH_OPTIONS = Array.from({ length: 12 }, (_, index) => index + 1);
-const BIRTH_HOUR_OPTIONS = Array.from({ length: 24 }, (_, index) => String(index).padStart(2, '0'));
-const BIRTH_MINUTE_OPTIONS = Array.from({ length: 60 }, (_, index) => String(index).padStart(2, '0'));
-
-function getDaysInMonth(year: string, month: string): number {
-  if (!year || !month) return 31;
-  return new Date(Number(year), Number(month), 0).getDate();
-}
-
 function formatBirthDate(year: string, month: string, day: string): string {
   if (!year || !month || !day) return '';
   return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
@@ -58,11 +43,11 @@ function formatBirthDate(year: string, month: string, day: string): string {
 export default function HomeBirthForm({ loading = false, error = '', variant = 'home', onSubmit }: HomeBirthFormProps) {
   const [form, setForm] = useState<FormState>({
     name: '',
-    gender: 'male',
+    gender: '',
     birthYear: '',
     birthMonth: '',
     birthDay: '',
-    birthTime: '08:00',
+    birthTime: '',
     unknownTime: false,
     province: '',
     city: '',
@@ -70,11 +55,7 @@ export default function HomeBirthForm({ loading = false, error = '', variant = '
   });
   const [validationError, setValidationError] = useState('');
 
-  const birthDayCount = useMemo(
-    () => getDaysInMonth(form.birthYear, form.birthMonth),
-    [form.birthMonth, form.birthYear],
-  );
-  const [birthHour, birthMinute] = form.birthTime.split(':');
+  const [birthHour = '', birthMinute = ''] = form.birthTime.split(':');
 
   const cityList = useMemo(() => (
     PROVINCES.find(province => province.name === form.province)?.cities ?? []
@@ -87,13 +68,11 @@ export default function HomeBirthForm({ loading = false, error = '', variant = '
   }, [form.birthTime, form.longitude, form.unknownTime]);
 
   const handleProvinceChange = (provinceName: string) => {
-    const province = PROVINCES.find(item => item.name === provinceName);
-    const firstCity = province?.cities[0];
     setForm(current => ({
       ...current,
       province: provinceName,
-      city: firstCity?.name ?? '',
-      longitude: firstCity?.longitude ?? 120,
+      city: '',
+      longitude: 120,
     }));
   };
 
@@ -106,56 +85,30 @@ export default function HomeBirthForm({ loading = false, error = '', variant = '
     }));
   };
 
-  const handleBirthDatePartChange = (
-    field: 'birthYear' | 'birthMonth' | 'birthDay',
-    value: string,
-  ) => {
-    setValidationError('');
-    setForm(current => {
-      const next = { ...current, [field]: value };
-      const maximumDay = getDaysInMonth(next.birthYear, next.birthMonth);
-      if (Number(next.birthDay) > maximumDay) next.birthDay = String(maximumDay);
-      return next;
-    });
-  };
-
-  const handleBirthTimePartChange = (field: 'hour' | 'minute', value: string) => {
-    setValidationError('');
-    setForm(current => {
-      const [currentHour = '08', currentMinute = '00'] = current.birthTime.split(':');
-      return {
-        ...current,
-        birthTime: field === 'hour'
-          ? `${value}:${currentMinute}`
-          : `${currentHour}:${value}`,
-      };
-    });
-  };
-
   const submit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setValidationError('');
 
-    const submittedForm = new FormData(event.currentTarget);
-    const birthDate = formatBirthDate(
-      String(submittedForm.get('birthYear') || ''),
-      String(submittedForm.get('birthMonth') || ''),
-      String(submittedForm.get('birthDay') || ''),
-    );
-    const submittedHour = String(submittedForm.get('birthHour') || birthHour);
-    const submittedMinute = String(submittedForm.get('birthMinute') || birthMinute);
-    const birthTime = `${submittedHour}:${submittedMinute}`;
+    const birthDate = formatBirthDate(form.birthYear, form.birthMonth, form.birthDay);
+    const submittedHour = birthHour;
+    const submittedMinute = birthMinute;
+    const birthTime = form.birthTime;
     const [year, month, day] = birthDate.split('-').map(Number);
     if (!year || !month || !day) {
       setValidationError('请选择完整的出生日期');
       return;
     }
 
-    if (!form.unknownTime && !birthTime) {
+    if (!form.unknownTime && !isCompleteBirthTime(birthTime)) {
       setValidationError('请选择出生时间，或勾选时辰不详');
       return;
     }
 
+    if (form.province && !form.city) {
+      setValidationError('请选择出生城市，或清空省份按北京时间排盘');
+      return;
+    }
+    if (!form.gender) { setValidationError('请选择性别'); return; }
     onSubmit(formToBirthInfo({
       year: String(year),
       month: String(month),
@@ -215,55 +168,17 @@ export default function HomeBirthForm({ loading = false, error = '', variant = '
 
       <fieldset className={`${styles.fieldset} ${styles.birthDateFieldset}`}>
         <legend id="home-birth-date-label">出生日期 <span>公历</span></legend>
-        <div className={styles.birthDateGrid} role="group" aria-labelledby="home-birth-date-label" aria-describedby="home-birth-date-help">
-          <div className={`${styles.control} ${styles.birthDateControl}`}>
-            <CalendarBlank size={17} aria-hidden="true" />
-            <select
-              id="home-birth-year"
-              name="birthYear"
-              aria-label="出生年份"
-              value={form.birthYear}
-              onChange={event => handleBirthDatePartChange('birthYear', event.target.value)}
-            >
-              <option value="">年份</option>
-              {BIRTH_YEAR_OPTIONS.map(year => <option key={year} value={year}>{year} 年</option>)}
-            </select>
-          </div>
-          <div className={`${styles.control} ${styles.birthDateControl} ${!form.birthYear ? styles.controlDisabled : ''}`}>
-            <select
-              id="home-birth-month"
-              name="birthMonth"
-              aria-label="出生月份"
-              value={form.birthMonth}
-              onChange={event => handleBirthDatePartChange('birthMonth', event.target.value)}
-              disabled={!form.birthYear}
-            >
-              <option value="">月份</option>
-              {BIRTH_MONTH_OPTIONS.map(month => <option key={month} value={month}>{month} 月</option>)}
-            </select>
-          </div>
-          <div className={`${styles.control} ${styles.birthDateControl} ${!form.birthMonth ? styles.controlDisabled : ''}`}>
-            <select
-              id="home-birth-day"
-              name="birthDay"
-              aria-label="出生日期"
-              value={form.birthDay}
-              onChange={event => handleBirthDatePartChange('birthDay', event.target.value)}
-              disabled={!form.birthMonth}
-            >
-              <option value="">日期</option>
-              {Array.from({ length: birthDayCount }, (_, index) => index + 1).map(day => (
-                <option key={day} value={day}>{day} 日</option>
-              ))}
-            </select>
-          </div>
-        </div>
+        <BirthDateFields value={formatBirthDate(form.birthYear, form.birthMonth, form.birthDay) || [form.birthYear, form.birthMonth, form.birthDay].join('-')} maxYear={new Date().getFullYear()} onChange={value => {
+          const [birthYear, birthMonth, birthDay] = value.split('-');
+          setValidationError('');
+          setForm(current => ({ ...current, birthYear, birthMonth, birthDay }));
+        }} />
         <p id="home-birth-date-help" className={styles.fieldHelp}>先选年份，再选择月份和日期</p>
       </fieldset>
 
       <div className={styles.field}>
         <div className={styles.labelRow}>
-          <label htmlFor="home-birth-time">出生时间 <span>北京时间</span></label>
+          <label >出生时间 <span>北京时间</span></label>
           <label className={styles.unknownTime}>
             <input
               type="checkbox"
@@ -276,30 +191,11 @@ export default function HomeBirthForm({ loading = false, error = '', variant = '
             时辰不详
           </label>
         </div>
-        <div className={`${styles.control} ${styles.timeControl} ${form.unknownTime ? styles.controlDisabled : ''}`}>
-          <Clock size={17} aria-hidden="true" />
-          <select
-            id="home-birth-time"
-            name="birthHour"
-            aria-label="出生小时"
-            value={birthHour}
-            onChange={event => handleBirthTimePartChange('hour', event.target.value)}
-            disabled={form.unknownTime}
-          >
-            {BIRTH_HOUR_OPTIONS.map(hour => <option key={hour} value={hour}>{hour} 时</option>)}
-          </select>
-          <span className={styles.timeSeparator} aria-hidden="true">:</span>
-          <select
-            name="birthMinute"
-            aria-label="出生分钟"
-            value={birthMinute}
-            onChange={event => handleBirthTimePartChange('minute', event.target.value)}
-            disabled={form.unknownTime}
-          >
-            {BIRTH_MINUTE_OPTIONS.map(minute => <option key={minute} value={minute}>{minute} 分</option>)}
-          </select>
-          <span className={styles.solarTime}>{form.unknownTime ? '暂按子时试排' : `真太阳时：${BRANCH_NAMES[trueSolarBranch]}时`}</span>
-        </div>
+        <BirthTimeFields value={form.birthTime} disabled={form.unknownTime} onChange={birthTime => {
+          setValidationError('');
+          setForm(current => ({ ...current, birthTime }));
+        }} />
+        <p className={styles.fieldHelp}>{form.unknownTime ? '暂按子时试排' : isCompleteBirthTime(form.birthTime) ? (form.city ? '经度校正后：' : '北京时间：') + BRANCH_NAMES[trueSolarBranch] + '时' : '请选择小时与分钟，或勾选时辰不详'}</p>
         {form.unknownTime && (
           <p className={styles.timePolicy} role="status">当前暂按子时生成试排盘，并会在档案中保留“时辰未知”标记；建议结合生时校正后再作深入分析。</p>
         )}
@@ -309,7 +205,7 @@ export default function HomeBirthForm({ loading = false, error = '', variant = '
       </div>
 
       <div className={styles.field}>
-        <label>出生地区 <span>用于真太阳时校正</span></label>
+        <label>出生地区 <span>选填，用于经度校正</span></label>
         <div className={styles.locationGrid}>
           <div className={styles.control}>
             <MapPin size={17} aria-hidden="true" />
@@ -340,6 +236,8 @@ export default function HomeBirthForm({ loading = false, error = '', variant = '
         </div>
       </div>
 
+      {!form.province && <p className={styles.fieldHelp}>未填写地区时按北京时间排盘，不进行出生地经度校正。</p>}
+
       {(validationError || error) && (
         <p className={styles.error} role="alert">{validationError || error}</p>
       )}
@@ -351,7 +249,7 @@ export default function HomeBirthForm({ loading = false, error = '', variant = '
 
       <p className={styles.privacy}>
         <LockKey size={14} aria-hidden="true" />
-        出生信息和对话记录仅保存在本地数据库
+        出生信息和对话记录保存在部署电脑，局域网访问者共享该数据
       </p>
     </form>
   );

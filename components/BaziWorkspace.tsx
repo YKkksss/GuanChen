@@ -1,5 +1,6 @@
 'use client';
 
+import { BirthDateFields, BirthTimeFields } from './BirthDateTimeFields';
 import {
   ArrowLeft,
   CalendarDots,
@@ -97,7 +98,7 @@ interface FormState {
   displayName: string;
   birthDate: string;
   birthTime: string;
-  gender: 'male' | 'female';
+  gender: '' | 'male' | 'female';
   timeStandard: 'civil_time' | 'apparent_solar_time';
   timeZoneId: string;
   longitude: string;
@@ -109,12 +110,12 @@ interface FormState {
 
 const INITIAL_FORM: FormState = {
   displayName: '',
-  birthDate: '1990-01-01',
-  birthTime: '12:00',
-  gender: 'male',
+  birthDate: '',
+  birthTime: '',
+  gender: '',
   timeStandard: 'civil_time',
   timeZoneId: 'Asia/Shanghai',
-  longitude: '116.4074',
+  longitude: '',
   lateZiPolicy: 'same_day',
   unknownTime: false,
   locationLabel: '',
@@ -392,7 +393,7 @@ export default function BaziWorkspace() {
     setForm({
       displayName: profile.displayName,
       birthDate: profile.birthDate,
-      birthTime: profile.birthTime?.slice(0, 5) ?? '12:00',
+      birthTime: profile.birthTime?.slice(0, 5) ?? '',
       gender: profile.gender,
       timeStandard: chart?.timeStandard ?? 'civil_time',
       timeZoneId: profile.timeZoneId,
@@ -554,16 +555,20 @@ export default function BaziWorkspace() {
           </div>
 
           <form className="bazi-form space-y-4" onSubmit={submit}>
+            <button type="button" className="min-h-11 text-sm underline" disabled={loading || saving} onClick={() => {
+              if ((form.birthDate || form.displayName || selectedProfile) && !window.confirm('填入示例会替换当前表单，已保存档案不受影响。继续吗？')) return;
+              startNewProfile();
+              setForm({ ...INITIAL_FORM, displayName: '示例档案（请勿作为真实资料）', birthDate: '1990-01-01', birthTime: '12:00', gender: 'male' });
+              setCalculationNotice('已填入演示资料，请勿作为真实出生档案保存。');
+            }}>填入示例</button>
             <Field label="档案名称" hint={selectedProfile ? '修改后将另存新档案' : '保存时必填'}>
               <input className="rectification-input" value={form.displayName} onChange={event => update('displayName', event.target.value)} placeholder="例如：我的八字档案" />
             </Field>
-            <div className="grid grid-cols-2 gap-3">
-              <Field label="出生日期">
-                <input className="rectification-input" type="date" min="1900-01-01" max="2100-12-31" required value={form.birthDate} onChange={event => update('birthDate', event.target.value)} />
-              </Field>
+            <div className="space-y-3">
+              <fieldset><legend className="mb-1.5 text-xs">出生日期</legend><BirthDateFields value={form.birthDate} onChange={value => update('birthDate', value)} /></fieldset>
               <Field label="性别">
-                <select className="rectification-input" value={form.gender} onChange={event => update('gender', event.target.value as FormState['gender'])}>
-                  <option value="male">男</option><option value="female">女</option>
+                <select aria-label="性别" required className="rectification-input" value={form.gender} onChange={event => update('gender', event.target.value as FormState['gender'])}>
+                  <option value="">请选择性别</option><option value="male">男</option><option value="female">女</option>
                 </select>
               </Field>
             </div>
@@ -573,10 +578,10 @@ export default function BaziWorkspace() {
               <span className="text-sm">出生时辰未知</span>
             </label>
 
-            {!form.unknownTime && <Field label="出生时间" hint="请尽量填写到分钟">
-              <input className="rectification-input" type="time" required value={form.birthTime} onChange={event => update('birthTime', event.target.value)} />
-            </Field>}
+            {!form.unknownTime && <fieldset><legend className="mb-1.5 text-xs">出生时间</legend><BirthTimeFields value={form.birthTime} onChange={value => update('birthTime', value)} /></fieldset>}
 
+            <details className="space-y-3 rounded-lg border p-3" style={{ borderColor: 'var(--bdr)' }}>
+              <summary className="cursor-pointer py-2 text-sm">高级设置 · {form.timeStandard === 'civil_time' ? '民用时间' : '地方视太阳时'} · {form.lateZiPolicy === 'same_day' ? '晚子时按当天' : '晚子时按次日'}</summary>
             <Field label="时间标准">
               <select className="rectification-input" value={form.timeStandard} onChange={event => update('timeStandard', event.target.value as FormState['timeStandard'])}>
                 <option value="civil_time">民用时间（默认）</option>
@@ -603,6 +608,8 @@ export default function BaziWorkspace() {
                 <option value="next_day">23 点起按次日</option>
               </select>
             </Field>
+
+            </details>
 
             {calculationNotice && <div role="status" className="rounded-lg border px-3 py-2 text-xs leading-5" style={{ borderColor: 'rgba(180,125,35,.35)', color: 'var(--ac-dim)', background: 'rgba(180,125,35,.06)' }}>{calculationNotice}</div>}
             {error && <div role="alert" className="rounded-lg border px-3 py-2 text-sm" style={{ borderColor: 'rgba(180,55,45,.35)', color: 'var(--ji)', background: 'rgba(180,55,45,.06)' }}>{error}</div>}

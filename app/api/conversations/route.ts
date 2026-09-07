@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { createConversation, listConversations } from '@/lib/db/conversations';
+import { createConversation, listConversations, countConversations } from '@/lib/db/conversations';
 import type { ConversationStatus, ConversationType } from '@/lib/conversations/types';
 import type { BirthInfo, ZiweiChart } from '@/lib/ziwei/types';
 import {
@@ -23,14 +23,20 @@ export async function GET(request: Request) {
   const limit = Number(url.searchParams.get('limit') || 50);
   const offset = Number(url.searchParams.get('offset') || 0);
 
-  return NextResponse.json({
-    conversations: listConversations({
-      type: type as ConversationType | undefined,
-      status: status as ConversationStatus | undefined,
-      limit: Number.isFinite(limit) ? limit : 50,
-      offset: Number.isFinite(offset) ? offset : 0,
-    }),
-  });
+  const input = {
+    type: type as ConversationType | undefined,
+    status: status as ConversationStatus | undefined,
+    query: (url.searchParams.get('q') || '').trim().slice(0, 100),
+    limit: Math.min(Math.max(Number.isFinite(limit) ? Math.trunc(limit) : 50, 1), 100),
+    offset: Math.max(Number.isFinite(offset) ? Math.trunc(offset) : 0, 0),
+  };
+  try {
+    const conversations = listConversations(input);
+    const total = countConversations(input);
+    return NextResponse.json({ conversations, total, limit: input.limit, offset: input.offset, hasMore: input.offset + conversations.length < total });
+  } catch {
+    return NextResponse.json({ error: '档案读取失败，请稍后重试' }, { status: 500 });
+  }
 }
 
 export async function POST(request: Request) {

@@ -1,4 +1,5 @@
 'use client';
+import { BirthDateFields, BirthTimeFields } from './BirthDateTimeFields';
 import { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { BirthInfo } from '@/lib/ziwei/types';
@@ -17,7 +18,7 @@ export interface BirthFormState {
   province: string;
   city: string;
   longitude: number;
-  gender: 'male' | 'female';
+  gender: '' | 'male' | 'female';
 }
 
 interface BirthFormProps {
@@ -44,13 +45,13 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
     year: initialData?.year ?? '',
     month: initialData?.month ?? '',
     day: initialData?.day ?? '',
-    clockHour: initialData?.clockHour ?? '8',
-    clockMinute: initialData?.clockMinute ?? '0',
+    clockHour: initialData?.clockHour ?? '',
+    clockMinute: initialData?.clockMinute ?? '',
     unknownTime: initialData?.unknownTime ?? false,
     province: initialData?.province ?? '',
     city: initialData?.city ?? '',
     longitude: initialData?.longitude ?? 120,
-    gender: initialData?.gender ?? 'male',
+    gender: initialData?.gender ?? '',
   });
 
   const [touched, setTouched] = useState<Record<string, boolean>>({});
@@ -86,21 +87,22 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
 
   const errors = {
     year: !form.year ? '请选择出生年份'
-      : y < 1900 || y > 2026 ? '年份范围：1900–2026'
+      : y < 1900 || y > new Date().getFullYear() ? `年份范围：1900–${new Date().getFullYear()}`
       : '',
     month: !form.month ? '请选择月份' : '',
     day: !form.day ? '请选择日期'
       : form.year && form.month && !isValidDate(y, m, d) ? `${m}月没有${d}日`
       : '',
   };
-  const hasError = Object.values(errors).some(Boolean);
+  const extraError = !form.gender ? '请选择性别' : form.province && !form.city ? '请选择城市，或清空省份按北京时间排盘' : !form.unknownTime && (!form.clockHour || !form.clockMinute) ? '请选择完整时间，或勾选时辰不详' : '';
+  const hasError = Object.values(errors).some(Boolean) || Boolean(extraError);
 
   // ─── 完成度（用于进度条） ────────────────────────────────
   const steps = [
     !!form.year && !!form.month && !!form.day && !errors.year && !errors.month && !errors.day,
     !!form.province && !!form.city,
     form.unknownTime || (!!form.clockHour && !!form.clockMinute),
-    true, // 性别有默认值
+    Boolean(form.gender),
   ];
   const completedSteps = steps.filter(Boolean).length;
 
@@ -116,9 +118,7 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
     : '';
 
   const handleProvince = (prov: string) => {
-    const provData = PROVINCES.find(p => p.name === prov);
-    const firstCity = provData?.cities[0];
-    setForm({ ...form, province: prov, city: firstCity?.name || '', longitude: firstCity?.longitude ?? 120 });
+    setForm({ ...form, province: prov, city: '', longitude: 120 });
   };
 
   const handleCity = (cityName: string) => {
@@ -131,9 +131,9 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
     e.preventDefault();
     setSubmitAttempted(true);
     setTouched({ year: true, month: true, day: true });
-    if (hasError) return;
+    if (hasError || !form.gender) return;
     onFormSave?.({ ...form });
-    onSubmit(formToBirthInfo({ ...form, year: String(y), month: String(m), day: String(d) }));
+    onSubmit(formToBirthInfo({ ...form, gender: form.gender, year: String(y), month: String(m), day: String(d) }));
   };
 
   // ─── 样式变量 ────────────────────────────────────────────
@@ -212,6 +212,8 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
         ))}
       </div>
 
+      {extraError && <p role="status" style={{ fontSize: 12, marginBottom: 12 }}>{extraError}</p>}
+
       {/* ── 姓名 ── */}
       <div style={{ marginBottom: '16px' }}>
         <label style={{ display: 'block', fontSize: '11px', color: labelClr, marginBottom: '6px', letterSpacing: '0.05em' }}>姓名（可选）</label>
@@ -229,50 +231,10 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
       {/* ── 出生日期 ── */}
       <div style={{ marginBottom: '16px' }}>
         <label style={{ display: 'block', fontSize: '11px', color: labelClr, marginBottom: '6px', letterSpacing: '0.05em' }}>出生日期（公历）</label>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px' }}>
-          <div>
-            <select
-              value={form.year}
-              onChange={e => { setForm({ ...form, year: e.target.value }); setTouched(t => ({ ...t, year: true })); }}
-              style={showErr('year') && errors.year ? errorInputStyle : inputStyle}
-              required
-            >
-              <option value="">年份</option>
-              {Array.from({ length: 127 }, (_, i) => 2026 - i).map(yr => (
-                <option key={yr} value={String(yr)}>{yr}</option>
-              ))}
-            </select>
-            <FieldError msg={showErr('year') ? errors.year : ''} />
-          </div>
-          <div>
-            <select
-              value={form.month}
-              onChange={e => { setForm({ ...form, month: e.target.value }); setTouched(t => ({ ...t, month: true })); }}
-              style={showErr('month') && errors.month ? errorInputStyle : inputStyle}
-              required
-            >
-              <option value="">月份</option>
-              {Array.from({ length: 12 }, (_, i) => i + 1).map(mo => (
-                <option key={mo} value={String(mo)}>{mo} 月</option>
-              ))}
-            </select>
-            <FieldError msg={showErr('month') ? errors.month : ''} />
-          </div>
-          <div>
-            <select
-              value={form.day}
-              onChange={e => { setForm({ ...form, day: e.target.value }); setTouched(t => ({ ...t, day: true })); }}
-              style={showErr('day') && errors.day ? errorInputStyle : inputStyle}
-              required
-            >
-              <option value="">日期</option>
-              {Array.from({ length: 31 }, (_, i) => i + 1).map(dy => (
-                <option key={dy} value={String(dy)}>{dy} 日</option>
-              ))}
-            </select>
-            <FieldError msg={showErr('day') ? errors.day : ''} />
-          </div>
-        </div>
+        <BirthDateFields maxYear={new Date().getFullYear()} value={[form.year, form.month && form.month.padStart(2, '0'), form.day && form.day.padStart(2, '0')].join('-')} onChange={value => {
+          const [year, month, day] = value.split('-');
+          setForm(current => ({ ...current, year, month, day }));
+        }} />
       </div>
 
       {/* ── 出生地点 ── */}
@@ -280,6 +242,7 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
         <label style={{ display: 'block', fontSize: '11px', color: labelClr, marginBottom: '6px', letterSpacing: '0.05em' }}>出生地点（用于真太阳时校正）</label>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
           <select
+            aria-label="出生省份"
             value={form.province}
             onChange={e => handleProvince(e.target.value)}
             style={inputStyle}
@@ -292,6 +255,7 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
             ))}
           </select>
           <select
+            aria-label="出生城市"
             value={form.city}
             onChange={e => handleCity(e.target.value)}
             disabled={!form.province}
@@ -314,7 +278,7 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
               exit={{ opacity: 0 }}
               style={{ fontSize: '10px', color: '#8d7e72', marginTop: '5px' }}
             >
-              {form.city || '（请选择城市）'} · 经度 {form.longitude.toFixed(1)}°E · 时差 {offsetMin > 0 ? '+' : ''}{offsetMin} 分钟
+              {form.city ? `${form.city} · 经度 ${form.longitude.toFixed(1)}°E · 时差 ${offsetMin > 0 ? '+' : ''}${offsetMin} 分钟` : '请选择城市后再进行经度校正'}
             </motion.p>
           ) : (
             <motion.p
@@ -324,7 +288,7 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
               exit={{ opacity: 0 }}
               style={{ fontSize: '10px', color: '#8d7e72', marginTop: '5px' }}
             >
-              * 倪海夏批命用真太阳时，建议填写出生地以自动校正时辰
+              未填写地区时按北京时间排盘，不进行出生地经度校正。
             </motion.p>
           )}
         </AnimatePresence>
@@ -334,29 +298,13 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
       <div style={{ marginBottom: '16px' }}>
         <label style={{ display: 'block', fontSize: '11px', color: labelClr, marginBottom: '6px', letterSpacing: '0.05em' }}>出生时间（北京时间）</label>
         <div style={{ borderRadius: '5px', padding: '12px', background: panelBg, border: `1px solid ${panelBorder}`, opacity: form.unknownTime ? 0.45 : 1, pointerEvents: form.unknownTime ? 'none' : 'auto', transition: 'opacity 0.2s' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '8px' }}>
-            <select
-              value={form.clockHour}
-              onChange={e => setForm({ ...form, clockHour: e.target.value })}
-              style={inputStyle}
-            >
-              {Array.from({ length: 24 }, (_, i) => i).map(h => (
-                <option key={h} value={String(h)}>{h.toString().padStart(2, '0')} 时</option>
-              ))}
-            </select>
-            <select
-              value={form.clockMinute}
-              onChange={e => setForm({ ...form, clockMinute: e.target.value })}
-              style={inputStyle}
-            >
-              {Array.from({ length: 60 }, (_, i) => i).map(min => (
-                <option key={min} value={String(min)}>{min.toString().padStart(2, '0')} 分</option>
-              ))}
-            </select>
-          </div>
-          {/* 真太阳时结果 */}
-          <div style={{ textAlign: 'center', padding: '4px 0' }}>
-            <span style={{ fontSize: '10px', color: '#8d7e72' }}>真太阳时 → </span>
+          <BirthTimeFields value={[form.clockHour && form.clockHour.padStart(2, '0'), form.clockMinute && form.clockMinute.padStart(2, '0')].join(':')} disabled={form.unknownTime} onChange={value => {
+            const [clockHour, clockMinute] = value.split(':');
+            setForm(current => ({ ...current, clockHour, clockMinute }));
+          }} />
+          {/* 完整填写后才展示换算结果。 */}
+          {steps[2] && <div style={{ textAlign: 'center', padding: '4px 0' }}>
+            <span style={{ fontSize: '10px', color: '#8d7e72' }}>{form.unknownTime ? '未知时辰试排 → ' : form.city ? '经度校正后 → ' : '北京时间 → '}</span>
             <span style={{ fontSize: '15px', color: goldText, fontWeight: 600, letterSpacing: '0.08em' }}>
               {SHICHEN_NAMES[branch]}时
             </span>
@@ -365,7 +313,7 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
                 （{shichenInfo.range}）
               </span>
             )}
-          </div>
+          </div>}
         </div>
         <label style={{ display: 'flex', alignItems: 'center', gap: '7px', marginTop: '8px', cursor: 'pointer' }}>
           <input

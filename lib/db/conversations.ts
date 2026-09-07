@@ -159,28 +159,38 @@ export function createConversation(input: {
   return getConversation(id)!;
 }
 
-export function listConversations(input: {
+interface ConversationSearch {
   type?: ConversationType;
   status?: ConversationStatus;
+  query?: string;
   limit?: number;
   offset?: number;
-} = {}): ConversationListItem[] {
-  const db = getDatabase();
+}
+
+function conversationFilter(input: ConversationSearch) {
   const clauses: string[] = [];
   const params: Array<string | number> = [];
-
-  if (input.type) {
-    clauses.push('c.type = ?');
-    params.push(input.type);
+  if (input.type) { clauses.push('c.type = ?'); params.push(input.type); }
+  if (input.status) { clauses.push('c.status = ?'); params.push(input.status); }
+  const query = input.query?.trim().slice(0, 100);
+  if (query) {
+    // instr 按字面搜索，百分号和下划线不作为通配符。
+    clauses.push(`(instr(lower(c.title), lower(?)) > 0 OR instr(lower(COALESCE(json_extract(c.birth_info_json, '$.name'), '')), lower(?)) > 0 OR instr(lower(COALESCE(json_extract(c.birth_info_a_json, '$.name'), '')), lower(?)) > 0 OR instr(lower(COALESCE(json_extract(c.birth_info_b_json, '$.name'), '')), lower(?)) > 0)`);
+    params.push(query, query, query, query);
   }
-  if (input.status) {
-    clauses.push('c.status = ?');
-    params.push(input.status);
-  }
+  return { where: clauses.length ? `WHERE ${clauses.join(' AND ')}` : '', params };
+}
 
-  const limit = Math.min(Math.max(input.limit ?? 50, 1), 100);
-  const offset = Math.max(input.offset ?? 0, 0);
-  const where = clauses.length ? `WHERE ${clauses.join(' AND ')}` : '';
+export function countConversations(input: ConversationSearch = {}): number {
+  const { where, params } = conversationFilter(input);
+  return (getDatabase().prepare(`SELECT COUNT(*) AS total FROM conversations c ${where}`).get(...params) as { total: number }).total;
+}
+
+export function listConversations(input: ConversationSearch = {}): ConversationListItem[] {
+  const db = getDatabase();
+  const { where, params } = conversationFilter(input);
+  const limit = Math.min(Math.max(Number.isFinite(input.limit) ? Math.trunc(input.limit!) : 50, 1), 100);
+  const offset = Math.max(Number.isFinite(input.offset) ? Math.trunc(input.offset!) : 0, 0);
 
   const rows = db.prepare(`
     SELECT
@@ -198,7 +208,7 @@ export function listConversations(input: {
     LEFT JOIN messages m ON m.conversation_id = c.id
     ${where}
     GROUP BY c.id
-    ORDER BY c.updated_at DESC
+    ORDER BY c.updated_at DESC, c.id DESC
     LIMIT ? OFFSET ?
   `).all(...params, limit, offset) as Array<{
     id: string;
