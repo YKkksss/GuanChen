@@ -15,6 +15,7 @@ import {
   getConversation,
   getMessage,
 } from '@/lib/db/conversations';
+import { getEventContextPeriods, matchEventContextPeriod, type EventContextPeriod } from '@/lib/events/context-period';
 import { getEventYears } from '@/lib/events/service';
 import { listLifeEvents } from '@/lib/db/events';
 import {
@@ -124,6 +125,7 @@ export function buildConversationContext(input: {
     focus.inheritedFromMessageId ? `${focus.anchor.content}\n${current.content}` : current.content,
     searchTerms,
     transit.snapshots.filter(snapshot => snapshot.level === 'year').map(snapshot => snapshot.targetDate),
+    getEventContextPeriods(transit.snapshots),
   );
   const retrieved = retrieveOlderMessages({
     conversationId: conversation.id,
@@ -192,6 +194,7 @@ export function buildConversationContext(input: {
         },
         memories: { count: support.memoryCount, tokens: support.memoryTokens },
         confirmedEvents: {
+          periods: getEventContextPeriods(transit.snapshots),
           requestedYears: transit.snapshots.filter(snapshot => snapshot.level === 'year').map(snapshot => snapshot.targetDate),
           count: support.confirmedEventIds.length,
           ids: support.confirmedEventIds,
@@ -238,6 +241,7 @@ export function buildFallbackConversationContext(input: {
     focus.inheritedFromMessageId ? `${focus.anchor.content}\n${current.content}` : current.content,
     searchTerms,
     transit.snapshots.filter(snapshot => snapshot.level === 'year').map(snapshot => snapshot.targetDate),
+    getEventContextPeriods(transit.snapshots),
   );
   const confirmedEventContext = buildConfirmedEventContext(confirmedEvents);
   const chart: ChatMessage = {
@@ -291,7 +295,7 @@ export function buildFallbackConversationContext(input: {
           resolution: transit.resolution,
           referenceYear: transit.referenceYear,
         },
-        confirmedEvents: { requestedYears: transit.snapshots.filter(snapshot => snapshot.level === 'year').map(snapshot => snapshot.targetDate), count: confirmedEvents.length, ids: confirmedEvents.map(event => event.id) },
+        confirmedEvents: { periods: getEventContextPeriods(transit.snapshots), requestedYears: transit.snapshots.filter(snapshot => snapshot.level === 'year').map(snapshot => snapshot.targetDate), count: confirmedEvents.length, ids: confirmedEvents.map(event => event.id) },
         recent: { count: recent.length },
         current: { included: true },
       },
@@ -482,15 +486,19 @@ export function buildSupportContext(input: {
   };
 }
 
+type ContextLifeEvent = LifeEventWithTransits & { contextDateMatch?: 'exact' | 'possible' };
+
 export function selectRelevantLifeEvents(
   events: LifeEventWithTransits[],
   question: string,
   terms: string[],
   resolvedYears: string[] = [],
-): LifeEventWithTransits[] {
+  periods: EventContextPeriod[] = [],
+): ContextLifeEvent[] {
   const requestedYears = new Set(resolvedYears.length ? resolvedYears : question.match(/(?:19|20|21)\d{2}/g) ?? []);
   return events
     .filter(event => event.confirmedByUser)
+    .filter(event => !periods.length || matchEventContextPeriod(event, periods) !== null)
     // 只在年度事实已确定时限制年份；无日期的普通问题保留原来的主题检索。
     .filter(event => !resolvedYears.length || getEventYears(event).some(year => requestedYears.has(String(year))))
     .map(event => {
@@ -500,14 +508,15 @@ export function selectRelevantLifeEvents(
         + categoryTerms.filter(term => question.includes(term)).length * 5
         + terms.filter(term => `${event.title}${event.description ?? ''}`.includes(term)).length * 4
         + (question.includes(event.title.slice(0, 8)) ? 3 : 0);
-      return { event, score };
+      const contextDateMatch = periods.length ? matchEventContextPeriod(event, periods) ?? undefined : undefined;
+      return { event: { ...event, contextDateMatch }, score, certainty: contextDateMatch === 'possible' ? 0 : 1 };
     })
-    .sort((a, b) => b.score - a.score || b.event.updatedAt - a.event.updatedAt)
+    .sort((a, b) => b.certainty - a.certainty || b.score - a.score || b.event.updatedAt - a.event.updatedAt)
     .slice(0, 8)
     .map(item => item.event);
 }
 
-function buildConfirmedEventContext(events: LifeEventWithTransits[], layer = 3): string {
+function buildConfirmedEventContext(events: ContextLifeEvent[], layer = 3): string {
   if (!events.length) return '';
   const lines = events.map(event => {
     const date = event.datePrecision === 'unknown'
@@ -519,7 +528,8 @@ function buildConfirmedEventContext(events: LifeEventWithTransits[], layer = 3):
       ? event.customCategory ?? '自定义事件'
       : LIFE_EVENT_CATEGORY_LABELS[event.category];
     const transitAlignment = formatEventTransitAlignment(event);
-    return `- [${event.id}] ${date} · ${category} · ${event.title}${event.description ? `：${event.description.slice(0, 240)}` : ''}${transitAlignment ? `；程序时间挂接：${transitAlignment}` : ''}`;
+    const precisionNotice = event.contextDateMatch === 'possible' ? '；仅知公历月份，与本流月部分重叠，不能确定实际发生在本流月内' : '';
+    return `- [${event.id}] ${date} · ${category} · ${event.title}${precisionNotice}${event.description ? `：${event.description.slice(0, 240)}` : ''}${transitAlignment ? `；程序时间挂接：${transitAlignment}` : ''}`;
   });
   return `【L${layer} 用户已确认人生事件】\n以下仅是本轮检索到的部分已确认事件，不是完整经历清单；未检索到不代表没有发生。事件日期以用户记录的精度为准，不得为仅知年份、月份或日期不详的事件补造具体日期。以下事件内容来自用户核对后的正式事件表，可以作为现实事实；“程序时间挂接”只表示事件日期与流年、流月、流日结构对齐，不证明命理结构造成了该事件。不得把未确认候选、助手推断或命理解释补写为新事件，也不得倒因为果。\n${lines.join('\n')}`;
 }
