@@ -1,6 +1,7 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import RequestFeedback from './RequestFeedback';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ChatCircleDots, Plus, SidebarSimple } from '@phosphor-icons/react';
@@ -27,18 +28,26 @@ export default function ConversationHistory({
   const [items, setItems] = useState<ConversationListItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [mutationError, setMutationError] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [editing, setEditing] = useState<{ id: string; title: string } | null>(null);
+  const readRequest = useRef<AbortController | null>(null);
 
   const loadHistory = useCallback(async () => {
+    readRequest.current?.abort();
+    const controller = new AbortController();
+    readRequest.current = controller;
+    setLoading(true);
     try {
       setError('');
-      const response = await fetch(`/api/conversations?type=${conversationType}&status=active`, { cache: 'no-store' });
+      const response = await fetch(`/api/conversations?type=${conversationType}&status=active`, { cache: 'no-store', signal: controller.signal });
       if (!response.ok) throw new Error('历史记录加载失败');
       const data = await response.json() as { conversations?: ConversationListItem[] };
-      setItems(data.conversations ?? []);
+      if (!controller.signal.aborted) setItems(data.conversations ?? []);
     } catch (loadError) {
-      setError(loadError instanceof Error ? loadError.message : '历史记录加载失败');
+      if (!controller.signal.aborted) setError(loadError instanceof Error ? loadError.message : '历史记录加载失败');
     } finally {
-      setLoading(false);
+      if (!controller.signal.aborted) setLoading(false);
     }
   }, [conversationType]);
 
@@ -46,26 +55,33 @@ export default function ConversationHistory({
     loadHistory();
     const handleUpdated = () => loadHistory();
     window.addEventListener('conversation-updated', handleUpdated);
-    return () => window.removeEventListener('conversation-updated', handleUpdated);
+    return () => { readRequest.current?.abort(); window.removeEventListener('conversation-updated', handleUpdated); };
   }, [loadHistory]);
 
   const renameConversation = async (item: ConversationListItem) => {
-    const nextTitle = window.prompt('请输入新的会话名称', item.title)?.trim();
-    if (!nextTitle || nextTitle === item.title) return;
-    const response = await fetch(`/api/conversations/${item.id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ title: nextTitle }),
-    });
-    if (response.ok) await loadHistory();
+    const nextTitle = editing?.id === item.id ? editing.title.trim() : '';
+    if (!nextTitle) return;
+    if (nextTitle === item.title) { setEditing(null); return; }
+    setBusy(true); setMutationError('');
+    try {
+      const response = await fetch(`/api/conversations/${item.id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title: nextTitle }) });
+      if (!response.ok) throw new Error('改名失败，请检查连接后重试；原名称仍保留。');
+      setEditing(null);
+      window.dispatchEvent(new Event('conversation-updated'));
+    } catch (cause) { setMutationError(cause instanceof Error ? cause.message : '改名失败，请重试'); }
+    finally { setBusy(false); }
   };
 
   const removeConversation = async (item: ConversationListItem) => {
     if (!window.confirm(`确定删除“${item.title}”吗？完整聊天记录将无法恢复。`)) return;
-    const response = await fetch(`/api/conversations/${item.id}`, { method: 'DELETE' });
-    if (!response.ok) return;
-    if (activeConversationId === item.id) router.push(basePath);
-    await loadHistory();
+    setBusy(true); setMutationError('');
+    try {
+      const response = await fetch(`/api/conversations/${item.id}`, { method: 'DELETE' });
+      if (!response.ok) throw new Error('删除失败，请重新读取列表核对后再试。');
+      if (activeConversationId === item.id) router.push(basePath);
+      window.dispatchEvent(new Event('conversation-updated'));
+    } catch (cause) { setMutationError(cause instanceof Error ? cause.message : '删除失败，请重试'); }
+    finally { setBusy(false); }
   };
 
   return (
@@ -107,7 +123,8 @@ export default function ConversationHistory({
 
       <div className="eastern-history-list">
         {loading && <HistoryHint text={collapsed ? '…' : '正在读取历史记录…'} compact={collapsed} />}
-        {!loading && error && <HistoryHint text={collapsed ? '!' : error} compact={collapsed} />}
+        {!loading && <RequestFeedback error={error} onRetry={() => void loadHistory()} />}
+        <RequestFeedback error={mutationError} />
         {!loading && !error && items.length === 0 && (
           <HistoryHint text={collapsed ? '空' : conversationType === 'heming' ? '还没有合盘记录，创建后会自动保存。' : '还没有历史对话，起一张命盘后会自动保存。'} compact={collapsed} />
         )}
@@ -148,11 +165,16 @@ export default function ConversationHistory({
                   {item.lastMessagePreview || (conversationType === 'heming' ? '双方命盘已保存' : '等待首次解读')}
                 </div>
               </button>
+              {editing?.id === item.id && <form onSubmit={event => { event.preventDefault(); void renameConversation(item); }} className="my-2 space-y-1">
+                <input autoFocus aria-label="新的会话名称" maxLength={100} value={editing.title} disabled={busy} onChange={event => setEditing({ id: item.id, title: event.target.value })} className="w-full min-h-11 rounded border px-2 text-sm" />
+                <button type="submit" disabled={busy || !editing.title.trim()} className="min-h-11 px-2 text-sm">{busy ? '保存中…' : '保存名称'}</button>
+                <button type="button" disabled={busy} onClick={() => setEditing(null)} className="min-h-11 px-2 text-sm">取消</button>
+              </form>}
               <div className="eastern-history-meta">
                 <span>{formatRelativeTime(item.updatedAt)} · {item.messageCount} 条消息</span>
                 <span className="eastern-history-item-actions">
-                  <button type="button" onClick={() => renameConversation(item)}>重命名</button>
-                  <button type="button" onClick={() => removeConversation(item)}>删除</button>
+                  <button type="button" disabled={busy} onClick={() => { setMutationError(''); setEditing({ id: item.id, title: item.title }); }}>重命名</button>
+                  <button type="button" disabled={busy} onClick={() => removeConversation(item)}>删除</button>
                 </span>
               </div>
               </div>

@@ -1,8 +1,10 @@
 'use client';
 
+import RequestFeedback from './RequestFeedback';
+import { useReportResource } from '@/lib/ui/use-report-resource';
 import { ArrowLeft, ArrowSquareOut, Printer, SpinnerGap } from '@phosphor-icons/react';
 import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import type { RectificationReportDetail, RectificationReportEvidence } from '@/lib/rectification/report-types';
 import { REPORT_GENERATION_REASON_LABELS } from '@/lib/reports/types';
 import ReportPdfExportButton from '@/components/ReportPdfExportButton';
@@ -12,40 +14,17 @@ import type { ReportUserRevision } from '@/lib/report-revisions/types';
 
 export default function RectificationReportDetailWorkspace({ sessionId, reportId }: { sessionId: string; reportId: string }) {
   const router = useRouter();
-  const [detail, setDetail] = useState<RectificationReportDetail | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { detail, loading, error, setError, regenerating, processing, stalled, load, retry, regenerate } = useReportResource<RectificationReportDetail>(`/api/rectification-reports/${reportId}`);
   const [busy, setBusy] = useState('');
-  const [error, setError] = useState('');
   const [userRevision, setUserRevision] = useState<ReportUserRevision | null>(null);
   const handleRevisionChange = useCallback((revision: ReportUserRevision | null) => setUserRevision(revision), []);
-  const load = useCallback(async (version?: number) => {
-    setLoading(true); setError('');
-    try {
-      const response = await fetch(`/api/rectification-reports/${reportId}${version ? `?version=${version}` : ''}`, { cache: 'no-store' });
-      const data = await response.json() as RectificationReportDetail & { error?: string };
-      if (!response.ok || !data.report) throw new Error(data.error || '校时报告加载失败');
-      setDetail(data);
-    } catch (loadError) { setError(loadError instanceof Error ? loadError.message : '校时报告加载失败'); }
-    finally { setLoading(false); }
-  }, [reportId]);
-  useEffect(() => { void load(); }, [load]);
+
 
   const evidenceBySection = useMemo(() => {
     const map = new Map<string, RectificationReportEvidence[]>();
     for (const item of detail?.evidence ?? []) map.set(item.sectionKey, [...(map.get(item.sectionKey) ?? []), item]);
     return map;
   }, [detail?.evidence]);
-
-  const regenerate = async () => {
-    setBusy('regenerate'); setError('');
-    try {
-      const response = await fetch(`/api/rectification-reports/${reportId}/regenerate`, { method: 'POST' });
-      const data = await response.json() as RectificationReportDetail & { error?: string };
-      if (!response.ok || !data.report) throw new Error(data.error || '重新生成失败');
-      setDetail(data);
-    } catch (actionError) { setError(actionError instanceof Error ? actionError.message : '重新生成失败'); }
-    finally { setBusy(''); }
-  };
 
   const openConversation = async () => {
     setBusy('conversation'); setError('');
@@ -59,7 +38,7 @@ export default function RectificationReportDetailWorkspace({ sessionId, reportId
   };
 
   if (loading && !detail) return <State text="正在加载校时报告…" />;
-  if (!detail) return <State text={error || '校时报告不存在'} error />;
+  if (!detail) return <main className="mx-auto max-w-5xl p-6"><RequestFeedback error={error || '校时报告不存在'} onRetry={retry} /></main>;
   const originalContent = detail.version?.content;
   const content = userRevision && userRevision.sourceVersionId === detail.version?.id
     && userRevision.editedContent?.format === 'structured'
@@ -71,15 +50,18 @@ export default function RectificationReportDetailWorkspace({ sessionId, reportId
         <div className="report-controls flex flex-wrap items-center justify-between gap-3">
           <button type="button" className="btn-ghost !px-3 !py-2" onClick={() => router.push(`/rectification/${sessionId}/reports`)}><ArrowLeft size={16} /> 返回报告中心</button>
           <div className="flex flex-wrap items-center gap-2">
-            <select value={detail.version?.version ?? ''} onChange={event => void load(Number(event.target.value))} className="rectification-input !w-auto !py-2 text-xs">
+            <select aria-label="报告版本" disabled={regenerating} value={detail.version?.version ?? ''} onChange={event => void load(Number(event.target.value))} className="rectification-input !w-auto !py-2 text-xs">
               {detail.versions.map(version => <option key={version.id} value={version.version}>v{version.version} · {version.status === 'completed' ? '已完成' : version.status === 'failed' ? '失败' : '生成中'}</option>)}
             </select>
             {detail.version?.status === 'completed' && content && <ReportPdfExportButton sourceKind="rectification" reportId={reportId} version={detail.version.version} tone="rectification" />}
             <button type="button" className="btn-ghost !px-3 !py-2" disabled={!content} onClick={() => window.print()}><Printer size={16} /> 打印 / PDF</button>
-            <button type="button" className="btn-ghost !px-3 !py-2" disabled={Boolean(busy)} onClick={() => void regenerate()}>{busy === 'regenerate' ? <SpinnerGap className="animate-spin" size={16} /> : null}重新生成</button>
+            <button type="button" className="btn-ghost !px-3 !py-2" disabled={Boolean(busy) || regenerating} onClick={() => void regenerate()}>{regenerating ? <SpinnerGap className="animate-spin" size={16} /> : null}重新生成</button>
             <button type="button" className="btn-accent !px-3 !py-2" disabled={Boolean(busy) || !detail.version?.selectionId} onClick={() => void openConversation()}><ArrowSquareOut size={16} /> {busy === 'conversation' ? '正在创建…' : '进入工作命盘'}</button>
           </div>
         </div>
+        <RequestFeedback loading={loading ? '正在更新报告…' : undefined} />
+        {(regenerating || processing) && <p role="status" className="my-3 text-sm">{stalled ? '本次生成等待较久，可能已中断。可重新生成，旧版本会保留。' : '报告正在生成，页面会自动更新。刷新后可从报告中心继续查看。'}</p>}
+        <button type="button" className="min-h-11 text-sm underline" disabled={loading} onClick={retry}>刷新报告状态</button>
         <ReportVersionComparePanel sourceKind="rectification" reportId={reportId} versions={detail.versions} currentVersion={detail.version?.version} />
         {detail.version?.status === 'completed' && originalContent && (
           <ReportReviewPanel

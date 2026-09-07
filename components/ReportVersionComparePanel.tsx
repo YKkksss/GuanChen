@@ -1,7 +1,7 @@
 'use client';
 
 import { ArrowsLeftRight, SpinnerGap, X } from '@phosphor-icons/react';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { ReportVersionComparison } from '@/lib/report-comparisons/types';
 import type { ReportExportKind } from '@/lib/report-exports/types';
 import { REPORT_GENERATION_REASON_LABELS } from '@/lib/reports/types';
@@ -35,6 +35,7 @@ export default function ReportVersionComparePanel({
   const [comparison, setComparison] = useState<ReportVersionComparison | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const pending = useRef<AbortController | null>(null);
 
   useEffect(() => {
     if (completedVersions.length < 2) return;
@@ -50,7 +51,9 @@ export default function ReportVersionComparePanel({
   }, [completedVersions, currentVersion]);
 
   const loadComparison = useCallback(async () => {
-    if (!baseVersion || !targetVersion || baseVersion === targetVersion) return;
+    pending.current?.abort();
+    if (!baseVersion || !targetVersion || baseVersion === targetVersion) { setComparison(null); setLoading(false); return; }
+    const controller = new AbortController(); pending.current = controller;
     setLoading(true);
     setError('');
     try {
@@ -60,20 +63,22 @@ export default function ReportVersionComparePanel({
         baseVersion: String(baseVersion),
         targetVersion: String(targetVersion),
       });
-      const response = await fetch(`/api/report-comparisons?${query}`, { cache: 'no-store' });
+      const response = await fetch(`/api/report-comparisons?${query}`, { cache: 'no-store', signal: controller.signal });
       const data = await response.json().catch(() => ({})) as ReportVersionComparison & { error?: string };
       if (!response.ok || !data.summary) throw new Error(data.error || '报告版本对比失败');
-      setComparison(data);
+      if (!controller.signal.aborted) setComparison(data);
     } catch (loadError) {
+      if (controller.signal.aborted) return;
       setComparison(null);
       setError(loadError instanceof Error ? loadError.message : '报告版本对比失败');
     } finally {
-      setLoading(false);
+      if (!controller.signal.aborted) setLoading(false);
     }
   }, [baseVersion, reportId, sourceKind, targetVersion]);
 
   useEffect(() => {
     if (open) void loadComparison();
+    return () => pending.current?.abort();
   }, [loadComparison, open]);
 
   if (completedVersions.length < 2) return null;

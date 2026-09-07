@@ -1,6 +1,9 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import RequestFeedback from './RequestFeedback';
+import { useModalFocus } from '@/lib/ui/use-modal-focus';
+import { useBodyScrollLock } from '@/lib/ui/use-body-scroll-lock';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { CalendarCheck, Check, X } from '@phosphor-icons/react';
 import styles from './LifeEventCandidateInbox.module.css';
@@ -32,20 +35,32 @@ export default function LifeEventCandidateInbox({ conversationId, compact = fals
   const [error, setError] = useState('');
   const [savedTitle, setSavedTitle] = useState('');
   const [expanded, setExpanded] = useState(!defaultCollapsed);
+  const owner = useRef(conversationId); owner.current = conversationId;
+  const readRequest = useRef<AbortController | null>(null);
+  const [loadError, setLoadError] = useState('');
+  useBodyScrollLock(Boolean(active));
+  const inboxRef = useRef<HTMLDivElement>(null);
+  const dialogRef = useModalFocus(Boolean(active), () => { if (!saving) { setActive(null); setForm(null); setError(''); } }, () => inboxRef.current?.querySelector('button') ?? null);
 
   useEffect(() => { setExpanded(!defaultCollapsed); }, [defaultCollapsed, conversationId]);
 
   const reload = useCallback(async () => {
+    readRequest.current?.abort();
+    const controller = new AbortController(); readRequest.current = controller;
+    setLoadError('');
     try {
-      const response = await fetch(`/api/conversations/${conversationId}/event-candidates?status=pending`, { cache: 'no-store' });
+      const response = await fetch(`/api/conversations/${conversationId}/event-candidates?status=pending`, { cache: 'no-store', signal: controller.signal });
       const data = await response.json() as { candidates?: LifeEventCandidate[] };
-      if (response.ok) setCandidates(data.candidates ?? []);
+      if (!response.ok) throw new Error('候选事件读取失败');
+      if (!controller.signal.aborted) setCandidates(data.candidates ?? []);
+    } catch (cause) {
+      if (!controller.signal.aborted) setLoadError(cause instanceof Error ? cause.message : '候选事件读取失败');
     } finally {
-      setLoading(false);
+      if (!controller.signal.aborted) setLoading(false);
     }
   }, [conversationId]);
 
-  useEffect(() => { void reload(); }, [reload]);
+  useEffect(() => { setActive(null); setForm(null); setSaving(false); setError(''); setCandidates([]); setSavedTitle(''); setLoading(true); void reload(); return () => readRequest.current?.abort(); }, [reload]);
 
   useEffect(() => {
     const handleUpdate = (event: Event) => {
@@ -73,12 +88,14 @@ export default function LifeEventCandidateInbox({ conversationId, compact = fals
       });
       const data = await response.json() as { error?: string };
       if (!response.ok) throw new Error(data.error || '候选忽略失败');
+      if (owner.current !== conversationId) return;
+      readRequest.current?.abort();
       setCandidates(current => current.filter(item => item.id !== candidate.id));
       if (active?.id === candidate.id) { setActive(null); setForm(null); }
     } catch (dismissError) {
       setError(dismissError instanceof Error ? dismissError.message : '候选忽略失败');
     } finally {
-      setSaving(false);
+      if (owner.current === conversationId) setSaving(false);
     }
   };
 
@@ -94,6 +111,8 @@ export default function LifeEventCandidateInbox({ conversationId, compact = fals
       });
       const data = await response.json() as { event?: { title: string }; error?: string };
       if (!response.ok || !data.event) throw new Error(data.error || '事件确认失败');
+      if (owner.current !== conversationId) return;
+      readRequest.current?.abort();
       setCandidates(current => current.filter(item => item.id !== active.id));
       setSavedTitle(data.event.title);
       setActive(null);
@@ -102,58 +121,61 @@ export default function LifeEventCandidateInbox({ conversationId, compact = fals
     } catch (confirmError) {
       setError(confirmError instanceof Error ? confirmError.message : '事件确认失败');
     } finally {
-      setSaving(false);
+      if (owner.current === conversationId) setSaving(false);
     }
   };
 
+  if (loadError) return <RequestFeedback error={loadError} onRetry={() => void reload()} />;
   if (loading || (!candidates.length && !savedTitle)) return null;
   const first = candidates[0];
 
   return <>
-    <div className={compact ? styles.compact : 'shrink-0 border-t px-3 py-2.5'} style={{ borderColor: 'var(--t-border)', background: 'rgba(212,168,67,.045)' }}>
+    <div ref={inboxRef} className={compact ? styles.compact : 'shrink-0 border-t px-3 py-2.5'} style={{ borderColor: 'var(--t-border)', background: 'rgba(212,168,67,.045)' }}>
       {compact && <button type="button" className={styles.toggle} aria-expanded={expanded} onClick={() => setExpanded(value => !value)}>
         <CalendarCheck size={15} aria-hidden="true" />
         <span>{candidates.length ? `待核对事件 · ${candidates.length}` : '事件已保存'}</span>
         <span className={styles.toggleHint}>{expanded ? '收起' : '展开'}</span>
       </button>}
       {(!compact || expanded) && <div className={compact ? styles.preview : undefined}>
-      {savedTitle && (!compact || !first) ? (
-        <div className="flex items-center justify-between gap-2 text-[10px]">
+      {savedTitle && (
+        <div role="status" className="flex flex-wrap items-center justify-between gap-2 text-xs">
           <span className="flex min-w-0 items-center gap-1.5" style={{ color: 'var(--t-gold)' }}><Check size={13} weight="bold" /><span className="truncate">已保存：{savedTitle}</span></span>
-          <button type="button" onClick={() => router.push(`/chart/${conversationId}/events`)} style={{ color: 'var(--t-faint)' }}>查看时间轴 →</button>
+          {first && <button type="button" className="min-h-11 underline" onClick={() => openReview(first)}>继续核对下一条（剩余 {candidates.length} 条）</button>}
+          <button type="button" className="min-h-11" onClick={() => router.push(`/chart/${conversationId}/events`)} style={{ color: 'var(--t-faint)' }}>查看时间轴 →</button>
         </div>
-      ) : first ? (
+      )}
+      {first ? (
         <div>
           <div className="flex items-start gap-2">
             <CalendarCheck size={16} className="mt-0.5 shrink-0" style={{ color: 'var(--t-gold)' }} />
             <div className="min-w-0 flex-1">
               <div className="flex items-center justify-between gap-2">
-                <span className="truncate text-[10px] font-medium" style={{ color: 'var(--t-text)' }}>发现可能的人生事件：{first.title}</span>
-                {candidates.length > 1 && <span className="shrink-0 text-[9px]" style={{ color: 'var(--t-faint)' }}>共 {candidates.length} 条</span>}
+                <span className="truncate text-xs font-medium" style={{ color: 'var(--t-text)' }}>发现可能的人生事件：{first.title}</span>
+                {candidates.length > 1 && <span className="shrink-0 text-xs" style={{ color: 'var(--t-faint)' }}>共 {candidates.length} 条</span>}
               </div>
-              <p className="mt-1 line-clamp-1 text-[9px]" style={{ color: 'var(--t-faint)' }}>{first.sourceExcerpt}</p>
+              <p className="mt-1 line-clamp-1 text-xs" style={{ color: 'var(--t-faint)' }}>{first.sourceExcerpt}</p>
               <div className="mt-2 flex gap-2">
-                <button type="button" onClick={() => openReview(first)} className="rounded-md px-2.5 py-1 text-[9px]" style={{ color: 'var(--t-gold)', border: '1px solid rgba(212,168,67,.3)' }}>核对后保存</button>
-                <button type="button" disabled={saving} onClick={() => void dismiss(first)} className="px-2 py-1 text-[9px] disabled:opacity-40" style={{ color: 'var(--t-faint)' }}>忽略</button>
+                <button type="button" disabled={saving} onClick={() => openReview(first)} className="min-h-11 rounded-md px-2.5 py-1 text-xs" style={{ color: 'var(--t-gold)', border: '1px solid rgba(212,168,67,.3)' }}>核对后保存</button>
+                <button type="button" disabled={saving} onClick={() => void dismiss(first)} className="px-2 py-1 text-xs disabled:opacity-40" style={{ color: 'var(--t-faint)' }}>忽略</button>
               </div>
             </div>
           </div>
-          {error && <p className="mt-2 text-[9px] text-red-500">{error}</p>}
+          {error && <p className="mt-2 text-xs text-red-500">{error}</p>}
         </div>
       ) : null}
       </div>}
     </div>
 
     {active && form && (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-3" role="dialog" aria-modal="true" aria-label="核对人生事件候选">
+      <div ref={dialogRef} tabIndex={-1} className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-3" role="dialog" aria-modal="true" aria-label="核对人生事件候选">
         <div className="max-h-[92dvh] w-full max-w-lg overflow-y-auto rounded-xl p-4 shadow-2xl" style={{ background: 'var(--t-card)', border: '1px solid var(--t-border)' }}>
           <div className="flex items-start justify-between gap-3">
-            <div><h3 className="text-sm font-medium" style={{ color: 'var(--t-text)' }}>核对后保存人生事件</h3><p className="mt-1 text-[9px]" style={{ color: 'var(--t-faint)' }}>AI 只生成候选；你确认前不会进入时间轴和长期记忆。</p></div>
-            <button type="button" onClick={() => { setActive(null); setForm(null); setError(''); }} aria-label="关闭"><X size={17} style={{ color: 'var(--t-faint)' }} /></button>
+            <div><h3 className="text-sm font-medium" style={{ color: 'var(--t-text)' }}>核对后保存人生事件</h3><p className="mt-1 text-xs" style={{ color: 'var(--t-faint)' }}>AI 只生成候选；你确认前不会进入时间轴和长期记忆。</p></div>
+            <button type="button" disabled={saving} className="min-h-11 min-w-11" onClick={() => { setActive(null); setForm(null); setError(''); }} aria-label="关闭"><X size={17} style={{ color: 'var(--t-faint)' }} /></button>
           </div>
 
-          <div className="mt-3 rounded-lg p-3 text-[10px] leading-5" style={{ background: 'rgba(212,168,67,.05)', border: '1px solid rgba(212,168,67,.16)', color: 'var(--t-text2)' }}>
-            <div className="text-[9px]" style={{ color: 'var(--t-faint)' }}>用户原话</div>
+          <div className="mt-3 rounded-lg p-3 text-xs leading-5" style={{ background: 'rgba(212,168,67,.05)', border: '1px solid rgba(212,168,67,.16)', color: 'var(--t-text2)' }}>
+            <div className="text-xs" style={{ color: 'var(--t-faint)' }}>用户原话</div>
             {active.sourceExcerpt}
             {!!active.reviewNotes.length && <div className="mt-1" style={{ color: 'var(--t-gold)' }}>需核对：{active.reviewNotes.join('；')}</div>}
           </div>
@@ -168,10 +190,10 @@ export default function LifeEventCandidateInbox({ conversationId, compact = fals
             <Field label="影响程度"><select className="candidate-input" value={form.impactLevel} onChange={event => setForm({ ...form, impactLevel: Number(event.target.value) as 1 | 2 | 3 | 4 | 5 })}>{[1, 2, 3, 4, 5].map(level => <option key={level} value={level}>{level} / 5</option>)}</select></Field>
             <div className="sm:col-span-2"><Field label="事件说明（可修改）"><textarea className="candidate-input min-h-24 resize-y" value={form.description} maxLength={2000} onChange={event => setForm({ ...form, description: event.target.value })} /></Field></div>
           </div>
-          {error && <p className="mt-3 text-[10px] text-red-500">{error}</p>}
+          {error && <p className="mt-3 text-xs text-red-500">{error}</p>}
           <div className="mt-4 flex gap-2">
-            <button type="button" disabled={saving} onClick={() => void dismiss(active)} className="rounded-lg px-4 py-2 text-[10px] disabled:opacity-40" style={{ border: '1px solid var(--t-border)', color: 'var(--t-faint)' }}>忽略候选</button>
-            <button type="button" disabled={saving || !form.title.trim()} onClick={() => void confirm()} className="flex-1 rounded-lg py-2 text-[10px] disabled:opacity-40" style={{ border: '1px solid rgba(212,168,67,.32)', background: 'rgba(212,168,67,.1)', color: 'var(--t-gold)' }}>{saving ? '正在保存…' : '确认并写入时间轴'}</button>
+            <button type="button" disabled={saving} onClick={() => void dismiss(active)} className="rounded-lg px-4 py-2 text-xs disabled:opacity-40" style={{ border: '1px solid var(--t-border)', color: 'var(--t-faint)' }}>忽略候选</button>
+            <button type="button" disabled={saving || !form.title.trim()} onClick={() => void confirm()} className="flex-1 rounded-lg py-2 text-xs disabled:opacity-40" style={{ border: '1px solid rgba(212,168,67,.32)', background: 'rgba(212,168,67,.1)', color: 'var(--t-gold)' }}>{saving ? '正在保存…' : '确认并写入时间轴'}</button>
           </div>
         </div>
       </div>
@@ -208,5 +230,5 @@ function changePrecision(form: CandidateForm, precision: LifeEventDatePrecision)
 }
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return <label className="block"><span className="mb-1.5 block text-[9px]" style={{ color: 'var(--t-faint)' }}>{label}</span>{children}</label>;
+  return <label className="block"><span className="mb-1.5 block text-xs" style={{ color: 'var(--t-faint)' }}>{label}</span>{children}</label>;
 }

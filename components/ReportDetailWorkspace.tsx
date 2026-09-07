@@ -1,6 +1,8 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import RequestFeedback from './RequestFeedback';
+import { useReportResource } from '@/lib/ui/use-report-resource';
+import { useCallback, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { REPORT_GENERATION_REASON_LABELS, type ReportDetail, type ReportEvidence } from '@/lib/reports/types';
 import ReportPdfExportButton from '@/components/ReportPdfExportButton';
@@ -18,30 +20,9 @@ export default function ReportDetailWorkspace({
   conversationType?: 'chart' | 'heming';
 }) {
   const router = useRouter();
-  const [detail, setDetail] = useState<ReportDetail | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [regenerating, setRegenerating] = useState(false);
-  const [error, setError] = useState('');
+  const { detail, loading, error, regenerating, processing, stalled, load, retry, regenerate } = useReportResource<ReportDetail>(`/api/reports/${reportId}`);
   const [userRevision, setUserRevision] = useState<ReportUserRevision | null>(null);
   const handleRevisionChange = useCallback((revision: ReportUserRevision | null) => setUserRevision(revision), []);
-
-  const load = useCallback(async (version?: number) => {
-    setLoading(true);
-    setError('');
-    try {
-      const query = version ? `?version=${version}` : '';
-      const response = await fetch(`/api/reports/${reportId}${query}`, { cache: 'no-store' });
-      const data = await response.json().catch(() => ({})) as ReportDetail & { error?: string };
-      if (!response.ok || !data.report) throw new Error(data.error || '报告加载失败');
-      setDetail(data);
-    } catch (loadError) {
-      setError(loadError instanceof Error ? loadError.message : '报告加载失败');
-    } finally {
-      setLoading(false);
-    }
-  }, [reportId]);
-
-  useEffect(() => { void load(); }, [load]);
 
   const evidenceBySection = useMemo(() => {
     const map = new Map<string, ReportEvidence[]>();
@@ -53,26 +34,11 @@ export default function ReportDetailWorkspace({
     return map;
   }, [detail?.evidence]);
 
-  const regenerate = async () => {
-    setRegenerating(true);
-    setError('');
-    try {
-      const response = await fetch(`/api/reports/${reportId}/regenerate`, { method: 'POST' });
-      const data = await response.json().catch(() => ({})) as ReportDetail & { error?: string };
-      if (!response.ok || !data.report) throw new Error(data.error || '报告重新生成失败');
-      setDetail(data);
-    } catch (regenerateError) {
-      setError(regenerateError instanceof Error ? regenerateError.message : '报告重新生成失败');
-    } finally {
-      setRegenerating(false);
-    }
-  };
-
   if (loading && !detail) {
-    return <main className="mx-auto max-w-[1000px] px-4 py-24 text-center text-sm" style={{ color: 'var(--t-faint)' }}>正在加载报告…</main>;
+    return <main className="mx-auto max-w-[1000px] px-4 py-24 text-center text-sm" style={{ color: 'var(--t-faint)' }}><RequestFeedback loading="正在加载报告…" /></main>;
   }
   if (!detail) {
-    return <main className="mx-auto max-w-[1000px] px-4 py-24 text-center text-sm text-red-500">{error || '报告不存在'}</main>;
+    return <main className="mx-auto max-w-[1000px] px-4 py-24 text-center text-sm text-red-500"><RequestFeedback error={error || '报告不存在'} onRetry={retry} /></main>;
   }
 
   const originalContent = detail.version?.content;
@@ -95,6 +61,8 @@ export default function ReportDetailWorkspace({
         </button>
         <div className="flex flex-wrap items-center gap-2">
           <select
+            aria-label="报告版本"
+            disabled={regenerating}
             value={detail.version?.version ?? ''}
             onChange={event => void load(Number(event.target.value))}
             className="rounded-lg px-3 py-2 text-xs"
@@ -134,6 +102,9 @@ export default function ReportDetailWorkspace({
         </div>
       </div>
 
+      <RequestFeedback loading={loading ? '正在更新报告…' : undefined} />
+      {(regenerating || processing) && <p role="status" className="my-3 text-sm">{stalled ? '本次生成等待较久，可能已中断。可重新生成，旧版本会保留。' : '报告正在生成，页面会自动更新。刷新后可从报告中心继续查看。'}</p>}
+      <button type="button" className="min-h-11 text-sm underline" disabled={loading} onClick={retry}>刷新报告状态</button>
       <ReportVersionComparePanel
         sourceKind={conversationType === 'heming' ? 'heming' : 'topic'}
         reportId={reportId}

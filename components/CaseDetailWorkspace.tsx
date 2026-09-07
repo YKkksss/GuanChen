@@ -93,19 +93,16 @@ export default function CaseDetailWorkspace({ caseId }: { caseId: string }) {
 
   async function deleteCase() {
     if (!record || !window.confirm(`确认永久删除 ${record.caseCode}？此操作会同时删除该案例的授权和审计记录，但不会删除原始命盘。`)) return;
-    const response = await fetch(`/api/cases/${caseId}`, {
-      method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ caseCode: record.caseCode }),
-    });
-    if (!response.ok) {
-      const data = await response.json().catch(() => ({})) as { error?: string };
-      setError(data.error || '删除失败');
-      return;
-    }
-    router.push('/cases');
+    setError('');
+    try {
+      const response = await fetch(`/api/cases/${caseId}`, { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ caseCode: record.caseCode }) });
+      if (!response.ok) throw new Error('删除失败，请重新读取案例核对后再试');
+      router.push('/cases');
+    } catch (cause) { setError(cause instanceof Error ? cause.message : '删除失败，请重试'); }
   }
 
   if (loading) return <PageState text="正在恢复匿名案例…" />;
-  if (!record) return <PageState text={error || '案例不存在'} error />;
+  if (!record) return <main className="p-6"><p role="alert">{error || '案例不存在'}</p><button type="button" className="min-h-11 underline" onClick={() => window.location.reload()}>重新读取</button></main>;
 
   const activeScopes = record.consents.filter(item => item.status === 'active').map(item => item.scope);
   const canExport = record.status === 'reviewed' && activeScopes.includes('anonymous_export');

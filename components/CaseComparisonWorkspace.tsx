@@ -46,17 +46,13 @@ export default function CaseComparisonWorkspace({ comparisonId }: { comparisonId
 
   async function archive() {
     if (!comparison) return;
-    const response = await fetch(`/api/case-comparisons/${comparison.id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status: comparison.status === 'active' ? 'archived' : 'active' }),
-    });
-    const data = await response.json() as { comparison?: CaseComparison; error?: string };
-    if (!response.ok || !data.comparison) {
-      setError(data.error || '对比记录状态更新失败');
-      return;
-    }
-    setComparison(data.comparison);
+    setError('');
+    try {
+      const response = await fetch(`/api/case-comparisons/${comparison.id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status: comparison.status === 'active' ? 'archived' : 'active' }) });
+      const data = await response.json() as { comparison?: CaseComparison; error?: string };
+      if (!response.ok || !data.comparison) throw new Error(data.error || '对比记录状态更新失败');
+      setComparison(data.comparison);
+    } catch (cause) { setError(cause instanceof Error ? cause.message : '对比记录状态更新失败，请重试'); }
   }
 
   if (loading) return <PageState text="正在读取确定性对比结果…" />;

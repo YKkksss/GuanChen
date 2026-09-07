@@ -1,5 +1,6 @@
 'use client';
 
+import RequestFeedback from './RequestFeedback';
 import { ArrowLeft, FileText, Scales, ShieldCheck } from '@phosphor-icons/react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -14,9 +15,11 @@ export default function RectificationReportsWorkspace({ sessionId }: { sessionId
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState('');
+  const [retry, setRetry] = useState(0);
 
   useEffect(() => {
     const controller = new AbortController();
+    setLoading(true); setError('');
     Promise.all([
       fetch(`/api/rectifications/${sessionId}`, { cache: 'no-store', signal: controller.signal }),
       fetch(`/api/rectifications/${sessionId}/evaluation`, { cache: 'no-store', signal: controller.signal }),
@@ -28,15 +31,16 @@ export default function RectificationReportsWorkspace({ sessionId }: { sessionId
       if (!sessionResponse.ok || !sessionData.session) throw new Error(sessionData.error || '校时会话加载失败');
       if (!evaluationResponse.ok) throw new Error(evaluationData.error || '评估状态加载失败');
       if (!reportsResponse.ok) throw new Error(reportsData.error || '报告列表加载失败');
+      if (controller.signal.aborted) return;
       setSession(sessionData.session);
       setEvaluation({ evaluation: evaluationData.evaluation, isCurrent: evaluationData.isCurrent });
       setReports(reportsData.reports ?? []);
     }).catch(loadError => {
       if (loadError instanceof DOMException && loadError.name === 'AbortError') return;
       setError(loadError instanceof Error ? loadError.message : '报告中心加载失败');
-    }).finally(() => setLoading(false));
+    }).finally(() => { if (!controller.signal.aborted) setLoading(false); });
     return () => controller.abort();
-  }, [sessionId]);
+  }, [sessionId, retry]);
 
   const report = reports[0];
   const generate = async () => {
@@ -53,8 +57,8 @@ export default function RectificationReportsWorkspace({ sessionId }: { sessionId
     } finally { setGenerating(false); }
   };
 
-  if (loading) return <State text="正在加载校时报告中心…" />;
-  if (!session) return <State text={error || '校时会话不存在'} error />;
+  if (loading) return <main className="mx-auto max-w-5xl p-6"><RequestFeedback loading="正在加载校时报告中心…" /></main>;
+  if (!session) return <main className="mx-auto max-w-5xl p-6"><RequestFeedback error={error || '档案读取失败'} onRetry={() => setRetry(value => value + 1)} /></main>;
   const ready = Boolean(evaluation.evaluation && evaluation.isCurrent);
 
   return (
@@ -74,7 +78,8 @@ export default function RectificationReportsWorkspace({ sessionId }: { sessionId
           </span>
         </div>
 
-        {error && <div className="mt-5 rounded-lg border px-4 py-3 text-sm" style={{ borderColor: 'rgba(168,50,40,.35)', color: 'var(--ji)' }}>{error}</div>}
+        <button type="button" className="min-h-11 text-sm underline" onClick={() => setRetry(value => value + 1)}>刷新报告列表</button>
+      {error && <div role="alert" className="mt-5 rounded-lg border px-4 py-3 text-sm" style={{ borderColor: 'rgba(168,50,40,.35)', color: 'var(--ji)' }}>{error}</div>}
 
         <section className="mt-7 grid gap-4 md:grid-cols-[1.6fr_1fr]">
           <article className="flex min-h-72 flex-col rounded-xl border p-6" style={{ borderColor: 'var(--bdr)', background: 'var(--bg-card)' }}>

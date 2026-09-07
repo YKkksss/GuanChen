@@ -1,5 +1,6 @@
 'use client';
 
+import RequestFeedback from './RequestFeedback';
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import type { Conversation } from '@/lib/conversations/types';
@@ -14,9 +15,11 @@ export default function HemingReportsWorkspace({ conversationId }: { conversatio
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState('');
+  const [retry, setRetry] = useState(0);
 
   useEffect(() => {
     const controller = new AbortController();
+    setLoading(true); setError('');
     Promise.all([
       fetch(`/api/conversations/${conversationId}`, { cache: 'no-store', signal: controller.signal }),
       fetch(`/api/conversations/${conversationId}/reports`, { cache: 'no-store', signal: controller.signal }),
@@ -27,6 +30,7 @@ export default function HemingReportsWorkspace({ conversationId }: { conversatio
         if (!conversationResponse.ok || !conversationData.conversation) throw new Error(conversationData.error || '合盘会话加载失败');
         if (conversationData.conversation.type !== 'heming') throw new Error('这不是合盘会话');
         if (!reportsResponse.ok) throw new Error(reportsData.error || '报告列表加载失败');
+        if (controller.signal.aborted) return;
         setConversation(conversationData.conversation);
         setReports(reportsData.reports ?? []);
       })
@@ -34,9 +38,9 @@ export default function HemingReportsWorkspace({ conversationId }: { conversatio
         if (loadError instanceof DOMException && loadError.name === 'AbortError') return;
         setError(loadError instanceof Error ? loadError.message : '合盘报告中心加载失败');
       })
-      .finally(() => setLoading(false));
+      .finally(() => { if (!controller.signal.aborted) setLoading(false); });
     return () => controller.abort();
-  }, [conversationId]);
+  }, [conversationId, retry]);
 
   const report = useMemo(
     () => reports.find(item => item.type === 'relationship'),
@@ -62,8 +66,8 @@ export default function HemingReportsWorkspace({ conversationId }: { conversatio
     }
   }
 
-  if (loading) return <PageState text="正在加载合盘报告中心…" />;
-  if (!conversation) return <PageState text={error || '合盘会话不存在'} error />;
+  if (loading) return <main className="mx-auto max-w-5xl p-6"><RequestFeedback loading="正在加载合盘报告中心…" /></main>;
+  if (!conversation) return <main className="mx-auto max-w-5xl p-6"><RequestFeedback error={error || '档案读取失败'} onRetry={() => setRetry(value => value + 1)} /></main>;
   const relationship = conversation.relationshipType
     ? getRelationshipDefinition(conversation.relationshipType)
     : null;
@@ -78,7 +82,8 @@ export default function HemingReportsWorkspace({ conversationId }: { conversatio
         </p>
       </div>
 
-      {error && <div className="mb-5 rounded-lg px-4 py-3 text-xs text-red-500" style={{ border: '1px solid rgba(239,68,68,.25)' }}>{error}</div>}
+      <button type="button" className="min-h-11 text-sm underline" onClick={() => setRetry(value => value + 1)}>刷新报告列表</button>
+      {error && <div role="alert" className="mb-5 rounded-lg px-4 py-3 text-xs text-red-500" style={{ border: '1px solid rgba(239,68,68,.25)' }}>{error}</div>}
 
       <article className="rounded-xl card-glass p-6 sm:p-8">
         <div className="text-[10px] font-medium tracking-[.2em]" style={{ color: 'var(--t-gold)' }}>双命盘 · 关系专题</div>

@@ -21,6 +21,7 @@ export default function CaseLibraryWorkspace() {
   const [managedCases, setManagedCases] = useState<CaseListItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [retry, setRetry] = useState(0);
   const activeFilterCount = useMemo(() => Object.values(filters).filter(value => value.trim()).length, [filters]);
 
   useEffect(() => {
@@ -35,16 +36,16 @@ export default function CaseLibraryWorkspace() {
         .then(async response => {
           const data = await response.json().catch(() => ({})) as CaseSearchResponse & { error?: string };
           if (!response.ok) throw new Error(data.error || '教学案例检索失败');
-          setSearchResult(data);
+          if (!controller.signal.aborted) setSearchResult(data);
         })
         .catch(loadError => {
           if (loadError instanceof DOMException && loadError.name === 'AbortError') return;
           setError(loadError instanceof Error ? loadError.message : '教学案例检索失败');
         })
-        .finally(() => setLoading(false));
+        .finally(() => { if (!controller.signal.aborted) setLoading(false); });
     }, 220);
     return () => { window.clearTimeout(timer); controller.abort(); };
-  }, [filters, view]);
+  }, [filters, view, retry]);
 
   useEffect(() => {
     if (view !== 'manage') return;
@@ -56,15 +57,15 @@ export default function CaseLibraryWorkspace() {
       .then(async response => {
         const data = await response.json().catch(() => ({})) as { cases?: CaseListItem[]; error?: string };
         if (!response.ok) throw new Error(data.error || '案例列表加载失败');
-        setManagedCases(data.cases ?? []);
+        if (!controller.signal.aborted) setManagedCases(data.cases ?? []);
       })
       .catch(loadError => {
         if (loadError instanceof DOMException && loadError.name === 'AbortError') return;
         setError(loadError instanceof Error ? loadError.message : '案例列表加载失败');
       })
-      .finally(() => setLoading(false));
+      .finally(() => { if (!controller.signal.aborted) setLoading(false); });
     return () => controller.abort();
-  }, [status, view]);
+  }, [status, view, retry]);
 
   const items = view === 'teaching' ? searchResult.cases : managedCases;
   return (
@@ -93,7 +94,7 @@ export default function CaseLibraryWorkspace() {
         <section className="mb-6 rounded-xl card-glass p-4"><div className="flex flex-wrap gap-2">{STATUS_OPTIONS.map(option => <button key={option.value} type="button" onClick={() => setStatus(option.value)} className="rounded-lg px-3.5 py-2 text-[11px] transition" style={status === option.value ? { color: '#fffaf3', background: 'var(--ac)' } : { color: 'var(--t-text2)', border: '1px solid var(--t-border)' }}>{option.label}</button>)}</div></section>
       )}
 
-      {error && <PageState text={error} error />}
+      {error && <div role="alert"><PageState text={error} error /><button className="min-h-11 text-sm underline" type="button" onClick={() => setRetry(value => value + 1)}>重新读取</button></div>}
       {loading && !error && <PageState text={view === 'teaching' ? '正在检索匿名教学案例…' : '正在读取本地案例…'} />}
       {!loading && !error && !items.length && (
         <section className="rounded-2xl card-glass px-6 py-20 text-center">

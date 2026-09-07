@@ -22,9 +22,11 @@ export default function CaseCreationWorkspace() {
   const [previewing, setPreviewing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const [retry, setRetry] = useState(0);
 
   useEffect(() => {
     const controller = new AbortController();
+    setLoading(true); setError('');
     fetch('/api/conversations?type=chart&limit=100', { cache: 'no-store', signal: controller.signal })
       .then(async response => {
         const data = await response.json().catch(() => ({})) as { conversations?: ConversationListItem[]; error?: string };
@@ -35,9 +37,9 @@ export default function CaseCreationWorkspace() {
         if (loadError instanceof DOMException && loadError.name === 'AbortError') return;
         setError(loadError instanceof Error ? loadError.message : '命盘列表加载失败');
       })
-      .finally(() => setLoading(false));
+      .finally(() => { if (!controller.signal.aborted) setLoading(false); });
     return () => controller.abort();
-  }, []);
+  }, [retry]);
 
   async function generatePreview() {
     if (!conversationId) return;
@@ -92,6 +94,7 @@ export default function CaseCreationWorkspace() {
         <p className="mt-3 max-w-3xl text-xs leading-7" style={{ color: 'var(--t-text2)' }}>整个过程分为选择命盘、查看脱敏结果、明确用途三步。生成预览不会写入案例库。</p>
       </header>
 
+      {error && <button type="button" className="min-h-11 text-sm underline" onClick={() => setRetry(value => value + 1)}>重新读取命盘列表</button>}
       {error && <div className="mb-5 rounded-lg px-4 py-3 text-xs text-red-500" style={{ border: '1px solid rgba(239,68,68,.25)' }}>{error}</div>}
 
       <section className="rounded-2xl card-glass p-5 sm:p-6">
@@ -101,6 +104,8 @@ export default function CaseCreationWorkspace() {
         ) : charts.length ? (
           <div className="mt-5 flex flex-col gap-3 sm:flex-row">
             <select
+              aria-label="选择命盘"
+              disabled={previewing || saving}
               value={conversationId}
               onChange={event => { setConversationId(event.target.value); setPreview(null); setAcknowledged(false); }}
               className="min-w-0 flex-1 rounded-lg px-3 py-3 text-xs outline-none"

@@ -1,5 +1,6 @@
 'use client';
 
+import RequestFeedback from './RequestFeedback';
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import type { Conversation } from '@/lib/conversations/types';
@@ -13,6 +14,7 @@ export default function ReportsWorkspace({ conversationId }: { conversationId: s
   const [loading, setLoading] = useState(true);
   const [generatingType, setGeneratingType] = useState<ReportType | null>(null);
   const [error, setError] = useState('');
+  const [retry, setRetry] = useState(0);
 
   const reportsByType = useMemo(
     () => new Map(reports.map(report => [report.type, report])),
@@ -34,6 +36,7 @@ export default function ReportsWorkspace({ conversationId }: { conversationId: s
           throw new Error(conversationData.error || '命盘会话加载失败');
         }
         if (!reportsResponse.ok) throw new Error(reportsData.error || '报告列表加载失败');
+        if (controller.signal.aborted) return;
         setConversation(conversationData.conversation);
         setReports(reportsData.reports ?? []);
       })
@@ -41,9 +44,9 @@ export default function ReportsWorkspace({ conversationId }: { conversationId: s
         if (loadError instanceof DOMException && loadError.name === 'AbortError') return;
         setError(loadError instanceof Error ? loadError.message : '报告中心加载失败');
       })
-      .finally(() => setLoading(false));
+      .finally(() => { if (!controller.signal.aborted) setLoading(false); });
     return () => controller.abort();
-  }, [conversationId]);
+  }, [conversationId, retry]);
 
   const generate = async (type: ReportType) => {
     setGeneratingType(type);
@@ -65,11 +68,11 @@ export default function ReportsWorkspace({ conversationId }: { conversationId: s
   };
 
   if (loading) {
-    return <PageState text="正在加载报告中心…" />;
+    return <main className="p-6"><RequestFeedback loading="正在加载报告中心…" /></main>;
   }
 
   if (error && !conversation) {
-    return <PageState text={error} error />;
+    return <main className="p-6"><RequestFeedback error={error} onRetry={() => setRetry(value => value + 1)} /></main>;
   }
 
   return (
@@ -99,11 +102,8 @@ export default function ReportsWorkspace({ conversationId }: { conversationId: s
         </button>
       </div>
 
-      {error && (
-        <div className="mb-5 rounded-lg px-4 py-3 text-xs text-red-500" style={{ border: '1px solid rgba(239,68,68,.25)' }}>
-          {error}
-        </div>
-      )}
+      <button type="button" className="min-h-11 text-sm underline" onClick={() => setRetry(value => value + 1)}>刷新报告列表</button>
+      <RequestFeedback error={error} />
 
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {REPORT_TYPES.map(type => {
