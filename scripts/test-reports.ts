@@ -19,7 +19,7 @@ async function main() {
     listReports,
   } = await import('../lib/db/reports');
   const { buildReportEvidence } = await import('../lib/reports/facts');
-  const { buildTopicReportMessages, parseAndValidateReportContent } = await import('../lib/reports/service');
+  const { buildTopicReportMessages, parseAndValidateReportContent, generateTopicReport } = await import('../lib/reports/service');
   const { REPORT_TYPE_DEFINITIONS } = await import('../lib/reports/types');
 
   try {
@@ -48,7 +48,7 @@ async function main() {
       sections: definition.sectionKeys.map(section => ({
         ...section,
         content: `${section.title}的测试内容，结论来自确定性命盘事实。`,
-        evidenceIds: [validEvidenceId, 'invalid:evidence'],
+        evidenceIds: [validEvidenceId],
       })),
       actionItems: ['保留阶段记录', '结合现实反馈复盘'],
       openQuestions: ['当前工作的真实体验是否与报告描述一致？'],
@@ -58,6 +58,24 @@ async function main() {
     assert.equal(content.sections.length, definition.sectionKeys.length);
     assert.deepEqual(content.sections[0].evidenceIds, [validEvidenceId]);
     assert.equal(content.sections[0].basis, 'evidence');
+
+    const invalidReference = JSON.parse(rawContent);
+    invalidReference.sections[0].evidenceIds.push('invalid:evidence');
+    assert.throws(() => parseAndValidateReportContent(JSON.stringify(invalidReference), 'career', evidence), /未知证据/);
+    const duplicate = JSON.parse(rawContent);
+    duplicate.sections[1] = duplicate.sections[0];
+    assert.throws(() => parseAndValidateReportContent(JSON.stringify(duplicate), 'career', evidence), /完整且唯一/);
+    const repeated = JSON.parse(rawContent);
+    repeated.sections[1].content = repeated.sections[0].content;
+    assert.throws(() => parseAndValidateReportContent(JSON.stringify(repeated), 'career', evidence), /重复/);
+    const synthesis = JSON.parse(rawContent);
+    synthesis.sections[0].evidenceIds = [];
+    assert.throws(() => parseAndValidateReportContent(JSON.stringify(synthesis), 'career', evidence), /综合观察/);
+    synthesis.sections[0].content = '综合观察：需要结合实际工作反馈继续核对。';
+    assert.equal(parseAndValidateReportContent(JSON.stringify(synthesis), 'career', evidence).sections[0].basis, 'synthesis');
+    const noActions = JSON.parse(rawContent);
+    noActions.actionItems = [];
+    assert.throws(() => parseAndValidateReportContent(JSON.stringify(noActions), 'career', evidence), /可操作建议/);
 
     const report = getOrCreateReport(conversation.id, 'career');
     assert.equal(getOrCreateReport(conversation.id, 'career').id, report.id, '同一会话同类报告必须复用主记录');
@@ -144,6 +162,45 @@ async function main() {
     assert.equal(detailV3.version?.version, 3);
     assert.equal(detailV3.versions.length, 3);
     assert.equal(listReports(conversation.id)[0].versionCount, 3);
+
+    // 实际生成服务使用合成数据库和模拟响应，不调用真实供应商。
+    process.env.AI_PROVIDER = 'deepseek';
+    process.env.DEEPSEEK_API_KEY = 'local-test';
+    process.env.DEEPSEEK_BASE_URL = 'http://127.0.0.1:30003';
+    const originalFetch = globalThis.fetch;
+    let calls = 0;
+    let alwaysInvalid = false;
+    try {
+      globalThis.fetch = async (url, init) => {
+        assert.equal(String(url), 'http://127.0.0.1:30003/chat/completions');
+        calls++;
+        const request = JSON.parse(String(init?.body));
+        if (calls === 2) {
+          assert.match(request.messages.at(-1).content, /未知证据/);
+          assert.match(request.messages[1].content, /可引用的权威证据/);
+        }
+        return new Response(JSON.stringify({
+          choices: [{ message: { content: alwaysInvalid || calls === 1 ? JSON.stringify(invalidReference) : rawContent } }],
+          usage: { prompt_tokens: 100, completion_tokens: 200 },
+        }), { status: 200 });
+      };
+      const repaired = await generateTopicReport({ conversationId: conversation.id, type: 'career', regenerate: true });
+      assert.equal(calls, 2, '内容失败仅修正一次');
+      assert.equal(repaired.version?.version, 4);
+      assert.equal(repaired.version?.inputTokens, 200);
+      assert.equal(repaired.version?.outputTokens, 400);
+      alwaysInvalid = true;
+      calls = 0;
+      await assert.rejects(generateTopicReport({ conversationId: conversation.id, type: 'career', regenerate: true }), /未知证据/);
+      assert.equal(calls, 2, '修正失败不无限重试');
+      assert.equal(getReportDetail(report.id)?.version?.version, 4, '修正失败保留旧完成版');
+      calls = 0;
+      globalThis.fetch = async () => { calls++; return new Response('模拟故障', { status: 503 }); };
+      await assert.rejects(generateTopicReport({ conversationId: conversation.id, type: 'career', regenerate: true }), /503/);
+      assert.equal(calls, 1, '网络故障不触发内容修正');
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
 
     const migration = getDatabase().prepare('SELECT version FROM schema_migrations WHERE version = 6').get();
     assert.ok(migration, '数据库第 6 版迁移必须存在');
