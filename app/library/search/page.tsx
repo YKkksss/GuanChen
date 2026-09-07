@@ -3,16 +3,19 @@
  */
 
 import Link from 'next/link';
+import LibrarySearch from '../LibrarySearch';
 import { searchClassics, getParagraphById } from '@/lib/classics';
 
 export const metadata = {
   title: '搜索 · 古籍原典库',
 };
 
-export default async function SearchPage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
+export default async function SearchPage({ searchParams }: { searchParams: Promise<{ q?: string | string[] }> }) {
   const sp = await searchParams;
-  const q = sp.q?.trim() || '';
-  const hits = q ? searchClassics(q, 50) : [];
+  const q = (Array.isArray(sp.q) ? sp.q[0] : sp.q)?.trim().slice(0, 100) || '';
+  const matches = q ? searchClassics(q, 51) : [];
+  const hits = matches.slice(0, 50);
+  const hasMore = matches.length > 50;
 
   return (
     <div style={{ background: 'var(--bg-page)', minHeight: '100vh' }}>
@@ -30,7 +33,9 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
       </div>
 
       <div className="max-w-3xl mx-auto px-6 py-12">
-        <div className="text-center mb-10">
+        <LibrarySearch initialQuery={q} />
+        <p className="mt-3 text-sm" style={{ color: 'var(--tx-3)' }}>仅检索已收录的段落与节选，按字面匹配；暂不支持繁简转换。</p>
+        <div className="text-center my-8 break-words">
           <div style={{ fontSize: '13px', color: 'var(--tx-3)', letterSpacing: '0.15em', marginBottom: '4px' }}>
             搜索关键词
           </div>
@@ -38,7 +43,8 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
             「{q || '（空）'}」
           </h1>
           <div style={{ fontSize: '12px', color: 'var(--tx-3)', marginTop: '8px' }}>
-            共找到 <strong style={{ color: 'var(--ac)' }}>{hits.length}</strong> 条古籍原文匹配
+            {hasMore ? '已显示前' : '在已收录内容中找到'} <strong style={{ color: 'var(--ac)' }}>{hits.length}</strong> 条匹配
+            {hasMore && <p>还有更多结果，请增加关键词缩小范围。</p>}
           </div>
         </div>
 

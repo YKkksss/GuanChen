@@ -1,70 +1,11 @@
-'use client';
+import Link from 'next/link';
 
-/**
- * 古籍库搜索框 — client component
- *
- * 输入 → 实时搜索 → 跳转 /library/search?q=xxx
- */
-
-import { useState, useTransition } from 'react';
-import { useRouter } from 'next/navigation';
-
-export default function LibrarySearch() {
-  const [q, setQ] = useState('');
-  const [isPending, startTransition] = useTransition();
-  const router = useRouter();
-
-  const submit = () => {
-    const query = q.trim();
-    if (!query) return;
-    startTransition(() => {
-      router.push(`/library/search?q=${encodeURIComponent(query)}`);
-    });
-  };
-
-  return (
-    <div style={{
-      display: 'flex',
-      gap: '8px',
-      padding: '6px',
-      background: 'var(--bg-card)',
-      border: '1px solid rgba(184,146,42,0.3)',
-      borderRadius: '12px',
-      boxShadow: '0 4px 16px rgba(184,146,42,0.08)',
-    }}>
-      <input
-        value={q}
-        onChange={e => setQ(e.target.value)}
-        onKeyDown={e => e.key === 'Enter' && submit()}
-        placeholder="搜索古籍原文，如：七杀朝斗 / 双禄朝垣 / 化忌"
-        style={{
-          flex: 1,
-          padding: '10px 14px',
-          border: 'none',
-          outline: 'none',
-          fontSize: '14px',
-          color: 'var(--tx-0)',
-          background: 'transparent',
-        }}
-      />
-      <button
-        onClick={submit}
-        disabled={isPending || !q.trim()}
-        style={{
-          padding: '10px 22px',
-          borderRadius: '8px',
-          border: 'none',
-          background: 'linear-gradient(135deg, #d4a948 0%, #b8922a 100%)',
-          color: 'white',
-          fontSize: '13px',
-          fontWeight: 600,
-          letterSpacing: '0.15em',
-          cursor: q.trim() ? 'pointer' : 'not-allowed',
-          opacity: q.trim() ? 1 : 0.5,
-        }}
-      >
-        {isPending ? '…' : '搜索'}
-      </button>
-    </div>
-  );
+/** 搜索入口和结果页共用原生表单，支持键盘及无脚本提交。 */
+export default function LibrarySearch({ initialQuery = '' }: { initialQuery?: string }) {
+  return <form action="/library/search" method="get" role="search" className="flex flex-wrap gap-2 rounded-xl border p-2" style={{ borderColor: 'var(--t-border)', background: 'var(--bg-card)' }}>
+    <label htmlFor="classics-query" className="sr-only">检索已收录古籍内容</label>
+    <input key={initialQuery} id="classics-query" name="q" type="search" defaultValue={initialQuery} maxLength={100} required className="min-h-11 min-w-0 flex-1 rounded-lg px-3" style={{ color: 'var(--t-text)', background: 'var(--bg-card)' }} placeholder="输入关键词，如：紫微、命宫" />
+    <button type="submit" className="min-h-11 rounded-lg px-5" style={{ background: 'var(--ac)', color: 'white' }}>搜索</button>
+    {initialQuery && <Link className="flex min-h-11 items-center px-3" href="/library/search">清空</Link>}
+  </form>;
 }

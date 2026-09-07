@@ -35,6 +35,10 @@ function main() {
     RECTIFICATION_METHODOLOGY.timePolicy.slots.map(item => item.key),
     [...RECTIFICATION_TIME_SLOT_KEYS],
   );
+  assert.equal(getRectificationTimeSlot('early_zi').apparentSolarStart, '00:00');
+  assert.equal(getRectificationTimeSlot('early_zi').apparentSolarEnd, '00:59');
+  assert.equal(getRectificationTimeSlot('late_zi').apparentSolarStart, '23:00');
+  assert.equal(getRectificationTimeSlot('late_zi').apparentSolarEnd, '23:59');
   assert.equal(getRectificationTimeSlot('early_zi').engineTimeIndex, 0);
   assert.equal(getRectificationTimeSlot('late_zi').engineTimeIndex, 12);
   assert.equal(getRectificationTimeSlot('late_zi').branchIndex, 0);

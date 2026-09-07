@@ -10,7 +10,7 @@ import LibrarySearch from './LibrarySearch';
 
 export const metadata = {
   title: '倪师方法论 · 古籍原典库 · 紫微斗数全集 / 全书 / 骨髓赋',
-  description: '紫微斗数权威古籍全文检索：《紫微斗数全集》《紫微斗数全书》《骨髓赋》倪海夏《天纪》引证来源',
+  description: '紫微斗数古籍已收录内容检索：《紫微斗数全集》《紫微斗数全书》《骨髓赋》倪海夏《天纪》引证来源',
 };
 
 export default function LibraryHomePage() {
@@ -41,7 +41,7 @@ export default function LibraryHomePage() {
           倪师方法论 · 古籍原典库
         </h1>
         <p style={{ fontSize: '14px', color: 'var(--tx-2)', letterSpacing: '0.1em', maxWidth: '600px', margin: '0 auto', lineHeight: 1.7 }}>
-          紫微斗数权威古籍全文检索<br />
+          紫微斗数古籍已收录内容检索<br />
           收录 <strong style={{ color: 'var(--ac)' }}>{ALL_BOOKS.length}</strong> 部古籍 · 共 <strong style={{ color: 'var(--ac)' }}>{TOTAL_PARAGRAPHS}</strong> 段精华
         </p>
       </div>

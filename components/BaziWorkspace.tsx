@@ -17,7 +17,7 @@ import {
   Trash,
   Warning,
 } from '@phosphor-icons/react';
-import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
+import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import type {
   BaziBirthProfileDetail,
@@ -148,6 +148,8 @@ export default function BaziWorkspace() {
   const [saving, setSaving] = useState(false);
   const [startingChat, setStartingChat] = useState(false);
   const [busyId, setBusyId] = useState('');
+  const profileRequest = useRef<AbortController | null>(null);
+  useEffect(() => () => profileRequest.current?.abort(), []);
   const [error, setError] = useState('');
   const [calculationNotice, setCalculationNotice] = useState('');
   const [selectedAnnualYear, setSelectedAnnualYear] = useState(new Date().getFullYear());
@@ -375,15 +377,18 @@ export default function BaziWorkspace() {
   };
 
   const openProfile = async (id: string) => {
+    profileRequest.current?.abort();
+    const request = new AbortController();
+    profileRequest.current = request;
     setBusyId(id);
     setError('');
     try {
-      const profile = await fetchProfile(id);
-      applyProfile(profile);
+      const profile = await fetchProfile(id, request.signal);
+      if (!request.signal.aborted && profileRequest.current === request) applyProfile(profile);
     } catch (openError) {
-      setError(openError instanceof Error ? openError.message : '出生档案读取失败');
+      if (!request.signal.aborted && profileRequest.current === request) setError(openError instanceof Error ? openError.message : '出生档案读取失败');
     } finally {
-      setBusyId('');
+      if (profileRequest.current === request) { profileRequest.current = null; setBusyId(''); }
     }
   };
 
@@ -409,6 +414,9 @@ export default function BaziWorkspace() {
   };
 
   const startNewProfile = () => {
+    profileRequest.current?.abort();
+    profileRequest.current = null;
+    setBusyId('');
     setSelectedProfile(null);
     setCurrentChartId(null);
     setResult(null);
@@ -1899,8 +1907,8 @@ function formatMinutes(value: number): string {
   return `${value >= 0 ? '+' : ''}${value.toFixed(2)} 分钟`;
 }
 
-async function fetchProfile(id: string): Promise<BaziBirthProfileDetail> {
-  const response = await fetch(`/api/bazi/profiles/${id}`, { cache: 'no-store' });
+async function fetchProfile(id: string, signal?: AbortSignal): Promise<BaziBirthProfileDetail> {
+  const response = await fetch(`/api/bazi/profiles/${id}`, { cache: 'no-store', signal });
   const data = await response.json() as { profile?: BaziBirthProfileDetail; error?: string };
   if (!response.ok || !data.profile) throw new Error(data.error || '出生档案读取失败');
   return data.profile;

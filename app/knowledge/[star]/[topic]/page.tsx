@@ -47,7 +47,7 @@ export async function generateMetadata({ params }: { params: Promise<{ star: str
   if (!data.exists) return {};
   const palaceName = formatPalaceName(data.palaceName);
 
-  const title = `${star}入${palaceName} · ${data.topicLabel} · 倪海夏体系详解`;
+  const title = `${star}入${palaceName} · ${data.topicLabel} · ${data.contentStatus === 'brief' ? '基础简版' : '已收录解读'}`;
   const description = data.parsed.dingdiao
     || `${star}入${palaceName}的紫微斗数解读 — 基于倪海夏《天纪》体系与古籍《紫微斗数全集》《骨髓赋》。`;
 
@@ -136,7 +136,7 @@ export default async function KnowledgePage({ params }: { params: Promise<{ star
         {/* 标题区 */}
         <header style={{ marginBottom: '36px' }}>
           <div style={{ fontSize: '11px', color: 'var(--tx-3)', letterSpacing: '0.25em', marginBottom: '8px' }}>
-            {data.topicLabel} · 倪海夏体系详解
+            {data.topicLabel} · {data.contentStatus === 'brief' ? '基础简版' : '已收录解读'}
           </div>
           <h1 style={{ fontSize: 'clamp(28px, 5vw, 44px)', fontWeight: 700, color: 'var(--tx-0)', letterSpacing: '0.1em', lineHeight: 1.2 }}>
             {star}入{palaceName}
@@ -148,6 +148,7 @@ export default async function KnowledgePage({ params }: { params: Promise<{ star
           )}
         </header>
 
+        {data.contentStatus === 'brief' && <p className="mb-6 rounded-lg border p-4 text-sm leading-7" style={{ borderColor: 'var(--t-border)', color: 'var(--tx-2)' }}>当前提供已收录的主星基础简介，其他宫位专题尚未收录，不代表完整的命盘解读。</p>}
         {/* 内容 4 段 */}
         {data.parsed.dingdiao && (
           <Section title="一句话定调" gradient>
@@ -213,7 +214,7 @@ export default async function KnowledgePage({ params }: { params: Promise<{ star
         </div>
 
         {/* 内链：同主星其他 topic */}
-        <Section title={`${star}星的其他宫位解读`} minimal>
+        {otherTopicsForStar.length > 0 && <Section title={`${star}星的其他宫位解读`} minimal>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
             {otherTopicsForStar.map(t => {
               const d = getKnowledge(star, t);
@@ -236,7 +237,7 @@ export default async function KnowledgePage({ params }: { params: Promise<{ star
               );
             })}
           </div>
-        </Section>
+        </Section>}
 
         {/* 内链：同 topic 其他主星 */}
         <Section title={`其他主星入${palaceName}的解读`} minimal>

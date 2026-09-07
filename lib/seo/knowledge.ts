@@ -135,6 +135,7 @@ export interface KnowledgeData {
   palaceName: string;
   parsed: ParsedContent;
   exists: boolean;
+  contentStatus: 'collected' | 'brief' | 'missing';
 }
 
 export function getKnowledge(star: string, topic: TopicKey): KnowledgeData {
@@ -149,6 +150,7 @@ export function getKnowledge(star: string, topic: TopicKey): KnowledgeData {
     palaceName: TOPIC_PALACE_NAME[topic],
     parsed: parseStarContent(content),
     exists: Boolean(content),
+    contentStatus: fullContent ? 'collected' : content ? 'brief' : 'missing',
   };
 }
 

@@ -18,23 +18,13 @@ import type {
   RectificationTimeSlotKey,
   ReportedTimeSource,
 } from '@/lib/rectification/types';
+import { RECTIFICATION_METHODOLOGY } from '@/lib/rectification/methodology';
 import type { BirthInfo } from '@/lib/ziwei/types';
 
-const TIME_SLOTS: Array<{ key: RectificationTimeSlotKey; label: string; range: string }> = [
-  { key: 'early_zi', label: '早子', range: '23:00-00:00' },
-  { key: 'chou', label: '丑时', range: '01:00-03:00' },
-  { key: 'yin', label: '寅时', range: '03:00-05:00' },
-  { key: 'mao', label: '卯时', range: '05:00-07:00' },
-  { key: 'chen', label: '辰时', range: '07:00-09:00' },
-  { key: 'si', label: '巳时', range: '09:00-11:00' },
-  { key: 'wu', label: '午时', range: '11:00-13:00' },
-  { key: 'wei', label: '未时', range: '13:00-15:00' },
-  { key: 'shen', label: '申时', range: '15:00-17:00' },
-  { key: 'you', label: '酉时', range: '17:00-19:00' },
-  { key: 'xu', label: '戌时', range: '19:00-21:00' },
-  { key: 'hai', label: '亥时', range: '21:00-23:00' },
-  { key: 'late_zi', label: '晚子', range: '00:00-01:00' },
-];
+// 直接沿用计算规则的时段定义，避免录入说明与实际候选不一致。
+const TIME_SLOTS = RECTIFICATION_METHODOLOGY.timePolicy.slots.map(slot => ({
+  key: slot.key, label: slot.label, range: `${slot.apparentSolarStart}–${slot.apparentSolarEnd}`,
+}));
 
 const STATUS_LABELS: Record<RectificationStatus, string> = {
   draft: '草稿',

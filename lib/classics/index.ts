@@ -55,7 +55,7 @@ export function getParagraphById(id: string) {
  * 全文搜索
  *
  * 简单子字符串匹配（不分词，对中文 OK）
- * 大小写不敏感、繁简转换暂不支持
+ * 按字面匹配，区分大小写；繁简转换暂不支持
  */
 export function searchClassics(query: string, limit = 30): SearchHit[] {
   const q = query.trim();
