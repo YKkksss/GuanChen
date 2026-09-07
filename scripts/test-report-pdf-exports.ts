@@ -6,10 +6,6 @@ import path from 'node:path';
 const tempDirectory = mkdtempSync(path.join(tmpdir(), 'ziwei-report-pdf-test-'));
 process.env.SQLITE_PATH = path.join(tempDirectory, 'test.sqlite');
 process.env.REPORT_EXPORT_DIR = path.join(tempDirectory, 'exports');
-if (existsSync('C:\\Windows\\Fonts\\NotoSansSC-VF.ttf')) {
-  process.env.REPORT_PDF_FONT_PATH = 'C:\\Windows\\Fonts\\NotoSansSC-VF.ttf';
-  process.env.REPORT_PDF_BOLD_FONT_PATH = 'C:\\Windows\\Fonts\\NotoSansSC-VF.ttf';
-}
 
 async function main() {
   const { generateChart } = await import('../lib/ziwei/algorithm');
@@ -85,6 +81,11 @@ async function main() {
 
     const first = await ensureReportPdfExport({ sourceKind: 'topic', reportId: report.id, version: 1 });
     assert.equal(first.reused, false);
+    assert.equal(first.record.rendererVersion, 'report-pdf-v2');
+    if (process.env.PDF_REVIEW_OUTPUT) {
+      const exported = await readReportExportFile(first.record.id);
+      writeFileSync(process.env.PDF_REVIEW_OUTPUT, exported.buffer);
+    }
     assert.equal(first.record.status, 'completed');
     assert.equal(first.record.sourceVersionId, claim.version.id);
     assert.ok((first.record.byteSize ?? 0) > 20_000, '嵌入中文字体后的 PDF 文件不应异常偏小');

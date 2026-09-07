@@ -3,18 +3,16 @@ import path from 'node:path';
 import PDFDocument from 'pdfkit';
 import type { ReportExportDocument, ReportExportSection } from './types';
 
-export const REPORT_PDF_RENDERER_VERSION = 'report-pdf-v1';
+export const REPORT_PDF_RENDERER_VERSION = 'report-pdf-v2';
 
 const PAGE_MARGIN = 54;
 const COLORS = {
-  ink: '#172033',
-  text: '#344054',
-  muted: '#667085',
-  faint: '#98a2b3',
-  gold: '#93651f',
-  goldSoft: '#f8f2e7',
-  rule: '#e4e7ec',
-  paper: '#ffffff',
+  ink: '#111111',
+  text: '#171717',
+  muted: '#333333',
+  faint: '#333333',
+  gold: '#111111',
+  rule: '#b8b8b8',
 };
 
 interface FontSet {
@@ -70,7 +68,6 @@ export function resolvePdfFonts(): FontSet {
   const regularCandidates = [
     process.env.REPORT_PDF_FONT_PATH,
     path.join(process.cwd(), 'assets', 'fonts', 'NotoSansSC-Regular.ttf'),
-    'C:\\Windows\\Fonts\\NotoSansSC-VF.ttf',
     'C:\\Windows\\Fonts\\Deng.ttf',
     'C:\\Windows\\Fonts\\msyh.ttc',
     '/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc',
@@ -80,7 +77,6 @@ export function resolvePdfFonts(): FontSet {
   const boldCandidates = [
     process.env.REPORT_PDF_BOLD_FONT_PATH,
     path.join(process.cwd(), 'assets', 'fonts', 'NotoSansSC-Bold.ttf'),
-    'C:\\Windows\\Fonts\\NotoSansSC-VF.ttf',
     'C:\\Windows\\Fonts\\Dengb.ttf',
     'C:\\Windows\\Fonts\\msyhbd.ttc',
     '/usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc',
@@ -97,7 +93,7 @@ export function resolvePdfFonts(): FontSet {
 
 function drawCover(pdf: PDFKit.PDFDocument, document: ReportExportDocument) {
   const width = contentWidth(pdf);
-  pdf.font('ReportRegular').fontSize(8).fillColor(COLORS.gold)
+  pdf.font('ReportRegular').fontSize(10).fillColor(COLORS.gold)
     .text(sanitizePdfText(document.categoryLabel), PAGE_MARGIN, PAGE_MARGIN, {
       width,
       characterSpacing: 1.4,
@@ -110,60 +106,37 @@ function drawCover(pdf: PDFKit.PDFDocument, document: ReportExportDocument) {
   const completed = document.sourceCompletedAt
     ? formatDateTime(document.sourceCompletedAt)
     : '未记录';
-  pdf.font('ReportRegular').fontSize(8.5).fillColor(COLORS.muted)
+  pdf.font('ReportRegular').fontSize(10).fillColor(COLORS.muted)
     .text(sanitizePdfText(`${document.versionLabel} · 报告完成于 ${completed}`), {
       width,
       align: 'center',
     });
   pdf.moveDown(2.2);
 
-  const startY = pdf.y;
-  const columnWidth = (width - 16) / 2;
-  const rowHeight = 34;
-  const rows = Math.ceil(document.metadata.length / 2);
-  pdf.save().roundedRect(PAGE_MARGIN, startY, width, rows * rowHeight + 14, 8)
-    .fill(COLORS.goldSoft).restore();
-  document.metadata.forEach((item, index) => {
-    const column = index % 2;
-    const row = Math.floor(index / 2);
-    const x = PAGE_MARGIN + 10 + column * (columnWidth + 6);
-    const y = startY + 10 + row * rowHeight;
-    pdf.font('ReportRegular').fontSize(7.2).fillColor(COLORS.muted)
-      .text(sanitizePdfText(item.label), x, y, { width: columnWidth, height: 10 });
-    pdf.font('ReportRegular').fontSize(8.6).fillColor(COLORS.text)
-      .text(sanitizePdfText(item.value || '-'), x, y + 12, {
-        width: columnWidth,
-        height: 16,
-        ellipsis: true,
-      });
-  });
-  pdf.y = startY + rows * rowHeight + 34;
+  // 元信息随实际内容换行，不使用固定高度与省略号。
+  for (const item of document.metadata) {
+    const text = sanitizePdfText(`${item.label}：${item.value || '-'}`);
+    const height = pdf.font('ReportRegular').fontSize(10.5)
+      .heightOfString(text, { width, lineGap: 3 });
+    ensureSpace(pdf, Math.min(height + 8, 120));
+    pdf.fillColor(COLORS.text).text(text, PAGE_MARGIN, pdf.y, { width, lineGap: 3 });
+    pdf.y += 5;
+  }
+  pdf.y += 18;
   pdf.x = PAGE_MARGIN;
 }
 
 function drawSummary(pdf: PDFKit.PDFDocument, summary: string) {
   ensureSpace(pdf, 100);
   const width = contentWidth(pdf);
-  const normalized = sanitizePdfText(summary);
-  const textHeight = pdf.font('ReportRegular').fontSize(10.5)
-    .heightOfString(normalized, { width: width - 28, lineGap: 5 });
-  const blockHeight = textHeight + 48;
-  if (blockHeight < availableHeight(pdf)) {
-    pdf.save().roundedRect(PAGE_MARGIN, pdf.y, width, blockHeight, 8)
-      .fillAndStroke(COLORS.goldSoft, '#eadbbd').restore();
-  }
-  const top = pdf.y + 14;
-  pdf.font('ReportBold').fontSize(10).fillColor(COLORS.gold)
-    .text('核心结论摘要', PAGE_MARGIN + 14, top, { width: width - 28 });
-  pdf.font('ReportRegular').fontSize(10.5).fillColor(COLORS.text)
-    .text(normalized, PAGE_MARGIN + 14, top + 22, {
-      width: width - 28,
-      lineGap: 5,
-      paragraphGap: 5,
+  pdf.font('ReportBold').fontSize(15).fillColor(COLORS.ink)
+    .text('核心结论摘要', PAGE_MARGIN, pdf.y, { width });
+  pdf.y += 10;
+  pdf.font('ReportRegular').fontSize(12).fillColor(COLORS.text)
+    .text(sanitizePdfText(summary), PAGE_MARGIN, pdf.y, {
+      width, lineGap: 5, paragraphGap: 6, align: 'left',
     });
-  pdf.y = Math.max(pdf.y, top + blockHeight - 8);
-  pdf.x = PAGE_MARGIN;
-  pdf.moveDown(1.2);
+  pdf.y += 22;
 }
 
 function drawSection(pdf: PDFKit.PDFDocument, section: ReportExportSection, index: number) {
@@ -172,43 +145,36 @@ function drawSection(pdf: PDFKit.PDFDocument, section: ReportExportSection, inde
   pdf.moveDown(0.4);
   const headingY = pdf.y;
   const heading = sanitizePdfText(`${String(index).padStart(2, '0')}  ${section.title}`);
-  const headingHeight = pdf.font('ReportBold').fontSize(14)
-    .heightOfString(heading, { width: width - 112 });
-  pdf.font('ReportBold').fontSize(14).fillColor(COLORS.ink)
-    .text(heading, PAGE_MARGIN, headingY, {
-      width: width - 112,
-      continued: false,
-    });
-  pdf.font('ReportRegular').fontSize(7.4).fillColor(COLORS.gold)
-    .text(sanitizePdfText(section.basisLabel), PAGE_MARGIN + width - 110, headingY + 2, {
-      width: 110,
-      align: 'right',
-    });
-  const dividerY = headingY + Math.max(headingHeight, 14) + 9;
+  pdf.font('ReportBold').fontSize(15).fillColor(COLORS.ink)
+    .text(heading, PAGE_MARGIN, headingY, { width });
+  pdf.y += 5;
+  pdf.font('ReportRegular').fontSize(10).fillColor(COLORS.muted)
+    .text(sanitizePdfText(section.basisLabel), PAGE_MARGIN, pdf.y, { width });
+  const dividerY = pdf.y + 8;
   pdf.moveTo(PAGE_MARGIN, dividerY).lineTo(PAGE_MARGIN + width, dividerY)
     .lineWidth(0.6).strokeColor(COLORS.rule).stroke();
   pdf.x = PAGE_MARGIN;
   pdf.y = dividerY + 13;
-  pdf.font('ReportRegular').fontSize(10.5).fillColor(COLORS.text)
+  pdf.font('ReportRegular').fontSize(12).fillColor(COLORS.text)
     .text(sanitizePdfText(section.content), PAGE_MARGIN, pdf.y, {
       width,
       lineGap: 5,
       paragraphGap: 6,
-      align: 'justify',
+      align: 'left',
     });
 
   if (section.evidence.length) {
     pdf.moveDown(0.8);
     ensureSpace(pdf, 48);
-    pdf.font('ReportBold').fontSize(8.2).fillColor(COLORS.gold)
+    pdf.font('ReportBold').fontSize(12).fillColor(COLORS.gold)
       .text('本节结构化依据', PAGE_MARGIN, pdf.y, { width });
     pdf.moveDown(0.3);
     for (const evidence of section.evidence) {
       ensureSpace(pdf, 32);
-      pdf.font('ReportRegular').fontSize(8.2).fillColor(COLORS.muted)
+      pdf.font('ReportRegular').fontSize(12).fillColor(COLORS.muted)
         .text(sanitizePdfText(`- ${evidence.label}`), PAGE_MARGIN, pdf.y, { width, lineGap: 2 });
       if (evidence.detail) {
-        pdf.font('ReportRegular').fontSize(7.6).fillColor(COLORS.faint)
+        pdf.font('ReportRegular').fontSize(10).fillColor(COLORS.faint)
           .text(sanitizePdfText(evidence.detail), PAGE_MARGIN, pdf.y, { width, lineGap: 2, indent: 10 });
       }
     }
@@ -230,7 +196,7 @@ function drawListSection(
   items.forEach((item, index) => {
     ensureSpace(pdf, 36);
     const prefix = numbered ? `${index + 1}.` : '-';
-    pdf.font('ReportRegular').fontSize(10).fillColor(COLORS.text)
+    pdf.font('ReportRegular').fontSize(12).fillColor(COLORS.text)
       .text(sanitizePdfText(`${prefix} ${item}`), PAGE_MARGIN, pdf.y, { width, lineGap: 4, indent: 2 });
     pdf.moveDown(0.35);
   });
@@ -242,10 +208,10 @@ function drawDisclaimer(pdf: PDFKit.PDFDocument, disclaimer: string) {
   const width = contentWidth(pdf);
   pdf.save().roundedRect(PAGE_MARGIN, pdf.y, width, 1, 0).fill(COLORS.rule).restore();
   pdf.y += 15;
-  pdf.font('ReportBold').fontSize(8).fillColor(COLORS.muted)
+  pdf.font('ReportBold').fontSize(10).fillColor(COLORS.muted)
     .text('使用边界与免责声明', PAGE_MARGIN, pdf.y, { width });
   pdf.moveDown(0.4);
-  pdf.font('ReportRegular').fontSize(8).fillColor(COLORS.faint)
+  pdf.font('ReportRegular').fontSize(10).fillColor(COLORS.faint)
     .text(sanitizePdfText(disclaimer), PAGE_MARGIN, pdf.y, { width, lineGap: 3 });
 }
 
@@ -259,7 +225,7 @@ function drawPageFooters(pdf: PDFKit.PDFDocument, reportTitle: string) {
     pdf.page.margins.bottom = 0;
     pdf.moveTo(PAGE_MARGIN, y - 8).lineTo(PAGE_MARGIN + width, y - 8)
       .lineWidth(0.5).strokeColor(COLORS.rule).stroke();
-    pdf.font('ReportRegular').fontSize(6.8).fillColor(COLORS.faint)
+    pdf.font('ReportRegular').fontSize(9).fillColor(COLORS.faint)
       .text(sanitizePdfText(reportTitle), PAGE_MARGIN, y, {
         width: width - 70,
         ellipsis: true,
