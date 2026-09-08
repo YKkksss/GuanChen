@@ -4,7 +4,8 @@ import type { BirthInfo } from '@/lib/ziwei/types';
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json();
+    const body = await request.json().catch(() => null);
+    if (!body || typeof body !== 'object' || Array.isArray(body)) return error('请求体必须是有效的 JSON 对象');
     const year = toInteger(body.year);
     const month = toInteger(body.month);
     const day = toInteger(body.day);
@@ -17,7 +18,7 @@ export async function POST(request: Request) {
     if (!month || month < 1 || month > 12) {
       return error('出生月份不合法');
     }
-    if (!day || day < 1 || day > 31) {
+    if (!day || day < 1 || day > new Date(Date.UTC(year, month, 0)).getUTCDate()) {
       return error('出生日期不合法');
     }
     if (hour === undefined || hour < 0 || hour > 11) {
@@ -45,6 +46,7 @@ export async function POST(request: Request) {
 }
 
 function toInteger(value: unknown): number | undefined {
+  if (typeof value !== 'number' && (typeof value !== 'string' || !value.trim())) return undefined;
   const n = typeof value === 'number' ? value : Number(value);
   return Number.isInteger(n) ? n : undefined;
 }

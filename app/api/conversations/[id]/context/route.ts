@@ -22,7 +22,7 @@ export async function GET(request: Request, context: { params: Promise<{ id: str
     summaryVersion: conversation.summaryVersion,
     summaryUpdatedAt: conversation.summaryUpdatedAt,
     memories: listActiveMemories(id),
-    contextRuns: listContextRuns(id, Number.isFinite(limit) ? limit : 20),
+    contextRuns: listContextRuns(id, Math.min(Math.max(Number.isFinite(limit) ? Math.trunc(limit) : 20, 1), 100)),
   });
 }
 

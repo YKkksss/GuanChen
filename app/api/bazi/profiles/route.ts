@@ -12,8 +12,8 @@ export async function GET(request: Request) {
     const offset = Number(url.searchParams.get('offset') || 0);
     return NextResponse.json({
       profiles: listBaziBirthProfiles({
-        limit: Number.isFinite(limit) ? limit : 50,
-        offset: Number.isFinite(offset) ? offset : 0,
+        limit: Math.min(Math.max(Number.isFinite(limit) ? Math.trunc(limit) : 50, 1), 100),
+        offset: Math.max(Number.isFinite(offset) ? Math.trunc(offset) : 0, 0),
       }),
     });
   } catch (error) {

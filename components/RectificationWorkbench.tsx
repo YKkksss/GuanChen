@@ -17,6 +17,7 @@ import {
 import { useRouter } from 'next/navigation';
 import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import { LIFE_EVENT_CATEGORIES, LIFE_EVENT_CATEGORY_LABELS, type LifeEventCategory } from '@/lib/events/types';
+import { RECTIFICATION_METHODOLOGY } from '@/lib/rectification/methodology';
 import type {
   RectificationCandidate,
   RectificationCandidateEvaluation,
@@ -37,11 +38,10 @@ const SLOT_LABELS: Record<RectificationTimeSlotKey, string> = {
   wu: '午时', wei: '未时', shen: '申时', you: '酉时', xu: '戌时', hai: '亥时', late_zi: '晚子时',
 };
 
-const SLOT_RANGES: Record<RectificationTimeSlotKey, string> = {
-  early_zi: '23:00-00:00', chou: '01:00-03:00', yin: '03:00-05:00', mao: '05:00-07:00',
-  chen: '07:00-09:00', si: '09:00-11:00', wu: '11:00-13:00', wei: '13:00-15:00',
-  shen: '15:00-17:00', you: '17:00-19:00', xu: '19:00-21:00', hai: '21:00-23:00', late_zi: '00:00-01:00',
-};
+// 与录入页和排盘引擎共用时段定义，避免早晚子时及边界显示不一致。
+const SLOT_RANGES = Object.fromEntries(
+  RECTIFICATION_METHODOLOGY.timePolicy.slots.map(slot => [slot.key, `${slot.apparentSolarStart}–${slot.apparentSolarEnd}`]),
+) as Record<RectificationTimeSlotKey, string>;
 
 const STATUS_LABELS: Record<RectificationStatus, string> = {
   draft: '草稿', ready: '待评估', evaluated: '已评估', confirmed: '已选定', archived: '已归档',
@@ -191,7 +191,7 @@ export default function RectificationWorkbench({ sessionId }: { sessionId: strin
             title: eventForm.title,
             category: eventForm.category,
             customCategory: eventForm.category === 'custom' ? eventForm.customCategory : null,
-            startDate: eventForm.startDate || String(data?.session.baseBirthInfo.year ?? ''),
+            startDate: eventForm.datePrecision === 'unknown' ? '' : eventForm.startDate,
             endDate: eventForm.datePrecision === 'range' ? eventForm.endDate : null,
             datePrecision: eventForm.datePrecision,
             description: eventForm.description || null,
@@ -477,7 +477,7 @@ function EventForm({ form, onChange, onSubmit, onCancel, busy }: {
           </select>
         </Field>
         <Field label={form.datePrecision === 'range' ? '开始日期' : '发生日期'}>
-          <input required={form.datePrecision !== 'unknown'} value={form.startDate} onChange={event => set('startDate', event.target.value)} placeholder={datePlaceholder(form.datePrecision)} className="rectification-input" />
+          <input required={form.datePrecision !== 'unknown'} disabled={form.datePrecision === 'unknown'} value={form.datePrecision === 'unknown' ? '' : form.startDate} onChange={event => set('startDate', event.target.value)} placeholder={datePlaceholder(form.datePrecision)} className="rectification-input" />
         </Field>
         {form.datePrecision === 'range' && <Field label="结束日期"><input required value={form.endDate} onChange={event => set('endDate', event.target.value)} placeholder="例如 2011-06" className="rectification-input" /></Field>}
         <Field label="证据质量">

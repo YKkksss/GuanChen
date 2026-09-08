@@ -41,7 +41,11 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json() as {
+    const parsed = await request.json().catch(() => null);
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+      return NextResponse.json({ error: '请求体必须是有效的 JSON 对象' }, { status: 400 });
+    }
+    const body = parsed as {
       type?: unknown;
       title?: unknown;
       birthInfo?: BirthInfo;
@@ -54,7 +58,7 @@ export async function POST(request: Request) {
       relationshipContext?: unknown;
     };
     const type: ConversationType = body.type === 'heming' ? 'heming' : 'chart';
-    if (type === 'chart' && (!body.chartSnapshot || !Array.isArray(body.chartSnapshot.palaces))) {
+    if (type === 'chart' && !isChartSnapshot(body.chartSnapshot)) {
       return NextResponse.json({ error: '命盘数据缺失' }, { status: 400 });
     }
 
@@ -71,6 +75,9 @@ export async function POST(request: Request) {
     const relationshipType = type === 'heming' ? body.relationshipType as RelationshipType : null;
     const birthInfoA = body.birthInfoA ?? body.chartSnapshotA?.birthInfo ?? null;
     const birthInfoB = body.birthInfoB ?? body.chartSnapshotB?.birthInfo ?? null;
+    if ([birthInfo, birthInfoA, birthInfoB].some(value => value !== null && !isBirthInfo(value))) {
+      return NextResponse.json({ error: '出生信息格式无效' }, { status: 400 });
+    }
     const relationshipContext = relationshipType
       ? normalizeRelationshipContext(body.relationshipContext, relationshipType)
       : null;
@@ -97,9 +104,29 @@ export async function POST(request: Request) {
 }
 
 function isChartSnapshot(value: unknown): value is ZiweiChart {
-  return !!value && typeof value === 'object'
-    && Array.isArray((value as ZiweiChart).palaces)
-    && (value as ZiweiChart).palaces.length === 12;
+  if (!value || typeof value !== 'object') return false;
+  const chart = value as ZiweiChart;
+  return isBirthInfo(chart.birthInfo)
+    && !!chart.lunarInfo && typeof chart.lunarInfo === 'object'
+    && Array.isArray(chart.daXians)
+    && typeof chart.wuxingJuName === 'string'
+    && Array.isArray(chart.palaces) && chart.palaces.length === 12
+    && chart.palaces.every(palace => palace && typeof palace.name === 'string'
+      && Number.isInteger(palace.branch) && palace.branch >= 0 && palace.branch <= 11
+      && Array.isArray(palace.stars) && palace.stars.every(star => star && typeof star.name === 'string'))
+    && new Set(chart.palaces.map(palace => palace.branch)).size === 12;
+}
+
+function isBirthInfo(value: unknown): value is BirthInfo {
+  if (!value || typeof value !== 'object') return false;
+  const birth = value as BirthInfo;
+  return Number.isInteger(birth.year) && birth.year >= 1900 && birth.year <= 2100
+    && Number.isInteger(birth.month) && birth.month >= 1 && birth.month <= 12
+    && Number.isInteger(birth.day) && birth.day >= 1
+    && birth.day <= new Date(Date.UTC(birth.year, birth.month, 0)).getUTCDate()
+    && Number.isInteger(birth.hour) && birth.hour >= 0 && birth.hour <= 11
+    && (birth.gender === 'male' || birth.gender === 'female')
+    && [birth.name, birth.province, birth.city].every(item => item === undefined || typeof item === 'string');
 }
 
 function normalizeTitle(value: unknown, birthInfo: BirthInfo | null): string {

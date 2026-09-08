@@ -26,7 +26,7 @@ export async function POST(request: Request) {
     reportId?: unknown;
     version?: unknown;
   };
-  if (!isReportExportKind(body.sourceKind)) {
+  if (!body || typeof body !== 'object' || Array.isArray(body) || !isReportExportKind(body.sourceKind)) {
     return NextResponse.json({ error: 'PDF 导出类型无效' }, { status: 400 });
   }
   const reportId = typeof body.reportId === 'string' ? body.reportId.trim() : '';

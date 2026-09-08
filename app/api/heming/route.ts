@@ -21,7 +21,10 @@ const SYSTEM_PROMPT = `你是一个中文紫微斗数合盘分析助手。
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json();
+    const body = await request.json().catch(() => null);
+    if (!body || typeof body !== 'object' || Array.isArray(body)) {
+      return NextResponse.json({ error: '请求体必须是有效的 JSON 对象' }, { status: 400 });
+    }
     const conversationId = typeof body.conversationId === 'string' ? body.conversationId.trim() : '';
     const question = typeof body.question === 'string' ? body.question.trim() : '';
     const conversation = conversationId ? getConversation(conversationId) : null;
