@@ -1,9 +1,12 @@
+import { getCurrentStage, refreshChartStage } from '@/lib/ziwei/current-stage';
 import { BRANCHES, STEMS } from '@/lib/ziwei/constants';
 import type { Palace, ZiweiChart } from '@/lib/ziwei/types';
 import type { ContextTopic } from './topic-router';
 import { getTopicPalaceNames } from './topic-router';
 
-export function buildCompactChartBase(chart: ZiweiChart): string {
+export function buildCompactChartBase(chart: ZiweiChart, asOf: Date = new Date()): string {
+  chart = refreshChartStage(chart, asOf);
+  const stage = getCurrentStage(chart, asOf);
   const birth = chart.birthInfo;
   const currentDaXian = chart.daXians?.[chart.currentDaXianIndex] ?? null;
   const base = {
@@ -25,6 +28,8 @@ export function buildCompactChartBase(chart: ZiweiChart): string {
       shenGong: BRANCHES[chart.shenGongBranch] ?? chart.shenGongBranch,
       wuxingJu: chart.wuxingJuName,
       currentAge: chart.currentAge,
+      asOfDate: stage.asOfDate,
+      ageConvention: stage.ageConvention,
       currentDaXian: currentDaXian ? {
         ageRange: `${currentDaXian.startAge}-${currentDaXian.endAge}`,
         palace: currentDaXian.palaceName,
@@ -44,6 +49,7 @@ export function buildTopicChartContext(
   topic: ContextTopic,
   palaceBranch: number | null,
 ): string {
+  chart = refreshChartStage(chart);
   const branches = new Set<number>();
   const names = new Set(getTopicPalaceNames(topic));
 

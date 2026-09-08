@@ -1,3 +1,5 @@
+import { getCurrentStage } from '@/lib/ziwei/current-stage';
+import { selectReportEvents } from './event-selection';
 import type { LifeEventWithTransits } from '@/lib/events/types';
 import type { ReportEvidenceDraft, ReportType } from './types';
 import { REPORT_TYPE_DEFINITIONS } from './types';
@@ -9,9 +11,12 @@ export function buildReportEvidence(
   chart: ZiweiChart,
   type: ReportType,
   lifeEvents: LifeEventWithTransits[] = [],
+  asOf: Date = new Date(),
 ): ReportEvidenceDraft[] {
   const definition = REPORT_TYPE_DEFINITIONS[type];
-  const currentAge = new Date().getFullYear() - chart.birthInfo.year;
+  const stage = getCurrentStage(chart, asOf);
+  const { currentAge, currentDaXian } = stage;
+  const eventSelection = selectReportEvents(lifeEvents, type, stage.period);
   const evidence: ReportEvidenceDraft[] = [
     {
       evidenceKey: 'chart:core',
@@ -29,6 +34,11 @@ export function buildReportEvidence(
         shenGongBranch: BRANCHES[chart.shenGongBranch] ?? chart.shenGongBranch,
         wuxingJu: chart.wuxingJuName,
         currentAge,
+        asOfDate: stage.asOfDate,
+        ageConvention: stage.ageConvention,
+        timeZone: stage.timeZone,
+        stageStatus: currentDaXian ? '已定位当前大限' : '当前虚岁不在快照的大限范围内，不补造阶段',
+        eventSelection: eventSelection.summary,
       },
     },
   ];
@@ -61,9 +71,6 @@ export function buildReportEvidence(
     });
   }
 
-  const currentDaXian = chart.daXians.find(
-    item => currentAge >= item.startAge && currentAge <= item.endAge,
-  );
   if (currentDaXian) {
     const palace = chart.palaces.find(item => item.branch === currentDaXian.palaceBranch);
     evidence.push({
@@ -72,6 +79,9 @@ export function buildReportEvidence(
       label: `当前大限 ${currentDaXian.startAge}-${currentDaXian.endAge} 岁`,
       source: 'chart_snapshot',
       facts: {
+        asOfDate: stage.asOfDate,
+        ageConvention: stage.ageConvention,
+        period: stage.period,
         startAge: currentDaXian.startAge,
         endAge: currentDaXian.endAge,
         palaceName: normalizePalaceName(currentDaXian.palaceName),
@@ -104,7 +114,7 @@ export function buildReportEvidence(
     });
   }
 
-  for (const event of lifeEvents.filter(item => item.confirmedByUser).slice(0, 20)) {
+  for (const event of eventSelection.selected) {
     evidence.push({
       evidenceKey: `event:${event.id}`,
       kind: 'confirmed_event',

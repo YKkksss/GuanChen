@@ -214,7 +214,7 @@ export default function ChartBoard({
             const dx = chart.daXians[chart.currentDaXianIndex];
             return (
               <div className="eastern-current-daxian">
-                <span>当前大限</span>
+                <span>当前大限 · 虚岁</span>
                 <strong>{dx.startAge}-{dx.endAge}岁</strong>
                 <small>{dx.palaceName}</small>
               </div>

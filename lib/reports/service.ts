@@ -23,7 +23,7 @@ import type {
 import { HEMING_REPORT_DEFINITION, REPORT_TYPE_DEFINITIONS, type ReportTypeDefinition } from './types';
 
 export const TOPIC_REPORT_ENGINE_VERSION = 'ziwei-v1';
-export const TOPIC_REPORT_PROMPT_VERSION = 'topic-report-v2';
+export const TOPIC_REPORT_PROMPT_VERSION = 'topic-report-v3';
 export const HEMING_REPORT_PROMPT_VERSION = 'heming-report-v1';
 const GENERATING_STALE_MS = 3 * 60 * 1000;
 const DISCLAIMER = '本报告属于传统文化研究与自我观察参考，不构成医疗、投资、法律、婚姻或其他专业决策建议。';
@@ -211,7 +211,7 @@ export function buildTopicReportMessages(
   "openQuestions": ["0至4条需要用户结合现实继续观察的问题"]
 }
 
-必须完整输出指定章节，每章仅出现一次，章节 key 和标题不得更改。各章回答不同问题，不复制正文或摘要；建议包含具体行动与观察方式，避免重复口号。用户事件是待对照的现实记录，不证明命理因果；保留原日期精度，没有记录不等于没有发生。每个重要判断要引用至少一个相关 evidenceIds；确实属于跨证据综合推断时可以不引用，但必须在正文中明确写“综合观察”。排盘事实、传统解释和现实建议要分清。不得使用“必然、一定、注定、百分百”等绝对措辞，不得编造用户职业、收入、疾病、婚姻状态或已发生事件。健康报告不得诊断疾病，财富报告不得给出具体买卖指令，感情报告不得替用户作出结婚或分手决定。证据中的 birthTimeConfidence 为 unknown 时，必须说明时辰未知、当前为试排并降低相关结论置信度。`,
+必须完整输出指定章节，每章仅出现一次，章节 key 和标题不得更改。以 asOfDate 为本报告分析日期，年龄使用 ageConvention，不以公历年份自行换算。当前大限未定位时明确事实不足。eventSelection 说明本次事件筛选范围和遗漏数量；摘要需交代缺少现实事件或记录截取的限制，不将未选中解释为未发生。各章回答不同问题，不复制正文或摘要；建议包含具体行动与观察方式，避免重复口号。用户事件是待对照的现实记录，不证明命理因果；保留原日期精度，没有记录不等于没有发生。每个重要判断要引用至少一个相关 evidenceIds；确实属于跨证据综合推断时可以不引用，但必须在正文中明确写“综合观察”。排盘事实、传统解释和现实建议要分清。不得使用“必然、一定、注定、百分百”等绝对措辞，不得编造用户职业、收入、疾病、婚姻状态或已发生事件。健康报告不得诊断疾病，财富报告不得给出具体买卖指令，感情报告不得替用户作出结婚或分手决定。证据中的 birthTimeConfidence 为 unknown 时，必须说明时辰未知、当前为试排并降低相关结论置信度。`,
     },
     {
       role: 'user',

@@ -1,3 +1,4 @@
+import { getCurrentStage, refreshChartStage } from '@/lib/ziwei/current-stage';
 import type { Palace, ZiweiChart } from '@/lib/ziwei/types';
 
 export const ZIWEI_SYSTEM_PROMPT = `你是一个中文紫微斗数命盘解读助手。
@@ -12,7 +13,9 @@ export const ZIWEI_SYSTEM_PROMPT = `你是一个中文紫微斗数命盘解读�
 8. 出现“需要澄清日期”时，先请用户明确或调整日期，不得用历史对话里的年份或年度快照冒充本题的月日事实。出现“本题年份范围”时，只使用该范围的已计算运限事实；比较时逐年说明依据，避免把不同年份混在一起。
 9. 已确认事件是部分检索记录，不是完整人生经历。没有匹配记录时应说明“尚未检索到对应已确认事件”，不能断言该时段没有发生任何事情；日期只有年或月时不得补造具体日期。`;
 
-export function summarizeChart(chart: ZiweiChart): string {
+export function summarizeChart(chart: ZiweiChart, asOf: Date = new Date()): string {
+  chart = refreshChartStage(chart, asOf);
+  const stage = getCurrentStage(chart, asOf);
   const birth = chart.birthInfo;
   const currentDaXian = chart.daXians?.[chart.currentDaXianIndex];
 
@@ -33,6 +36,8 @@ export function summarizeChart(chart: ZiweiChart): string {
     shenGongBranch: chart.shenGongBranch,
     wuxingJuName: chart.wuxingJuName,
     currentAge: chart.currentAge,
+    asOfDate: stage.asOfDate,
+    ageConvention: stage.ageConvention,
     currentDaXian,
     palaces: chart.palaces.map(summarizePalace),
   }, null, 2);

@@ -4,6 +4,7 @@
  */
 
 import { astro } from 'iztro';
+import { getCurrentStage } from './current-stage';
 import { Solar } from 'lunar-javascript';
 import type { BirthInfo, LunarInfo, Star, Palace, DaXian, DaXianSiHua, ZiweiChart } from './types';
 import { BRANCHES, STEMS } from './constants';
@@ -63,7 +64,7 @@ function parseWuxingJu(name: string): number {
 }
 
 // ─── 主函数：生成命盘 ────────────────────────────────────────────
-export function generateChart(birthInfo: BirthInfo): ZiweiChart {
+export function generateChart(birthInfo: BirthInfo, asOf: Date = new Date()): ZiweiChart {
   const { year, month, day, hour, gender } = birthInfo;
 
   // 调用 iztro 排盘
@@ -110,8 +111,8 @@ export function generateChart(birthInfo: BirthInfo): ZiweiChart {
   });
 
   // ── 当前年龄 & 大限 ──
-  const currentYear = new Date().getFullYear();
-  const currentAge  = currentYear - year;
+  const lunarInfo = getLunarInfo(year, month, day);
+  const { currentAge } = getCurrentStage({ lunarInfo, daXians: [] }, asOf);
 
   palaces.forEach(p => {
     if (p.daXianAge && currentAge >= p.daXianAge[0] && currentAge <= p.daXianAge[1]) {
@@ -162,8 +163,6 @@ export function generateChart(birthInfo: BirthInfo): ZiweiChart {
     dx => currentAge >= dx.startAge && currentAge <= dx.endAge,
   );
 
-  // ── 农历信息 ──
-  const lunarInfo = getLunarInfo(year, month, day);
 
   return {
     birthInfo,

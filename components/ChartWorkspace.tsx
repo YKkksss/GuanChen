@@ -1,5 +1,7 @@
 'use client';
 
+import { refreshChartStage } from '@/lib/ziwei/current-stage';
+
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useConversationChat } from '@/lib/ui/use-conversation-chat';
@@ -122,7 +124,7 @@ export default function ChartWorkspace({ conversationId }: ChartWorkspaceProps) 
       .then(data => {
         if (controller.signal.aborted) return;
         if (!data.conversation.chartSnapshot) throw new Error('该会话缺少命盘快照');
-        setChart(data.conversation.chartSnapshot);
+        setChart(refreshChartStage(data.conversation.chartSnapshot));
         setSelectedPalace(null);
         hydrateChat(data.messages);
       })
