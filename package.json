@@ -37,6 +37,7 @@
     "test:heming-context": "tsx scripts/test-heming-context.ts",
     "test:heming-reports": "tsx scripts/test-heming-reports.ts",
     "test:heming-transits": "tsx scripts/test-heming-transits.ts",
+    "test:heming-stage": "tsx scripts/test-heming-stage.ts",
     "test:rectification-methodology": "tsx scripts/test-rectification-methodology.ts",
     "test:rectification-sessions": "tsx scripts/test-rectification-sessions.ts",
     "test:rectification-events": "tsx scripts/test-rectification-events.ts",

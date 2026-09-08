@@ -25,7 +25,7 @@ import { HEMING_REPORT_DEFINITION, REPORT_TYPE_DEFINITIONS, type ReportTypeDefin
 
 export const TOPIC_REPORT_ENGINE_VERSION = 'ziwei-v1';
 export const TOPIC_REPORT_PROMPT_VERSION = 'topic-report-v4';
-export const HEMING_REPORT_PROMPT_VERSION = 'heming-report-v1';
+export const HEMING_REPORT_PROMPT_VERSION = 'heming-report-v2';
 const GENERATING_STALE_MS = 3 * 60 * 1000;
 const DISCLAIMER = '本报告属于传统文化研究与自我观察参考，不构成医疗、投资、法律、婚姻或其他专业决策建议。';
 
@@ -263,7 +263,7 @@ export function buildHemingReportMessages(
 1. 完整输出指定章节，章节 key 和标题不得修改；每个重要判断引用相关 evidenceIds。
 2. 永远区分甲方 A、乙方 B 和双方互动，不得交换、合并或补造任一方事实。
 3. 规则引擎结果是权威观察，不得修改其级别、置信度、规则编号或阶段。
-4. 本命关系基线与当前阶段影响必须分层；阶段信息不能改写本命基线。
+4. 本命关系基线与当前阶段影响必须分层；阶段信息不能改写本命基线。阶段采用证据中的 asOfDate 和农历虚岁口径；缺失阶段应说明证据不足，禁止自行补算或借用另一方阶段。
 5. 结构对应不等于吉，结构差异不等于凶；不得输出总分、匹配百分比或绝对结论。
 6. 未在用户确认背景中出现的现实经历必须写为未知，不得编造婚姻状态、财务安排、疾病或冲突事件。
 7. 不替用户作出结婚、分手、签约、投资、医疗或其他重大决定，不使用恐吓性措辞。`,

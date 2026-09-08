@@ -93,6 +93,9 @@ export interface HemingPalaceFact {
 }
 
 export interface HemingStageFact {
+  asOfDate?: string;
+  ageConvention?: string;
+  period?: { startDate: string; endDate: string } | null;
   owner: ChartOwner;
   palace: PalaceName;
   branchIndex: number;
@@ -226,6 +229,12 @@ export interface HemingEvaluationInput {
 }
 
 export interface HemingEvaluationResult {
+  observation?: {
+    asOfDate: string;
+    timeZone: string;
+    ageConvention: string;
+    ages: { A: number; B: number };
+  };
   methodologyVersion: string;
   chartEngineVersion: string;
   relationshipType: RelationshipType;

@@ -177,12 +177,17 @@ function filterActivations(
   return activations.filter(item => allowed.has(item.palace));
 }
 
-function alignChartToTransit(chart: ZiweiChart, transit: AnnualTransitSnapshot): ZiweiChart {
-  const stageIndex = chart.daXians.findIndex(item => item.palaceBranch === transit.decadal.palaceBranch);
+export function alignChartToTransit(chart: ZiweiChart, transit: AnnualTransitSnapshot): ZiweiChart {
+  // 指定年度不能回退到快照保存时的阶段，童限和缺失阶段保持空值。
+  const stageIndex = chart.daXians.findIndex(item => item.palaceBranch === transit.decadal.palaceBranch
+    && transit.nominalAge >= item.startAge && transit.nominalAge <= item.endAge);
   return {
     ...chart,
     currentAge: transit.nominalAge,
-    currentDaXianIndex: stageIndex >= 0 ? stageIndex : chart.currentDaXianIndex,
+    currentDaXianIndex: stageIndex,
+    palaces: chart.palaces.map(palace => ({
+      ...palace, isCurrentDaXian: palace.branch === chart.daXians[stageIndex]?.palaceBranch,
+    })),
   };
 }
 
@@ -199,5 +204,5 @@ function fingerprint(input: {
   chartA: ZiweiChart;
   chartB: ZiweiChart;
 }): string {
-  return createHash('sha256').update(JSON.stringify(input)).digest('hex');
+  return createHash('sha256').update(JSON.stringify({ alignmentVersion: 2, ...input })).digest('hex');
 }

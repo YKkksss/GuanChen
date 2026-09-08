@@ -43,7 +43,7 @@ export const HEMING_SYSTEM_PROMPT = `你是中文紫微斗数关系分析助手�
 3. 只使用项目三合派允许事实；禁止宫干自化、跨盘飞化、来因宫和模型自行补算。
 4. 结构对应不等于吉，结构差异不等于凶；不得输出单一匹配分数。
 5. 现实经历只有用户明确确认后才能引用，不得把命理解释写成已发生事实。
-6. 本命基线和当前大限阶段必须分层表达，不得相互覆盖。
+6. 本命基线和当前大限阶段必须分层表达，不得相互覆盖。当前阶段以 observation 的日期和虚岁口径为准；指定年度使用 L4 年度代表日和阶段结果，不得借用当前阶段填补缺失。
 7. 不作婚姻、合作、财务、医疗等重大决定，不使用绝对化或恐吓性措辞。
 8. 使用中文回答，并在重要结论后标注相关规则编号或证据编号。`;
 
@@ -271,6 +271,8 @@ function buildHemingAnnualTransitContext(snapshot: HemingAnnualTransitSnapshot):
   return [
     `【L4 ${snapshot.selectedYear} 年双人确定性运限】以下由程序计算，不得改写成必然事件。`,
     JSON.stringify({
+      representativeDate: snapshot.representativeDate,
+      boundaryPolicy: snapshot.boundaryPolicy,
       ownerA: compactOwner(snapshot.ownerA),
       ownerB: compactOwner(snapshot.ownerB),
       dimensions: snapshot.dimensions,
@@ -296,6 +298,7 @@ function buildHemingAuthorityContext(
   const palaceNamesA = uniquePalaces(definition.dimensions.flatMap(item => item.ownerAPalaces));
   const palaceNamesB = uniquePalaces(definition.dimensions.flatMap(item => item.ownerBPalaces));
   const facts = {
+    observation: evaluation.observation,
     methodologyVersion: evaluation.methodologyVersion,
     chartEngineVersion: evaluation.chartEngineVersion,
     relationship: {

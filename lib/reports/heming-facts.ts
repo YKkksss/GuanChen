@@ -71,6 +71,9 @@ export function buildHemingReportEvidence(
           branch: stage.branch,
           startAge: stage.startAge,
           endAge: stage.endAge,
+          asOfDate: stage.asOfDate,
+          ageConvention: stage.ageConvention,
+          period: stage.period,
         },
       });
     }

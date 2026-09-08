@@ -182,6 +182,10 @@ export default function HemingWorkbench({ conversation, initialMessages, onConve
 
         {evaluation && (
           <>
+            {evaluation.observation && <p className="text-xs leading-relaxed" style={{ color: 'var(--t-text2)' }}>
+              当前观察截至 {evaluation.observation.asOfDate}（北京时间）· {evaluation.observation.ageConvention}。
+              甲方 {evaluation.observation.ages.A} 岁，乙方 {evaluation.observation.ages.B} 岁。指定年度另按当年 7 月 1 日分析。
+            </p>}
             <section className="rounded-xl p-4 card-glass">
               <div className="mb-3 flex items-center justify-between"><div><h2 className="text-[12px] font-semibold" style={{ color: 'var(--t-text)' }}>双命盘结构对照</h2><p className="mt-1 text-[9px]" style={{ color: 'var(--t-faint)' }}>只展示当前维度需要的宫位；甲乙数据始终隔离</p></div><span className="text-[9px]" style={{ color: 'var(--t-faint)' }}>{evaluation.methodologyVersion}</span></div>
               <div className="mb-3 flex gap-1.5 overflow-x-auto pb-1">{evaluation.dimensions.map(item => <button key={item.dimensionId} onClick={() => setSelectedDimension(item.dimensionId)} className="shrink-0 rounded-full px-3 py-1.5 text-[9px]" style={{ color: item.dimensionId === selectedDimension ? 'var(--t-gold)' : 'var(--t-faint)', border: `1px solid ${item.dimensionId === selectedDimension ? 'rgba(212,168,67,.35)' : 'var(--t-border)'}`, background: item.dimensionId === selectedDimension ? 'rgba(212,168,67,.08)' : 'transparent' }}>{item.label}</button>)}</div>
