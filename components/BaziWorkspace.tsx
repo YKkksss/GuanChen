@@ -1,6 +1,7 @@
 'use client';
 
 import { BirthDateFields, BirthTimeFields } from './BirthDateTimeFields';
+import { resolveInitialAnnualYear, resolveInitialFlowDate } from '@/lib/bazi/timeline-selection';
 import {
   ArrowLeft,
   CalendarDots,
@@ -152,8 +153,8 @@ export default function BaziWorkspace() {
   useEffect(() => () => profileRequest.current?.abort(), []);
   const [error, setError] = useState('');
   const [calculationNotice, setCalculationNotice] = useState('');
-  const [selectedAnnualYear, setSelectedAnnualYear] = useState(new Date().getFullYear());
-  const [selectedFlowDate, setSelectedFlowDate] = useState('');
+  const [annualSelection, setAnnualSelection] = useState<{ source: BaziAnnualTimelineResult; year: number } | null>(null);
+  const [flowSelection, setFlowSelection] = useState<{ source: BaziMonthDayTimelineResult; date: string } | null>(null);
 
   const loadProfiles = useCallback(async () => {
     setHistoryLoading(true);
@@ -199,6 +200,13 @@ export default function BaziWorkspace() {
     () => result && luckCycles ? calculateBaziAnnualTimeline(result, luckCycles) : null,
     [result, luckCycles],
   );
+  const requestedAnnualYear = annualSelection?.source === annualTimeline ? annualSelection?.year : null;
+  const setSelectedAnnualYear = (year: number) => {
+    if (annualTimeline) setAnnualSelection({ source: annualTimeline, year });
+  };
+  const selectedAnnualYear = annualTimeline
+    ? Math.min(Math.max(requestedAnnualYear ?? resolveInitialAnnualYear(annualTimeline), annualTimeline.range.startYear), annualTimeline.range.endYear)
+    : 0;
   const monthDayTimeline = useMemo(() => {
     if (!result || !annualTimeline) return null;
     const targetYear = Math.min(
@@ -207,6 +215,12 @@ export default function BaziWorkspace() {
     );
     return calculateBaziMonthDayTimeline(result, annualTimeline, targetYear);
   }, [result, annualTimeline, selectedAnnualYear]);
+  const selectedFlowDate = monthDayTimeline
+    ? flowSelection?.source === monthDayTimeline ? flowSelection.date : resolveInitialFlowDate(monthDayTimeline)
+    : '';
+  const setSelectedFlowDate = (date: string) => {
+    if (monthDayTimeline) setFlowSelection({ source: monthDayTimeline, date });
+  };
   const monthDayRelation = useMemo(() => {
     if (!result || !monthDayTimeline || !selectedFlowDate) return null;
     if (!monthDayTimeline.days.some(item => item.effectiveDate === selectedFlowDate)) return null;
@@ -281,10 +295,6 @@ export default function BaziWorkspace() {
     [result, patternCondition, monthDayRelation, monthDayVisibility, monthDayStrength],
   );
   useEffect(() => {
-    if (!annualTimeline) return;
-    setSelectedAnnualYear(value => Math.min(Math.max(value, annualTimeline.range.startYear), annualTimeline.range.endYear));
-  }, [annualTimeline]);
-  useEffect(() => {
     if (!currentChartId || !monthDayTimeline) return;
     void fetch(`/api/bazi/charts/${currentChartId}/month-day-timeline`, {
       method: 'POST',
@@ -292,10 +302,6 @@ export default function BaziWorkspace() {
       body: JSON.stringify({ targetYear: monthDayTimeline.source.targetYear }),
     }).catch(() => undefined);
   }, [currentChartId, monthDayTimeline?.source.targetYear]);
-  useEffect(() => {
-    if (!monthDayTimeline) return;
-    setSelectedFlowDate(resolveInitialFlowDate(monthDayTimeline));
-  }, [monthDayTimeline?.source.targetYear, monthDayTimeline?.source.lateZiPolicy]);
   useEffect(() => {
     if (!currentChartId || !monthDayRelation) return;
     void fetch(`/api/bazi/charts/${currentChartId}/month-day-relations`, {
@@ -1014,17 +1020,6 @@ function BaziMonthDayTimelinePanel({
       <p className="mt-1 text-[9px]" style={{ color: 'var(--tx-3)' }}>{result.methodologyVersion}</p>
     </div>
   </section>;
-}
-
-function resolveInitialFlowDate(result: BaziMonthDayTimelineResult): string {
-  const formatter = new Intl.DateTimeFormat('en-CA', {
-    timeZone: 'Asia/Shanghai', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', hourCycle: 'h23',
-  });
-  const parts = Object.fromEntries(formatter.formatToParts(new Date()).map(item => [item.type, item.value]));
-  const base = new Date(Date.UTC(Number(parts.year), Number(parts.month) - 1, Number(parts.day)
-    + (result.source.lateZiPolicy === 'next_day' && Number(parts.hour) >= 23 ? 1 : 0)));
-  const today = `${base.getUTCFullYear()}-${String(base.getUTCMonth() + 1).padStart(2, '0')}-${String(base.getUTCDate()).padStart(2, '0')}`;
-  return result.days.some(item => item.effectiveDate === today) ? today : result.days[0]?.effectiveDate ?? '';
 }
 
 function BaziMonthDayRelationPanel({ result }: { result: BaziMonthDayRelationResult }) {

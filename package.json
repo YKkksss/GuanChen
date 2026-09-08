@@ -59,6 +59,7 @@
     "test:bazi-conversations": "tsx scripts/test-bazi-conversations.ts",
     "test:bazi-interpretation": "tsx scripts/test-bazi-interpretation.ts",
     "test:bazi-luck-cycles": "tsx scripts/test-bazi-luck-cycles.ts",
+    "test:bazi-timeline-selection": "tsx scripts/test-bazi-timeline-selection.ts",
     "test:bazi-annual-timeline": "tsx scripts/test-bazi-annual-timeline.ts",
     "test:bazi-relation-audit": "tsx scripts/test-bazi-relation-audit.ts",
     "test:bazi-relation-adjudication": "tsx scripts/test-bazi-relation-adjudication.ts",
