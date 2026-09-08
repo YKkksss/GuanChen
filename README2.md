@@ -2,9 +2,6 @@
 
 面向个人与可信局域网的命理研究工作台，将紫微排盘、AI 对话、人生事件、运限时间轴与专题报告放在同一个工作空间中，并提供合盘、八字、生时校正与学习功能。
 
-本文按 **2026-09-08 的当前实现**整理，作为新的项目说明；原版 [README.md](README.md) 保留。
-
-> **版本状态：v1 范围已确定，仍在开发与验收中，尚未正式冻结为 v1.0.0。** 当前优先完善核心功能的实际使用价值，备份等衍生模块暂停扩展。具体范围以 [v1 固定范围与验收清单](docs/V1_FREEZE_SCOPE.md) 为准。
 
 ## 界面预览
 
@@ -119,7 +116,7 @@
 ```powershell
 git clone https://github.com/YKkksss/ziweidoushu-ai.git
 cd ziweidoushu-ai
-git switch dev
+git switch main
 npm ci
 Copy-Item .env.example .env.local
 ```
