@@ -526,7 +526,10 @@ export default function BaziWorkspace() {
       });
       const data = await response.json() as { conversation?: { id: string }; error?: string };
       if (!response.ok || !data.conversation) throw new Error(data.error || '八字解读会话创建失败');
-      router.push(`/bazi/chat/${data.conversation.id}`);
+      const draft = selectedFlowDate
+        ? `请解释 ${selectedFlowDate} 的流日、流月与大运时间归属，只依据程序事实。`
+        : `请解释 ${selectedAnnualYear} 年的流年与大运时间归属，只依据程序事实。`;
+      router.push(`/bazi/chat/${data.conversation.id}?draft=${encodeURIComponent(draft)}`);
     } catch (chatError) {
       setError(chatError instanceof Error ? chatError.message : '八字解读会话创建失败');
       setStartingChat(false);

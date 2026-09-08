@@ -1,3 +1,5 @@
+import { resolveBaziQuestionScope } from '@/lib/bazi/question-scope';
+import { resolveInitialAnnualYear } from '@/lib/bazi/timeline-selection';
 import type { ChatMessage } from '@/lib/ai/deepseek';
 import type { BaziConversationDetail, BaziConversationSummary, BuiltBaziContext } from '@/lib/bazi/conversation-types';
 import type { BaziCalculationResult, BaziPillar } from '@/lib/bazi/types';
@@ -85,24 +87,41 @@ export function buildBaziConversationContext(input: {
   if (!current || current.conversationId !== conversation.id || current.role !== 'user') {
     throw new Error('当前八字问题不存在');
   }
-  const monthDayPattern = resolveMonthDayPatternForQuestion(conversation, current.content);
-  let monthDayStrength = resolveMonthDayStrengthForQuestion(conversation, current.content);
+  const previousMessages = getCompletedBaziMessagesBefore(conversation.id, current.seq);
+  const resolvedScope = resolveBaziQuestionScope({
+    question: current.content,
+    previousQuestions: previousMessages.filter(item => item.role === 'user').map(item => item.content),
+    currentYear: conversation.annualTimeline ? resolveInitialAnnualYear(conversation.annualTimeline.result) : new Date().getFullYear(),
+    timeZone: conversation.chart.result.input.timeZoneId,
+    lateZiPolicy: conversation.chart.result.input.lateZiPolicy,
+  });
+  if (resolvedScope.scope?.endsWith('年') && conversation.annualTimeline) {
+    const year = Number(resolvedScope.scope.slice(0, -1));
+    const { startYear, endYear } = conversation.annualTimeline.result.range;
+    if (year < startYear || year > endYear) throw new Error(`所选年份超出可用排期 ${startYear}—${endYear}，请重新指定年份。`);
+  }
+  const analysisQuestion = resolvedScope.question;
+  const monthDayPattern = resolveMonthDayPatternForQuestion(conversation, analysisQuestion);
+  let monthDayStrength = resolveMonthDayStrengthForQuestion(conversation, analysisQuestion);
   if (monthDayPattern && monthDayPattern.monthDayStrengthVersionId !== monthDayStrength?.id) {
     monthDayStrength = getBaziMonthDayStrengthVersion(monthDayPattern.monthDayStrengthVersionId);
   }
-  let monthDayVisibility = resolveMonthDayVisibilityForQuestion(conversation, current.content);
+  let monthDayVisibility = resolveMonthDayVisibilityForQuestion(conversation, analysisQuestion);
   if (monthDayStrength && monthDayStrength.monthDayVisibilityVersionId !== monthDayVisibility?.id) {
     monthDayVisibility = getBaziMonthDayVisibilityVersion(monthDayStrength.monthDayVisibilityVersionId);
   }
-  let monthDayRelation = resolveMonthDayRelationForQuestion(conversation, current.content);
+  let monthDayRelation = resolveMonthDayRelationForQuestion(conversation, analysisQuestion);
   if (monthDayVisibility && monthDayVisibility.monthDayRelationVersionId !== monthDayRelation?.id) {
     monthDayRelation = getBaziMonthDayRelationVersion(monthDayVisibility.monthDayRelationVersionId);
   }
-  let monthDayTimeline = resolveMonthDayTimelineForQuestion(conversation, current.content);
+  let monthDayTimeline = resolveMonthDayTimelineForQuestion(conversation, analysisQuestion);
   if (monthDayRelation && monthDayRelation.monthDayTimelineVersionId !== monthDayTimeline?.id) {
     monthDayTimeline = getBaziMonthDayTimelineVersion(monthDayRelation.monthDayTimelineVersionId);
   }
 
+  const annualQuestion = monthDayRelation && monthDayTimeline
+    ? `流年范围：${monthDayTimeline.targetYear}年。\n${analysisQuestion}`
+    : analysisQuestion;
   const profile = getModelProfile(input.provider, input.model);
   const system: ChatMessage = { role: 'system', content: BAZI_CHAT_SYSTEM_PROMPT };
   const currentMessage: ChatMessage = { role: 'user', content: current.content };
@@ -113,8 +132,8 @@ export function buildBaziConversationContext(input: {
     ? { role: 'system', content: `【滚动摘要】\n${summary}` }
     : null;
   const supportTokens = summaryMessage ? estimateMessagesTokens([summaryMessage]) : 0;
-  const monthDaySnapshots = prioritizeBaziMonthDaySnapshots(current.content, {
-    timeline: monthDayTimeline ? buildBaziMonthDayTimelineSnapshot(monthDayTimeline.result, current.content) : '',
+  const monthDaySnapshots = prioritizeBaziMonthDaySnapshots(analysisQuestion, {
+    timeline: monthDayTimeline ? buildBaziMonthDayTimelineSnapshot(monthDayTimeline.result, analysisQuestion) : '',
     relation: monthDayRelation ? buildBaziMonthDayRelationSnapshot(monthDayRelation.result) : '',
     visibility: monthDayVisibility ? buildBaziMonthDayVisibilitySnapshot(monthDayVisibility.result) : '',
     strength: monthDayStrength ? buildBaziMonthDayStrengthSnapshot(monthDayStrength.result) : '',
@@ -125,19 +144,20 @@ export function buildBaziConversationContext(input: {
     estimateMessagesTokens([system, currentMessage]) + supportTokens,
   );
   const facts = truncateTextToTokens([
+    resolvedScope.scope ? `本次分析范围：${resolvedScope.scope}。只按下方程序事实解释此范围。` : '',
     buildBaziFactsSnapshot(conversation.chart.result),
     conversation.analysis ? buildBaziInterpretationSnapshot(conversation.analysis.result) : '',
     ...monthDaySnapshots,
     conversation.patternCondition ? buildBaziPatternConditionSnapshot(conversation.patternCondition.result) : '',
-    conversation.strengthComposite ? buildBaziStrengthCompositeSnapshot(conversation.strengthComposite.result, current.content) : '',
+    conversation.strengthComposite ? buildBaziStrengthCompositeSnapshot(conversation.strengthComposite.result, annualQuestion) : '',
     conversation.luckCycles ? buildBaziLuckCycleSnapshot(conversation.luckCycles.result) : '',
-    conversation.annualTimeline ? buildBaziAnnualTimelineSnapshot(conversation.annualTimeline.result, current.content) : '',
-    conversation.relationAudit ? buildBaziRelationAuditSnapshot(conversation.relationAudit.result, current.content) : '',
-    conversation.relationAdjudication ? buildBaziRelationAdjudicationSnapshot(conversation.relationAdjudication.result, current.content) : '',
-    conversation.dynamicTenGod ? buildBaziDynamicTenGodSnapshot(conversation.dynamicTenGod.result, current.content) : '',
-    conversation.tenGodRepeat ? buildBaziTenGodRepeatSnapshot(conversation.tenGodRepeat.result, current.content) : '',
-    conversation.transparencyRoot ? buildBaziTransparencyRootSnapshot(conversation.transparencyRoot.result, current.content) : '',
-    conversation.hiddenStemActivation ? buildBaziHiddenStemActivationSnapshot(conversation.hiddenStemActivation.result, current.content) : '',
+    conversation.annualTimeline ? buildBaziAnnualTimelineSnapshot(conversation.annualTimeline.result, annualQuestion) : '',
+    conversation.relationAudit ? buildBaziRelationAuditSnapshot(conversation.relationAudit.result, annualQuestion) : '',
+    conversation.relationAdjudication ? buildBaziRelationAdjudicationSnapshot(conversation.relationAdjudication.result, annualQuestion) : '',
+    conversation.dynamicTenGod ? buildBaziDynamicTenGodSnapshot(conversation.dynamicTenGod.result, annualQuestion) : '',
+    conversation.tenGodRepeat ? buildBaziTenGodRepeatSnapshot(conversation.tenGodRepeat.result, annualQuestion) : '',
+    conversation.transparencyRoot ? buildBaziTransparencyRootSnapshot(conversation.transparencyRoot.result, annualQuestion) : '',
+    conversation.hiddenStemActivation ? buildBaziHiddenStemActivationSnapshot(conversation.hiddenStemActivation.result, annualQuestion) : '',
   ].filter(Boolean).join('\n\n'), factsTokenCap);
   const factMessage: ChatMessage = { role: 'system', content: facts };
   const fixedTokens = estimateMessagesTokens([system, factMessage, currentMessage]);
@@ -168,6 +188,8 @@ export function buildBaziConversationContext(input: {
     recentMessageIds: selected.map(message => message.id),
     manifest: {
       schemaVersion: 1,
+      questionScope: resolvedScope.scope,
+      scopeInherited: resolvedScope.inherited,
       kind: 'bazi_foundation',
       isolation: 'dedicated_bazi_tables_and_prompt',
       chartVersionId: conversation.chartVersionId,
@@ -1001,7 +1023,7 @@ function extractRequestedDate(question: string, targetYear: number): string | nu
 
 function normalizeDate(year: number, month: number, day: number): string | null {
   const value = new Date(Date.UTC(year, month - 1, day));
-  if (value.getUTCFullYear() !== year || value.getUTCMonth() + 1 !== month || value.getUTCDate() !== day) return null;
+  if (value.getUTCFullYear() !== year || value.getUTCMonth() + 1 !== month || value.getUTCDate() !== day) throw new Error('指定日期无效，请提供有效的年月日。');
   return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
 }
 

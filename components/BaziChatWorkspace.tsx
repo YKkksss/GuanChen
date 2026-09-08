@@ -14,7 +14,7 @@ import {
 import { useCallback, useEffect, useState } from 'react';
 import { useConversationChat } from '@/lib/ui/use-conversation-chat';
 import { ChatRecoveryActions, ChatGenerationControls } from './ChatRecoveryActions';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import type {
   BaziConversationDetail,
   BaziConversationListItem,
@@ -76,12 +76,19 @@ const QUICK_PROMPTS = [
 
 export default function BaziChatWorkspace({ conversationId }: { conversationId: string }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [conversation, setConversation] = useState<BaziConversationDetail | null>(null);
   const [history, setHistory] = useState<BaziConversationListItem[]>([]);
   const chat = useConversationChat(conversationId, 'bazi');
   const { messages, input, busy: sending } = chat;
   const setInput = chat.session.setInput;
   const hydrateChat = chat.session.hydrate;
+  useEffect(() => {
+    const draft = searchParams.get('draft');
+    if (!draft) return;
+    if (!chat.session.getSnapshot().input) setInput(draft.slice(0, 1000));
+    router.replace(`/bazi/chat/${conversationId}`);
+  }, [conversationId, searchParams, router, setInput, chat.session]);
   const [loading, setLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [error, setError] = useState('');
