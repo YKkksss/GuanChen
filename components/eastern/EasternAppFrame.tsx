@@ -192,7 +192,7 @@ export default function EasternAppFrame({ children }: { children: React.ReactNod
     <div className={styles.frame} data-eastern-route={pathname}>
       <header className={styles.topbar}>
         <Link className={styles.brand} href="/" aria-label="返回观辰首页">
-          <Image src="/assets/brand/guanchen-seal.svg" width={31} height={31} alt="观辰标识" priority />
+          <Image src="/assets/brand/guanchen-mark.svg" width={31} height={31} alt="观辰标识" priority />
           <span>
             <strong>观辰</strong>
             <small>命盘与人生观察</small>

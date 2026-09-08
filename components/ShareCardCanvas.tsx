@@ -84,12 +84,7 @@ export default function ShareCardCanvas({ chart, birth, highlight }: ShareCardPr
       {/* 顶部 */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px', position: 'relative', zIndex: 1 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <div style={{
-            width: '34px', height: '34px', borderRadius: '50%',
-            background: 'linear-gradient(135deg, #d4a948 0%, #b8922a 100%)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            color: 'white', fontSize: '15px', fontWeight: 700,
-          }}>观</div>
+          <img src="/assets/brand/guanchen-mark.svg" width={34} height={34} alt="观辰星轨标识" />
           <div>
             <div style={{ fontSize: '15px', color: '#3d2f10', fontWeight: 600, letterSpacing: '0.12em', lineHeight: 1.2 }}>观辰</div>
             <div style={{ fontSize: '9px', color: '#a89b7c', letterSpacing: '0.18em', marginTop: '2px' }}>命盘与人生观察</div>

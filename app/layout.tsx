@@ -8,7 +8,7 @@ import AutomaticBackupBootstrap from '@/components/AutomaticBackupBootstrap';
 
 export const metadata: Metadata = {
   title: '观辰 · 命盘与人生观察',
-  icons: { icon: '/assets/brand/guanchen-seal.svg' },
+  icons: { icon: '/assets/brand/guanchen-mark.svg' },
   description: '从命盘、对话到人生事件，建立一份可以持续回看的个人档案。',
   keywords: '紫微斗数, 倪海夏, 倪海厦, 紫微斗数全集, 紫微斗数全书, 骨髓赋, 命盘, 命理, 14主星, 12宫位',
   metadataBase: new URL(SITE_URL),

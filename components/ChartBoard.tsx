@@ -198,7 +198,7 @@ export default function ChartBoard({
           className="eastern-chart-center"
           style={{ gridRow: '2 / 4', gridColumn: '2 / 4' }}
         >
-          <Image src="/assets/brand/guanchen-seal.svg" alt="观辰标识" width={48} height={48} />
+          <Image src="/assets/brand/guanchen-mark.svg" alt="观辰标识" width={48} height={48} />
 
           <div className="eastern-chart-center-copy">
             <div className="eastern-chart-center-kicker">紫微斗数 · 本命</div>

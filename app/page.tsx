@@ -101,7 +101,7 @@ export default function HomePage() {
       <header className={styles.header}>
         <div className={styles.headerInner}>
           <Link href="/" className={styles.brand} aria-label="观辰首页">
-            <Image src="/assets/brand/guanchen-seal.svg" alt="" width={42} height={42} priority />
+            <Image src="/assets/brand/guanchen-mark.svg" alt="" width={42} height={42} priority />
             <span>观辰 <i /> 命盘与人生观察</span>
           </Link>
 
@@ -269,7 +269,7 @@ export default function HomePage() {
       <footer className={styles.footer}>
         <div className={styles.footerInner}>
           <div className={styles.footerBrand}>
-            <Image src="/assets/brand/guanchen-seal.svg" alt="" width={30} height={30} />
+            <Image src="/assets/brand/guanchen-mark.svg" alt="" width={30} height={30} />
             <span>观辰 <i /> 命盘与人生观察</span>
           </div>
           <p>内容仅供传统文化研究与个人成长参考，不构成医疗、投资或人生决策建议。</p>
