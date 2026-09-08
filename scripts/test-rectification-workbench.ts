@@ -10,7 +10,7 @@ async function main() {
   const { getDatabase } = await import('../lib/db/client');
   const { createRectificationSession, findRectificationSession } = await import('../lib/rectification/service');
   const { attachRectificationEvent, reviseRectificationEventEvidence } = await import('../lib/rectification/event-service');
-  const { evaluateRectificationSession } = await import('../lib/rectification/evaluation-service');
+  const { evaluateRectificationSession, findRectificationEvaluationState, findRectificationEvaluationHistory } = await import('../lib/rectification/evaluation-service');
   const {
     findRectificationSelections,
     selectRectificationCandidate,
@@ -76,6 +76,16 @@ async function main() {
       acknowledgedLimitations: true,
     }), /重新评估/);
     assert.equal(findRectificationSelections(session.id).length, 1, '旧选定记录必须保留');
+    const changedEvaluation = evaluateRectificationSession(session.id);
+    assert.notEqual(changedEvaluation.id, evaluation.id);
+    reviseRectificationEventEvidence({ sessionId: session.id, eventId: event.id, evidenceQuality: 'documented', userConfirmed: true });
+    const restored = evaluateRectificationSession(session.id);
+    assert.equal(restored.id, evaluation.id, '相同证据复用原评估');
+    const state = findRectificationEvaluationState(session.id);
+    assert.equal(state.isCurrent, true, '证据恢复后不能永远提示评估过期');
+    assert.equal(state.evaluation?.id, restored.id, '读取端与评估端采用同一个输入版本');
+    assert.equal(findRectificationEvaluationHistory(session.id).length, 2, '保留两个输入的历史评估');
+    selectRectificationCandidate(session.id, { candidateId: candidate.candidateId, evaluationId: restored.id, acknowledgedLimitations: true });
     assert.ok(getDatabase().prepare('SELECT 1 FROM schema_migrations WHERE version = 12').get());
 
     console.log('M5-4 工作台后端测试通过：评估版本绑定、限制确认、选定状态、证据失效保护和选择历史均正常。');

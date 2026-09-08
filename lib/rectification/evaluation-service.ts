@@ -68,7 +68,13 @@ export function findRectificationEvaluationState(sessionId: string): Rectificati
   const evaluation = getLatestRectificationEvaluation(sessionId);
   if (!evaluation) return { evaluation: null, isCurrent: false };
   const currentFingerprint = buildEvaluationInputFingerprint(session, findRectificationEventMatrix(sessionId));
-  return { evaluation, isCurrent: evaluation.inputFingerprint === currentFingerprint };
+  // 事件恢复为历史输入时，评估接口会复用历史版本；读取端必须采用相同匹配规则。
+  const matching = getRectificationEvaluationByInput({
+    sessionId,
+    inputFingerprint: currentFingerprint,
+    methodologyVersion: RECTIFICATION_METHODOLOGY_VERSION,
+  });
+  return { evaluation: matching ?? evaluation, isCurrent: Boolean(matching) };
 }
 
 export function findRectificationEvaluationHistory(sessionId: string): RectificationEvaluation[] {
