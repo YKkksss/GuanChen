@@ -81,7 +81,7 @@ async function main() {
 
     const first = await ensureReportPdfExport({ sourceKind: 'topic', reportId: report.id, version: 1 });
     assert.equal(first.reused, false);
-    assert.equal(first.record.rendererVersion, 'report-pdf-v2');
+    assert.equal(first.record.rendererVersion, 'report-pdf-v3');
     if (process.env.PDF_REVIEW_OUTPUT) {
       const exported = await readReportExportFile(first.record.id);
       writeFileSync(process.env.PDF_REVIEW_OUTPUT, exported.buffer);

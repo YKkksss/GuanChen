@@ -43,7 +43,7 @@ export default function ShareModal({ open, onClose, shareUrl, chart, birth, high
         alert('图片生成失败，请截图保存或刷新重试');
         return;
       }
-      downloadDataURL(dataURL, `紫微命盘_${Date.now()}.png`);
+      downloadDataURL(dataURL, `观辰命盘_${Date.now()}.png`);
     } finally {
       setDownloading(false);
     }

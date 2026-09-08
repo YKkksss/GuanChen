@@ -100,9 +100,9 @@ export default function HomePage() {
     <div className={styles.page}>
       <header className={styles.header}>
         <div className={styles.headerInner}>
-          <Link href="/" className={styles.brand} aria-label="紫微命盘东方书院首页">
-            <Image src="/assets/brand/ziwei-seal.png" alt="" width={42} height={42} priority />
-            <span>紫微命盘 <i /> 东方书院</span>
+          <Link href="/" className={styles.brand} aria-label="观辰首页">
+            <Image src="/assets/brand/guanchen-seal.svg" alt="" width={42} height={42} priority />
+            <span>观辰 <i /> 命盘与人生观察</span>
           </Link>
 
           <nav className={styles.desktopNav} aria-label="主导航">
@@ -163,11 +163,11 @@ export default function HomePage() {
                 sizes="(max-width: 860px) 92vw, 58vw"
               />
               <div className={styles.heroMessage}>
-                <h1>知命而行，观心见己</h1>
-                <p className={styles.heroLead}>以紫微为门，读懂人生的节律与选择</p>
+                <h1><span>观星辰，</span><span>知自己</span></h1>
+                <p className={styles.heroLead}>命盘与人生观察</p>
                 <p className={styles.heroDescription}>
                   <span>传统命理体系与现代 AI 解读相结合</span>
-                  <span>从本命、大限到流年，建立一份可回看的长期人生档案</span>
+                  <span>从命盘、对话到人生事件，建立一份可以持续回看的个人档案。</span>
                 </p>
               </div>
             </motion.div>
@@ -213,7 +213,7 @@ export default function HomePage() {
               <div className={styles.previewFrame}>
                 <Image
                   src="/assets/product/workbench-preview.png"
-                  alt="东方书院命盘工作台，左侧为历史记录，中间为命盘，右侧为 AI 解读"
+                  alt="观辰命盘工作台，左侧为历史记录，中间为命盘，右侧为 AI 解读"
                   width={1480}
                   height={1040}
                   sizes="(max-width: 900px) 92vw, 52vw"
@@ -269,8 +269,8 @@ export default function HomePage() {
       <footer className={styles.footer}>
         <div className={styles.footerInner}>
           <div className={styles.footerBrand}>
-            <Image src="/assets/brand/ziwei-seal.png" alt="" width={30} height={30} />
-            <span>紫微命盘 <i /> 东方书院</span>
+            <Image src="/assets/brand/guanchen-seal.svg" alt="" width={30} height={30} />
+            <span>观辰 <i /> 命盘与人生观察</span>
           </div>
           <p>内容仅供传统文化研究与个人成长参考，不构成医疗、投资或人生决策建议。</p>
           <div className={styles.footerLinks}><Link href="/terms">本地版使用说明</Link><Link href="/privacy">数据与隐私说明</Link></div>

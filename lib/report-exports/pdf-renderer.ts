@@ -3,7 +3,7 @@ import path from 'node:path';
 import PDFDocument from 'pdfkit';
 import type { ReportExportDocument, ReportExportSection } from './types';
 
-export const REPORT_PDF_RENDERER_VERSION = 'report-pdf-v2';
+export const REPORT_PDF_RENDERER_VERSION = 'report-pdf-v3';
 
 const PAGE_MARGIN = 54;
 const COLORS = {
@@ -28,8 +28,8 @@ export async function renderReportPdf(document: ReportExportDocument): Promise<B
     bufferPages: true,
     autoFirstPage: true,
     info: {
-      Title: sanitizePdfText(document.title),
-      Author: '紫微斗数 AI 本地分析平台',
+      Title: sanitizePdfText(`观辰 · ${document.title}`),
+      Author: '观辰 · 命盘与人生观察',
       Subject: sanitizePdfText(`${document.categoryLabel} ${document.versionLabel}`),
       Keywords: '紫微斗数, 报告, 本地数据, 结构化依据',
       CreationDate: new Date(document.generatedAt),
@@ -101,7 +101,7 @@ function drawCover(pdf: PDFKit.PDFDocument, document: ReportExportDocument) {
     });
   pdf.moveDown(2);
   pdf.font('ReportBold').fontSize(24).fillColor(COLORS.ink)
-    .text(sanitizePdfText(document.title), { width, align: 'center', lineGap: 4 });
+    .text(sanitizePdfText(`观辰 · ${document.title}`), { width, align: 'center', lineGap: 4 });
   pdf.moveDown(0.7);
   const completed = document.sourceCompletedAt
     ? formatDateTime(document.sourceCompletedAt)

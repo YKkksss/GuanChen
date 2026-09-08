@@ -198,11 +198,11 @@ export default function ChartBoard({
           className="eastern-chart-center"
           style={{ gridRow: '2 / 4', gridColumn: '2 / 4' }}
         >
-          <Image src="/assets/brand/ziwei-seal.png" alt="紫微命盘印章" width={48} height={48} />
+          <Image src="/assets/brand/guanchen-seal.svg" alt="观辰标识" width={48} height={48} />
 
           <div className="eastern-chart-center-copy">
             <div className="eastern-chart-center-kicker">紫微斗数 · 本命</div>
-            <h2>紫微命盘</h2>
+            <h2>观辰 · 紫微命盘</h2>
             <div className="eastern-chart-center-data">
               <div>{chart.birthInfo.year}年{chart.birthInfo.month}月{chart.birthInfo.day}日</div>
               <div>命宫在{BRANCHES[chart.mingGongBranch]} · 身宫在{BRANCHES[chart.shenGongBranch]}</div>

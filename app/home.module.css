@@ -418,3 +418,6 @@
     animation-iteration-count: 1 !important;
   }
 }
+
+/* 品牌标题按短句换行，避免手机端拆开“自己”。 */
+.heroMessage h1 span { display: inline-block; }

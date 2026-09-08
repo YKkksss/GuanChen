@@ -1,6 +1,6 @@
 import LocalEditionNotice from '@/components/LocalEditionNotice';
 
-export const metadata = { title: '本地版使用说明 · 紫微命盘' };
+export const metadata = { title: '本地版使用说明 · 观辰' };
 
 export default function NoticePage() {
   return <LocalEditionNotice title="本地版使用说明">

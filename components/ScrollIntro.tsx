@@ -148,7 +148,7 @@ export default function ScrollIntro({ onComplete, skipLabel = '跳 过' }: Scrol
                   marginBottom: 'clamp(16px, 2.5vh, 28px)',
                 }} />
 
-                {/* 大字「紫微命盘」 */}
+                {/* 大字「观辰」 */}
                 <h1 style={{
                   fontSize: 'clamp(48px, 8vw, 110px)',
                   fontWeight: 700,
@@ -159,7 +159,7 @@ export default function ScrollIntro({ onComplete, skipLabel = '跳 过' }: Scrol
                   textShadow: '0 1px 0 rgba(255,250,235,0.3)',
                   whiteSpace: 'nowrap',
                 }}>
-                  紫微命盘
+                  观辰
                 </h1>
 
                 {/* 副标 楷体 */}

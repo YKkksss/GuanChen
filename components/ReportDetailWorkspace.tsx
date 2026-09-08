@@ -130,7 +130,7 @@ export default function ReportDetailWorkspace({
 
       <article className="overflow-hidden rounded-xl card-glass">
         <header className="px-6 py-8 text-center sm:px-10" style={{ borderBottom: '1px solid var(--t-border)' }}>
-          <div className="text-[10px] tracking-[.28em]" style={{ color: 'var(--t-gold)' }}>紫微斗数 · {conversationType === 'heming' ? '合盘关系报告' : '专题报告'}</div>
+          <div className="text-[10px] tracking-[.28em]" style={{ color: 'var(--t-gold)' }}>观辰 · {conversationType === 'heming' ? '合盘关系报告' : '专题报告'}</div>
           <h1 className="mt-4 text-2xl font-semibold" style={{ color: 'var(--t-text)' }}>{detail.report.title}</h1>
           <div className="mt-3 text-[10px]" style={{ color: 'var(--t-faint)' }}>
             版本 v{detail.version?.version ?? '-'} · {detail.version?.completedAt

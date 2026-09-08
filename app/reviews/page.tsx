@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import MonthlyReviewWorkspace from '@/components/MonthlyReviewWorkspace';
 
 export const metadata: Metadata = {
-  title: '月度复盘 · 紫微命盘',
+  title: '月度复盘 · 观辰',
   description: '记录现实反馈、检验既往判断，并在确认后沉淀人生事件与长期记忆。',
 };
 

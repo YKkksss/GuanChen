@@ -191,11 +191,11 @@ export default function EasternAppFrame({ children }: { children: React.ReactNod
   return (
     <div className={styles.frame} data-eastern-route={pathname}>
       <header className={styles.topbar}>
-        <Link className={styles.brand} href="/" aria-label="返回东方书院首页">
-          <Image src="/assets/brand/ziwei-seal.png" width={31} height={31} alt="紫微命盘印章" priority />
+        <Link className={styles.brand} href="/" aria-label="返回观辰首页">
+          <Image src="/assets/brand/guanchen-seal.svg" width={31} height={31} alt="观辰标识" priority />
           <span>
-            <strong>紫微命盘</strong>
-            <small>东方书院</small>
+            <strong>观辰</strong>
+            <small>命盘与人生观察</small>
           </span>
         </Link>
         <nav className={styles.topnav} aria-label="主要功能">
@@ -257,7 +257,7 @@ export default function EasternAppFrame({ children }: { children: React.ReactNod
           aria-modal={mobileNavOpen || undefined}
           id="eastern-mobile-navigation"
           className={`${styles.sidebar} ${sidebarCollapsed ? styles.sidebarCollapsed : ''} ${mobileNavOpen ? styles.sidebarOpen : ''}`}
-          aria-label="东方书院功能目录"
+          aria-label="观辰功能目录"
         >
           <div className={styles.sideBrand}>功能目录</div>
           {mobileNavOpen && <button type="button" className="flex min-h-11 min-w-11 items-center justify-center" aria-label="关闭目录" onClick={() => setMobileNavOpen(false)}><X size={20} /></button>}
