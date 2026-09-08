@@ -54,7 +54,7 @@ export default function ChartPracticeWorkspace() {
       <section className="mb-6 rounded-xl card-glass p-5">
         {loading ? <div className="text-xs" style={{ color: 'var(--t-faint)' }}>正在加载命盘列表…</div> : charts.length ? (
           <div className="flex flex-col gap-3 sm:flex-row">
-            <select value={conversationId} onChange={event => { setConversationId(event.target.value); setPractice(null); }} className="min-w-0 flex-1 rounded-lg px-4 py-3 text-xs" style={{ color: 'var(--t-text)', background: 'var(--t-card)', border: '1px solid var(--t-border)' }}>
+            <select aria-label="选择练习命盘" value={conversationId} onChange={event => { setConversationId(event.target.value); setPractice(null); }} className="min-w-0 flex-1 rounded-lg px-4 py-3 text-xs" style={{ color: 'var(--t-text)', background: 'var(--t-card)', border: '1px solid var(--t-border)' }}>
               <option value="">请选择一份单人命盘</option>
               {charts.map(chart => <option key={chart.id} value={chart.id}>{chart.title}</option>)}
             </select>

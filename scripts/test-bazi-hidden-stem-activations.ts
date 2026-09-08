@@ -1,3 +1,4 @@
+import { formatBaziEvidenceLabel } from '../lib/bazi/display-labels';
 import assert from 'node:assert/strict';
 import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -55,6 +56,7 @@ async function main() {
 
   const candidates = result.years.flatMap(year => year.segments.flatMap(segment => segment.candidates));
   assert.ok(candidates.length > 0);
+  assert.doesNotMatch(JSON.stringify(candidates.map(candidate => candidate.entries.map(entry => entry.detail))), /原局(?:year|month|day|time)支/, '展示依据不得暴露内部柱位键');
   assert.ok(candidates.some(candidate => candidate.scope === 'month_command_hidden_stem'));
   assert.ok(candidates.some(candidate => candidate.status === 'no_touch_condition'));
   assert.ok(candidates.some(candidate => candidate.status === 'multiple_touch_conditions'));
@@ -166,3 +168,6 @@ main().catch(error => {
   console.error(error);
   process.exitCode = 1;
 });
+
+assert.equal(formatBaziEvidenceLabel('原局year支子 / 原局month支丑 / 原局day支寅 / 原局time支午'), '原局年支子 / 原局月支丑 / 原局日支寅 / 原局时支午');
+assert.equal(formatBaziEvidenceLabel('原局时支午，time 字段保留'), '原局时支午，time 字段保留');

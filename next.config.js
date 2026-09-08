@@ -21,7 +21,7 @@ const nextConfig = {
     root: __dirname,
   },
   // 允许同一局域网内的手机和平板加载开发资源；额外域名可通过环境变量补充。
-  allowedDevOrigins: [...privateLanDevOrigins, ...configuredDevOrigins],
+  allowedDevOrigins: ['localhost', '127.0.0.1', ...privateLanDevOrigins, ...configuredDevOrigins],
 };
 
 module.exports = nextConfig;

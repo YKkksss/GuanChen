@@ -104,26 +104,26 @@ export default function ChartWorkbenchLanding() {
             </div>
 
             {loadingHistory && (
-              <div className={styles.state} role="status">
+              <div role="row"><div role="cell" aria-colspan={4}><div className={styles.state} role="status">
                 <SpinnerGap className={styles.spinner} size={22} aria-hidden="true" />
                 正在读取本地命档
-              </div>
+              </div></div></div>
             )}
 
             {!loadingHistory && error && conversations.length === 0 && (
-              <div className={styles.state} role="alert">
+              <div role="row"><div role="cell" aria-colspan={4}><div className={styles.state} role="alert">
                 <span>{error}</span>
                 <button type="button" onClick={() => void loadConversations()}>重新读取</button>
-              </div>
+              </div></div></div>
             )}
 
             {!loadingHistory && !error && conversations.length === 0 && (
-              <div className={styles.emptyState}>
+              <div role="row"><div role="cell" aria-colspan={4}><div className={styles.emptyState}>
                 <ClockCounterClockwise size={34} weight="thin" aria-hidden="true" />
                 <strong>还没有命盘记录</strong>
                 <span>填写右侧出生信息，建立第一份本地命档。</span>
                 <button type="button" onClick={focusQuickStart}>开始起盘</button>
-              </div>
+              </div></div></div>
             )}
 
             {!loadingHistory && conversations.map(item => (

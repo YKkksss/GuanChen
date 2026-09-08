@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useModalFocus } from '@/lib/ui/use-modal-focus';
+import { useBodyScrollLock } from '@/lib/ui/use-body-scroll-lock';
 import type { ZiweiChart } from '@/lib/ziwei/types';
 import ShareCardCanvas, { captureShareCard, downloadDataURL } from './ShareCardCanvas';
 
@@ -17,6 +19,8 @@ interface ShareModalProps {
 export default function ShareModal({ open, onClose, shareUrl, chart, birth, highlight }: ShareModalProps) {
   const [copied, setCopied] = useState(false);
   const [downloading, setDownloading] = useState(false);
+  const dialogRef = useModalFocus(open, onClose);
+  useBodyScrollLock(open);
 
   const copyLink = async () => {
     try {
@@ -60,6 +64,11 @@ export default function ShareModal({ open, onClose, shareUrl, chart, birth, high
           onClick={onClose}
         >
           <motion.div
+            ref={dialogRef}
+            role="dialog"
+            aria-modal="true"
+            aria-label="分享命盘"
+            tabIndex={-1}
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
@@ -84,7 +93,7 @@ export default function ShareModal({ open, onClose, shareUrl, chart, birth, high
               <div style={{ fontSize: '14px', fontWeight: 600, color: '#3d2f10', letterSpacing: '0.12em' }}>
                 ✦ 分享命盘
               </div>
-              <button onClick={onClose}
+              <button aria-label="关闭分享命盘" onClick={onClose}
                 style={{
                   width: '28px', height: '28px', borderRadius: '50%', border: 'none',
                   background: 'rgba(0,0,0,0.05)', color: '#666', fontSize: '16px',

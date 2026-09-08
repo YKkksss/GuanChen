@@ -1,0 +1,111 @@
+{
+  "sourceKind": "rectification",
+  "sourceReportId": "pagination-fixture",
+  "sourceVersionId": "pagination-fixture-v1",
+  "sourceFingerprint": "synthetic-only",
+  "title": "出生时辰校时结论报告",
+  "categoryLabel": "观辰 · 出生时辰校正报告",
+  "versionLabel": "v1",
+  "generatedAt": 1788825600000,
+  "sourceCompletedAt": 1788825600000,
+  "metadata": [
+    {
+      "label": "报告版本",
+      "value": "v1"
+    },
+    {
+      "label": "方法版本",
+      "value": "rectification-method-v1"
+    },
+    {
+      "label": "评估引擎",
+      "value": "rectification-evaluation-v1"
+    },
+    {
+      "label": "提示词版本",
+      "value": "rectification-conclusion-v2"
+    },
+    {
+      "label": "生成模型",
+      "value": "deepseek / deepseek-chat"
+    },
+    {
+      "label": "生成原因",
+      "value": "首次生成"
+    },
+    {
+      "label": "用户确认",
+      "value": "尚未确认"
+    }
+  ],
+  "summary": "系统事实快照：规则排序第一为未时（相对证据指数 100，低置信度）；人工选定为晚子时。可评分事件 1 个（最低 3：未满足；推荐 5：未满足），事件类别 1 类（最低 2：未满足；推荐 3：未满足）。稳定性：尚不稳定。以上字段由规则引擎生成，不由 AI 改写。\n\n本报告由本机模拟供应商生成，用于验证完整生成、持久化、版本与导出链路。",
+  "sections": [
+    {
+      "key": "conclusion",
+      "title": "核心候选结论",
+      "content": "核心候选结论：这是第 1 节独立验收内容。综合观察：仅核对给定事实与引用，不补造经历。请记录本节观察结果，后续结合实际反馈复核。",
+      "basisLabel": "1 条校时依据",
+      "evidence": [
+        {
+          "label": "规则评估 V1",
+          "detail": "评估版本、证据就绪度与候选排序的不可变事实快照"
+        }
+      ]
+    },
+    {
+      "key": "discriminating_evidence",
+      "title": "主要区分证据",
+      "content": "主要区分证据：这是第 2 节独立验收内容。综合观察：仅核对给定事实与引用，不补造经历。请记录本节观察结果，后续结合实际反馈复核。",
+      "basisLabel": "1 条校时依据",
+      "evidence": [
+        {
+          "label": "留一事件检验尚不稳定",
+          "detail": "尚不稳定 · 顶部差距 0.047335"
+        }
+      ]
+    },
+    {
+      "key": "conflicts_and_limits",
+      "title": "冲突证据与结论边界",
+      "content": "冲突证据与结论边界：这是第 3 节独立验收内容。综合观察：仅核对给定事实与引用，不补造经历。请记录本节观察结果，后续结合实际反馈复核。",
+      "basisLabel": "1 条校时依据",
+      "evidence": [
+        {
+          "label": "未时 · 第 1 位",
+          "detail": "第 1 位 · 相对证据指数 100 · low 置信度"
+        }
+      ]
+    },
+    {
+      "key": "candidate_comparison",
+      "title": "候选比较",
+      "content": "候选比较：这是第 4 节独立验收内容。综合观察：仅核对给定事实与引用，不补造经历。请记录本节观察结果，后续结合实际反馈复核。",
+      "basisLabel": "1 条校时依据",
+      "evidence": [
+        {
+          "label": "未时 · annual-flow-topic-focus · support",
+          "detail": "annual-flow-topic-focus · support · 权重 0.236672"
+        }
+      ]
+    },
+    {
+      "key": "next_observation",
+      "title": "后续验证建议",
+      "content": "后续验证建议：这是第 5 节独立验收内容。综合观察：仅核对给定事实与引用，不补造经历。请记录本节观察结果，后续结合实际反馈复核。",
+      "basisLabel": "1 条校时依据",
+      "evidence": [
+        {
+          "label": "未时 · annual-key-palace-topic-focus · support",
+          "detail": "annual-key-palace-topic-focus · support · 权重 0.205116"
+        }
+      ]
+    }
+  ],
+  "actionItems": [
+    "记录一条观察及日期，下次回顾时核对变化。"
+  ],
+  "openQuestions": [
+    "哪些现实信息仍需要补充？"
+  ],
+  "disclaimer": "本报告属于传统文化研究与校时工作记录，只呈现当前证据下的相对比较，不代表统计概率或事实证明，不构成医疗、投资、法律或其他专业决策建议。"
+}

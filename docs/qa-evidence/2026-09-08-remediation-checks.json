@@ -1,0 +1,164 @@
+{
+  "scope": "2026-09-08 网页候选整改；独立测试库与本机模拟 AI",
+  "audit": {
+    "auditReportVersion": 2,
+    "vulnerabilities": {},
+    "metadata": {
+      "vulnerabilities": {
+        "info": 0,
+        "low": 0,
+        "moderate": 0,
+        "high": 0,
+        "critical": 0,
+        "total": 0
+      },
+      "dependencies": {
+        "prod": 258,
+        "dev": 168,
+        "optional": 91,
+        "peer": 0,
+        "peerOptional": 0,
+        "total": 463
+      }
+    }
+  },
+  "productionAudit": {
+    "auditReportVersion": 2,
+    "vulnerabilities": {},
+    "metadata": {
+      "vulnerabilities": {
+        "info": 0,
+        "low": 0,
+        "moderate": 0,
+        "high": 0,
+        "critical": 0,
+        "total": 0
+      },
+      "dependencies": {
+        "prod": 258,
+        "dev": 168,
+        "optional": 91,
+        "peer": 0,
+        "peerOptional": 0,
+        "total": 463
+      }
+    }
+  },
+  "regressions": {
+    "total": 78,
+    "passed": 78,
+    "completedAt": "2026-09-08T15:30:06.762Z",
+    "pdfPaginationRerun": "新增两页断言后 test:report-pdf 通过"
+  },
+  "http": {
+    "total": 191,
+    "passed": 191
+  },
+  "dataSecurity": {
+    "total": 19,
+    "passed": 19
+  },
+  "typecheck": "passed",
+  "productionBuild": {
+    "passed": true,
+    "staticPages": 72
+  },
+  "pdf": [
+    {
+      "kind": "topic",
+      "pages": 3,
+      "checks": [
+        {
+          "page": 1,
+          "characters": 650,
+          "minimumFontPt": 9.0,
+          "textExtractable": true,
+          "boundsValid": true,
+          "deepTextColors": true
+        },
+        {
+          "page": 2,
+          "characters": 528,
+          "minimumFontPt": 9.0,
+          "textExtractable": true,
+          "boundsValid": true,
+          "deepTextColors": true
+        },
+        {
+          "page": 3,
+          "characters": 88,
+          "minimumFontPt": 9.0,
+          "textExtractable": true,
+          "boundsValid": true,
+          "deepTextColors": true
+        }
+      ]
+    },
+    {
+      "kind": "heming",
+      "pages": 3,
+      "checks": [
+        {
+          "page": 1,
+          "characters": 503,
+          "minimumFontPt": 9.0,
+          "textExtractable": true,
+          "boundsValid": true,
+          "deepTextColors": true
+        },
+        {
+          "page": 2,
+          "characters": 599,
+          "minimumFontPt": 9.0,
+          "textExtractable": true,
+          "boundsValid": true,
+          "deepTextColors": true
+        },
+        {
+          "page": 3,
+          "characters": 138,
+          "minimumFontPt": 9.0,
+          "textExtractable": true,
+          "boundsValid": true,
+          "deepTextColors": true
+        }
+      ]
+    },
+    {
+      "kind": "rectification",
+      "pages": 2,
+      "checks": [
+        {
+          "page": 1,
+          "characters": 625,
+          "minimumFontPt": 9.0,
+          "textExtractable": true,
+          "boundsValid": true,
+          "deepTextColors": true
+        },
+        {
+          "page": 2,
+          "characters": 693,
+          "minimumFontPt": 9.0,
+          "textExtractable": true,
+          "boundsValid": true,
+          "deepTextColors": true
+        }
+      ]
+    },
+    {
+      "kind": "annual",
+      "pages": 1,
+      "checks": [
+        {
+          "page": 1,
+          "characters": 348,
+          "minimumFontPt": 9.0,
+          "textExtractable": true,
+          "boundsValid": true,
+          "deepTextColors": true
+        }
+      ]
+    }
+  ]
+}

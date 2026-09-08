@@ -1,6 +1,7 @@
 'use client';
 
 import { BirthDateFields, BirthTimeFields } from './BirthDateTimeFields';
+import { formatBaziEvidenceLabel } from '@/lib/bazi/display-labels';
 import { resolveInitialAnnualYear, resolveInitialFlowDate } from '@/lib/bazi/timeline-selection';
 import {
   ArrowLeft,
@@ -134,7 +135,7 @@ const CALCULATION_FIELDS = new Set<keyof FormState>([
 ]);
 
 const ELEMENT_COLORS: Record<BaziElement, string> = {
-  木: '#2f855a', 火: '#c05640', 土: '#a87832', 金: '#8a7a45', 水: '#3f6d99',
+  木: '#25673f', 火: '#a64432', 土: '#855b21', 金: '#71622f', 水: '#3f6d99',
 };
 
 export default function BaziWorkspace() {
@@ -1721,7 +1722,7 @@ function HiddenStemTouchCard({ candidate }: { candidate: BaziHiddenStemTouchCand
     </div>
     <div className="mt-3 space-y-1.5">{candidate.entries.map(entry => <div key={entry.type} className="rounded-lg px-2.5 py-2" style={{ background: 'var(--bg-1)' }}>
       <div className="flex items-center gap-1.5 text-[9px] font-medium" style={{ color: entry.state === 'matched' ? 'var(--lu)' : 'var(--tx-3)' }}><span>{entry.state === 'matched' ? '✓' : '—'}</span><span>{entry.label}</span></div>
-      <p className="mt-1 text-[9px] leading-4" style={{ color: 'var(--tx-3)' }}>{entry.detail}</p>
+      <p className="mt-1 text-[9px] leading-4" style={{ color: 'var(--tx-3)' }}>{formatBaziEvidenceLabel(entry.detail)}</p>
       {entry.relationEvidence.map(evidence => <p key={evidence.sourceEvidenceId} className="mt-1 text-[8px]" style={{ color: 'var(--ac-dim)' }}>M9-7：{evidence.conditionStateLabel}</p>)}
     </div>)}</div>
     <p className="mt-2 text-[8px] leading-4" style={{ color: 'var(--tx-3)' }}>{candidate.boundary}</p>

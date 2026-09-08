@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import {
   LIFE_EVENT_CATEGORIES,
   LIFE_EVENT_CATEGORY_LABELS,
@@ -48,6 +48,14 @@ export default function LifeEventForm({
   onSave,
 }: LifeEventFormProps) {
   const [form, setForm] = useState(() => initialForm(event, birthYear));
+  const titleId = useId();
+  const titleInput = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const previous = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    titleInput.current?.focus();
+    return () => { if (previous?.isConnected) previous.focus(); };
+  }, []);
 
   useEffect(() => setForm(initialForm(event, birthYear)), [event, birthYear]);
 
@@ -72,18 +80,21 @@ export default function LifeEventForm({
   };
 
   return (
-    <div className="rounded-xl card-glass p-4 lg:sticky lg:top-4">
+    <section aria-labelledby={titleId} aria-busy={saving} className="rounded-xl card-glass p-4 lg:sticky lg:top-4"
+      onKeyDown={e => { if (e.key === 'Escape' && !saving) { e.stopPropagation(); onCancel(); } }}>
       <div className="flex items-center justify-between gap-3">
         <div>
-          <h2 className="text-sm font-medium" style={{ color: 'var(--t-text)' }}>{event ? '编辑人生事件' : '记录人生事件'}</h2>
+          <h2 id={titleId} className="text-sm font-medium" style={{ color: 'var(--t-text)' }}>{event ? '编辑人生事件' : '记录人生事件'}</h2>
           <p className="mt-1 text-[9px]" style={{ color: 'var(--t-faint)' }}>只有你确认保存后，才会进入长期档案</p>
         </div>
-        <button type="button" onClick={onCancel} className="text-lg" style={{ color: 'var(--t-faint)' }} aria-label="关闭表单">×</button>
+        <button type="button" disabled={saving} onClick={onCancel} className="text-lg" style={{ color: 'var(--t-faint)' }} aria-label="关闭表单">×</button>
       </div>
 
-      <div className="mt-4 space-y-3">
+      <form className="mt-4 space-y-3" onSubmit={e => { e.preventDefault(); if (!saving && form.title.trim()) onSave(form); }}>
         <Field label="事件标题">
           <input
+            ref={titleInput}
+            required
             value={form.title}
             onChange={e => set('title', e.target.value)}
             maxLength={100}
@@ -102,17 +113,18 @@ export default function LifeEventForm({
 
         {form.category === 'custom' && (
           <Field label="自定义类型">
-            <input value={form.customCategory} onChange={e => set('customCategory', e.target.value)} maxLength={40} className="event-input" />
+            <input required value={form.customCategory} onChange={e => set('customCategory', e.target.value)} maxLength={40} className="event-input" />
           </Field>
         )}
 
-        <Field label="日期精度">
+        <ChoiceGroup label="日期精度">
           <div className="grid grid-cols-3 gap-1.5">
             {PRECISION_OPTIONS.map(option => (
               <button
                 key={option.value}
                 type="button"
                 onClick={() => changePrecision(option.value)}
+                aria-pressed={form.datePrecision === option.value}
                 className="rounded-lg px-2 py-2 text-[10px]"
                 style={{
                   color: form.datePrecision === option.value ? 'var(--t-gold)' : 'var(--t-faint)',
@@ -124,12 +136,13 @@ export default function LifeEventForm({
               </button>
             ))}
           </div>
-        </Field>
+        </ChoiceGroup>
 
         {form.datePrecision !== 'unknown' && (
           <Field label={form.datePrecision === 'range' ? '开始日期' : '事件日期'}>
             <input
               type={form.datePrecision === 'year' ? 'number' : form.datePrecision === 'month' ? 'month' : 'date'}
+              required
               min={form.datePrecision === 'year' ? birthYear : undefined}
               max={form.datePrecision === 'year' ? birthYear + 130 : undefined}
               value={form.startDate}
@@ -141,17 +154,19 @@ export default function LifeEventForm({
 
         {form.datePrecision === 'range' && (
           <Field label="结束日期">
-            <input type="date" value={form.endDate} onChange={e => set('endDate', e.target.value)} className="event-input" />
+            <input required type="date" min={form.startDate} value={form.endDate} onChange={e => set('endDate', e.target.value)} className="event-input" />
           </Field>
         )}
 
-        <Field label="影响程度">
+        <ChoiceGroup label="影响程度">
           <div className="flex gap-1.5">
             {([1, 2, 3, 4, 5] as const).map(level => (
               <button
                 key={level}
                 type="button"
                 onClick={() => set('impactLevel', level)}
+                aria-pressed={form.impactLevel === level}
+                aria-label={`影响程度 ${level}`}
                 className="h-8 flex-1 rounded-lg text-[10px]"
                 style={{
                   color: form.impactLevel >= level ? 'var(--t-gold)' : 'var(--t-faint)',
@@ -163,7 +178,7 @@ export default function LifeEventForm({
               </button>
             ))}
           </div>
-        </Field>
+        </ChoiceGroup>
 
         <Field label="事件说明（可选）">
           <textarea
@@ -176,21 +191,20 @@ export default function LifeEventForm({
           />
         </Field>
 
-        {error && <div className="rounded-lg px-3 py-2 text-[10px] text-red-500" style={{ border: '1px solid rgba(239,68,68,.25)' }}>{error}</div>}
+        {error && <div role="alert" className="rounded-lg px-3 py-2 text-[10px] text-red-500" style={{ border: '1px solid rgba(239,68,68,.25)' }}>{error}</div>}
 
         <div className="flex gap-2 pt-1">
-          <button type="button" onClick={onCancel} className="flex-1 rounded-lg py-2.5 text-[11px]" style={{ border: '1px solid var(--t-border)', color: 'var(--t-faint)' }}>取消</button>
+          <button type="button" disabled={saving} onClick={onCancel} className="flex-1 rounded-lg py-2.5 text-[11px]" style={{ border: '1px solid var(--t-border)', color: 'var(--t-faint)' }}>取消</button>
           <button
-            type="button"
+            type="submit"
             disabled={saving || !form.title.trim()}
-            onClick={() => onSave(form)}
             className="flex-1 rounded-lg py-2.5 text-[11px] disabled:opacity-40"
             style={{ border: '1px solid rgba(212,168,67,.32)', background: 'rgba(212,168,67,.10)', color: 'var(--t-gold)' }}
           >
             {saving ? '正在保存…' : event ? '保存修改' : '确认记录'}
           </button>
         </div>
-      </div>
+      </form>
 
       <style jsx>{`
         .event-input {
@@ -203,10 +217,14 @@ export default function LifeEventForm({
           font-size: 0.6875rem;
           outline: none;
         }
-        .event-input:focus { border-color: rgba(212,168,67,.45); }
+        .event-input:focus { border-color: var(--t-gold); outline: 2px solid var(--t-gold); outline-offset: 2px; }
       `}</style>
-    </div>
+    </section>
   );
+}
+
+function ChoiceGroup({ label, children }: { label: string; children: React.ReactNode }) {
+  return <fieldset><legend className="mb-1.5 text-[10px]" style={{ color: 'var(--t-faint)' }}>{label}</legend>{children}</fieldset>;
 }
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {

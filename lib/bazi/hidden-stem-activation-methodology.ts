@@ -1,7 +1,7 @@
 import type { BaziHiddenStemActivationMethodology } from './hidden-stem-activation-types';
 
 export const BAZI_HIDDEN_STEM_ACTIVATION_METHODOLOGY_VERSION = 'bazi-hidden-stem-touch-condition-audit-v1';
-export const BAZI_HIDDEN_STEM_ACTIVATION_ENGINE_VERSION = 'bazi-hidden-stem-activation-engine-v1';
+export const BAZI_HIDDEN_STEM_ACTIVATION_ENGINE_VERSION = 'bazi-hidden-stem-activation-engine-v2';
 
 /** M9-11 只审计藏干被哪些已版本化条件触达，不裁决发动、力量、作用结果或应事。 */
 export const BAZI_HIDDEN_STEM_ACTIVATION_METHODOLOGY: BaziHiddenStemActivationMethodology = {

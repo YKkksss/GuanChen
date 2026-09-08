@@ -24,6 +24,7 @@ async function main() {
     readReportExportFile,
   } = await import('../lib/report-exports/service');
   const { parseAnnualContent, resolveReportExportDocument } = await import('../lib/report-exports/source');
+  const { renderReportPdf } = await import('../lib/report-exports/pdf-renderer');
   const { REPORT_TYPE_DEFINITIONS } = await import('../lib/reports/types');
   const { getOrCreateAnnualTransit } = await import('../lib/transits/service');
   const { claimAnnualTransitReport, completeAnnualTransitReport } = await import('../lib/db/transit-reports');
@@ -31,6 +32,12 @@ async function main() {
   const downloadRoute = await import('../app/api/report-exports/[exportId]/download/route');
 
   try {
+    // 合成的真实验收内容曾产生免责声明孤页；直接检查最终 PDF 页树，防止回归。
+    const paginationFixture = JSON.parse(readFileSync(path.join(process.cwd(), 'scripts/fixtures/report-pdf-pagination.json'), 'utf8'));
+    const paginationPdf = await renderReportPdf(paginationFixture);
+    const pageCount = paginationPdf.toString('latin1').match(/\/Type \/Pages\s+\/Count (\d+)/)?.[1];
+    assert.equal(pageCount, '2', '校时短报告应排为两页，不能再增加免责声明孤页');
+
     const birthInfo = { year: 1992, month: 7, day: 9, hour: 8, gender: 'female' as const };
     const conversation = createConversation({
       type: 'chart',
@@ -84,7 +91,7 @@ async function main() {
     const exportDocument = resolveReportExportDocument({ sourceKind: 'topic', reportId: report.id, version: 1 });
     assert.match(exportDocument.metadata.find(item => item.label === '本版分析范围')!.value, /选入 20 条/);
     assert.match(exportDocument.sections[0].evidence[0].detail, /分析日期：2026-09-08/);
-    assert.equal(first.record.rendererVersion, 'report-pdf-v4');
+    assert.equal(first.record.rendererVersion, 'report-pdf-v5');
     if (process.env.PDF_REVIEW_OUTPUT) {
       const exported = await readReportExportFile(first.record.id);
       writeFileSync(process.env.PDF_REVIEW_OUTPUT, exported.buffer);

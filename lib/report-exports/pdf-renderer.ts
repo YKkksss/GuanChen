@@ -3,7 +3,7 @@ import path from 'node:path';
 import PDFDocument from 'pdfkit';
 import type { ReportExportDocument, ReportExportSection } from './types';
 
-export const REPORT_PDF_RENDERER_VERSION = 'report-pdf-v4';
+export const REPORT_PDF_RENDERER_VERSION = 'report-pdf-v5';
 
 const PAGE_MARGIN = 54;
 const COLORS = {
@@ -51,8 +51,21 @@ export async function renderReportPdf(document: ReportExportDocument): Promise<B
   for (const [index, section] of document.sections.entries()) {
     drawSection(pdf, section, index + 1);
   }
-  if (document.actionItems.length) drawListSection(pdf, '行动建议', document.actionItems, true);
-  if (document.openQuestions.length) drawListSection(pdf, '待观察事项', document.openQuestions, false);
+  if (document.actionItems.length) {
+    if (!document.openQuestions.length) {
+      const closingHeight = measureListSection(pdf, '行动建议', document.actionItems, true)
+        + measureDisclaimer(pdf, document.disclaimer);
+      if (closingHeight <= pdf.page.height - PAGE_MARGIN - pdf.page.margins.bottom) ensureSpace(pdf, closingHeight);
+    }
+    drawListSection(pdf, '行动建议', document.actionItems, true);
+  }
+  if (document.openQuestions.length) {
+    // 尾部短列表与使用说明一起安排，避免仅一段免责声明占用整页。
+    const closingHeight = measureListSection(pdf, '待观察事项', document.openQuestions)
+      + measureDisclaimer(pdf, document.disclaimer);
+    if (closingHeight <= pdf.page.height - PAGE_MARGIN - pdf.page.margins.bottom) ensureSpace(pdf, closingHeight);
+    drawListSection(pdf, '待观察事项', document.openQuestions, false);
+  }
   drawDisclaimer(pdf, document.disclaimer);
   drawPageFooters(pdf, document.title);
   pdf.end();
@@ -154,7 +167,7 @@ function drawSection(pdf: PDFKit.PDFDocument, section: ReportExportSection, inde
   pdf.moveTo(PAGE_MARGIN, dividerY).lineTo(PAGE_MARGIN + width, dividerY)
     .lineWidth(0.6).strokeColor(COLORS.rule).stroke();
   pdf.x = PAGE_MARGIN;
-  pdf.y = dividerY + 13;
+  pdf.y = dividerY + 10;
   pdf.font('ReportRegular').fontSize(12).fillColor(COLORS.text)
     .text(sanitizePdfText(section.content), PAGE_MARGIN, pdf.y, {
       width,
@@ -179,7 +192,7 @@ function drawSection(pdf: PDFKit.PDFDocument, section: ReportExportSection, inde
       }
     }
   }
-  pdf.moveDown(1.5);
+  pdf.moveDown(1);
 }
 
 function drawListSection(
@@ -200,11 +213,11 @@ function drawListSection(
       .text(sanitizePdfText(`${prefix} ${item}`), PAGE_MARGIN, pdf.y, { width, lineGap: 4, indent: 2 });
     pdf.moveDown(0.35);
   });
-  pdf.moveDown(1.2);
+  pdf.moveDown(0.8);
 }
 
 function drawDisclaimer(pdf: PDFKit.PDFDocument, disclaimer: string) {
-  ensureSpace(pdf, 86);
+  ensureSpace(pdf, measureDisclaimer(pdf, disclaimer));
   const width = contentWidth(pdf);
   pdf.save().roundedRect(PAGE_MARGIN, pdf.y, width, 1, 0).fill(COLORS.rule).restore();
   pdf.y += 15;
@@ -213,6 +226,27 @@ function drawDisclaimer(pdf: PDFKit.PDFDocument, disclaimer: string) {
   pdf.moveDown(0.4);
   pdf.font('ReportRegular').fontSize(10).fillColor(COLORS.faint)
     .text(sanitizePdfText(disclaimer), PAGE_MARGIN, pdf.y, { width, lineGap: 3 });
+}
+
+function measureDisclaimer(pdf: PDFKit.PDFDocument, disclaimer: string): number {
+  const width = contentWidth(pdf);
+  const titleHeight = pdf.font('ReportBold').fontSize(10).heightOfString('使用边界与免责声明', { width });
+  const gap = pdf.currentLineHeight(true) * 0.4;
+  const bodyHeight = pdf.font('ReportRegular').fontSize(10).heightOfString(sanitizePdfText(disclaimer), { width, lineGap: 3 });
+  return 15 + titleHeight + gap + bodyHeight + 2;
+}
+
+function measureListSection(pdf: PDFKit.PDFDocument, title: string, items: string[], numbered = false): number {
+  const width = contentWidth(pdf);
+  let height = pdf.font('ReportBold').fontSize(14).heightOfString(title, { width });
+  height += pdf.currentLineHeight(true) * 0.7;
+  pdf.font('ReportRegular').fontSize(12);
+  for (const [index, item] of items.entries()) {
+    const prefix = numbered ? `${index + 1}.` : '-';
+    height += pdf.heightOfString(sanitizePdfText(`${prefix} ${item}`), { width, lineGap: 4, indent: 2 });
+    height += pdf.currentLineHeight(true) * 0.35;
+  }
+  return height + pdf.currentLineHeight(true) * 0.8 + 2;
 }
 
 function drawPageFooters(pdf: PDFKit.PDFDocument, reportTitle: string) {

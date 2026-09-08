@@ -535,14 +535,16 @@ body.eastern-home-body {
   --ew-paper-strong: #fffdf8;
   --ew-ink: #2a241f;
   --ew-ink-soft: #5f574e;
-  --ew-muted: #8b8175;
+  --ew-muted: #716457;
   --ew-line: #ded3c2;
   --ew-line-soft: #ebe3d6;
   --ew-cinnabar: #a43f31;
   --ew-cinnabar-soft: rgba(164, 63, 49, 0.09);
-  --ew-bronze: #9a672d;
+  --ew-bronze: #825323;
   --ew-jade: #476c5b;
   --ew-blue: #416783;
+  --lu: #25673f;
+  --ke: #725c12;
   --ew-shadow: 0 12px 32px rgba(70, 54, 37, 0.06);
 
   --t-bg: var(--ew-paper);
@@ -815,7 +817,7 @@ body.eastern-home-body {
    */
   --ew-paper: #fbf8f1;
   --ew-ink: #2a241f;
-  --ew-muted: #8b8175;
+  --ew-muted: #716457;
   --ew-line: #ded3c2;
   --ew-line-soft: #ebe3d6;
   --ew-cinnabar: #a43f31;
@@ -1044,7 +1046,7 @@ body.eastern-home-body {
 }
 .eastern-chart-caption-primary { display: flex; align-items: center; gap: 12px; color: var(--ew-ink-soft); }
 .eastern-chart-caption-primary span + span::before { content: '·'; margin-right: 12px; color: var(--ew-line); }
-.eastern-chart-caption-hint { color: #a3988a; }
+.eastern-chart-caption-hint { color: #716457; }
 .eastern-palace-grid {
   flex: 1;
   min-height: 520px;
@@ -1088,16 +1090,16 @@ body.eastern-home-body {
 .eastern-palace-mark.is-shen { color: var(--ew-blue); }
 .eastern-palace-ganzhi { position: absolute; top: 8px; left: 10px; margin: 0; color: var(--ew-muted); font-family: var(--font-mono); font-size: 9px; }
 .eastern-palace-stars { min-height: 0; flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; padding: 18px 0 20px; text-align: center; }
-.eastern-empty-palace { color: #aaa094; font-family: 'Noto Serif SC', 'Songti SC', serif; font-size: 10px; font-style: italic; }
+.eastern-empty-palace { color: #716457; font-family: 'Noto Serif SC', 'Songti SC', serif; font-size: 10px; font-style: italic; }
 .eastern-major-star-row { display: flex; align-items: center; }
 .eastern-major-star { color: var(--ew-bronze); font-family: 'Noto Serif SC', 'Songti SC', 'STSong', serif; font-size: 16px; font-weight: 700; line-height: 1.18; cursor: pointer; }
 .eastern-major-star.is-bright { color: #8b541f; }
-.eastern-major-star.is-dim { color: #997c61; }
+.eastern-major-star.is-dim { color: #7b6048; }
 .eastern-major-star:hover { color: var(--ew-cinnabar); }
 .eastern-minor-stars { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 1px 6px; margin-top: 0; padding-bottom: 24px; }
 .eastern-minor-star { display: inline-flex; align-items: center; font-size: 9px; line-height: 1.25; }
 .eastern-minor-stars.is-lucky .eastern-minor-star { color: var(--ew-blue); }
-.eastern-minor-stars.is-sha .eastern-minor-star { color: #a55b4e; }
+.eastern-minor-stars.is-sha .eastern-minor-star { color: #934a3e; }
 .eastern-sihua-badge {
   display: inline-flex;
   align-items: center;
@@ -1131,7 +1133,7 @@ body.eastern-home-body {
 .eastern-current-daxian span { grid-column: 1 / -1; font-size: 7px; letter-spacing: 0.12em; }
 .eastern-current-daxian strong { font-size: 10px; font-weight: 600; }
 .eastern-current-daxian small { color: var(--ew-muted); font-size: 8px; }
-.eastern-lunar-date { color: #9d9388; font-family: var(--font-mono); font-size: 8px; line-height: 1.5; }
+.eastern-lunar-date { color: #716457; font-family: var(--font-mono); font-size: 8px; line-height: 1.5; }
 .eastern-chart-legend { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 7px; margin-top: 10px; color: var(--ew-muted); font-size: 8px; }
 .eastern-legend-badge { padding: 2px 5px; border-radius: 2px; font-weight: 600; }
 .eastern-legend-hint { padding-left: 5px; color: var(--ew-muted); }

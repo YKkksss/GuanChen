@@ -360,7 +360,10 @@ function uniqueByNode(occurrences: BaziTenGodOccurrence[]): BaziTenGodOccurrence
 }
 
 function branchNodeLabel(occurrence: BaziTenGodOccurrence): string {
-  if (occurrence.layer === 'natal') return `原局${occurrence.pillarKey ?? ''}支${occurrence.sourceBranch}`;
+  if (occurrence.layer === 'natal') {
+    const labels = { year: '年', month: '月', day: '日', time: '时' };
+    return `原局${occurrence.pillarKey ? labels[occurrence.pillarKey] : ''}支${occurrence.sourceBranch}`;
+  }
   return occurrence.label.replace(/藏.*$/, '');
 }
 

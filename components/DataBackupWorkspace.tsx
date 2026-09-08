@@ -475,7 +475,7 @@ export default function DataBackupWorkspace() {
 }
 
 function VaultTab({ active, title, subtitle, onClick }: { active: boolean; title: string; subtitle: string; onClick: () => void }) {
-  return <button type="button" onClick={onClick} className="rounded-lg px-3 py-3 text-left sm:px-5" style={active ? { color: '#fffaf3', background: 'var(--ac)' } : { color: 'var(--t-text2)' }}><strong className="block text-xs font-medium">{title}</strong><span className="mt-1 hidden text-[9px] opacity-70 sm:block">{subtitle}</span></button>;
+  return <button type="button" onClick={onClick} className="rounded-lg px-3 py-3 text-left sm:px-5" style={active ? { color: '#fffaf3', background: 'var(--ac)' } : { color: 'var(--t-text2)' }}><strong className="block text-xs font-medium">{title}</strong><span className="mt-1 hidden text-[10px] sm:block">{subtitle}</span></button>;
 }
 
 function ManagedBackupRow({

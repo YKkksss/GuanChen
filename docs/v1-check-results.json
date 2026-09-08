@@ -1,394 +1,397 @@
 {
-  "completedAt": "2026-09-08T12:39:31.127Z",
-  "total": 77,
-  "passed": 77,
+  "completedAt": "2026-09-08T15:30:06.762Z",
+  "total": 78,
+  "passed": 78,
   "results": [
+    {
+      "name": "test:request-boundary",
+      "passed": true,
+      "durationMs": 691
+    },
     {
       "name": "test:v1-intake-history",
       "passed": true,
-      "durationMs": 1065
+      "durationMs": 682
     },
     {
       "name": "test:ai-markdown",
       "passed": true,
-      "durationMs": 1827
+      "durationMs": 725
     },
     {
       "name": "test:chat-preferences",
       "passed": true,
-      "durationMs": 621
+      "durationMs": 515
     },
     {
       "name": "test:chat-split",
       "passed": true,
-      "durationMs": 624
+      "durationMs": 565
     },
     {
       "name": "test:conversations",
       "passed": true,
-      "durationMs": 643
+      "durationMs": 722
     },
     {
       "name": "test:event-period-context",
       "passed": true,
-      "durationMs": 1409
+      "durationMs": 1524
     },
     {
       "name": "test:event-year-context",
       "passed": true,
-      "durationMs": 1203
+      "durationMs": 1206
     },
     {
       "name": "test:natural-transit",
       "passed": true,
-      "durationMs": 1210
+      "durationMs": 1300
     },
     {
       "name": "test:ziwei-followup",
       "passed": true,
-      "durationMs": 1113
+      "durationMs": 1138
     },
     {
       "name": "test:context",
       "passed": true,
-      "durationMs": 986
+      "durationMs": 1001
     },
     {
       "name": "test:transits",
       "passed": true,
-      "durationMs": 996
+      "durationMs": 1076
     },
     {
       "name": "test:monthly-transits",
       "passed": true,
-      "durationMs": 1061
+      "durationMs": 1183
     },
     {
       "name": "test:monthly-transit-year",
       "passed": true,
-      "durationMs": 1683
+      "durationMs": 1806
     },
     {
       "name": "test:daily-transits",
       "passed": true,
-      "durationMs": 1003
+      "durationMs": 1085
     },
     {
       "name": "test:events",
       "passed": true,
-      "durationMs": 1411
+      "durationMs": 1423
     },
     {
       "name": "test:event-axis",
       "passed": true,
-      "durationMs": 619
+      "durationMs": 530
     },
     {
       "name": "test:event-candidates",
       "passed": true,
-      "durationMs": 1191
+      "durationMs": 1077
     },
     {
       "name": "test:event-analyses",
       "passed": true,
-      "durationMs": 1238
+      "durationMs": 1096
     },
     {
       "name": "test:report-evidence",
       "passed": true,
-      "durationMs": 558
+      "durationMs": 528
     },
     {
       "name": "test:report-facts",
       "passed": true,
-      "durationMs": 877
+      "durationMs": 885
     },
     {
       "name": "test:reports",
       "passed": true,
-      "durationMs": 883
+      "durationMs": 936
     },
     {
       "name": "test:report-pdf",
       "passed": true,
-      "durationMs": 1372
+      "durationMs": 1463
     },
     {
       "name": "test:report-comparisons",
       "passed": true,
-      "durationMs": 978
+      "durationMs": 1046
     },
     {
       "name": "test:report-revisions",
       "passed": true,
-      "durationMs": 960
+      "durationMs": 1035
     },
     {
       "name": "test:heming-methodology",
       "passed": true,
-      "durationMs": 630
+      "durationMs": 538
     },
     {
       "name": "test:heming-conversations",
       "passed": true,
-      "durationMs": 746
+      "durationMs": 645
     },
     {
       "name": "test:heming-engine",
       "passed": true,
-      "durationMs": 717
+      "durationMs": 732
     },
     {
       "name": "test:heming-context",
       "passed": true,
-      "durationMs": 949
+      "durationMs": 931
     },
     {
       "name": "test:heming-reports",
       "passed": true,
-      "durationMs": 902
+      "durationMs": 891
     },
     {
       "name": "test:heming-transits",
       "passed": true,
-      "durationMs": 1062
+      "durationMs": 1017
     },
     {
       "name": "test:heming-stage",
       "passed": true,
-      "durationMs": 1137
+      "durationMs": 1112
     },
     {
       "name": "test:rectification-methodology",
       "passed": true,
-      "durationMs": 538
+      "durationMs": 548
     },
     {
       "name": "test:rectification-sessions",
       "passed": true,
-      "durationMs": 1094
+      "durationMs": 1116
     },
     {
       "name": "test:rectification-events",
       "passed": true,
-      "durationMs": 1561
+      "durationMs": 1631
     },
     {
       "name": "test:rectification-evaluation",
       "passed": true,
-      "durationMs": 1610
+      "durationMs": 1604
     },
     {
       "name": "test:rectification-workbench",
       "passed": true,
-      "durationMs": 1103
+      "durationMs": 1093
     },
     {
       "name": "test:rectification-report",
       "passed": true,
-      "durationMs": 1234
+      "durationMs": 1289
     },
     {
       "name": "test:learning-foundation",
       "passed": true,
-      "durationMs": 952
+      "durationMs": 931
     },
     {
       "name": "test:learning-courses",
       "passed": true,
-      "durationMs": 840
+      "durationMs": 746
     },
     {
       "name": "test:learning-practice",
       "passed": true,
-      "durationMs": 1004
+      "durationMs": 929
     },
     {
       "name": "test:learning-open-practice",
       "passed": true,
-      "durationMs": 880
+      "durationMs": 982
     },
     {
       "name": "test:cases",
       "passed": true,
-      "durationMs": 958
+      "durationMs": 898
     },
     {
       "name": "test:case-search",
       "passed": true,
-      "durationMs": 1063
+      "durationMs": 1039
     },
     {
       "name": "test:case-comparisons",
       "passed": true,
-      "durationMs": 1032
+      "durationMs": 988
     },
     {
       "name": "test:reminder-foundation",
       "passed": true,
-      "durationMs": 1008
+      "durationMs": 934
     },
     {
       "name": "test:reminder-center",
       "passed": true,
-      "durationMs": 891
+      "durationMs": 878
     },
     {
       "name": "test:monthly-reviews",
       "passed": true,
-      "durationMs": 1146
+      "durationMs": 1121
     },
     {
       "name": "test:bazi-foundation",
       "passed": true,
-      "durationMs": 677
+      "durationMs": 667
     },
     {
       "name": "test:bazi-persistence",
       "passed": true,
-      "durationMs": 935
+      "durationMs": 854
     },
     {
       "name": "test:bazi-conversations",
       "passed": true,
-      "durationMs": 4826
+      "durationMs": 6116
     },
     {
       "name": "test:bazi-interpretation",
       "passed": true,
-      "durationMs": 2452
+      "durationMs": 2640
     },
     {
       "name": "test:bazi-luck-cycles",
       "passed": true,
-      "durationMs": 2384
+      "durationMs": 2558
     },
     {
       "name": "test:bazi-timeline-selection",
       "passed": true,
-      "durationMs": 834
+      "durationMs": 906
     },
     {
       "name": "test:bazi-question-scope",
       "passed": true,
-      "durationMs": 2494
+      "durationMs": 2606
     },
     {
       "name": "test:bazi-annual-timeline",
       "passed": true,
-      "durationMs": 2464
+      "durationMs": 2467
     },
     {
       "name": "test:bazi-relation-audit",
       "passed": true,
-      "durationMs": 2628
+      "durationMs": 2526
     },
     {
       "name": "test:bazi-relation-adjudication",
       "passed": true,
-      "durationMs": 2689
+      "durationMs": 2586
     },
     {
       "name": "test:bazi-dynamic-ten-gods",
       "passed": true,
-      "durationMs": 2618
+      "durationMs": 2583
     },
     {
       "name": "test:bazi-ten-god-repeats",
       "passed": true,
-      "durationMs": 2643
+      "durationMs": 2605
     },
     {
       "name": "test:bazi-transparency-roots",
       "passed": true,
-      "durationMs": 2737
+      "durationMs": 2686
     },
     {
       "name": "test:bazi-hidden-stem-activations",
       "passed": true,
-      "durationMs": 2952
+      "durationMs": 3016
     },
     {
       "name": "test:bazi-strength-composites",
       "passed": true,
-      "durationMs": 3232
+      "durationMs": 3012
     },
     {
       "name": "test:bazi-pattern-conditions",
       "passed": true,
-      "durationMs": 3136
+      "durationMs": 3004
     },
     {
       "name": "test:bazi-month-day-timeline",
       "passed": true,
-      "durationMs": 2573
+      "durationMs": 2708
     },
     {
       "name": "test:bazi-month-day-relations",
       "passed": true,
-      "durationMs": 2677
+      "durationMs": 2823
     },
     {
       "name": "test:bazi-month-day-visibility",
       "passed": true,
-      "durationMs": 2639
+      "durationMs": 2684
     },
     {
       "name": "test:bazi-month-day-strength",
       "passed": true,
-      "durationMs": 2693
+      "durationMs": 2522
     },
     {
       "name": "test:bazi-month-day-patterns",
       "passed": true,
-      "durationMs": 3340
+      "durationMs": 3321
     },
     {
       "name": "test:chat-scroll",
       "passed": true,
-      "durationMs": 593
+      "durationMs": 547
     },
     {
       "name": "test:chat-keyboard",
       "passed": true,
-      "durationMs": 614
+      "durationMs": 585
     },
     {
       "name": "test:workspace-navigation",
       "passed": true,
-      "durationMs": 601
+      "durationMs": 555
     },
     {
       "name": "test:chat-generation",
       "passed": true,
-      "durationMs": 3054
+      "durationMs": 3241
     },
     {
       "name": "test:backups",
       "passed": true,
-      "durationMs": 1231
+      "durationMs": 1212
     },
     {
       "name": "test:backup-lifecycle",
       "passed": true,
-      "durationMs": 1338
+      "durationMs": 1371
     },
     {
       "name": "test:encrypted-backups",
       "passed": true,
-      "durationMs": 1562
+      "durationMs": 1680
     },
     {
       "name": "test:chart-transfer",
       "passed": true,
-      "durationMs": 1122
+      "durationMs": 1071
     },
     {
       "name": "test:ziwei-birth",
       "passed": true,
-      "durationMs": 506
+      "durationMs": 628
     }
-  ],
-  "sourceCommit": "d5811a3",
-  "method": "independent-process-synthetic-data"
+  ]
 }

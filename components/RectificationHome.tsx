@@ -406,7 +406,7 @@ function Field({ label, hint, className = '', children }: { label: string; hint?
 
 function SessionSkeleton() {
   return (
-    <div className="grid gap-3 md:grid-cols-2" aria-label="正在加载校时记录">
+    <div className="grid gap-3 md:grid-cols-2" role="status" aria-label="正在加载校时记录">
       {[0, 1, 2, 3].map(item => <div key={item} className="h-32 animate-pulse rounded-xl" style={{ background: 'var(--bg-1)' }} />)}
     </div>
   );
@@ -414,7 +414,7 @@ function SessionSkeleton() {
 
 function FormSkeleton() {
   return (
-    <div className="space-y-4" aria-label="正在带入命盘信息">
+    <div className="space-y-4" role="status" aria-label="正在带入命盘信息">
       {[0, 1, 2, 3, 4].map(item => <div key={item} className="h-12 animate-pulse rounded-lg" style={{ background: 'var(--bg-1)' }} />)}
     </div>
   );

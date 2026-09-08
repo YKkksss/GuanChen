@@ -1,0 +1,534 @@
+{
+  "scope": "独立合成数据、生产模式；axe-core 4.13.0 WCAG 2A/2AA/2.1AA 自动检查，incomplete 保留人工复核边界。结果按最近一次相关复测汇总。",
+  "desktop": {
+    "completedAt": "2026-09-08T15:49:35.573Z",
+    "viewport": {
+      "width": 1440,
+      "height": 1000
+    },
+    "results": [
+      {
+        "completedAt": "2026-09-08T15:51:31.894Z",
+        "route": "/",
+        "status": 200,
+        "violations": [],
+        "incompleteCount": 1,
+        "horizontalOverflow": false
+      },
+      {
+        "route": "/chart",
+        "status": 200,
+        "violations": [],
+        "incompleteCount": 1,
+        "horizontalOverflow": false
+      },
+      {
+        "route": "/history",
+        "status": 200,
+        "violations": [],
+        "incompleteCount": 1,
+        "horizontalOverflow": false
+      },
+      {
+        "route": "/chart/select?target=reports",
+        "status": 200,
+        "violations": [],
+        "incompleteCount": 1,
+        "horizontalOverflow": false
+      },
+      {
+        "route": "/heming",
+        "status": 200,
+        "violations": [],
+        "incompleteCount": 1,
+        "horizontalOverflow": false
+      },
+      {
+        "route": "/rectification",
+        "status": 200,
+        "violations": [],
+        "incompleteCount": 1,
+        "horizontalOverflow": false
+      },
+      {
+        "route": "/bazi",
+        "status": 200,
+        "violations": [],
+        "incompleteCount": 1,
+        "horizontalOverflow": false
+      },
+      {
+        "route": "/bazi#历史档案-藏干触达展开",
+        "status": 200,
+        "violations": [],
+        "incompleteCount": 1,
+        "horizontalOverflow": false
+      },
+      {
+        "route": "/learn",
+        "status": 200,
+        "violations": [],
+        "incompleteCount": 1,
+        "horizontalOverflow": false
+      },
+      {
+        "route": "/knowledge",
+        "status": 200,
+        "violations": [],
+        "incompleteCount": 1,
+        "horizontalOverflow": false
+      },
+      {
+        "route": "/library",
+        "status": 200,
+        "violations": [],
+        "incompleteCount": 1,
+        "horizontalOverflow": false
+      },
+      {
+        "route": "/practice",
+        "status": 200,
+        "violations": [],
+        "incompleteCount": 1,
+        "horizontalOverflow": false
+      },
+      {
+        "route": "/practice/review",
+        "status": 200,
+        "violations": [],
+        "incompleteCount": 1,
+        "horizontalOverflow": false
+      },
+      {
+        "route": "/practice/open-ended",
+        "status": 200,
+        "violations": [],
+        "incompleteCount": 1,
+        "horizontalOverflow": false
+      },
+      {
+        "route": "/practice/foundation-review",
+        "status": 200,
+        "violations": [],
+        "incompleteCount": 1,
+        "horizontalOverflow": false
+      },
+      {
+        "route": "/practice/chart-structure",
+        "status": 200,
+        "violations": [],
+        "incompleteCount": 1,
+        "horizontalOverflow": false
+      },
+      {
+        "route": "/cases",
+        "status": 200,
+        "violations": [],
+        "incompleteCount": 1,
+        "horizontalOverflow": false
+      },
+      {
+        "route": "/reminders",
+        "status": 200,
+        "violations": [],
+        "incompleteCount": 1,
+        "horizontalOverflow": false
+      },
+      {
+        "route": "/reviews",
+        "status": 200,
+        "violations": [],
+        "incompleteCount": 1,
+        "horizontalOverflow": false
+      },
+      {
+        "route": "/settings/data",
+        "status": 200,
+        "violations": [],
+        "incompleteCount": 1,
+        "horizontalOverflow": false
+      },
+      {
+        "route": "/privacy",
+        "status": 200,
+        "violations": [],
+        "incompleteCount": 0,
+        "horizontalOverflow": false
+      },
+      {
+        "route": "/terms",
+        "status": 200,
+        "violations": [],
+        "incompleteCount": 0,
+        "horizontalOverflow": false
+      },
+      {
+        "route": "/chart/910953c7-e047-46be-874f-4ee3faf5edd7",
+        "status": 200,
+        "violations": [],
+        "incompleteCount": 1,
+        "horizontalOverflow": false
+      },
+      {
+        "route": "/chart/910953c7-e047-46be-874f-4ee3faf5edd7/events",
+        "status": 200,
+        "violations": [],
+        "incompleteCount": 1,
+        "horizontalOverflow": false
+      },
+      {
+        "route": "/chart/910953c7-e047-46be-874f-4ee3faf5edd7/timeline",
+        "status": 200,
+        "violations": [],
+        "incompleteCount": 1,
+        "horizontalOverflow": false
+      },
+      {
+        "route": "/chart/910953c7-e047-46be-874f-4ee3faf5edd7/reports",
+        "status": 200,
+        "violations": [],
+        "incompleteCount": 1,
+        "horizontalOverflow": false
+      },
+      {
+        "route": "/chart/910953c7-e047-46be-874f-4ee3faf5edd7/reports/6b4ed922-677a-4c85-8f13-be5ff5447c74",
+        "status": 200,
+        "violations": [],
+        "incompleteCount": 1,
+        "horizontalOverflow": false
+      },
+      {
+        "route": "/heming/13ad4b4d-0cf1-46ac-9e76-f04a11919d76",
+        "status": 200,
+        "violations": [],
+        "incompleteCount": 1,
+        "horizontalOverflow": false
+      },
+      {
+        "route": "/heming/13ad4b4d-0cf1-46ac-9e76-f04a11919d76/reports",
+        "status": 200,
+        "violations": [],
+        "incompleteCount": 1,
+        "horizontalOverflow": false
+      },
+      {
+        "route": "/heming/13ad4b4d-0cf1-46ac-9e76-f04a11919d76/reports/e75cad06-a016-42ff-852b-dcb55476baf2",
+        "status": 200,
+        "violations": [],
+        "incompleteCount": 1,
+        "horizontalOverflow": false
+      },
+      {
+        "route": "/rectification/4963ca0e-4211-48ef-bdef-0bece39adae4",
+        "status": 200,
+        "violations": [],
+        "incompleteCount": 1,
+        "horizontalOverflow": false
+      },
+      {
+        "route": "/rectification/4963ca0e-4211-48ef-bdef-0bece39adae4/reports",
+        "status": 200,
+        "violations": [],
+        "incompleteCount": 1,
+        "horizontalOverflow": false
+      },
+      {
+        "route": "/rectification/4963ca0e-4211-48ef-bdef-0bece39adae4/reports/589ce54b-8354-49f1-9191-87872b91d7a2",
+        "status": 200,
+        "violations": [],
+        "incompleteCount": 1,
+        "horizontalOverflow": false
+      },
+      {
+        "route": "/bazi/chat/bae513ad-e058-4e1f-9c0b-f8a2a6a9ba77",
+        "status": 200,
+        "violations": [],
+        "incompleteCount": 1,
+        "horizontalOverflow": false
+      }
+    ],
+    "pageErrors": [],
+    "followup": {
+      "reason": "首页悬停色调整后，仅重跑受影响首页；其他页面代码未变化。",
+      "previousViolations": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodes": [
+            {
+              "target": [
+                ".home_moduleLink__Dlx1M[href$=\"heming\"] > .home_moduleCopy__0SaKB > small"
+              ],
+              "html": "<small>分析伴侣、亲子、合作等关系中的互动结构与共同课题。</small>",
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.31 (foreground color: #716457, background color: #e8ded0, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+            }
+          ]
+        }
+      ],
+      "result": {
+        "completedAt": "2026-09-08T15:51:31.894Z",
+        "route": "/",
+        "status": 200,
+        "violations": [],
+        "incompleteCount": 1,
+        "horizontalOverflow": false
+      }
+    }
+  },
+  "mobile": {
+    "completedAt": "2026-09-08T15:50:23.898Z",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "results": [
+      {
+        "route": "/",
+        "status": 200,
+        "violations": [],
+        "incompleteCount": 1,
+        "horizontalOverflow": false
+      },
+      {
+        "route": "/chart",
+        "status": 200,
+        "violations": [],
+        "incompleteCount": 1,
+        "horizontalOverflow": false
+      },
+      {
+        "route": "/history",
+        "status": 200,
+        "violations": [],
+        "incompleteCount": 1,
+        "horizontalOverflow": false
+      },
+      {
+        "route": "/chart/select?target=reports",
+        "status": 200,
+        "violations": [],
+        "incompleteCount": 1,
+        "horizontalOverflow": false
+      },
+      {
+        "route": "/heming",
+        "status": 200,
+        "violations": [],
+        "incompleteCount": 1,
+        "horizontalOverflow": false
+      },
+      {
+        "route": "/rectification",
+        "status": 200,
+        "violations": [],
+        "incompleteCount": 1,
+        "horizontalOverflow": false
+      },
+      {
+        "route": "/bazi",
+        "status": 200,
+        "violations": [],
+        "incompleteCount": 1,
+        "horizontalOverflow": false
+      },
+      {
+        "route": "/bazi#历史档案-藏干触达展开",
+        "status": 200,
+        "violations": [],
+        "incompleteCount": 1,
+        "horizontalOverflow": false
+      },
+      {
+        "route": "/learn",
+        "status": 200,
+        "violations": [],
+        "incompleteCount": 1,
+        "horizontalOverflow": false
+      },
+      {
+        "route": "/knowledge",
+        "status": 200,
+        "violations": [],
+        "incompleteCount": 1,
+        "horizontalOverflow": false
+      },
+      {
+        "route": "/library",
+        "status": 200,
+        "violations": [],
+        "incompleteCount": 1,
+        "horizontalOverflow": false
+      },
+      {
+        "route": "/practice",
+        "status": 200,
+        "violations": [],
+        "incompleteCount": 1,
+        "horizontalOverflow": false
+      },
+      {
+        "route": "/practice/review",
+        "status": 200,
+        "violations": [],
+        "incompleteCount": 1,
+        "horizontalOverflow": false
+      },
+      {
+        "route": "/practice/open-ended",
+        "status": 200,
+        "violations": [],
+        "incompleteCount": 1,
+        "horizontalOverflow": false
+      },
+      {
+        "route": "/practice/foundation-review",
+        "status": 200,
+        "violations": [],
+        "incompleteCount": 1,
+        "horizontalOverflow": false
+      },
+      {
+        "route": "/practice/chart-structure",
+        "status": 200,
+        "violations": [],
+        "incompleteCount": 1,
+        "horizontalOverflow": false
+      },
+      {
+        "route": "/cases",
+        "status": 200,
+        "violations": [],
+        "incompleteCount": 1,
+        "horizontalOverflow": false
+      },
+      {
+        "route": "/reminders",
+        "status": 200,
+        "violations": [],
+        "incompleteCount": 1,
+        "horizontalOverflow": false
+      },
+      {
+        "route": "/reviews",
+        "status": 200,
+        "violations": [],
+        "incompleteCount": 1,
+        "horizontalOverflow": false
+      },
+      {
+        "route": "/settings/data",
+        "status": 200,
+        "violations": [],
+        "incompleteCount": 1,
+        "horizontalOverflow": false
+      },
+      {
+        "route": "/privacy",
+        "status": 200,
+        "violations": [],
+        "incompleteCount": 0,
+        "horizontalOverflow": false
+      },
+      {
+        "route": "/terms",
+        "status": 200,
+        "violations": [],
+        "incompleteCount": 0,
+        "horizontalOverflow": false
+      },
+      {
+        "route": "/chart/910953c7-e047-46be-874f-4ee3faf5edd7",
+        "status": 200,
+        "violations": [],
+        "incompleteCount": 2,
+        "horizontalOverflow": false
+      },
+      {
+        "route": "/chart/910953c7-e047-46be-874f-4ee3faf5edd7/events",
+        "status": 200,
+        "violations": [],
+        "incompleteCount": 1,
+        "horizontalOverflow": false
+      },
+      {
+        "route": "/chart/910953c7-e047-46be-874f-4ee3faf5edd7/timeline",
+        "status": 200,
+        "violations": [],
+        "incompleteCount": 2,
+        "horizontalOverflow": false
+      },
+      {
+        "route": "/chart/910953c7-e047-46be-874f-4ee3faf5edd7/reports",
+        "status": 200,
+        "violations": [],
+        "incompleteCount": 1,
+        "horizontalOverflow": false
+      },
+      {
+        "route": "/chart/910953c7-e047-46be-874f-4ee3faf5edd7/reports/6b4ed922-677a-4c85-8f13-be5ff5447c74",
+        "status": 200,
+        "violations": [],
+        "incompleteCount": 1,
+        "horizontalOverflow": false
+      },
+      {
+        "route": "/heming/13ad4b4d-0cf1-46ac-9e76-f04a11919d76",
+        "status": 200,
+        "violations": [],
+        "incompleteCount": 1,
+        "horizontalOverflow": false
+      },
+      {
+        "route": "/heming/13ad4b4d-0cf1-46ac-9e76-f04a11919d76/reports",
+        "status": 200,
+        "violations": [],
+        "incompleteCount": 1,
+        "horizontalOverflow": false
+      },
+      {
+        "route": "/heming/13ad4b4d-0cf1-46ac-9e76-f04a11919d76/reports/e75cad06-a016-42ff-852b-dcb55476baf2",
+        "status": 200,
+        "violations": [],
+        "incompleteCount": 1,
+        "horizontalOverflow": false
+      },
+      {
+        "route": "/rectification/4963ca0e-4211-48ef-bdef-0bece39adae4",
+        "status": 200,
+        "violations": [],
+        "incompleteCount": 1,
+        "horizontalOverflow": false
+      },
+      {
+        "route": "/rectification/4963ca0e-4211-48ef-bdef-0bece39adae4/reports",
+        "status": 200,
+        "violations": [],
+        "incompleteCount": 1,
+        "horizontalOverflow": false
+      },
+      {
+        "route": "/rectification/4963ca0e-4211-48ef-bdef-0bece39adae4/reports/589ce54b-8354-49f1-9191-87872b91d7a2",
+        "status": 200,
+        "violations": [],
+        "incompleteCount": 1,
+        "horizontalOverflow": false
+      },
+      {
+        "route": "/bazi/chat/bae513ad-e058-4e1f-9c0b-f8a2a6a9ba77",
+        "status": 200,
+        "violations": [],
+        "incompleteCount": 1,
+        "horizontalOverflow": false
+      }
+    ],
+    "pageErrors": []
+  },
+  "homepageHydrationRecheck": {
+    "completedAt": "2026-09-08T15:55:54.992Z",
+    "environment": "生产模式，减少动态效果",
+    "route": "/",
+    "consoleErrors": [],
+    "violations": [],
+    "horizontalOverflow": false
+  }
+}

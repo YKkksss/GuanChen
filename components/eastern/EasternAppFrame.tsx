@@ -218,7 +218,7 @@ export default function EasternAppFrame({ children }: { children: React.ReactNod
           })}
         </nav>
         <div className={styles.topbarActions}>
-          <Link className={styles.homeLink} href="/"><House size={16} aria-hidden="true" /><span>首页</span></Link>
+          <Link className={styles.homeLink} href="/" aria-label="返回首页"><House size={16} aria-hidden="true" /><span>首页</span></Link>
           <button
             type="button"
             className={styles.menuButton}

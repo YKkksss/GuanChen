@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ArrowClockwise,
   Check,
@@ -39,6 +39,14 @@ export default function ContextMemoryPanel({
   open,
   onClose,
 }: ContextMemoryPanelProps) {
+  const panelRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!open) return;
+    const previous = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    panelRef.current?.focus();
+    return () => { if (previous?.isConnected) previous.focus(); };
+  }, [open]);
+
   const [data, setData] = useState<ContextResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -147,6 +155,11 @@ export default function ContextMemoryPanel({
 
   return (
     <div
+      ref={panelRef}
+      role="region"
+      aria-label="对话记忆管理"
+      tabIndex={-1}
+      onKeyDown={event => { if (event.key === 'Escape' && !saving) { event.stopPropagation(); onClose(); } }}
       className="absolute inset-0 z-30 flex flex-col rounded-xl"
       style={{ background: 'var(--bg-0)', color: 'var(--t-text)' }}
     >
@@ -218,6 +231,7 @@ export default function ContextMemoryPanel({
                     {editingId === memory.id ? (
                       <div className="space-y-2">
                         <textarea
+                          aria-label="纠正记忆内容"
                           value={editingContent}
                           onChange={event => setEditingContent(event.target.value)}
                           rows={3}

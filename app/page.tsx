@@ -48,11 +48,11 @@ const MODULES = [
 ];
 
 function Reveal({ children, className = '', delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) {
-  const reduceMotion = useReducedMotion();
   return (
     <motion.div
       className={className}
-      initial={reduceMotion ? false : { opacity: 0, y: 22 }}
+      // 首屏正文直接可读，避免服务端未知的动态偏好造成水合属性不一致。
+      initial={false}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.2 }}
       transition={{ duration: 0.62, delay, ease: [0.16, 1, 0.3, 1] }}

@@ -1,6 +1,6 @@
 'use client';
 import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import Image from 'next/image';
 import { ArrowsOut, SquaresFour } from '@phosphor-icons/react';
 import type { ZiweiChart, Palace, Star, DaXian } from '@/lib/ziwei/types';
@@ -72,6 +72,7 @@ export default function ChartBoard({
   onLiunianYearChange,
   activeDaXian,
 }: ChartBoardProps) {
+  const reduceMotion = useReducedMotion();
   const [internalSelectedBranch, setInternalSelectedBranch] = useState<number | null>(null);
   const [mobileBoardMode, setMobileBoardMode] = useState<'overview' | 'readable'>('readable');
   const selectedBranch = controlledSelectedBranch === undefined ? internalSelectedBranch : controlledSelectedBranch;
@@ -130,7 +131,7 @@ export default function ChartBoard({
 
       {/* 命盘摘要 */}
       <motion.div
-        initial={{ opacity: 0, y: -8 }}
+        initial={reduceMotion ? false : { opacity: 0, y: -8 }}
         animate={{ opacity: 1, y: 0 }}
         className="eastern-chart-caption"
       >
@@ -192,7 +193,7 @@ export default function ChartBoard({
 
         {/* 中央信息区 */}
         <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
+          initial={reduceMotion ? false : { opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.5 }}
           className="eastern-chart-center"
@@ -232,7 +233,7 @@ export default function ChartBoard({
           {sanFangBranches !== null && (
             <motion.div
               key={`sf-${selectedBranch}`}
-              initial={{ opacity: 0 }}
+              initial={reduceMotion ? false : { opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.3 }}
@@ -307,7 +308,7 @@ export default function ChartBoard({
 
       {/* 图例 */}
       <motion.div
-        initial={{ opacity: 0 }}
+        initial={reduceMotion ? false : { opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.7 }}
         className="eastern-chart-legend"

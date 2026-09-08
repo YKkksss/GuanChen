@@ -205,7 +205,7 @@ export default function BaziChatWorkspace({ conversationId }: { conversationId: 
         </aside>
 
         <section className="grid min-h-0 grid-rows-[auto_minmax(0,1fr)] xl:grid-cols-[310px_minmax(0,1fr)] xl:grid-rows-1">
-          <aside className="max-h-56 overflow-y-auto border-b p-4 xl:max-h-none xl:border-b-0 xl:border-r" style={{ borderColor: 'var(--bdr)', background: 'var(--bg-1)' }}>
+          <aside tabIndex={0} aria-label="本次固定事实，可滚动查看" className="max-h-56 overflow-y-auto border-b p-4 xl:max-h-none xl:border-b-0 xl:border-r" style={{ borderColor: 'var(--bdr)', background: 'var(--bg-1)' }}>
             <div className="flex items-center gap-2"><ShieldCheck size={17} style={{ color: 'var(--ac-dim)' }} /><h2 className="text-sm font-semibold">本次固定事实</h2></div>
             <div className="mt-4 grid grid-cols-4 gap-2 xl:grid-cols-2">
               {pillars.map((pillar, index) => <div key={index} className="rounded-lg border p-2 text-center" style={{ borderColor: 'var(--bdr)', background: 'var(--bg-card)' }}><div className="text-[9px]" style={{ color: 'var(--tx-3)' }}>{pillar?.label ?? '时柱'}</div><div className="mt-1 font-serif text-lg">{pillar?.ganZhi ?? '未知'}</div></div>)}
