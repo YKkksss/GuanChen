@@ -120,8 +120,8 @@
 首次安装需要 Node.js、npm、Git 和可下载依赖的网络。建议使用当前已验证的 Node.js 24。
 
 ```powershell
-git clone https://github.com/YKkksss/ziweidoushu-ai.git
-cd ziweidoushu-ai
+git clone https://github.com/YKkksss/GuanChen.git
+cd GuanChen
 git switch main
 npm ci
 Copy-Item .env.example .env.local
