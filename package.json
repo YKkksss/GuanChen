@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "test:v1-all": "node scripts/run-v1-checks.mjs",
     "test:v1-intake-history": "tsx scripts/test-v1-intake-history.ts",
     "test:ai-markdown": "node scripts/run-ai-markdown-test.mjs",
     "test:chat-preferences": "tsx scripts/test-chat-preferences.ts",
