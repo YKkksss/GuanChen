@@ -3,7 +3,7 @@ import path from 'node:path';
 import PDFDocument from 'pdfkit';
 import type { ReportExportDocument, ReportExportSection } from './types';
 
-export const REPORT_PDF_RENDERER_VERSION = 'report-pdf-v3';
+export const REPORT_PDF_RENDERER_VERSION = 'report-pdf-v4';
 
 const PAGE_MARGIN = 54;
 const COLORS = {

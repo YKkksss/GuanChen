@@ -87,6 +87,8 @@
 
 ### 专题报告质量检查
 
+- 网页与 PDF 展示本版分析范围，区分命盘事实、程序规则和用户确认记录；事件起止日期、精度及星曜四化可查看。旧版本缺少范围时明确说明，不补写历史。
+
 - 命盘、新报告和单盘 AI 当前阶段统一采用农历虚岁，按北京时间春节换岁；重新打开旧命盘时刷新阶段。
 - 事件按专题相关性筛选，当前大限报告按阶段日期关联；新报告事实中记录筛选数量、范围与日期精度。
 
@@ -238,6 +240,7 @@ npm run test:ziwei-followup
 npm run test:natural-transit
 npm run test:event-year-context
 npm run test:event-period-context
+npm run test:report-evidence
 npm run test:report-facts
 npm run test:reports
 npm run test:heming-reports

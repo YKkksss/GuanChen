@@ -1,3 +1,4 @@
+import { REPORT_SCOPE_SECTION } from './evidence-presentation';
 import type { ChatMessage } from '@/lib/ai/deepseek';
 import { createChatCompletion, getProviderConfig } from '@/lib/ai/deepseek';
 import { getConversation } from '@/lib/db/conversations';
@@ -23,7 +24,7 @@ import type {
 import { HEMING_REPORT_DEFINITION, REPORT_TYPE_DEFINITIONS, type ReportTypeDefinition } from './types';
 
 export const TOPIC_REPORT_ENGINE_VERSION = 'ziwei-v1';
-export const TOPIC_REPORT_PROMPT_VERSION = 'topic-report-v3';
+export const TOPIC_REPORT_PROMPT_VERSION = 'topic-report-v4';
 export const HEMING_REPORT_PROMPT_VERSION = 'heming-report-v1';
 const GENERATING_STALE_MS = 3 * 60 * 1000;
 const DISCLAIMER = '本报告属于传统文化研究与自我观察参考，不构成医疗、投资、法律、婚姻或其他专业决策建议。';
@@ -86,12 +87,15 @@ export async function generateTopicReport(input: {
     completeReportVersion({
       versionId: claim.version.id,
       content,
-      evidenceBySection: content.sections.map(section => ({
-        sectionKey: section.key,
-        evidence: section.evidenceIds
-          .map(id => evidenceByKey.get(id))
-          .filter((item): item is ReportEvidenceDraft => Boolean(item)),
-      })),
+      evidenceBySection: [
+        // 独立保存生成范围，避免依赖模型是否引用 chart:core。
+        { sectionKey: REPORT_SCOPE_SECTION, evidence: evidence.filter(item => item.kind === 'chart_core') },
+        ...content.sections.map(section => ({
+          sectionKey: section.key,
+          evidence: section.evidenceIds.map(id => evidenceByKey.get(id))
+            .filter((item): item is ReportEvidenceDraft => Boolean(item)),
+        })),
+      ],
       inputTokens,
       outputTokens,
     });

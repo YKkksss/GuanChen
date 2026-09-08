@@ -23,7 +23,7 @@ async function main() {
     pruneOrphanedReportExportFiles,
     readReportExportFile,
   } = await import('../lib/report-exports/service');
-  const { parseAnnualContent } = await import('../lib/report-exports/source');
+  const { parseAnnualContent, resolveReportExportDocument } = await import('../lib/report-exports/source');
   const { REPORT_TYPE_DEFINITIONS } = await import('../lib/reports/types');
   const { getOrCreateAnnualTransit } = await import('../lib/transits/service');
   const { claimAnnualTransitReport, completeAnnualTransitReport } = await import('../lib/db/transit-reports');
@@ -69,7 +69,7 @@ async function main() {
       kind: 'chart_core' as const,
       label: '命盘核心结构快照',
       source: 'chart_snapshot' as const,
-      facts: { wuxingJu: '测试五行局', mingGongBranch: '辰' },
+      facts: { wuxingJu: '测试五行局', mingGongBranch: '辰', asOfDate: '2026-09-08', ageConvention: '农历虚岁，春节换岁', eventSelection: { confirmedCount: 25, matchedCount: 22, selectedCount: 20, omittedCount: 5, truncatedCount: 2, policy: '按专题分类筛选', notice: '筛选记录不代表完整经历。' } },
     };
     completeReportVersion({
       versionId: claim.version.id,
@@ -81,7 +81,10 @@ async function main() {
 
     const first = await ensureReportPdfExport({ sourceKind: 'topic', reportId: report.id, version: 1 });
     assert.equal(first.reused, false);
-    assert.equal(first.record.rendererVersion, 'report-pdf-v3');
+    const exportDocument = resolveReportExportDocument({ sourceKind: 'topic', reportId: report.id, version: 1 });
+    assert.match(exportDocument.metadata.find(item => item.label === '本版分析范围')!.value, /选入 20 条/);
+    assert.match(exportDocument.sections[0].evidence[0].detail, /分析日期：2026-09-08/);
+    assert.equal(first.record.rendererVersion, 'report-pdf-v4');
     if (process.env.PDF_REVIEW_OUTPUT) {
       const exported = await readReportExportFile(first.record.id);
       writeFileSync(process.env.PDF_REVIEW_OUTPUT, exported.buffer);

@@ -25,6 +25,7 @@
     "test:event-axis": "tsx scripts/test-life-event-axis.ts",
     "test:event-candidates": "tsx scripts/test-life-event-candidates.ts",
     "test:event-analyses": "tsx scripts/test-event-analyses.ts",
+    "test:report-evidence": "tsx scripts/test-report-evidence.ts",
     "test:report-facts": "tsx scripts/test-report-facts.ts",
     "test:reports": "tsx scripts/test-reports.ts",
     "test:report-pdf": "tsx scripts/test-report-pdf-exports.ts",

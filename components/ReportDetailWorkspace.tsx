@@ -1,5 +1,6 @@
 'use client';
 
+import { describeReportEvidence, evidenceSourceLabel, reportScopeLines } from '@/lib/reports/evidence-presentation';
 import RequestFeedback from './RequestFeedback';
 import { useReportResource } from '@/lib/ui/use-report-resource';
 import { useCallback, useMemo, useState } from 'react';
@@ -152,6 +153,14 @@ export default function ReportDetailWorkspace({
 
         {content && (
           <div className="px-6 py-8 sm:px-10 sm:py-10">
+            {conversationType === 'chart' && (
+              <section aria-label="本版分析范围" className="mb-6 rounded-lg border p-4 text-xs leading-6" style={{ borderColor: 'var(--t-border)', color: 'var(--t-text2)' }}>
+                <h2 className="mb-2 text-sm font-semibold" style={{ color: 'var(--t-text)' }}>本版分析范围</h2>
+                {reportScopeLines(detail.evidence).map((line, index) => <p key={index}>{line}</p>)}
+              </section>
+            )}
+            {content !== originalContent && <p className="mb-3 text-xs leading-6" style={{ color: 'var(--t-text2)' }}>当前显示人工修订内容，引用依据仍来自原始报告版本，请重新核对修订后的判断是否与依据对应。</p>}
+            <p className="mb-4 text-xs leading-6" style={{ color: 'var(--t-text2)' }}>引用依据是核对入口，不代表结论已经得到验证。请区分命盘事实、程序规则和用户确认记录；综合观察属于解释与推断。</p>
             <section className="rounded-xl px-5 py-5" style={{ background: 'rgba(212,168,67,.055)', border: '1px solid rgba(212,168,67,.15)' }}>
               <h2 className="text-xs font-semibold tracking-wider" style={{ color: 'var(--t-gold)' }}>核心结论摘要</h2>
               <p className="mt-3 whitespace-pre-wrap text-[12px] leading-7" style={{ color: 'var(--t-text2)' }}>{content.summary}</p>
@@ -166,19 +175,22 @@ export default function ReportDetailWorkspace({
                       <h2 className="text-[15px] font-semibold" style={{ color: 'var(--t-text)' }}>【{section.title}】</h2>
                       <span className="rounded-full px-2 py-0.5 text-[9px]" style={{ color: section.basis === 'evidence' ? 'var(--t-gold)' : 'var(--t-faint)', background: 'rgba(212,168,67,.07)' }}>
                         {section.basis === 'evidence'
-                          ? `${sectionEvidence.length} 条${conversationType === 'heming' ? '结构化' : '命盘'}依据`
+                          ? (sectionEvidence.length ? `${sectionEvidence.length} 条引用依据` : '引用明细缺失')
                           : '综合观察'}
                       </span>
                     </div>
                     <p className="mt-3 whitespace-pre-wrap text-[12px] leading-8" style={{ color: 'var(--t-text2)' }}>{section.content}</p>
+                    {section.basis === 'evidence' && sectionEvidence.length === 0 && (
+                      <p className="mt-3 text-xs leading-6" style={{ color: 'var(--t-text2)' }}>此章节标记为有依据，但此版本未保存对应明细，暂时无法核对引用。</p>
+                    )}
                     {sectionEvidence.length > 0 && (
                       <details className="report-evidence mt-4 rounded-lg px-4 py-3" style={{ border: '1px solid var(--t-border)' }}>
-                        <summary className="cursor-pointer text-[10px]" style={{ color: 'var(--t-gold)' }}>查看本节结构化依据</summary>
+                        <summary className="cursor-pointer text-[10px]" style={{ color: 'var(--t-gold)' }}>查看本节引用依据</summary>
                         <div className="mt-3 space-y-3">
                           {sectionEvidence.map(evidence => (
-                            <div key={evidence.id} className="text-[10px] leading-6" style={{ color: 'var(--t-faint)' }}>
-                              <div style={{ color: 'var(--t-text)' }}>{evidence.label}</div>
-                              <div className="mt-1 break-words">{summarizeFacts(evidence)}</div>
+                            <div key={evidence.id} className="text-xs leading-6" style={{ color: 'var(--t-text2)' }}>
+                              <div style={{ color: 'var(--t-text)' }}>{evidenceSourceLabel(evidence.source)} · {evidence.label}</div>
+                              <div className="mt-1 whitespace-pre-wrap break-words">{describeReportEvidence(evidence)}</div>
                             </div>
                           ))}
                         </div>
@@ -232,48 +244,4 @@ export default function ReportDetailWorkspace({
       `}</style>
     </main>
   );
-}
-
-function summarizeFacts(evidence: ReportEvidence): string {
-  if (evidence.kind === 'heming_palace') {
-    const stars = Array.isArray(evidence.facts.stars)
-      ? evidence.facts.stars
-        .map(item => typeof item === 'object' && item !== null && 'name' in item ? String(item.name) : '')
-        .filter(Boolean)
-        .join('、')
-      : '';
-    return `${String(evidence.facts.owner ?? '')}方 · ${String(evidence.facts.palace ?? '')}（${String(evidence.facts.branch ?? '')}）${stars ? ` · 星曜：${stars}` : ' · 空宫'}`;
-  }
-  if (evidence.kind === 'heming_rule') {
-    return `规则 ${String(evidence.facts.ruleId ?? '')} · ${String(evidence.facts.phase ?? '')} · ${String(evidence.facts.level ?? '')} · ${String(evidence.facts.confidence ?? '')}置信度`;
-  }
-  if (evidence.kind === 'heming_stage') {
-    return `${String(evidence.facts.owner ?? '')}方 · ${String(evidence.facts.startAge ?? '')}-${String(evidence.facts.endAge ?? '')} 岁 · ${String(evidence.facts.palace ?? '')}`;
-  }
-  if (evidence.kind === 'heming_context') {
-    const roles = evidence.facts.roles && typeof evidence.facts.roles === 'object'
-      ? evidence.facts.roles as Record<string, unknown>
-      : {};
-    return `${String(evidence.facts.relationshipLabel ?? '')} · 甲方：${String(roles.A ?? '')} · 乙方：${String(roles.B ?? '')}`;
-  }
-  if (evidence.kind === 'palace') {
-    const stars = Array.isArray(evidence.facts.stars)
-      ? evidence.facts.stars
-        .map(item => typeof item === 'object' && item !== null && 'name' in item ? String(item.name) : '')
-        .filter(Boolean)
-        .join('、')
-      : '';
-    const borrowed = Array.isArray(evidence.facts.borrowedStars) ? evidence.facts.borrowedStars.join('、') : '';
-    return stars ? `星曜：${stars}` : borrowed ? `空宫，借对宫主星：${borrowed}` : '命盘宫位事实';
-  }
-  if (evidence.kind === 'pattern') {
-    return typeof evidence.facts.description === 'string' ? evidence.facts.description : '程序识别格局';
-  }
-  if (evidence.kind === 'daxian') {
-    return `阶段宫位：${String(evidence.facts.palaceName ?? '')}，年龄范围 ${String(evidence.facts.startAge ?? '')}-${String(evidence.facts.endAge ?? '')} 岁`;
-  }
-  if (evidence.kind === 'confirmed_event') {
-    return `${String(evidence.facts.startDate ?? '时间未知')} · ${String(evidence.facts.description ?? '用户已确认')}`;
-  }
-  return `五行局：${String(evidence.facts.wuxingJu ?? '')}，命宫：${String(evidence.facts.mingGongBranch ?? '')}`;
 }

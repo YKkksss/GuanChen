@@ -1,3 +1,4 @@
+import { describeReportEvidence, evidenceSourceLabel, reportScopeLines, REPORT_SCOPE_SECTION } from '@/lib/reports/evidence-presentation';
 import { createHash } from 'node:crypto';
 import { getConversation } from '@/lib/db/conversations';
 import { getRectificationReportDetail } from '@/lib/db/rectification-reports';
@@ -44,7 +45,7 @@ function resolveTopicDocument(input: EnsureReportExportInput): ReportExportDocum
     title: section.title,
     content: section.content,
     basisLabel: section.basis === 'evidence'
-      ? `${(evidenceBySection.get(section.key) ?? []).length} 条结构化依据`
+      ? ((evidenceBySection.get(section.key) ?? []).length ? `${(evidenceBySection.get(section.key) ?? []).length} 条引用依据` : '引用明细缺失，暂时无法核对')
       : '综合观察',
     evidence: (evidenceBySection.get(section.key) ?? []).map(summarizeReportEvidence),
   }));
@@ -71,8 +72,10 @@ function resolveTopicDocument(input: EnsureReportExportInput): ReportExportDocum
       { label: '提示词版本', value: version.promptVersion },
       { label: '生成模型', value: `${version.provider} / ${version.model}` },
       { label: '生成原因', value: REPORT_GENERATION_REASON_LABELS[version.generationReason] },
-      { label: '结构化依据', value: `${detail.evidence.length} 条` },
+      { label: '章节引用依据', value: `${detail.evidence.filter(item => item.sectionKey !== REPORT_SCOPE_SECTION).length} 条` },
+      ...(input.sourceKind === 'topic' ? [{ label: '本版分析范围', value: reportScopeLines(detail.evidence).join('\n') }] : []),
       ...revisionMetadata(userRevision),
+      ...(userRevision?.editedContent ? [{ label: '引用说明', value: '人工修订内容仍使用原始报告版本的引用依据，请重新核对判断与依据是否对应。' }] : []),
     ],
     summary: content.summary,
     sections: appendPersonalNote(sections, userRevision?.note),
@@ -269,31 +272,7 @@ function groupRectificationEvidence(items: RectificationReportEvidence[]) {
 }
 
 function summarizeReportEvidence(item: ReportEvidence): ReportExportEvidenceLine {
-  if (item.kind === 'confirmed_event') {
-    return line(item.label, `${String(item.facts.startDate ?? '时间未知')} · ${String(item.facts.description ?? '用户已确认')}`);
-  }
-  if (item.kind === 'daxian') {
-    return line(item.label, `${String(item.facts.startAge ?? '')}-${String(item.facts.endAge ?? '')} 岁 · ${String(item.facts.palaceName ?? '')}`);
-  }
-  if (item.kind === 'heming_rule') {
-    return line(item.label, `规则 ${String(item.facts.ruleId ?? '')} · ${String(item.facts.phase ?? '')} · ${String(item.facts.level ?? '')}`);
-  }
-  if (item.kind === 'heming_palace') {
-    return line(item.label, `${String(item.facts.owner ?? '')}方 · ${String(item.facts.palace ?? '')}（${String(item.facts.branch ?? '')}）`);
-  }
-  if (item.kind === 'heming_stage') {
-    return line(item.label, `${String(item.facts.owner ?? '')}方 · ${String(item.facts.startAge ?? '')}-${String(item.facts.endAge ?? '')} 岁`);
-  }
-  if (item.kind === 'pattern') {
-    return line(item.label, String(item.facts.description ?? '程序识别结构'));
-  }
-  if (item.kind === 'palace') {
-    const stars = Array.isArray(item.facts.stars)
-      ? item.facts.stars.map(value => objectName(value)).filter(Boolean).join('、')
-      : '';
-    return line(item.label, stars ? `星曜：${stars}` : '命盘宫位结构');
-  }
-  return line(item.label, item.source === 'user_confirmed' ? '用户已确认事实' : '结构化命盘依据');
+  return line(`${evidenceSourceLabel(item.source)} · ${item.label}`, describeReportEvidence(item));
 }
 
 function summarizeRectificationEvidence(item: RectificationReportEvidence): ReportExportEvidenceLine {

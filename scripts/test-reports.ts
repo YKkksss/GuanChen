@@ -187,6 +187,9 @@ async function main() {
       const repaired = await generateTopicReport({ conversationId: conversation.id, type: 'career', regenerate: true });
       assert.equal(calls, 2, '内容失败仅修正一次');
       assert.equal(repaired.version?.version, 4);
+      const scope = repaired.evidence.find(item => item.sectionKey === '__report_scope__');
+      assert.ok(scope?.facts.eventSelection, '即使正文仅引用宫位，生成范围也必须独立保存');
+      assert.equal(scope?.reportVersionId, repaired.version?.id, '分析范围绑定生成版本');
       assert.equal(repaired.version?.inputTokens, 200);
       assert.equal(repaired.version?.outputTokens, 400);
       alwaysInvalid = true;
