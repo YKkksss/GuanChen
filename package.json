@@ -1,6 +1,6 @@
 {
   "name": "ziwei-master",
-  "version": "1.1.0-dev",
+  "version": "2.0.0-rc.1",
   "private": true,
   "scripts": {
     "test:qimen": "tsx scripts/test-qimen.ts",
