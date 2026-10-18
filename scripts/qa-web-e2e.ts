@@ -151,6 +151,9 @@ async function main() {
     await page.waitForTimeout(1500);
     await page.screenshot({ path: path.join(screenshotDirectory, 'chart-1280.jpg'), type: 'jpeg', quality: 70, fullPage: false });
   }
+  await page.goto(`${base}/settings/account`, { waitUntil: 'domcontentloaded' });
+  await page.waitForTimeout(1200);
+  await page.screenshot({ path: path.join(screenshotDirectory, 'account-1280.jpg'), type: 'jpeg', quality: 70, fullPage: false });
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(`${base}/`, { waitUntil: 'domcontentloaded' });
   await page.waitForTimeout(1200);
@@ -165,7 +168,7 @@ async function main() {
     consoleErrors: [...new Set(consoleErrors)],
     pageErrors: [...new Set(pageErrors)],
     axeViolations,
-    screenshots: ['home-1280.jpg', 'home-390.jpg', ...(chartId ? ['chart-1280.jpg'] : [])],
+    screenshots: ['home-1280.jpg', 'home-390.jpg', ...(chartId ? ['chart-1280.jpg'] : []), 'account-1280.jpg'],
     scope: '真实 Chrome + 本地 30004 + 隔离临时数据；注册、命盘创建、页面入口、四宽度、axe；不调用真实 AI。',
     limitation: '未覆盖真机、完整聊天/报告生成、PDF 下载与备份恢复；这些在各自专项或人工验收。',
   };
