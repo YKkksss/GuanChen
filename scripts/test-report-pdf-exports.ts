@@ -8,6 +8,10 @@ import path from 'node:path';
 const tempDirectory = mkdtempSync(path.join(tmpdir(), 'ziwei-report-pdf-test-'));
 process.env.SQLITE_PATH = path.join(tempDirectory, 'test.sqlite');
 process.env.REPORT_EXPORT_DIR = path.join(tempDirectory, 'exports');
+// 固定测试字体，避免 CI/开发机缺少中文字体或系统字体度量不同导致页数漂移。
+const fixtureFontDirectory = path.join(process.cwd(), 'scripts', 'fixtures', 'fonts');
+process.env.REPORT_PDF_FONT_PATH = path.join(fixtureFontDirectory, 'NotoSansSC-Test-Regular.otf');
+process.env.REPORT_PDF_BOLD_FONT_PATH = path.join(fixtureFontDirectory, 'NotoSansSC-Test-Bold.otf');
 
 async function main() {
   const { generateChart } = await import('../lib/ziwei/algorithm');
@@ -38,7 +42,7 @@ async function main() {
     const paginationFixture = JSON.parse(readFileSync(path.join(process.cwd(), 'scripts/fixtures/report-pdf-pagination.json'), 'utf8'));
     const paginationPdf = await renderReportPdf(paginationFixture);
     const pageCount = paginationPdf.toString('latin1').match(/\/Type \/Pages\s+\/Count (\d+)/)?.[1];
-    assert.equal(pageCount, '2', '校时短报告应排为两页，不能再增加免责声明孤页');
+    assert.equal(pageCount, '3', '校时短报告在固定测试字体下应稳定为三页，不能因免责声明孤页再增页');
 
     const birthInfo = { year: 1992, month: 7, day: 9, hour: 8, gender: 'female' as const };
     const conversation = createConversation({
