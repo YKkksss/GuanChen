@@ -21,3 +21,6 @@ next-start.*
 # 本地数据、备份、导出与历史产物（私密，不进 Git）
 data/
 output/
+
+# CI 回归日志（失败时由 Actions 上传，不进 Git）
+.qa-logs/

@@ -21,6 +21,7 @@ jobs:
     timeout-minutes: 30
     env:
       CI: "true"
+      GUANCHEN_CHECK_OUTPUT: ${{ github.workspace }}/.qa-logs
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -45,3 +46,11 @@ jobs:
 
       - name: Full regression
         run: npm run test:v1-all
+
+      - name: Upload regression logs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v1-check-logs
+          path: .qa-logs
+          if-no-files-found: ignore

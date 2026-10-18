@@ -1,11 +1,15 @@
 import { spawnSync } from 'node:child_process';
-import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 
 // 每项检查单独运行，日志与兜底数据库置于独立临时目录，不读取正式档案。
 const root = process.cwd();
-const output = mkdtempSync(path.join(tmpdir(), 'guanchen-v1-checks-'));
+const configuredOutput = process.env.GUANCHEN_CHECK_OUTPUT?.trim();
+const output = configuredOutput
+  ? path.join(path.resolve(configuredOutput), `run-${new Date().toISOString().replace(/[:.]/g, '-')}`)
+  : mkdtempSync(path.join(tmpdir(), 'guanchen-v1-checks-'));
+if (configuredOutput) mkdirSync(output, { recursive: true });
 const { scripts } = JSON.parse(readFileSync(path.join(root, 'package.json'), 'utf8'));
 const checks = Object.keys(scripts).filter(name => name.startsWith('test:') && name !== 'test:v1-all');
 const results = [];
