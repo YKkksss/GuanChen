@@ -1,0 +1,88 @@
+{
+  "at": "2026-10-16T16:25:08.445Z",
+  "scope": "生产构建启动后的只读验证；独立合成账号，无AI请求",
+  "passed": true,
+  "count": 20,
+  "checks": [
+    {
+      "label": "生产服务匿名读取拒绝",
+      "passed": true
+    },
+    {
+      "label": "current编译后私有API正常",
+      "passed": true
+    },
+    {
+      "label": "current生产占类快照完整",
+      "passed": true
+    },
+    {
+      "label": "wealth编译后私有API正常",
+      "passed": true
+    },
+    {
+      "label": "wealth生产占类快照完整",
+      "passed": true
+    },
+    {
+      "label": "travel编译后私有API正常",
+      "passed": true
+    },
+    {
+      "label": "travel生产占类快照完整",
+      "passed": true
+    },
+    {
+      "label": "none编译后私有API正常",
+      "passed": true
+    },
+    {
+      "label": "none生产占类快照完整",
+      "passed": true
+    },
+    {
+      "label": "noTime编译后私有API正常",
+      "passed": true
+    },
+    {
+      "label": "noTime生产占类快照完整",
+      "passed": true
+    },
+    {
+      "label": "pure编译后私有API正常",
+      "passed": true
+    },
+    {
+      "label": "pure生产占类快照完整",
+      "passed": true
+    },
+    {
+      "label": "imagery编译后私有API正常",
+      "passed": true
+    },
+    {
+      "label": "生产服务旧季节与取象快照不补占类",
+      "passed": true
+    },
+    {
+      "label": "season编译后私有API正常",
+      "passed": true
+    },
+    {
+      "label": "生产服务旧季节与取象快照不补占类",
+      "passed": true
+    },
+    {
+      "label": "base编译后私有API正常",
+      "passed": true
+    },
+    {
+      "label": "生产服务基础旧盘不补深化",
+      "passed": true
+    },
+    {
+      "label": "生产页面返回正确的登录确认壳与编译资源",
+      "passed": true
+    }
+  ]
+}

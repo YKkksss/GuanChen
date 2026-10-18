@@ -1,0 +1,255 @@
+{
+  "testedAt": "2026-10-12T20:26:59.199756+08:00",
+  "environment": {
+    "data": "系统临时目录内的独立合成账号与出生资料",
+    "ai": "仅本机模拟供应商；不代表真实模型解释质量",
+    "browser": "Playwright Chromium，开发版与生产版",
+    "schemaVersion": 50,
+    "promptVersion": "bazi-chat-reading-climate-v18"
+  },
+  "checks": [
+    {
+      "name": "查看旺衰依据展开",
+      "ok": true
+    },
+    {
+      "name": "查看格局依据展开",
+      "ok": true
+    },
+    {
+      "name": "查看调候依据与来源展开",
+      "ok": true
+    },
+    {
+      "name": "查看分方法取用依据展开",
+      "ok": true
+    },
+    {
+      "name": "查看排盘口径展开",
+      "ok": true
+    },
+    {
+      "name": "五行取用条件逐项展开",
+      "ok": true
+    },
+    {
+      "name": "AI五章节生成保存",
+      "ok": true
+    },
+    {
+      "name": "旧版本选择",
+      "ok": true
+    },
+    {
+      "name": "已保存报告引用展开",
+      "ok": true
+    },
+    {
+      "name": "刷新回看不重复调用",
+      "ok": true
+    },
+    {
+      "name": "供应商失败保留旧版本",
+      "ok": true
+    },
+    {
+      "name": "失败后重试",
+      "ok": true
+    },
+    {
+      "name": "教学示例 winter",
+      "ok": true
+    },
+    {
+      "name": "教学示例 summer",
+      "ok": true
+    },
+    {
+      "name": "教学示例 storage",
+      "ok": true
+    },
+    {
+      "name": "教学示例 unknown",
+      "ok": true
+    },
+    {
+      "name": "快速切换教学示例不串结果",
+      "ok": true
+    },
+    {
+      "name": "生成时切换视图与完成保存",
+      "ok": true
+    },
+    {
+      "name": "HTTP匿名、跨用户与跨站写隔离",
+      "ok": true
+    },
+    {
+      "name": "未知时辰明确提示与喜忌降级",
+      "ok": true
+    },
+    {
+      "name": "已有八字档案进入论命总览",
+      "ok": true
+    },
+    {
+      "name": "生产版论命依据加载",
+      "ok": true
+    },
+    {
+      "name": "生产版旧报告回看",
+      "ok": true
+    },
+    {
+      "name": "生产版生成新版本",
+      "ok": true
+    },
+    {
+      "name": "生产版未知教学示例",
+      "ok": true
+    },
+    {
+      "name": "生产版继续问八字与调候快照衔接",
+      "ok": true
+    }
+  ],
+  "views": [
+    {
+      "view": "论命依据",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "论命依据",
+      "width": 1280,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "论命依据",
+      "width": 1024,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "论命依据",
+      "width": 768,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "论命依据",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "论命依据",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "AI 解读",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "AI 解读",
+      "width": 1280,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "AI 解读",
+      "width": 1024,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "AI 解读",
+      "width": 768,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "AI 解读",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "AI 解读",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "教学对照",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "教学对照",
+      "width": 1280,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "教学对照",
+      "width": 1024,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "教学对照",
+      "width": 768,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "教学对照",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "教学对照",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    }
+  ],
+  "pageErrors": [],
+  "http": {
+    "anonymous": 401,
+    "crossUserRead": 404,
+    "crossUserGenerate": 404,
+    "crossUserExample": 404,
+    "crossOrigin": 403,
+    "invalidBody": 400
+  },
+  "chat": {
+    "draftPresent": true,
+    "replyPresent": true,
+    "promptVersion": "bazi-chat-reading-climate-v18",
+    "providerRequestContainsClimateSnapshot": true
+  },
+  "tests": {
+    "moduleChecks": 182,
+    "modulePassed": true,
+    "regressionScriptsTotal": 82,
+    "regressionScriptsPassed": 82,
+    "regressionLogs": "C:/Users/11474/AppData/Local/Temp/guanchen-v1-checks-C39zEL",
+    "productionBuild": true,
+    "staticPages": 80
+  },
+  "screenshots": [
+    "2026-10-12-bazi-reading-desktop.png",
+    "2026-10-12-bazi-reading-mobile.png",
+    "2026-10-12-bazi-reading-report.png"
+  ]
+}

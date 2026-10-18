@@ -1,3 +1,4 @@
+import { closeDatabaseConnection } from '../lib/db/client';
 import assert from 'node:assert/strict';
 import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -216,9 +217,7 @@ async function main() {
 
     console.log('专题报告测试通过：证据构建、结构校验、并发保护、版本保留、失败回退与级联删除均正常。');
   } finally {
-    const database = globalThis.__ziweiSqlite;
-    if (database?.open) database.close();
-    globalThis.__ziweiSqlite = undefined;
+    closeDatabaseConnection();
     rmSync(tempDirectory, { recursive: true, force: true });
   }
 }

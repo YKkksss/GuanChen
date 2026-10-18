@@ -1,0 +1,61 @@
+{
+  "checkedAt": "2026-10-16T14:33:42+08:00",
+  "scope": "动态紫微八字合参的主题四化落点与八字跨层结构复核",
+  "branch": "codex/user-accounts",
+  "stageVersion": "synthesis-dynamic-v2-topic-cross-layer",
+  "reviewVersion": "synthesis-dynamic-review-v1-topic-cross-layer",
+  "databaseVersion": 56,
+  "checks": {
+    "newSpecializedAssertions": 1347,
+    "existingDynamicAssertions": 1453,
+    "fullRegressionGroups": { "passed": 100, "total": 100, "firstRun": true },
+    "realHttpAssertions": 85,
+    "browserFunctions": { "passed": 42, "total": 42 },
+    "finalLayoutCases": { "passed": 16, "total": 16, "widths": [1440, 1024, 768, 390] },
+    "productionSmokeAssertions": 13,
+    "finalProductionBuild": "passed",
+    "typeCheckAfterRestoringDailyConfiguration": "passed",
+    "whitespaceCheck": "passed"
+  },
+  "ai": {
+    "httpMockRequests": 8,
+    "browserMockRequests": 3,
+    "sameQaSessionTotal": 11,
+    "standaloneSpecializedMockRequests": 4,
+    "realProviderRequests": 0,
+    "note": "独立专项、全量组数和共享验收会话分别记录，不相加；生产冒烟不调用AI。"
+  },
+  "limitations": [
+    "未运行axe，浏览器网络事件日志不可用。",
+    "捕获范围内9条浏览器扩展Vue Devtools重复注入错误，本应用错误条目0。",
+    "响应式模拟不替代真实设备，模拟AI不评价真实模型质量。",
+    "完整合化效力、动态旺衰、格局成败、最终喜忌、飞化链与精确事件应期仍待深化。"
+  ],
+  "approvalAndHarnessNotes": [
+    "额外直接启动30004生产服务的命令被自动审批拒绝，仅返回blocked by policy；改用既有限定临时目录的验收入口在30002成功启动并验收。",
+    "首轮构建遇到正在编写的新测试assert.rejects重载类型问题，测试修正后完整构建通过；最终两处常显版本移入规则来源后再次构建通过。",
+    "生产冒烟初轮前12项API通过，末项误要求SSR出现客户端登录确认后的按钮；按AccountProvider真实渲染契约修正测试后13项通过，未因此修改业务。"
+  ],
+  "cleanup": {
+    "qaServicesStopped": [30002, 30003],
+    "qaBrowserTabClosed": true,
+    "viewportReset": true,
+    "userTabsPreserved": true,
+    "dailyService": { "port": 30001, "pid": 48448, "loginHttpStatus": 200 },
+    "nextEnvironmentTypesRestored": true,
+    "tsconfigIncludesRestored": true,
+    "temporaryDataLocation": "系统临时目录中的独立guanchen-full-qa-*目录，未写入日常账号库"
+  },
+  "screenshotsReviewedFromDisk": [
+    "2026-10-16-synthesis-review-desktop.jpg",
+    "2026-10-16-synthesis-review-mobile.jpg"
+  ],
+  "git": { "committedThisStage": false, "pushedThisStage": false },
+  "evidence": [
+    "2026-10-16-synthesis-review-regression.json",
+    "2026-10-16-synthesis-review-http.json",
+    "2026-10-16-synthesis-review-web.json",
+    "2026-10-16-synthesis-review-layout.json",
+    "2026-10-16-synthesis-review-production.json"
+  ]
+}

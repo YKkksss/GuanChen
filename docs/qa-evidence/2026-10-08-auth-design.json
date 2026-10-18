@@ -1,0 +1,195 @@
+{
+  "accessibility": {
+    "completedAt": "2026-10-08T15:44:45.004Z",
+    "results": [
+      {
+        "path": "/login",
+        "width": 1440,
+        "mode": "light",
+        "violations": [],
+        "incomplete": [],
+        "overflow": false,
+        "submitInViewport": true,
+        "scrollHeight": 900
+      },
+      {
+        "path": "/login",
+        "width": 1440,
+        "mode": "dark",
+        "violations": [],
+        "incomplete": [],
+        "overflow": false,
+        "submitInViewport": true,
+        "scrollHeight": 900
+      },
+      {
+        "path": "/register",
+        "width": 1440,
+        "mode": "light",
+        "violations": [],
+        "incomplete": [],
+        "overflow": false,
+        "submitInViewport": true,
+        "scrollHeight": 910
+      },
+      {
+        "path": "/register",
+        "width": 1440,
+        "mode": "dark",
+        "violations": [],
+        "incomplete": [],
+        "overflow": false,
+        "submitInViewport": true,
+        "scrollHeight": 910
+      },
+      {
+        "path": "/login",
+        "width": 390,
+        "mode": "light",
+        "violations": [],
+        "incomplete": [],
+        "overflow": false,
+        "submitInViewport": true,
+        "scrollHeight": 844
+      },
+      {
+        "path": "/login",
+        "width": 390,
+        "mode": "dark",
+        "violations": [],
+        "incomplete": [],
+        "overflow": false,
+        "submitInViewport": true,
+        "scrollHeight": 844
+      },
+      {
+        "path": "/register",
+        "width": 390,
+        "mode": "light",
+        "violations": [],
+        "incomplete": [],
+        "overflow": false,
+        "submitInViewport": true,
+        "scrollHeight": 912
+      },
+      {
+        "path": "/register",
+        "width": 390,
+        "mode": "dark",
+        "violations": [],
+        "incomplete": [],
+        "overflow": false,
+        "submitInViewport": true,
+        "scrollHeight": 912
+      }
+    ],
+    "pageErrors": []
+  },
+  "interactions": {
+    "checks": [
+      {
+        "name": "密码与确认密码可显示",
+        "passed": true
+      },
+      {
+        "name": "密码可恢复隐藏",
+        "passed": true
+      },
+      {
+        "name": "密码不一致保留表单并给出提示",
+        "passed": true
+      },
+      {
+        "name": "真实注册后进入本人工作区",
+        "passed": true
+      },
+      {
+        "name": "错误密码可见且输入保留",
+        "passed": true
+      },
+      {
+        "name": "Enter 登录并恢复安全目标页面",
+        "passed": true
+      }
+    ],
+    "allPassed": true
+  },
+  "additionalStates": [
+    {
+      "name": "改密成功提示采用正常通知",
+      "passed": true
+    },
+    {
+      "name": "注册关闭时有明确状态与登录入口",
+      "passed": true
+    }
+  ],
+  "errorStates": {
+    "checks": [
+      {
+        "name": "网络失败显示中文且恢复提交操作",
+        "passed": true
+      },
+      {
+        "name": "非 JSON 代理错误使用中文服务提示",
+        "passed": true
+      },
+      {
+        "name": "大写锁定事件有可见提示",
+        "passed": true
+      }
+    ],
+    "allPassed": true
+  },
+  "finalProduction": {
+    "sameOriginRedirect": true,
+    "finalOriginPreserved": true,
+    "pageErrors": [],
+    "consoleErrors": [],
+    "axe": []
+  },
+  "lighthouse": {
+    "desktop": {
+      "version": "13.5.0",
+      "fetchTime": "2026-10-08T15:50:14.427Z",
+      "scores": {
+        "performance": 1,
+        "accessibility": 1,
+        "best-practices": 1
+      },
+      "metrics": {
+        "largest-contentful-paint": 559.91095,
+        "cumulative-layout-shift": 0,
+        "total-blocking-time": 0
+      }
+    },
+    "mobile": {
+      "version": "13.5.0",
+      "fetchTime": "2026-10-08T15:54:34.941Z",
+      "scores": {
+        "performance": 0.99,
+        "accessibility": 1,
+        "best-practices": 1
+      },
+      "metrics": {
+        "largest-contentful-paint": 2044.4953750000002,
+        "cumulative-layout-shift": 0,
+        "total-blocking-time": 26
+      }
+    }
+  },
+  "liveRedirects": {
+    "127.0.0.1": {
+      "status": 307,
+      "sameOrigin": true
+    },
+    "localhost": {
+      "status": 307,
+      "sameOrigin": true
+    }
+  },
+  "backendHttpChecks": {
+    "total": 203,
+    "passed": 203
+  }
+}

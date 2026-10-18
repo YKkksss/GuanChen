@@ -1,0 +1,349 @@
+{
+  "at": "2026-10-16T06:20:25.804Z",
+  "scope": "真实应用、独立账号数据库与本机模拟AI；真实供应商请求0",
+  "passed": true,
+  "count": 85,
+  "checks": [
+    {
+      "label": "current响应私有不缓存",
+      "passed": true
+    },
+    {
+      "label": "current当前账号读取：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "current保存完整复核版本",
+      "passed": true
+    },
+    {
+      "label": "unknown响应私有不缓存",
+      "passed": true
+    },
+    {
+      "label": "unknown当前账号读取：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "unknown保存完整复核版本",
+      "passed": true
+    },
+    {
+      "label": "未知时辰后日无时柱及精确大运",
+      "passed": true
+    },
+    {
+      "label": "birthUnknown响应私有不缓存",
+      "passed": true
+    },
+    {
+      "label": "birthUnknown当前账号读取：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "birthUnknown保存完整复核版本",
+      "passed": true
+    },
+    {
+      "label": "未知出生当日撤回个人作用适用",
+      "passed": true
+    },
+    {
+      "label": "preLuck响应私有不缓存",
+      "passed": true
+    },
+    {
+      "label": "preLuck当前账号读取：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "preLuck保存完整复核版本",
+      "passed": true
+    },
+    {
+      "label": "preLuck不补大运节点",
+      "passed": true
+    },
+    {
+      "label": "afterLuck响应私有不缓存",
+      "passed": true
+    },
+    {
+      "label": "afterLuck当前账号读取：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "afterLuck保存完整复核版本",
+      "passed": true
+    },
+    {
+      "label": "afterLuck不补大运节点",
+      "passed": true
+    },
+    {
+      "label": "legacy响应私有不缓存",
+      "passed": true
+    },
+    {
+      "label": "legacy当前账号读取：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "旧阶段不追加新复核字段",
+      "passed": true
+    },
+    {
+      "label": "overview主题读取：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "overview复核事实不混主题",
+      "passed": true
+    },
+    {
+      "label": "career主题读取：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "career复核事实不混主题",
+      "passed": true
+    },
+    {
+      "label": "relationship主题读取：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "relationship复核事实不混主题",
+      "passed": true
+    },
+    {
+      "label": "wealth主题读取：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "wealth复核事实不混主题",
+      "passed": true
+    },
+    {
+      "label": "study主题读取：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "study复核事实不混主题",
+      "passed": true
+    },
+    {
+      "label": "服务端保存阶段：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "伪造复核字段和账号参数不进入快照",
+      "passed": true
+    },
+    {
+      "label": "预览读取与保存不调用AI",
+      "passed": true
+    },
+    {
+      "label": "匿名读取拒绝：HTTP 401",
+      "passed": true
+    },
+    {
+      "label": "跨账号读取拒绝：HTTP 404",
+      "passed": true
+    },
+    {
+      "label": "跨账号错误不泄漏命盘及关系",
+      "passed": true
+    },
+    {
+      "label": "跨账号写入拒绝：HTTP 404",
+      "passed": true
+    },
+    {
+      "label": "异源写入拒绝：HTTP 403",
+      "passed": true
+    },
+    {
+      "label": "非法主题拒绝：HTTP 400",
+      "passed": true
+    },
+    {
+      "label": "非法主题拒绝：HTTP 400",
+      "passed": true
+    },
+    {
+      "label": "非法主题拒绝：HTTP 400",
+      "passed": true
+    },
+    {
+      "label": "非法观察与出生前拒绝：HTTP 400",
+      "passed": true
+    },
+    {
+      "label": "非法观察与出生前拒绝：HTTP 400",
+      "passed": true
+    },
+    {
+      "label": "非法观察与出生前拒绝：HTTP 400",
+      "passed": true
+    },
+    {
+      "label": "非法观察与出生前拒绝：HTTP 400",
+      "passed": true
+    },
+    {
+      "label": "非法观察与出生前拒绝：HTTP 400",
+      "passed": true
+    },
+    {
+      "label": "旧键不跨会话访问：HTTP 404",
+      "passed": true
+    },
+    {
+      "label": "旧键不跨主题访问：HTTP 404",
+      "passed": true
+    },
+    {
+      "label": "overview模拟AI完成：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "overview五章引用当前双侧复核依据",
+      "passed": true
+    },
+    {
+      "label": "overview保存深化提示版本",
+      "passed": true
+    },
+    {
+      "label": "career模拟AI完成：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "career五章引用当前双侧复核依据",
+      "passed": true
+    },
+    {
+      "label": "career保存深化提示版本",
+      "passed": true
+    },
+    {
+      "label": "relationship模拟AI完成：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "relationship五章引用当前双侧复核依据",
+      "passed": true
+    },
+    {
+      "label": "relationship保存深化提示版本",
+      "passed": true
+    },
+    {
+      "label": "wealth模拟AI完成：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "wealth五章引用当前双侧复核依据",
+      "passed": true
+    },
+    {
+      "label": "wealth保存深化提示版本",
+      "passed": true
+    },
+    {
+      "label": "study模拟AI完成：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "study五章引用当前双侧复核依据",
+      "passed": true
+    },
+    {
+      "label": "study保存深化提示版本",
+      "passed": true
+    },
+    {
+      "label": "overview模拟AI完成：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "旧阶段报告不消费新复核",
+      "passed": true
+    },
+    {
+      "label": "旧阶段保留v1提示版本",
+      "passed": true
+    },
+    {
+      "label": "供应商失败返回脱敏错误：HTTP 502",
+      "passed": true
+    },
+    {
+      "label": "失败后仍能读取：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "失败保留旧报告和阶段依据",
+      "passed": true
+    },
+    {
+      "label": "overview模拟AI完成：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "失败后重试完成",
+      "passed": true
+    },
+    {
+      "label": "复读固定阶段：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "生成报告不改写已存阶段事实",
+      "passed": true
+    },
+    {
+      "label": "复读固定阶段：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "生成报告不改写已存阶段事实",
+      "passed": true
+    },
+    {
+      "label": "复读固定阶段：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "生成报告不改写已存阶段事实",
+      "passed": true
+    },
+    {
+      "label": "复读固定阶段：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "生成报告不改写已存阶段事实",
+      "passed": true
+    },
+    {
+      "label": "复读固定阶段：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "生成报告不改写已存阶段事实",
+      "passed": true
+    },
+    {
+      "label": "复读固定阶段：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "生成报告不改写已存阶段事实",
+      "passed": true
+    }
+  ],
+  "mockRequests": 8
+}

@@ -1,3 +1,4 @@
+import { closeDatabaseConnection } from '../lib/db/client';
 import assert from 'node:assert/strict';
 import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -212,7 +213,7 @@ async function main() {
     console.log('上下文管理集成测试通过');
   } finally {
     getDatabase().close();
-    globalThis.__ziweiSqlite = undefined;
+    closeDatabaseConnection();
     rmSync(tempDirectory, { recursive: true, force: true });
   }
 }

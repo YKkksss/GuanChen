@@ -1,0 +1,155 @@
+{
+  "scope": "浏览器响应式模拟；检查页面及面板横向溢出、单一选中按钮；不等同真实设备或完整无障碍审计",
+  "results": [
+    {
+      "width": 320,
+      "view": "旺衰前提",
+      "passed": true
+    },
+    {
+      "width": 320,
+      "view": "逐格复核",
+      "passed": true
+    },
+    {
+      "width": 320,
+      "view": "扶抑取用",
+      "passed": true
+    },
+    {
+      "width": 320,
+      "view": "调候取用",
+      "passed": true
+    },
+    {
+      "width": 320,
+      "view": "通关与病药",
+      "passed": true
+    },
+    {
+      "width": 390,
+      "view": "旺衰前提",
+      "passed": true
+    },
+    {
+      "width": 390,
+      "view": "逐格复核",
+      "passed": true
+    },
+    {
+      "width": 390,
+      "view": "扶抑取用",
+      "passed": true
+    },
+    {
+      "width": 390,
+      "view": "调候取用",
+      "passed": true
+    },
+    {
+      "width": 390,
+      "view": "通关与病药",
+      "passed": true
+    },
+    {
+      "width": 768,
+      "view": "旺衰前提",
+      "passed": true
+    },
+    {
+      "width": 768,
+      "view": "逐格复核",
+      "passed": true
+    },
+    {
+      "width": 768,
+      "view": "扶抑取用",
+      "passed": true
+    },
+    {
+      "width": 768,
+      "view": "调候取用",
+      "passed": true
+    },
+    {
+      "width": 768,
+      "view": "通关与病药",
+      "passed": true
+    },
+    {
+      "width": 1024,
+      "view": "旺衰前提",
+      "passed": true
+    },
+    {
+      "width": 1024,
+      "view": "逐格复核",
+      "passed": true
+    },
+    {
+      "width": 1024,
+      "view": "扶抑取用",
+      "passed": true
+    },
+    {
+      "width": 1024,
+      "view": "调候取用",
+      "passed": true
+    },
+    {
+      "width": 1024,
+      "view": "通关与病药",
+      "passed": true
+    },
+    {
+      "width": 1440,
+      "view": "旺衰前提",
+      "passed": true
+    },
+    {
+      "width": 1440,
+      "view": "逐格复核",
+      "passed": true
+    },
+    {
+      "width": 1440,
+      "view": "扶抑取用",
+      "passed": true
+    },
+    {
+      "width": 1440,
+      "view": "调候取用",
+      "passed": true
+    },
+    {
+      "width": 1440,
+      "view": "通关与病药",
+      "passed": true
+    },
+    {
+      "width": 1920,
+      "view": "旺衰前提",
+      "passed": true
+    },
+    {
+      "width": 1920,
+      "view": "逐格复核",
+      "passed": true
+    },
+    {
+      "width": 1920,
+      "view": "扶抑取用",
+      "passed": true
+    },
+    {
+      "width": 1920,
+      "view": "调候取用",
+      "passed": true
+    },
+    {
+      "width": 1920,
+      "view": "通关与病药",
+      "passed": true
+    }
+  ]
+}

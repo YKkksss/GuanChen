@@ -1,3 +1,4 @@
+import { runAccountTest } from './account-test-session';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { mkdtempSync, rmSync } from 'node:fs';
@@ -163,7 +164,7 @@ async function main() {
   }
 }
 
-main().catch(error => {
+runAccountTest(main).catch(error => {
   console.error(error);
   process.exitCode = 1;
 });

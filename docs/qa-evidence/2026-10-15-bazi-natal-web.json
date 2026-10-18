@@ -1,0 +1,420 @@
+{
+  "environment": "独立开发服务、临时账号和SQLite；AI为本机模拟供应商",
+  "webChecks": 29,
+  "checks": [
+    "秋分前只选择前段",
+    "五合近邻视图可切换",
+    "默认展开日主根气",
+    "规则来源与边界可查",
+    "秋分后页面与规则状态一致",
+    "谷雨前页面与规则状态一致",
+    "谷雨后页面与规则状态一致",
+    "半月口径待核页面与规则状态一致",
+    "交界日未知时辰页面与规则状态一致",
+    "近邻争合展开列出实际竞争对象",
+    "年时远合单列限制",
+    "日干本身之合提示保留",
+    "受冲根位置仍显示",
+    "旧规则报告可回看且提示版本差异",
+    "重新生成另存第3版并保留前两版",
+    "新报告可以展开实际分支依据",
+    "生成失败保留三个完成版本",
+    "失败后重试另存第5版且保留历史",
+    "刷新回看已保存报告",
+    "报告可进入同一八字会话",
+    "连续问答完成且Markdown正常显示",
+    "刷新仍保留原局追问与回复",
+    "秋分后具体用干显示丙为本分支主要参考",
+    "复核视图无横向溢出 320 月内分支",
+    "复核视图无横向溢出 320 五合近邻",
+    "复核视图无横向溢出 320 藏根与合冲",
+    "复核视图无横向溢出 320 方法与来源",
+    "复核视图无横向溢出 390 月内分支",
+    "复核视图无横向溢出 390 五合近邻",
+    "复核视图无横向溢出 390 藏根与合冲",
+    "复核视图无横向溢出 390 方法与来源",
+    "复核视图无横向溢出 768 月内分支",
+    "复核视图无横向溢出 768 五合近邻",
+    "复核视图无横向溢出 768 藏根与合冲",
+    "复核视图无横向溢出 768 方法与来源",
+    "复核视图无横向溢出 1024 月内分支",
+    "复核视图无横向溢出 1024 五合近邻",
+    "复核视图无横向溢出 1024 藏根与合冲",
+    "复核视图无横向溢出 1024 方法与来源",
+    "复核视图无横向溢出 1440 月内分支",
+    "复核视图无横向溢出 1440 五合近邻",
+    "复核视图无横向溢出 1440 藏根与合冲",
+    "复核视图无横向溢出 1440 方法与来源",
+    "复核视图无横向溢出 1920 月内分支",
+    "复核视图无横向溢出 1920 五合近邻",
+    "复核视图无横向溢出 1920 藏根与合冲",
+    "复核视图无横向溢出 1920 方法与来源",
+    "键盘Tab可到达下一复核按钮",
+    "键盘Enter可切换复核视图",
+    "外部规则来源链接使用安全属性",
+    "外部规则来源链接使用安全属性",
+    "外部规则来源链接使用安全属性",
+    "外部规则来源链接使用安全属性"
+  ],
+  "layoutChecks": [
+    {
+      "width": 320,
+      "view": "月内分支",
+      "documentWidth": 315,
+      "panelScroll": 289,
+      "panelWidth": 289,
+      "pressed": [
+        "月内分支"
+      ],
+      "viewport": 320
+    },
+    {
+      "width": 320,
+      "view": "五合近邻",
+      "documentWidth": 315,
+      "panelScroll": 289,
+      "panelWidth": 289,
+      "pressed": [
+        "五合近邻"
+      ],
+      "viewport": 320
+    },
+    {
+      "width": 320,
+      "view": "藏根与合冲",
+      "documentWidth": 315,
+      "panelScroll": 289,
+      "panelWidth": 289,
+      "pressed": [
+        "藏根与合冲"
+      ],
+      "viewport": 320
+    },
+    {
+      "width": 320,
+      "view": "方法与来源",
+      "documentWidth": 315,
+      "panelScroll": 289,
+      "panelWidth": 289,
+      "pressed": [
+        "方法与来源"
+      ],
+      "viewport": 320
+    },
+    {
+      "width": 390,
+      "view": "月内分支",
+      "documentWidth": 385,
+      "panelScroll": 359,
+      "panelWidth": 359,
+      "pressed": [
+        "月内分支"
+      ],
+      "viewport": 390
+    },
+    {
+      "width": 390,
+      "view": "五合近邻",
+      "documentWidth": 385,
+      "panelScroll": 359,
+      "panelWidth": 359,
+      "pressed": [
+        "五合近邻"
+      ],
+      "viewport": 390
+    },
+    {
+      "width": 390,
+      "view": "藏根与合冲",
+      "documentWidth": 385,
+      "panelScroll": 359,
+      "panelWidth": 359,
+      "pressed": [
+        "藏根与合冲"
+      ],
+      "viewport": 390
+    },
+    {
+      "width": 390,
+      "view": "方法与来源",
+      "documentWidth": 385,
+      "panelScroll": 359,
+      "panelWidth": 359,
+      "pressed": [
+        "方法与来源"
+      ],
+      "viewport": 390
+    },
+    {
+      "width": 768,
+      "view": "月内分支",
+      "documentWidth": 763,
+      "panelScroll": 725,
+      "panelWidth": 725,
+      "pressed": [
+        "月内分支"
+      ],
+      "viewport": 768
+    },
+    {
+      "width": 768,
+      "view": "五合近邻",
+      "documentWidth": 763,
+      "panelScroll": 725,
+      "panelWidth": 725,
+      "pressed": [
+        "五合近邻"
+      ],
+      "viewport": 768
+    },
+    {
+      "width": 768,
+      "view": "藏根与合冲",
+      "documentWidth": 763,
+      "panelScroll": 725,
+      "panelWidth": 725,
+      "pressed": [
+        "藏根与合冲"
+      ],
+      "viewport": 768
+    },
+    {
+      "width": 768,
+      "view": "方法与来源",
+      "documentWidth": 763,
+      "panelScroll": 725,
+      "panelWidth": 725,
+      "pressed": [
+        "方法与来源"
+      ],
+      "viewport": 768
+    },
+    {
+      "width": 1024,
+      "view": "月内分支",
+      "documentWidth": 1019,
+      "panelScroll": 909,
+      "panelWidth": 909,
+      "pressed": [
+        "月内分支"
+      ],
+      "viewport": 1024
+    },
+    {
+      "width": 1024,
+      "view": "五合近邻",
+      "documentWidth": 1019,
+      "panelScroll": 909,
+      "panelWidth": 909,
+      "pressed": [
+        "五合近邻"
+      ],
+      "viewport": 1024
+    },
+    {
+      "width": 1024,
+      "view": "藏根与合冲",
+      "documentWidth": 1019,
+      "panelScroll": 909,
+      "panelWidth": 909,
+      "pressed": [
+        "藏根与合冲"
+      ],
+      "viewport": 1024
+    },
+    {
+      "width": 1024,
+      "view": "方法与来源",
+      "documentWidth": 1019,
+      "panelScroll": 909,
+      "panelWidth": 909,
+      "pressed": [
+        "方法与来源"
+      ],
+      "viewport": 1024
+    },
+    {
+      "width": 1440,
+      "view": "月内分支",
+      "documentWidth": 1435,
+      "panelScroll": 1153,
+      "panelWidth": 1153,
+      "pressed": [
+        "月内分支"
+      ],
+      "viewport": 1440
+    },
+    {
+      "width": 1440,
+      "view": "五合近邻",
+      "documentWidth": 1435,
+      "panelScroll": 1153,
+      "panelWidth": 1153,
+      "pressed": [
+        "五合近邻"
+      ],
+      "viewport": 1440
+    },
+    {
+      "width": 1440,
+      "view": "藏根与合冲",
+      "documentWidth": 1435,
+      "panelScroll": 1153,
+      "panelWidth": 1153,
+      "pressed": [
+        "藏根与合冲"
+      ],
+      "viewport": 1440
+    },
+    {
+      "width": 1440,
+      "view": "方法与来源",
+      "documentWidth": 1435,
+      "panelScroll": 1153,
+      "panelWidth": 1153,
+      "pressed": [
+        "方法与来源"
+      ],
+      "viewport": 1440
+    },
+    {
+      "width": 1920,
+      "view": "月内分支",
+      "documentWidth": 1915,
+      "panelScroll": 1198,
+      "panelWidth": 1198,
+      "pressed": [
+        "月内分支"
+      ],
+      "viewport": 1920
+    },
+    {
+      "width": 1920,
+      "view": "五合近邻",
+      "documentWidth": 1915,
+      "panelScroll": 1198,
+      "panelWidth": 1198,
+      "pressed": [
+        "五合近邻"
+      ],
+      "viewport": 1920
+    },
+    {
+      "width": 1920,
+      "view": "藏根与合冲",
+      "documentWidth": 1915,
+      "panelScroll": 1198,
+      "panelWidth": 1198,
+      "pressed": [
+        "藏根与合冲"
+      ],
+      "viewport": 1920
+    },
+    {
+      "width": 1920,
+      "view": "方法与来源",
+      "documentWidth": 1915,
+      "panelScroll": 1198,
+      "panelWidth": 1198,
+      "pressed": [
+        "方法与来源"
+      ],
+      "viewport": 1920
+    }
+  ],
+  "contrastSamples": [
+    {
+      "bg": "rgba(255, 253, 248, 0.78)",
+      "fg": "rgb(180, 43, 34)",
+      "text": "新增 · 原局作用复核"
+    },
+    {
+      "bg": "rgba(255, 253, 248, 0.78)",
+      "fg": "rgb(103, 89, 79)",
+      "text": "“满足”只针对写明的检查项。近合入口通过，仍需核"
+    },
+    {
+      "bg": "rgb(243, 237, 229)",
+      "fg": "rgb(180, 43, 34)",
+      "text": "月内分支"
+    },
+    {
+      "bg": "rgba(255, 253, 248, 0.78)",
+      "fg": "rgb(43, 36, 32)",
+      "text": "五合近邻"
+    },
+    {
+      "bg": "rgba(255, 253, 248, 0.78)",
+      "fg": "rgb(43, 36, 32)",
+      "text": "藏根与合冲"
+    },
+    {
+      "bg": "rgba(255, 253, 248, 0.78)",
+      "fg": "rgb(43, 36, 32)",
+      "text": "方法与来源"
+    },
+    {
+      "bg": "rgba(255, 253, 248, 0.78)",
+      "fg": "rgb(43, 36, 32)",
+      "text": "节气分支已定位"
+    },
+    {
+      "bg": "rgba(255, 253, 248, 0.78)",
+      "fg": "rgb(43, 36, 32)",
+      "text": "按保存的有效民用时定位，交接秒起属于后一段。适用"
+    },
+    {
+      "bg": "rgba(255, 253, 248, 0.78)",
+      "fg": "rgb(43, 36, 32)",
+      "text": "秋分交接：2026-09-23 08:05:14"
+    },
+    {
+      "bg": "rgba(255, 253, 248, 0.78)",
+      "fg": "rgb(103, 89, 79)",
+      "text": "按已保存有效时间核对：2026-09-28 09"
+    },
+    {
+      "bg": "rgb(243, 237, 229)",
+      "fg": "rgb(103, 89, 79)",
+      "text": "本项条件不满足"
+    },
+    {
+      "bg": "rgba(255, 253, 248, 0.78)",
+      "fg": "rgb(43, 36, 32)",
+      "text": "主要参考：癸；配合参考：本段未另列。"
+    },
+    {
+      "bg": "rgba(255, 253, 248, 0.78)",
+      "fg": "rgb(43, 36, 32)",
+      "text": "本段先核癸的滋润入口；不把后一段丙为先的次序提前"
+    },
+    {
+      "bg": "rgb(243, 237, 229)",
+      "fg": "rgb(180, 43, 34)",
+      "text": "本项条件满足"
+    },
+    {
+      "bg": "rgba(255, 253, 248, 0.78)",
+      "fg": "rgb(43, 36, 32)",
+      "text": "主要参考：丙；配合参考：癸。"
+    },
+    {
+      "bg": "rgba(255, 253, 248, 0.78)",
+      "fg": "rgb(43, 36, 32)",
+      "text": "本段先核丙，再核癸的配合；只是章节参考次序，不是"
+    },
+    {
+      "bg": "rgba(255, 253, 248, 0.78)",
+      "fg": "rgb(103, 89, 79)",
+      "text": "下方“具体用干”和“参考索引”保留章节参考全集；"
+    },
+    {
+      "bg": "rgba(255, 253, 248, 0.78)",
+      "fg": "rgb(180, 43, 34)",
+      "text": "查看月内条件来源"
+    }
+  ],
+  "browser": "Codex内置浏览器；Tabbit注册不可用后降级",
+  "completedAt": "2026-10-15T11:46:58Z",
+  "timezone": "UTC+08:00"
+}

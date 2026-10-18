@@ -1,0 +1,61 @@
+{
+  "at": "2026-10-16T06:32:20.090Z",
+  "scope": "生产构建启动后只读冒烟；独立临时账号，无AI请求",
+  "harnessNote": "初轮前12项API检查通过，最后一项错误地要求原始SSR文档出现客户端登录确认后的按钮；按AccountProvider实际渲染契约校正为确认壳与编译资源后复验，未修改业务代码。",
+  "passed": true,
+  "count": 13,
+  "checks": [
+    {
+      "label": "生产服务匿名API仍拒绝",
+      "passed": true
+    },
+    {
+      "label": "overview编译后API私有读取",
+      "passed": true
+    },
+    {
+      "label": "overview编译后复核版本与主题正确",
+      "passed": true
+    },
+    {
+      "label": "career编译后API私有读取",
+      "passed": true
+    },
+    {
+      "label": "career编译后复核版本与主题正确",
+      "passed": true
+    },
+    {
+      "label": "relationship编译后API私有读取",
+      "passed": true
+    },
+    {
+      "label": "relationship编译后复核版本与主题正确",
+      "passed": true
+    },
+    {
+      "label": "wealth编译后API私有读取",
+      "passed": true
+    },
+    {
+      "label": "wealth编译后复核版本与主题正确",
+      "passed": true
+    },
+    {
+      "label": "study编译后API私有读取",
+      "passed": true
+    },
+    {
+      "label": "study编译后复核版本与主题正确",
+      "passed": true
+    },
+    {
+      "label": "生产服务旧阶段不补新能力",
+      "passed": true
+    },
+    {
+      "label": "生产合参页面提供登录确认壳及编译资源",
+      "passed": true
+    }
+  ]
+}

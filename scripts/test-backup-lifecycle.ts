@@ -1,3 +1,4 @@
+import { runAccountTest } from './account-test-session';
 import assert from 'node:assert/strict';
 import { existsSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -38,7 +39,7 @@ async function main() {
     const firstCheck = await ensureAutomaticBackupDue();
     assert.equal(firstCheck.status, 'created');
     assert.ok(firstCheck.createdFileName?.startsWith('定时自动备份-'));
-    assert.ok(existsSync(path.join(tempDirectory, 'backups', firstCheck.createdFileName!)));
+    assert.ok(existsSync(path.join(path.dirname(process.env.SQLITE_PATH!), 'backups', firstCheck.createdFileName!)));
 
     const secondCheck = await ensureAutomaticBackupDue();
     assert.equal(secondCheck.status, 'not_due');
@@ -59,7 +60,7 @@ async function main() {
     assert.equal(retained.managedBackups.filter(item => item.source === 'manual').length, 1, '手动备份不得被自动轮换');
 
     const corrupt = await createManagedBackup('manual');
-    writeFileSync(path.join(tempDirectory, 'backups', corrupt.fileName), Buffer.from('broken archive'));
+    writeFileSync(path.join(path.dirname(process.env.SQLITE_PATH!), 'backups', corrupt.fileName), Buffer.from('broken archive'));
     const corruptResult = await verifyManagedBackup(corrupt.fileName);
     assert.equal(corruptResult.health, 'damaged');
 
@@ -68,7 +69,7 @@ async function main() {
       (error: unknown) => error instanceof BackupValidationError && error.code === 'BACKUP_DELETE_CONFIRMATION_REQUIRED',
     );
     await deleteManagedBackup(corrupt.fileName, LOCAL_BACKUP_DELETE_CONFIRMATION);
-    assert.equal(existsSync(path.join(tempDirectory, 'backups', corrupt.fileName)), false);
+    assert.equal(existsSync(path.join(path.dirname(process.env.SQLITE_PATH!), 'backups', corrupt.fileName)), false);
 
     const policyResponse = await policyRoute.PATCH(new Request('http://localhost/api/backups/policy', {
       method: 'PATCH',
@@ -76,10 +77,10 @@ async function main() {
       body: JSON.stringify({ enabled: false, intervalHours: 24, retentionCount: 5 }),
     }));
     assert.equal(policyResponse.status, 200);
-    const disabledCheck = await autoCheckRoute.POST();
+    const disabledCheck = await autoCheckRoute.POST(new Request('http://local/test', { method: 'POST' }));
     assert.equal((await disabledCheck.json() as { result: { status: string } }).result.status, 'disabled');
 
-    const managedResponse = await managedRoute.POST();
+    const managedResponse = await managedRoute.POST(new Request('http://local/test', { method: 'POST' }));
     assert.equal(managedResponse.status, 201);
     const managedData = await managedResponse.json() as { backup: { fileName: string } };
     const verifyResponse = await verifyRoute.POST(
@@ -98,7 +99,7 @@ async function main() {
       { params: Promise.resolve({ fileName: managedData.backup.fileName }) },
     );
     assert.equal(deleteResponse.status, 200);
-    assert.equal(existsSync(path.join(tempDirectory, 'backups', managedData.backup.fileName)), false);
+    assert.equal(existsSync(path.join(path.dirname(process.env.SQLITE_PATH!), 'backups', managedData.backup.fileName)), false);
 
     console.log('备份生命周期测试通过：后台到期检查、周期保留、手动留存、完整性验证、损坏识别与受保护删除均正常。');
   } finally {
@@ -108,7 +109,7 @@ async function main() {
   }
 }
 
-main().catch(error => {
+runAccountTest(main).catch(error => {
   console.error(error);
   process.exitCode = 1;
 });

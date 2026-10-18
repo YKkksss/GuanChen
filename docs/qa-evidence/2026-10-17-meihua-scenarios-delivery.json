@@ -1,0 +1,109 @@
+{
+  "module": "梅花占类取用复核",
+  "completedAt": "2026-10-16T16:27:39.303Z",
+  "timezone": "Asia/Shanghai",
+  "passed": true,
+  "features": [
+    "明确未指定、求谋、求财、出行；改变选择撤回旧预览",
+    "五位置角色、本用占类条件、互变通用参考、规则来源四视图",
+    "固定本体、源盘原爻和两侧季节；相反条件并列、不计票",
+    "服务端重算、占类指纹隔离、四代快照及问答、占类与取象双引用"
+  ],
+  "validation": {
+    "newSpecializedAssertions": 106991,
+    "realCombinations": 3072,
+    "legacyImageryAssertions": 74064,
+    "legacySeasonAssertions": 6221,
+    "legacyBaseAssertions": 2456,
+    "allProjectSuites": {
+      "total": 102,
+      "passed": 102,
+      "runs": 1,
+      "failures": 0,
+      "summary": "C:/Users/11474/AppData/Local/Temp/guanchen-v1-checks-WPg9yg/summary.json"
+    },
+    "http": 105,
+    "web": 47,
+    "layout": {
+      "views": 4,
+      "widths": [
+        320,
+        390,
+        768,
+        1280
+      ],
+      "groups": 16
+    },
+    "productionReadOnly": 20,
+    "finalBuild": {
+      "passed": true,
+      "session": 21852,
+      "note": "首轮构建通过后，修复变用方向句文案；对最终源码再次构建通过。"
+    },
+    "finalTypecheck": {
+      "passed": true,
+      "session": 59974,
+      "restoredDailyConfiguration": true
+    },
+    "independentReview": "未发现阻碍交付问题；已修复输入与占类键一致性和变用方向句短名，两项均已验证。"
+  },
+  "ai": {
+    "sharedDevelopmentMockRequests": 9,
+    "httpMockRequests": 8,
+    "webMockRequests": 1,
+    "productionMockRequests": 0,
+    "newSpecializedIndependentMockRequests": 7,
+    "realProviderRequests": 0,
+    "note": "旧专项及全量中的独立模拟不与共享验收会话或新增专项混加；模拟不评价真实模型质量。"
+  },
+  "cleanup": {
+    "qaPorts30002And30003Stopped": true,
+    "dailyPort30001Kept": true,
+    "dailyPid": 35724,
+    "dailyLoginHttpStatus": 200,
+    "temporaryTypeIncludesRemoved": true,
+    "nextEnvRestoredToDailyNext": true,
+    "browserTemporaryTabClosed": true,
+    "originalBrowserTabKept": true,
+    "viewportRestored": true,
+    "tempDataKeptForAudit": true
+  },
+  "data": {
+    "independentSyntheticDataOnly": true,
+    "databaseVersion": 56,
+    "migrationAdded": false,
+    "oldSnapshotsRecalculated": false,
+    "realCredentialsRead": false
+  },
+  "limitations": [
+    "未运行axe；响应式模拟不替代真机",
+    "真实模型内容质量尚未验证",
+    "完整效力、其他占类、后天端法、外应与精确应期仍待核"
+  ],
+  "nextStage": {
+    "name": "八字原局深化：人元司令与月令分日复核",
+    "implemented": false,
+    "tasks": [
+      "核对十二月司令分日原典与流派差异，确定可追溯口径",
+      "按精确交节定位月内位置，未知时辰及跨界保留候选",
+      "连接表干、藏根及格局候选，分别保留采用与待核条件",
+      "保存新论命版本、来源与问答依据，旧报告不补写",
+      "覆盖十二月及边界、保存引用、账号隔离与响应式验收"
+    ]
+  },
+  "git": {
+    "branch": "codex/user-accounts",
+    "committed": false,
+    "pushed": false
+  },
+  "evidence": [
+    "docs/qa-evidence/2026-10-17-meihua-scenarios-regressions.json",
+    "docs/qa-evidence/2026-10-17-meihua-scenarios-http.json",
+    "docs/qa-evidence/2026-10-17-meihua-scenarios-web.json",
+    "docs/qa-evidence/2026-10-17-meihua-scenarios-layout.json",
+    "docs/qa-evidence/2026-10-17-meihua-scenarios-production.json"
+  ],
+  "sources": [
+    "https://zh.wikisource.org/wiki/梅花易數/卷二"
+  ]
+}

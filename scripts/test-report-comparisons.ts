@@ -1,3 +1,5 @@
+import { runAccountTest } from './account-test-session';
+import { closeDatabaseConnection } from '../lib/db/client';
 import assert from 'node:assert/strict';
 import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -231,9 +233,7 @@ async function main() {
 
     console.log('M3-2 报告版本对比测试通过：表达变化、事实依据变化、生成审计、年度不可变历史、API 与 PDF 指定版本均正常。');
   } finally {
-    const database = globalThis.__ziweiSqlite;
-    if (database?.open) database.close();
-    globalThis.__ziweiSqlite = undefined;
+    closeDatabaseConnection();
     rmSync(tempDirectory, { recursive: true, force: true });
   }
 }
@@ -251,7 +251,7 @@ function annualContent(summary: string, action: string): string {
   ].join('\n');
 }
 
-main().catch(error => {
+runAccountTest(main).catch(error => {
   console.error(error);
   process.exitCode = 1;
 });

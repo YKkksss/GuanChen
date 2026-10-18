@@ -1,3 +1,4 @@
+import { runAccountTest } from './account-test-session';
 import assert from 'node:assert/strict';
 import { existsSync, mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -42,7 +43,7 @@ async function main() {
     const archive = await createLocalBackupArchive();
     assert.ok(archive.fileName.endsWith('.ziweibackup'));
     assert.equal(archive.buffer[0], 0x1f);
-    assert.equal(archive.preview.schemaVersion, 47);
+    assert.equal(archive.preview.schemaVersion, 56);
     assert.equal(archive.preview.content.conversations, 1);
     assert.equal(archive.preview.content.messages, 1);
     assert.equal(archive.preview.compatible, true);
@@ -59,7 +60,7 @@ async function main() {
     assert.equal(inspectResponse.status, 200);
     assert.equal((await inspectResponse.json() as { preview: { compatible: boolean } }).preview.compatible, true);
 
-    const exportResponse = await exportRoute.GET();
+    const exportResponse = await exportRoute.GET(new Request('http://local/test', { method: 'GET' }));
     assert.equal(exportResponse.status, 200);
     assert.match(exportResponse.headers.get('content-disposition') ?? '', /\.ziweibackup/);
     assert.equal(Buffer.from(await exportResponse.arrayBuffer())[0], 0x1f);
@@ -88,7 +89,7 @@ async function main() {
     assert.equal(getDatabase().pragma('integrity_check', { simple: true }), 'ok');
     assert.equal((getDatabase().pragma('foreign_key_check') as unknown[]).length, 0);
 
-    const summaryResponse = await backupRoute.GET();
+    const summaryResponse = await backupRoute.GET(new Request('http://local/test', { method: 'GET' }));
     assert.equal(summaryResponse.status, 200);
     const summaryData = await summaryResponse.json() as { summary: { automaticBackups: Array<{ fileName: string }> } };
     assert.equal(summaryData.summary.automaticBackups.length, 1);
@@ -128,7 +129,7 @@ async function main() {
 
     const finalSummary = await getLocalDataSummary();
     assert.equal(finalSummary.content.conversations, 1);
-    assert.ok(existsSync(path.join(tempDirectory, 'backups', automaticName)));
+    assert.ok(existsSync(path.join(path.dirname(process.env.SQLITE_PATH!), 'backups', automaticName)));
     console.log('本地备份恢复测试通过：一致性快照、API 预检、整库恢复、恢复前自动备份、指纹校验与路径防护均正常。');
   } finally {
     const { closeDatabaseConnection } = await import('../lib/db/client');
@@ -137,7 +138,7 @@ async function main() {
   }
 }
 
-main().catch(error => {
+runAccountTest(main).catch(error => {
   console.error(error);
   process.exitCode = 1;
 });

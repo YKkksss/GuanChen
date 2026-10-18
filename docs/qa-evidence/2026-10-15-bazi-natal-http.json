@@ -1,0 +1,72 @@
+{
+  "environment": "临时账号和独立SQLite，模型为本机模拟服务",
+  "checks": 31,
+  "cases": [
+    {
+      "label": "秋分前",
+      "chartId": "2afbe752-d89e-43ad-b8b3-adeae256c00d",
+      "url": "http://127.0.0.1:30002/bazi/reading/2afbe752-d89e-43ad-b8b3-adeae256c00d",
+      "birthDate": "2026-09-08",
+      "period": "resolved",
+      "nearCompeting": false
+    },
+    {
+      "label": "秋分后",
+      "chartId": "b6043139-5e1a-46b7-a4b2-b0c043a8c8bc",
+      "url": "http://127.0.0.1:30002/bazi/reading/b6043139-5e1a-46b7-a4b2-b0c043a8c8bc",
+      "birthDate": "2026-09-28",
+      "period": "resolved",
+      "nearCompeting": false
+    },
+    {
+      "label": "谷雨前",
+      "chartId": "f80771bf-034a-4617-a0a3-be830af595f6",
+      "url": "http://127.0.0.1:30002/bazi/reading/f80771bf-034a-4617-a0a3-be830af595f6",
+      "birthDate": "2026-04-09",
+      "period": "resolved",
+      "nearCompeting": false
+    },
+    {
+      "label": "谷雨后",
+      "chartId": "fe0548ae-528d-4569-b390-720574de669b",
+      "url": "http://127.0.0.1:30002/bazi/reading/fe0548ae-528d-4569-b390-720574de669b",
+      "birthDate": "2026-04-29",
+      "period": "resolved",
+      "nearCompeting": false
+    },
+    {
+      "label": "半月口径待核",
+      "chartId": "c528a1f5-3179-4bd7-b348-f2e901dfff39",
+      "url": "http://127.0.0.1:30002/bazi/reading/c528a1f5-3179-4bd7-b348-f2e901dfff39",
+      "birthDate": "2026-06-10",
+      "period": "source_ambiguous",
+      "nearCompeting": false
+    },
+    {
+      "label": "近邻争合",
+      "chartId": "a1e6cbed-a3bd-48f8-934a-3e1039ccea12",
+      "url": "http://127.0.0.1:30002/bazi/reading/a1e6cbed-a3bd-48f8-934a-3e1039ccea12",
+      "birthDate": "2014-05-13",
+      "period": "not_applicable",
+      "nearCompeting": true
+    },
+    {
+      "label": "藏根受冲",
+      "chartId": "3e853b51-30c3-4ee4-b729-54e2e27f97df",
+      "url": "http://127.0.0.1:30002/bazi/reading/3e853b51-30c3-4ee4-b729-54e2e27f97df",
+      "birthDate": "2016-02-12",
+      "period": "not_applicable",
+      "nearCompeting": false
+    },
+    {
+      "label": "交界日未知时辰",
+      "chartId": "573bd3fa-a8af-4e9a-a280-5c05bf032785",
+      "url": "http://127.0.0.1:30002/bazi/reading/573bd3fa-a8af-4e9a-a280-5c05bf032785",
+      "birthDate": "2004-09-23",
+      "period": "uncertain_time",
+      "nearCompeting": false
+    }
+  ],
+  "completedAt": "2026-10-15T11:46:58Z",
+  "timezone": "UTC+08:00"
+}

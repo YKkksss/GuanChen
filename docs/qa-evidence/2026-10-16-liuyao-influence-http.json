@@ -1,0 +1,253 @@
+{
+  "at": "2026-10-16T05:40:48.310Z",
+  "scope": "真实应用、独立账号数据库与本机模拟AI；无真实供应商",
+  "passed": true,
+  "count": 61,
+  "checks": [
+    {
+      "label": "multiple响应私有不缓存",
+      "passed": true
+    },
+    {
+      "label": "multiple当前账号读取：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "multiple新版含保存的作用依据",
+      "passed": true
+    },
+    {
+      "label": "joint响应私有不缓存",
+      "passed": true
+    },
+    {
+      "label": "joint当前账号读取：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "joint新版含保存的作用依据",
+      "passed": true
+    },
+    {
+      "label": "hidden响应私有不缓存",
+      "passed": true
+    },
+    {
+      "label": "hidden当前账号读取：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "hidden新版含保存的作用依据",
+      "passed": true
+    },
+    {
+      "label": "selected响应私有不缓存",
+      "passed": true
+    },
+    {
+      "label": "selected当前账号读取：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "selected新版含保存的作用依据",
+      "passed": true
+    },
+    {
+      "label": "none响应私有不缓存",
+      "passed": true
+    },
+    {
+      "label": "none当前账号读取：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "none新版含保存的作用依据",
+      "passed": true
+    },
+    {
+      "label": "v1响应私有不缓存",
+      "passed": true
+    },
+    {
+      "label": "v1当前账号读取：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "上一版条件快照不追加作用链",
+      "passed": true
+    },
+    {
+      "label": "old响应私有不缓存",
+      "passed": true
+    },
+    {
+      "label": "old当前账号读取：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "基础旧快照不补reading",
+      "passed": true
+    },
+    {
+      "label": "匿名拒绝：HTTP 401",
+      "passed": true
+    },
+    {
+      "label": "跨账号拒绝：HTTP 404",
+      "passed": true
+    },
+    {
+      "label": "跨账号错误不泄漏作用依据",
+      "passed": true
+    },
+    {
+      "label": "异源写入拒绝：HTTP 403",
+      "passed": true
+    },
+    {
+      "label": "非法取用位置拒绝：HTTP 400",
+      "passed": true
+    },
+    {
+      "label": "原型属性模板拒绝：HTTP 400",
+      "passed": true
+    },
+    {
+      "label": "预览服务端重算：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "输入伪造作用结果不进入快照",
+      "passed": true
+    },
+    {
+      "label": "新建独立合成占问：HTTP 201",
+      "passed": true
+    },
+    {
+      "label": "保存只消费原始输入与当前规则",
+      "passed": true
+    },
+    {
+      "label": "伪造userId不跨库写入：HTTP 404",
+      "passed": true
+    },
+    {
+      "label": "同条件重复保存复用：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "模拟AI回复完成：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "新版回复引用真实作用依据",
+      "passed": true
+    },
+    {
+      "label": "新版回复保存v3提示策略",
+      "passed": true
+    },
+    {
+      "label": "模拟AI回复完成：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "v1不引用新作用依据",
+      "passed": true
+    },
+    {
+      "label": "v1保存自身提示版本",
+      "passed": true
+    },
+    {
+      "label": "模拟AI回复完成：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "old不引用新作用依据",
+      "passed": true
+    },
+    {
+      "label": "old保存自身提示版本",
+      "passed": true
+    },
+    {
+      "label": "模拟供应商失败可恢复：HTTP 502",
+      "passed": true
+    },
+    {
+      "label": "失败后原对话保留：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "失败记录与已完成对话并存",
+      "passed": true
+    },
+    {
+      "label": "模拟AI回复完成：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "失败后按原消息另存重试",
+      "passed": true
+    },
+    {
+      "label": "复读原占问：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "问答与回看不改写原卦及三代快照",
+      "passed": true
+    },
+    {
+      "label": "复读原占问：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "问答与回看不改写原卦及三代快照",
+      "passed": true
+    },
+    {
+      "label": "复读原占问：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "问答与回看不改写原卦及三代快照",
+      "passed": true
+    },
+    {
+      "label": "复读原占问：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "问答与回看不改写原卦及三代快照",
+      "passed": true
+    },
+    {
+      "label": "复读原占问：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "问答与回看不改写原卦及三代快照",
+      "passed": true
+    },
+    {
+      "label": "复读原占问：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "问答与回看不改写原卦及三代快照",
+      "passed": true
+    },
+    {
+      "label": "复读原占问：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "问答与回看不改写原卦及三代快照",
+      "passed": true
+    }
+  ],
+  "mockRequestsAtCompletion": 5
+}

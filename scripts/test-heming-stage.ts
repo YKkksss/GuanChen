@@ -1,3 +1,4 @@
+import { closeDatabaseConnection } from '../lib/db/client';
 import assert from 'node:assert/strict';
 import { mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -79,7 +80,7 @@ async function main() {
     console.log('合盘阶段核对通过：甲乙归属、春节换岁、历史快照、报告日期、年度隔离与缺失阶段。');
   } finally {
     getDatabase().close();
-    globalThis.__ziweiSqlite = undefined;
+    closeDatabaseConnection();
   }
 }
 main().catch(error => { console.error(error); process.exitCode = 1; });

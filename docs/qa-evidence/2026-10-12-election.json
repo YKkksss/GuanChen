@@ -1,0 +1,215 @@
+{
+  "completedAt": "2026-10-12T13:38:22.225Z",
+  "timezone": "UTC+08:00",
+  "environment": "独立生产构建、临时账号与合成方案；历法计算使用真实安装库",
+  "checks": [
+    "独立测试账号进入择日工具",
+    "必填名称拦截空提交",
+    "事项 marriage 可筛选",
+    "事项 moving 可筛选",
+    "事项 opening 可筛选",
+    "事项 travel 可筛选",
+    "事项 renovation 可筛选",
+    "事项 contract 可筛选",
+    "事项 worship 可筛选",
+    "多次预览不建立方案",
+    "交节日 compare 月界说明",
+    "交节日 day_boundary 月界说明",
+    "交节日 exact_boundary 月界说明",
+    "空星期条件报错",
+    "星期排除的无候选状态",
+    "修改条件立即清除旧筛选结果",
+    "日冲条件按实际冲生肖排除",
+    "不足两个日期时对照入口禁用",
+    "最多三日，第四个选择受控拒绝",
+    "三个日期并排对照",
+    "对照中可展开原始宜忌",
+    "取消第三日保留双日对照",
+    "保存对照日期与备注",
+    "刷新回看已存快照，未修改时禁用保存",
+    "修改名称备注与对照不改原始计算快照",
+    "从保存方案复制筛选条件",
+    "方案名称搜索空态",
+    "已保存方案名称搜索",
+    "方案名称HTML按纯文本显示",
+    "删除确认可取消",
+    "本人确认移除后记录消失",
+    "真实HTTP匿名读取拒绝",
+    "真实HTTP跨账号 get 拒绝",
+    "真实HTTP跨账号 patch 拒绝",
+    "真实HTTP跨账号 delete 拒绝",
+    "真实HTTP跨账号列表隔离",
+    "真实HTTP跨站写入拒绝",
+    "个人方案禁止公共缓存",
+    "超长日期区间在页面明确报错",
+    "筛选网络故障可重试恢复",
+    "键盘切换视图和选择日期",
+    "非空备注的可访问字段名称保持固定",
+    "方案列表加载故障可重试恢复",
+    "不存在的方案显示清晰空错误状态"
+  ],
+  "audits": [
+    {
+      "view": "home",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "home",
+      "width": 1024,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "home",
+      "width": 820,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "home",
+      "width": 768,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "home",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "home",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "results",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "results",
+      "width": 1024,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "results",
+      "width": 820,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "results",
+      "width": 768,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "results",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "results",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "saved",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "saved",
+      "width": 1024,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "saved",
+      "width": 820,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "saved",
+      "width": 768,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "saved",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "saved",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "compare",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "compare",
+      "width": 1024,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "compare",
+      "width": 820,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "compare",
+      "width": 768,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "compare",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "compare",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    }
+  ],
+  "pageErrors": [],
+  "aiCalls": 0,
+  "automated": {
+    "electionChecks": 158,
+    "allSuitesPassed": 84,
+    "allSuitesTotal": 84,
+    "staticPagesBuilt": 81
+  },
+  "limitations": [
+    "此处手机为浏览器响应式模拟",
+    "第一版为黄历事项筛选，未含吉时、八字用神或三合等专门择日"
+  ],
+  "delivery": {
+    "mainUrl": "http://localhost:30001/election",
+    "loginHttpStatus": 200,
+    "defaultCacheRestored": true,
+    "testServicesStopped": true
+  }
+}

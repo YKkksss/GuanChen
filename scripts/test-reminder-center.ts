@@ -1,3 +1,5 @@
+import { runAccountTest } from './account-test-session';
+import { closeDatabaseConnection } from '../lib/db/client';
 import assert from 'node:assert/strict';
 import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -60,7 +62,7 @@ async function main() {
     }));
     assert.equal(invalidResponse.status, 400, '非法类型应返回可展示的表单错误');
 
-    const materializeResponse = await materializeRoute.POST();
+    const materializeResponse = await materializeRoute.POST(new Request('http://local/test', { method: 'POST' }));
     assert.equal(materializeResponse.status, 200);
 
     const enabledResponse = await remindersRoute.GET(new Request('http://local/api/reminders?status=enabled&limit=100'));
@@ -105,14 +107,12 @@ async function main() {
 
     console.log('M8-1 提醒中心契约测试通过：创建、分区查询、首页徽标、完成/重开、停用和级联删除均正常。');
   } finally {
-    const database = globalThis.__ziweiSqlite;
-    if (database?.open) database.close();
-    globalThis.__ziweiSqlite = undefined;
+    closeDatabaseConnection();
     rmSync(tempDirectory, { recursive: true, force: true });
   }
 }
 
-main().catch(error => {
+runAccountTest(main).catch(error => {
   console.error(error);
   process.exitCode = 1;
 });

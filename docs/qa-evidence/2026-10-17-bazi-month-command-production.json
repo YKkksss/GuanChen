@@ -1,0 +1,92 @@
+{
+  "at": "2026-10-16T16:52:03.257Z",
+  "passed": true,
+  "count": 21,
+  "checks": [
+    {
+      "label": "current生产私有API读取",
+      "passed": true
+    },
+    {
+      "label": "current生产复核状态一致",
+      "passed": true
+    },
+    {
+      "label": "生产旧v4不补算",
+      "passed": true
+    },
+    {
+      "label": "literal生产私有API读取",
+      "passed": true
+    },
+    {
+      "label": "literal生产复核状态一致",
+      "passed": true
+    },
+    {
+      "label": "different生产私有API读取",
+      "passed": true
+    },
+    {
+      "label": "different生产复核状态一致",
+      "passed": true
+    },
+    {
+      "label": "unknownSegment生产私有API读取",
+      "passed": true
+    },
+    {
+      "label": "unknownSegment生产复核状态一致",
+      "passed": true
+    },
+    {
+      "label": "unknownJie生产私有API读取",
+      "passed": true
+    },
+    {
+      "label": "unknownJie生产复核状态一致",
+      "passed": true
+    },
+    {
+      "label": "tail生产私有API读取",
+      "passed": true
+    },
+    {
+      "label": "tail生产复核状态一致",
+      "passed": true
+    },
+    {
+      "label": "short生产私有API读取",
+      "passed": true
+    },
+    {
+      "label": "short生产复核状态一致",
+      "passed": true
+    },
+    {
+      "label": "dst生产私有API读取",
+      "passed": true
+    },
+    {
+      "label": "dst生产复核状态一致",
+      "passed": true
+    },
+    {
+      "label": "solar生产私有API读取",
+      "passed": true
+    },
+    {
+      "label": "solar生产复核状态一致",
+      "passed": true
+    },
+    {
+      "label": "生产匿名拒绝",
+      "passed": true
+    },
+    {
+      "label": "生产页面返回登录确认与编译资源",
+      "passed": true
+    }
+  ],
+  "mockRequests": 0
+}

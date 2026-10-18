@@ -1,3 +1,4 @@
+import { closeDatabaseConnection } from '../lib/db/client';
 import assert from 'node:assert/strict';
 import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -85,9 +86,7 @@ async function main() {
 
     console.log('M6-3 学习练习测试通过：综合题、命盘识别、掌握度、错题聚合、连续复习与 SQLite v16 均正常。');
   } finally {
-    const database = globalThis.__ziweiSqlite;
-    if (database?.open) database.close();
-    globalThis.__ziweiSqlite = undefined;
+    closeDatabaseConnection();
     rmSync(tempDirectory, { recursive: true, force: true });
   }
 }

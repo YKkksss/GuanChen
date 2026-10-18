@@ -1,3 +1,4 @@
+import { runAccountTest } from './account-test-session';
 import assert from 'node:assert/strict';
 import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -103,7 +104,7 @@ async function main() {
   }
 }
 
-main().catch(error => {
+runAccountTest(main).catch(error => {
   console.error(error);
   process.exitCode = 1;
 });

@@ -1,3 +1,4 @@
+import { closeDatabaseConnection } from '../lib/db/client';
 import assert from 'node:assert/strict';
 import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -102,9 +103,7 @@ async function main() {
 
     console.log('M7-2 案例对比测试通过：v20 持久化、两命盘与大限对比、自动刷新、授权闸门、归档和级联删除均正常。');
   } finally {
-    const database = globalThis.__ziweiSqlite;
-    if (database?.open) database.close();
-    globalThis.__ziweiSqlite = undefined;
+    closeDatabaseConnection();
     rmSync(tempDirectory, { recursive: true, force: true });
   }
 }

@@ -1,0 +1,64 @@
+{
+  "at": "2026-10-15T16:57:32.086Z",
+  "scope": "本机独立账号合成资料；网页操作，不含真实AI与实机验收",
+  "passed": true,
+  "count": 14,
+  "checks": [
+    {
+      "label": "岁运开关默认关闭",
+      "passed": true
+    },
+    {
+      "label": "交节日17:52:05分为两段",
+      "passed": true
+    },
+    {
+      "label": "三层岁运与十神说明",
+      "passed": true
+    },
+    {
+      "label": "交节时辰已呈现14段",
+      "passed": true
+    },
+    {
+      "label": "保存刷新后保留岁运规则与备注",
+      "passed": true
+    },
+    {
+      "label": "已选交节时段保存回看",
+      "passed": true
+    },
+    {
+      "label": "保存的备注内容正确",
+      "passed": true
+    },
+    {
+      "label": "双人分别呈现岁运背景",
+      "passed": true
+    },
+    {
+      "label": "缺时保留流年流月并撤回大运",
+      "passed": true
+    },
+    {
+      "label": "历史夏令时明确撤回精确大运",
+      "passed": true
+    },
+    {
+      "label": "旧版方案明确未记录不补算",
+      "passed": true
+    },
+    {
+      "label": "旧版不显示新岁运结果",
+      "passed": true
+    },
+    {
+      "label": "删源后仍可从快照计算14个时段",
+      "passed": true
+    },
+    {
+      "label": "删源时辰可展开单段岁运依据",
+      "passed": true
+    }
+  ]
+}

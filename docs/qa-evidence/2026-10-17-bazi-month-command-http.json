@@ -1,0 +1,405 @@
+{
+  "at": "2026-10-16T16:47:27.702Z",
+  "scope": "真实本地HTTP与独立合成账号、本机模拟供应商；真实供应商0",
+  "passed": true,
+  "count": 99,
+  "checks": [
+    {
+      "label": "current私有结果不缓存",
+      "passed": true
+    },
+    {
+      "label": "current本人读取：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "current复核状态及候选与原计算一致",
+      "passed": true
+    },
+    {
+      "label": "current两方法依据完整",
+      "passed": true
+    },
+    {
+      "label": "current跨账号拒绝：HTTP 404",
+      "passed": true
+    },
+    {
+      "label": "current拒绝响应不泄漏司事事实",
+      "passed": true
+    },
+    {
+      "label": "literal私有结果不缓存",
+      "passed": true
+    },
+    {
+      "label": "literal本人读取：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "literal复核状态及候选与原计算一致",
+      "passed": true
+    },
+    {
+      "label": "literal两方法依据完整",
+      "passed": true
+    },
+    {
+      "label": "literal原文字未擅改天干",
+      "passed": true
+    },
+    {
+      "label": "literal跨账号拒绝：HTTP 404",
+      "passed": true
+    },
+    {
+      "label": "literal拒绝响应不泄漏司事事实",
+      "passed": true
+    },
+    {
+      "label": "different私有结果不缓存",
+      "passed": true
+    },
+    {
+      "label": "different本人读取：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "different复核状态及候选与原计算一致",
+      "passed": true
+    },
+    {
+      "label": "different两方法依据完整",
+      "passed": true
+    },
+    {
+      "label": "辰月原文壬与盘中月藏差异保留",
+      "passed": true
+    },
+    {
+      "label": "different跨账号拒绝：HTTP 404",
+      "passed": true
+    },
+    {
+      "label": "different拒绝响应不泄漏司事事实",
+      "passed": true
+    },
+    {
+      "label": "unknownSegment私有结果不缓存",
+      "passed": true
+    },
+    {
+      "label": "unknownSegment本人读取：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "unknownSegment复核状态及候选与原计算一致",
+      "passed": true
+    },
+    {
+      "label": "unknownSegment两方法依据完整",
+      "passed": true
+    },
+    {
+      "label": "unknownSegment新层不冒用整日唯一十神",
+      "passed": true
+    },
+    {
+      "label": "unknownSegment跨账号拒绝：HTTP 404",
+      "passed": true
+    },
+    {
+      "label": "unknownSegment拒绝响应不泄漏司事事实",
+      "passed": true
+    },
+    {
+      "label": "unknownJie私有结果不缓存",
+      "passed": true
+    },
+    {
+      "label": "unknownJie本人读取：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "unknownJie复核状态及候选与原计算一致",
+      "passed": true
+    },
+    {
+      "label": "unknownJie两方法依据完整",
+      "passed": true
+    },
+    {
+      "label": "unknownJie新层不冒用整日唯一十神",
+      "passed": true
+    },
+    {
+      "label": "unknownJie跨账号拒绝：HTTP 404",
+      "passed": true
+    },
+    {
+      "label": "unknownJie拒绝响应不泄漏司事事实",
+      "passed": true
+    },
+    {
+      "label": "tail私有结果不缓存",
+      "passed": true
+    },
+    {
+      "label": "tail本人读取：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "tail复核状态及候选与原计算一致",
+      "passed": true
+    },
+    {
+      "label": "tail两方法依据完整",
+      "passed": true
+    },
+    {
+      "label": "tail跨账号拒绝：HTTP 404",
+      "passed": true
+    },
+    {
+      "label": "tail拒绝响应不泄漏司事事实",
+      "passed": true
+    },
+    {
+      "label": "short私有结果不缓存",
+      "passed": true
+    },
+    {
+      "label": "short本人读取：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "short复核状态及候选与原计算一致",
+      "passed": true
+    },
+    {
+      "label": "short两方法依据完整",
+      "passed": true
+    },
+    {
+      "label": "short原文字未擅改天干",
+      "passed": true
+    },
+    {
+      "label": "short跨账号拒绝：HTTP 404",
+      "passed": true
+    },
+    {
+      "label": "short拒绝响应不泄漏司事事实",
+      "passed": true
+    },
+    {
+      "label": "dst私有结果不缓存",
+      "passed": true
+    },
+    {
+      "label": "dst本人读取：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "dst复核状态及候选与原计算一致",
+      "passed": true
+    },
+    {
+      "label": "dst两方法依据完整",
+      "passed": true
+    },
+    {
+      "label": "dst跨账号拒绝：HTTP 404",
+      "passed": true
+    },
+    {
+      "label": "dst拒绝响应不泄漏司事事实",
+      "passed": true
+    },
+    {
+      "label": "solar私有结果不缓存",
+      "passed": true
+    },
+    {
+      "label": "solar本人读取：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "solar复核状态及候选与原计算一致",
+      "passed": true
+    },
+    {
+      "label": "solar两方法依据完整",
+      "passed": true
+    },
+    {
+      "label": "solar跨账号拒绝：HTTP 404",
+      "passed": true
+    },
+    {
+      "label": "solar拒绝响应不泄漏司事事实",
+      "passed": true
+    },
+    {
+      "label": "匿名读取拒绝：HTTP 401",
+      "passed": true
+    },
+    {
+      "label": "跨账号生成拒绝：HTTP 404",
+      "passed": true
+    },
+    {
+      "label": "匿名生成拒绝：HTTP 401",
+      "passed": true
+    },
+    {
+      "label": "异源生成拒绝：HTTP 403",
+      "passed": true
+    },
+    {
+      "label": "错误生成参数拒绝：HTTP 400",
+      "passed": true
+    },
+    {
+      "label": "读取及所有拒绝请求不调用AI",
+      "passed": true
+    },
+    {
+      "label": "服务端生成新报告：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "伪造事实及账号不覆盖服务端新快照",
+      "passed": true
+    },
+    {
+      "label": "新报告旺衰及格局均引用实际司事依据",
+      "passed": true
+    },
+    {
+      "label": "数据库保存实际v5提示",
+      "passed": true
+    },
+    {
+      "label": "同事实复用已完成报告：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "重复生成不新增版本",
+      "passed": true
+    },
+    {
+      "label": "供应商失败返回脱敏错误：HTTP 502",
+      "passed": true
+    },
+    {
+      "label": "失败后旧版仍可读：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "失败不覆盖完成报告",
+      "passed": true
+    },
+    {
+      "label": "失败重试另存新报告：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "重试完成且保留历史版本",
+      "passed": true
+    },
+    {
+      "label": "建立当前盘连续问答：HTTP 201",
+      "passed": true
+    },
+    {
+      "label": "连续问答返回有效事件流",
+      "passed": true
+    },
+    {
+      "label": "实际供应商请求携带同源分日快照",
+      "passed": true
+    },
+    {
+      "label": "连续问答历史按账号隔离：HTTP 404",
+      "passed": true
+    },
+    {
+      "label": "再次读取固定命盘复核：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "报告及问答不改原命盘复核事实",
+      "passed": true
+    },
+    {
+      "label": "旧v4报告未补入新层或新依据",
+      "passed": true
+    },
+    {
+      "label": "再次读取固定命盘复核：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "报告及问答不改原命盘复核事实",
+      "passed": true
+    },
+    {
+      "label": "再次读取固定命盘复核：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "报告及问答不改原命盘复核事实",
+      "passed": true
+    },
+    {
+      "label": "再次读取固定命盘复核：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "报告及问答不改原命盘复核事实",
+      "passed": true
+    },
+    {
+      "label": "再次读取固定命盘复核：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "报告及问答不改原命盘复核事实",
+      "passed": true
+    },
+    {
+      "label": "再次读取固定命盘复核：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "报告及问答不改原命盘复核事实",
+      "passed": true
+    },
+    {
+      "label": "再次读取固定命盘复核：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "报告及问答不改原命盘复核事实",
+      "passed": true
+    },
+    {
+      "label": "再次读取固定命盘复核：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "报告及问答不改原命盘复核事实",
+      "passed": true
+    },
+    {
+      "label": "再次读取固定命盘复核：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "报告及问答不改原命盘复核事实",
+      "passed": true
+    }
+  ],
+  "mockRequests": 4
+}

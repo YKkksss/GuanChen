@@ -1,3 +1,4 @@
+import { closeDatabaseConnection } from '../lib/db/client';
 import assert from 'node:assert/strict';
 import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -91,7 +92,7 @@ async function main() {
     console.log('M5-4 工作台后端测试通过：评估版本绑定、限制确认、选定状态、证据失效保护和选择历史均正常。');
   } finally {
     getDatabase().close();
-    globalThis.__ziweiSqlite = undefined;
+    closeDatabaseConnection();
     rmSync(tempDirectory, { recursive: true, force: true });
   }
 }

@@ -1,0 +1,52 @@
+{
+  "date": "2026-10-16",
+  "timezone": "UTC+08:00",
+  "module": "个人化择日岁运背景复核",
+  "implementation": "complete",
+  "databaseVersion": 56,
+  "migrationRequired": false,
+  "pushed": false,
+  "verified": {
+    "focusedAssertions": 342,
+    "originalPersonalAssertions": 832,
+    "httpChecks": 40,
+    "browserChecks": 14,
+    "responsiveLayouts": 16,
+    "responsiveWidths": [
+      320,
+      390,
+      768,
+      1280
+    ],
+    "productionBuild": true,
+    "realAiRequests": 0,
+    "typeScript": true
+  },
+  "regression": {
+    "firstRunPassed": 96,
+    "firstRunTotal": 97,
+    "failedSuite": "test:bazi-reading",
+    "error": "生成报告返回502，底层原因未确定",
+    "isolatedRerunPassed": true,
+    "isolatedRerunAssertions": 305,
+    "fullGreenClaim": false
+  },
+  "limits": [
+    "背景与结构关系不等于实际效力、喜忌或吉凶，不新增排除",
+    "未执行真实AI模型评估，本模块无AI调用",
+    "响应式模拟不替代实机；本轮未运行axe自动无障碍检查"
+  ],
+  "runtime": {
+    "url": "http://localhost:30001/election",
+    "loginHttpStatus": 200,
+    "qaPortsActive": false
+  },
+  "evidence": [
+    "2026-10-16-election-luck-http.json",
+    "2026-10-16-election-luck-web.json",
+    "2026-10-16-election-luck-layout.json",
+    "2026-10-16-election-luck-regression.json",
+    "2026-10-16-election-luck-desktop.jpg",
+    "2026-10-16-election-luck-mobile.jpg"
+  ]
+}

@@ -1,5 +1,7 @@
+import { runAccountTest } from './account-test-session';
+import { closeDatabaseConnection } from '../lib/db/client';
 import assert from 'node:assert/strict';
-import { copyFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { copyFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync, utimesSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 
@@ -186,6 +188,15 @@ async function main() {
       copyFileSync(storedPath, target);
     }
 
+    // 模拟文件系统时间精度/轻微时钟偏差：有等待期时保留，无等待期时按孤儿判定立即清理。
+    const clockSkewOrphan = path.join(getReportExportRoot(), '11111111-2222-4333-8444-555555555555.pdf');
+    writeFileSync(clockSkewOrphan, '%PDF-1.4 合成孤儿文件');
+    const ahead = new Date(Date.now() + 1000);
+    utimesSync(clockSkewOrphan, ahead, ahead);
+    assert.equal(await pruneOrphanedReportExportFiles(60_000), 0, '等待期仍应保护近期文件');
+    assert.equal(await pruneOrphanedReportExportFiles(0), 1, '无等待期不能被文件时间精度阻止');
+    assert.equal(existsSync(clockSkewOrphan), false);
+
     assert.equal(deleteConversation(conversation.id), true);
     assert.equal(getReportExport(first.record.id), null, '删除报告来源后导出记录必须级联删除');
     assert.equal(getReportExport(annualExport.record.id), null, '删除年度报告来源后导出记录必须级联删除');
@@ -194,14 +205,12 @@ async function main() {
 
     console.log('M3-1 服务端 PDF 测试通过：中文多页渲染、版本缓存、API 下载、完整性修复、v42 约束、级联记录与孤儿文件清理均正常。');
   } finally {
-    const database = globalThis.__ziweiSqlite;
-    if (database?.open) database.close();
-    globalThis.__ziweiSqlite = undefined;
+    closeDatabaseConnection();
     rmSync(tempDirectory, { recursive: true, force: true });
   }
 }
 
-main().catch(error => {
+runAccountTest(main).catch(error => {
   console.error(error);
   process.exitCode = 1;
 });

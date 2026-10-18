@@ -1,0 +1,143 @@
+{
+  "date": "2026-10-16",
+  "timezone": "UTC+08:00",
+  "environment": "本机独立SQLite与模拟供应商，合成账号",
+  "browser": "Chrome CUA fallback",
+  "savedSessionId": "68ef7cf7-c1cb-46ba-9eb4-2fa615ed9b9d",
+  "passed": 30,
+  "total": 30,
+  "checks": [
+    {
+      "label": "合成账号网页登录成功",
+      "passed": true
+    },
+    {
+      "label": "新建默认不指定占类",
+      "passed": true
+    },
+    {
+      "label": "wealth切换不改变独立参考对象",
+      "passed": true
+    },
+    {
+      "label": "wealth预览显示新版角色",
+      "passed": true
+    },
+    {
+      "label": "study切换不改变独立参考对象",
+      "passed": true
+    },
+    {
+      "label": "study预览显示新版角色",
+      "passed": true
+    },
+    {
+      "label": "travel切换不改变独立参考对象",
+      "passed": true
+    },
+    {
+      "label": "travel预览显示新版角色",
+      "passed": true
+    },
+    {
+      "label": "新占类从网页保存进入详情",
+      "passed": true
+    },
+    {
+      "label": "保存刷新后仍保留出行占类",
+      "passed": true
+    },
+    {
+      "label": "角色查看宫位联动九宫且不改占类",
+      "passed": true
+    },
+    {
+      "label": "方向键切换两侧关系",
+      "passed": true
+    },
+    {
+      "label": "两侧条件可分别展开且保留空支限制",
+      "passed": true
+    },
+    {
+      "label": "End切换来源并可展开规则边界",
+      "passed": true
+    },
+    {
+      "label": "占类原典链接保留可核对",
+      "passed": true
+    },
+    {
+      "label": "Home返回取用角色",
+      "passed": true
+    },
+    {
+      "label": "求财保留天芮天禽双星且比较星自身五行",
+      "passed": true
+    },
+    {
+      "label": "求财星生宫方向与同宫双身份分别显示",
+      "passed": true
+    },
+    {
+      "label": "甲日使用自身旬遁并保留原中五寄坤",
+      "passed": true
+    },
+    {
+      "label": "丁日与丁奇同宫仍保留两种角色",
+      "passed": true
+    },
+    {
+      "label": "考试比较采用落宫层级",
+      "passed": true
+    },
+    {
+      "label": "角色自身干刑墓可独立展开",
+      "passed": true
+    },
+    {
+      "label": "宫内全部格局明确区分角色自身刑墓",
+      "passed": true
+    },
+    {
+      "label": "none新盘提示明确选择且不造占类关系",
+      "passed": true
+    },
+    {
+      "label": "v1深化旧快照显示不补算提示",
+      "passed": true
+    },
+    {
+      "label": "基础旧盘保留原固定盘面而不补占类",
+      "passed": true
+    },
+    {
+      "label": "占类条件快捷问带入保存场景与边界",
+      "passed": true
+    },
+    {
+      "label": "一次网页模拟问答完成并含占类条件",
+      "passed": true
+    },
+    {
+      "label": "模拟占类回复引用可展开",
+      "passed": true
+    },
+    {
+      "label": "刷新后占类问答原样回看",
+      "passed": true
+    }
+  ],
+  "limitations": [
+    "未运行axe；只记录实际键盘、标签、可见布局和交互检查。",
+    "响应式模拟不替代真实手机验收。",
+    "Tabbit注册不可用，使用Chrome新建临时tab；未控制用户原tab。",
+    "新建网页方案使用默认北京时间；固定日期、局数与特殊角色另通过合成方案核对。"
+  ],
+  "screenshots": [
+    "2026-10-16-qimen-scenarios-desktop.jpg",
+    "2026-10-16-qimen-scenarios-mobile.jpg"
+  ],
+  "simulatedAiWebRequests": 1,
+  "realAiRequests": 0
+}

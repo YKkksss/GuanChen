@@ -1,3 +1,6 @@
+import { BAZI_CHAT_PROMPT_VERSION } from '../lib/db/bazi-conversations';
+import { runAccountTest } from './account-test-session';
+import { closeDatabaseConnection } from '../lib/db/client';
 import { formatBaziEvidenceLabel } from '../lib/bazi/display-labels';
 import assert from 'node:assert/strict';
 import { mkdtempSync, rmSync } from 'node:fs';
@@ -139,7 +142,7 @@ async function main() {
     }));
     const conversation = (await json<{ conversation: { id: string; hiddenStemActivationVersionId: string; promptVersion: string } }>(conversationResponse)).conversation;
     assert.equal(conversation.hiddenStemActivationVersionId, first.id);
-    assert.equal(conversation.promptVersion, 'bazi-chat-month-day-pattern-v17');
+    assert.equal(conversation.promptVersion, BAZI_CHAT_PROMPT_VERSION);
     const question = appendBaziMessage({ conversationId: conversation.id, role: 'user', content: '请解释2026年藏干被哪些条件触达' });
     const built = buildBaziConversationContext({
       conversationId: conversation.id, currentMessageId: question.id,
@@ -157,14 +160,12 @@ async function main() {
 
     console.log('M9-11 藏干引动条件测试通过：同干岁运表层、同支重复、冲合刑害回指、多入口并见、跨运分段、v33 持久化与上下文边界均正常。');
   } finally {
-    const database = globalThis.__ziweiSqlite;
-    if (database?.open) database.close();
-    globalThis.__ziweiSqlite = undefined;
+    closeDatabaseConnection();
     rmSync(tempDirectory, { recursive: true, force: true });
   }
 }
 
-main().catch(error => {
+runAccountTest(main).catch(error => {
   console.error(error);
   process.exitCode = 1;
 });

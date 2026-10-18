@@ -1,0 +1,64 @@
+{
+  "checkedAtUtc": "2026-10-16T16:07:32Z",
+  "clientTimezone": "Asia/Shanghai",
+  "clientCompletionDate": "2026-10-17",
+  "evidenceNamingDate": "2026-10-16",
+  "scope": "梅花易数八卦取象与主互变溯源",
+  "branch": "codex/user-accounts",
+  "databaseVersion": 56,
+  "versions": {
+    "reading": "meihua-reading-v2-imagery-provenance",
+    "imagery": "meihua-imagery-v1-symbols-line-provenance",
+    "catalog": "meihua-neutral-symbol-catalog-v1",
+    "prompt": "meihua-chat-v3-imagery-provenance"
+  },
+  "checks": {
+    "newSpecializedAssertions": 74064,
+    "existingFoundationAssertions": 2456,
+    "existingSeasonAssertions": 6221,
+    "firstFullRegression": { "passed": 101, "total": 101, "failedGroupsRerun": 0 },
+    "realHttpAssertions": 84,
+    "browserFunctions": { "passed": 33, "total": 33 },
+    "layoutCases": { "passed": 16, "total": 16, "widths": [320, 390, 768, 1280] },
+    "productionSmokeAssertions": 20,
+    "productionBuild": "passed",
+    "typeCheckAfterDailyConfigurationRestored": "passed",
+    "whitespaceCheck": "passed"
+  },
+  "ai": {
+    "sharedQaSession": { "httpMockRequests": 5, "browserMockRequests": 1, "total": 6 },
+    "independentNewSpecializedMockRequests": 4,
+    "realProviderRequests": 0,
+    "note": "统计分别列示，不将独立专项、全量组数和共享验收会话相加。生产只读检查无AI请求。"
+  },
+  "limits": [
+    "未运行axe，布局为Chrome视口模拟，未替代真实设备。",
+    "控制台样本只有重复Vue Devtools提示，其中一条经Next开发日志转发；未据此宣称全浏览器绝无错误。",
+    "网页仅验证原典链接存在与href，原典文本由本轮另行定向核对。",
+    "类象为中性候选，未实现占类取用、现实对象识别、外应自动采集、完整作用效力或精确应期。"
+  ],
+  "cleanup": {
+    "qaPortsStopped": [30002, 30003],
+    "qaBrowserTabClosed": true,
+    "userTabsPreserved": true,
+    "viewportReset": true,
+    "qaTypePathsRemoved": true,
+    "dailyServiceRestored": { "port": 30001, "pid": 35724, "address": "0.0.0.0", "loginHttpStatus": 200 },
+    "note": "收尾发现旧日常服务不在运行，已恢复独立日常开发进程；测试账号和数据仍在独立系统临时目录。"
+  },
+  "git": { "committedThisStage": false, "pushedThisStage": false },
+  "screenshotsInspectedFromDisk": [
+    "2026-10-16-meihua-imagery-desktop.jpg",
+    "2026-10-16-meihua-imagery-mobile.jpg"
+  ],
+  "nextStage": {
+    "name": "梅花占类取用复核",
+    "tasks": [
+      "核对求谋、求财、出行原典的角色与适用条件。",
+      "新增显式占类选择，默认未指定，不从占问文本猜场景。",
+      "联接固定体用、互变、取象、季节和反向条件，逐项保留依据。",
+      "保存占类并接入AI快捷问与引用校验，旧记录保持原能力。",
+      "完成场景矩阵、安全、保存重开、停止重试和响应式验收。"
+    ]
+  }
+}

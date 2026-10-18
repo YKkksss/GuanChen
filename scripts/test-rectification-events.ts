@@ -1,4 +1,6 @@
+import { closeDatabaseConnection } from '../lib/db/client';
 import assert from 'node:assert/strict';
+import { TRANSIT_ENGINE_VERSION } from '../lib/transits/engine';
 import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
@@ -53,7 +55,7 @@ async function main() {
     assert.equal(career.scoreEligible, true);
     assert.equal(career.facts.length, 3);
     assert.ok(career.facts.every(fact => fact.eventYear === 2015));
-    assert.ok(career.facts.every(fact => fact.snapshot.annualTransit.engineVersion === 'transit-v1-iztro-2.5.8'));
+    assert.ok(career.facts.every(fact => fact.snapshot.annualTransit.engineVersion === TRANSIT_ENGINE_VERSION));
     assert.ok(career.facts.every(fact => fact.snapshot.topicFact.category === 'career'));
     assert.ok(career.facts.every(fact => fact.inputFingerprint.length === 64));
 
@@ -178,7 +180,7 @@ async function main() {
     console.log('M5-2 校时事件测试通过：证据快照、事件去重、候选年度事实、最低门槛、确认更新及级联策略均正常。');
   } finally {
     getDatabase().close();
-    globalThis.__ziweiSqlite = undefined;
+    closeDatabaseConnection();
     rmSync(tempDirectory, { recursive: true, force: true });
   }
 }

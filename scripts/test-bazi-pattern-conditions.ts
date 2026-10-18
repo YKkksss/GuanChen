@@ -1,3 +1,6 @@
+import { BAZI_CHAT_PROMPT_VERSION } from '../lib/db/bazi-conversations';
+import { runAccountTest } from './account-test-session';
+import { closeDatabaseConnection } from '../lib/db/client';
 import assert from 'node:assert/strict';
 import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -125,7 +128,7 @@ async function main() {
     }));
     const conversation = (await json<{ conversation: { id: string; patternConditionVersionId: string; promptVersion: string } }>(conversationResponse)).conversation;
     assert.equal(conversation.patternConditionVersionId, first.id);
-    assert.equal(conversation.promptVersion, 'bazi-chat-month-day-pattern-v17');
+    assert.equal(conversation.promptVersion, BAZI_CHAT_PROMPT_VERSION);
     const question = appendBaziMessage({ conversationId: conversation.id, role: 'user', content: '请解释格局成格支持、破格风险和救应候选' });
     const built = buildBaziConversationContext({
       conversationId: conversation.id, currentMessageId: question.id,
@@ -144,14 +147,12 @@ async function main() {
 
     console.log('M9-13 格局条件测试通过：候选保留、三类条件矩阵、显隐分离、时柱降级、v35 持久化与上下文边界均正常。');
   } finally {
-    const database = globalThis.__ziweiSqlite;
-    if (database?.open) database.close();
-    globalThis.__ziweiSqlite = undefined;
+    closeDatabaseConnection();
     rmSync(tempDirectory, { recursive: true, force: true });
   }
 }
 
-main().catch(error => {
+runAccountTest(main).catch(error => {
   console.error(error);
   process.exitCode = 1;
 });

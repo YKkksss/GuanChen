@@ -1,3 +1,4 @@
+import { closeDatabaseConnection } from '../lib/db/client';
 import assert from 'node:assert/strict';
 import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -96,7 +97,7 @@ async function main() {
     console.log('M4-3 合盘上下文测试通过：双盘隔离、规则注入、历史召回、预算控制、降级与关系背景更新均正常。');
   } finally {
     getDatabase().close();
-    globalThis.__ziweiSqlite = undefined;
+    closeDatabaseConnection();
     rmSync(tempDirectory, { recursive: true, force: true });
   }
 }

@@ -1,0 +1,232 @@
+{
+  "module": "梅花易数·明确占类取用复核",
+  "verifiedAtUTC": "2026-10-16 16:23:50 UTC",
+  "timezone": "Asia/Shanghai",
+  "environment": "独立临时SQLite，QA 127.0.0.1:30002，本机模拟供应商30003",
+  "browser": "Playwright本地临时页；Tabbit诊断CLI_REGISTRATION_UNAVAILABLE，CUA inventory无可用浏览器，按授权回退",
+  "syntheticSavedSessionId": "e459c149-48d9-4f7b-b47b-6e9bb471da65",
+  "total": 47,
+  "passed": 47,
+  "checks": [
+    {
+      "label": "合成账号登录成功",
+      "passed": true
+    },
+    {
+      "label": "新建占问默认未指定占类",
+      "passed": true
+    },
+    {
+      "label": "占问含求财出行文字仍不自动指定占类",
+      "passed": true
+    },
+    {
+      "label": "切换求谋立即撤回旧预览",
+      "passed": true
+    },
+    {
+      "label": "求谋预览显示明确选择和五角色",
+      "passed": true
+    },
+    {
+      "label": "切换求财立即撤回旧预览",
+      "passed": true
+    },
+    {
+      "label": "求财预览显示明确选择和五角色",
+      "passed": true
+    },
+    {
+      "label": "切换出行立即撤回旧预览",
+      "passed": true
+    },
+    {
+      "label": "出行预览显示明确选择和五角色",
+      "passed": true
+    },
+    {
+      "label": "改回未指定撤回旧预览",
+      "passed": true
+    },
+    {
+      "label": "占类切换保留手动起卦方式与原卦参数",
+      "passed": true
+    },
+    {
+      "label": "新建选定占类可保存进入占问",
+      "passed": true
+    },
+    {
+      "label": "刷新回看保留明确求谋和五角色",
+      "passed": true
+    },
+    {
+      "label": "五个角色可展开各自源盘原爻与依据",
+      "passed": true
+    },
+    {
+      "label": "方向键切换体用条件并转移键盘焦点",
+      "passed": true
+    },
+    {
+      "label": "本用条件明确两侧生克方向和各自季节",
+      "passed": true
+    },
+    {
+      "label": "本用待核条件与本次占类检查可展开",
+      "passed": true
+    },
+    {
+      "label": "上下互与变用完整三位只列通用参考",
+      "passed": true
+    },
+    {
+      "label": "三位互变各自待核条件完整展开",
+      "passed": true
+    },
+    {
+      "label": "End切换来源且版本与证据默认收起",
+      "passed": true
+    },
+    {
+      "label": "占类原典链接与边界版本可展开",
+      "passed": true
+    },
+    {
+      "label": "Home返回角色并保持正确tab关联",
+      "passed": true
+    },
+    {
+      "label": "占类角色快捷问题只填草稿不自动发送",
+      "passed": true
+    },
+    {
+      "label": "体用条件快捷问题只填草稿不自动发送",
+      "passed": true
+    },
+    {
+      "label": "互变并列快捷问题只填草稿不自动发送",
+      "passed": true
+    },
+    {
+      "label": "新版占类快捷问题完成一次本机模拟回复",
+      "passed": true
+    },
+    {
+      "label": "模拟回复展开三条占类来源引用",
+      "passed": true
+    },
+    {
+      "label": "刷新回看已保存模拟问答不再发送",
+      "passed": true
+    },
+    {
+      "label": "求谋已有快照保留明确占类及五个位置",
+      "passed": true
+    },
+    {
+      "label": "求谋本用条件分别保留两侧季节",
+      "passed": true
+    },
+    {
+      "label": "求财已有快照保留明确占类及五个位置",
+      "passed": true
+    },
+    {
+      "label": "求财本用条件分别保留两侧季节",
+      "passed": true
+    },
+    {
+      "label": "出行已有快照保留明确占类及五个位置",
+      "passed": true
+    },
+    {
+      "label": "出行本用条件分别保留两侧季节",
+      "passed": true
+    },
+    {
+      "label": "无时间快照五角色均不补当前季节",
+      "passed": true
+    },
+    {
+      "label": "无时间快照本用两侧季节均未定位",
+      "passed": true
+    },
+    {
+      "label": "纯乾相同卦象仍保留本体与本用不同角色",
+      "passed": true
+    },
+    {
+      "label": "纯乾特殊互卦口径按变卦盘保留两互角色来源",
+      "passed": true
+    },
+    {
+      "label": "新版none快照不从问题补角色",
+      "passed": true
+    },
+    {
+      "label": "新版none保留取象快捷能力",
+      "passed": true
+    },
+    {
+      "label": "旧取象提示原记录无占类且不补算",
+      "passed": true
+    },
+    {
+      "label": "旧取象保留原三条快捷问题",
+      "passed": true
+    },
+    {
+      "label": "旧季节提示原记录无占类且不补算",
+      "passed": true
+    },
+    {
+      "label": "旧季节保留原三条快捷问题",
+      "passed": true
+    },
+    {
+      "label": "基础旧卦提示原记录无占类且不补算",
+      "passed": true
+    },
+    {
+      "label": "基础旧卦保留原三条快捷问题",
+      "passed": true
+    },
+    {
+      "label": "修复后互变方向使用下互上互变卦用短名，语句通顺",
+      "passed": true
+    }
+  ],
+  "fixes": [
+    {
+      "file": "components/MeihuaScenarioPanel.tsx",
+      "description": "方向句按nodeKey使用本卦用、下互、上互、变卦用短名，避免拼接变卦用与原体导致歧义。",
+      "verifiedInBrowser": true
+    }
+  ],
+  "simulatedAi": {
+    "httpBaseline": 8,
+    "webRequests": 1,
+    "finalMockRequestCount": 9,
+    "realProviderRequests": 0,
+    "finalMode": "normal"
+  },
+  "console": {
+    "raw": [
+      "### Result\nTotal messages: 3 (Errors: 0, Warnings: 0)\nReturning 1 messages for level \"warning\"\n\n[WARNING] The resource http://127.0.0.1:30002/assets/brand/guanchen-mark.svg was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://127.0.0.1:30002/login:0"
+    ],
+    "assessment": "未观察到应用错误；读取到品牌SVG预加载未及时使用的浏览器警告。"
+  },
+  "screenshots": {
+    "desktop": "2026-10-17-meihua-scenarios-desktop.jpg",
+    "mobile": "2026-10-17-meihua-scenarios-mobile.jpg",
+    "finalDiskImagesVisuallyInspected": true
+  },
+  "limitations": [
+    "未运行axe；仅核对实际原生键盘、可见语义及布局。",
+    "响应式为浏览器视口模拟，不等同真实移动设备测试。",
+    "仅发送一次本机模拟AI请求，不评价真实供应商解读质量。",
+    "网页覆盖本轮占类取用与三代旧记录兼容，未重复全测既有起卦方式。",
+    "未访问原典外站；核对展开后的来源链接及href。"
+  ]
+}

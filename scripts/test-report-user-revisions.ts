@@ -1,3 +1,5 @@
+import { runAccountTest } from './account-test-session';
+import { closeDatabaseConnection } from '../lib/db/client';
 import assert from 'node:assert/strict';
 import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -190,9 +192,7 @@ async function main() {
 
     console.log('M3-3 报告确认与人工修订测试通过：版本隔离、不可变原文、字段边界、备注、确认状态、年度文本、PDF 来源与级联清理均正常。');
   } finally {
-    const database = globalThis.__ziweiSqlite;
-    if (database?.open) database.close();
-    globalThis.__ziweiSqlite = undefined;
+    closeDatabaseConnection();
     rmSync(tempDirectory, { recursive: true, force: true });
   }
 }
@@ -205,7 +205,7 @@ function jsonRequest(body: unknown): Request {
   });
 }
 
-main().catch(error => {
+runAccountTest(main).catch(error => {
   console.error(error);
   process.exitCode = 1;
 });

@@ -1,3 +1,6 @@
+import { BAZI_CHAT_PROMPT_VERSION } from '../lib/db/bazi-conversations';
+import { runAccountTest } from './account-test-session';
+import { closeDatabaseConnection } from '../lib/db/client';
 import assert from 'node:assert/strict';
 import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -47,7 +50,7 @@ async function main() {
     const first = (await json<{ conversation: { id: string; promptVersion: string } }>(await create())).conversation;
     const reused = (await json<{ conversation: { id: string } }>(await create())).conversation;
     assert.equal(reused.id, first.id, '同一版本默认应恢复最近的活动会话');
-    assert.equal(first.promptVersion, 'bazi-chat-month-day-pattern-v17');
+    assert.equal(first.promptVersion, BAZI_CHAT_PROMPT_VERSION);
 
     const forcedResponse = await conversationsRoute.POST(new Request('http://local/api/bazi/conversations', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -117,14 +120,12 @@ async function main() {
 
     console.log('M9-2 八字对话测试通过：v24 迁移、版本绑定、会话恢复、独立消息、事实上下文、长对话摘要触发、输出边界与级联删除均正常。');
   } finally {
-    const database = globalThis.__ziweiSqlite;
-    if (database?.open) database.close();
-    globalThis.__ziweiSqlite = undefined;
+    closeDatabaseConnection();
     rmSync(tempDirectory, { recursive: true, force: true });
   }
 }
 
-main().catch(error => {
+runAccountTest(main).catch(error => {
   console.error(error);
   process.exitCode = 1;
 });

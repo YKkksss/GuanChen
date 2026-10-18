@@ -1,0 +1,22 @@
+{
+  "verifiedAt": "2026-10-13T11:12:19.6113347+08:00",
+  "module": "六爻纳甲第一版",
+  "moduleUrl": "http://localhost:30001/liuyao",
+  "schemaVersion": 54,
+  "loginStatus": 200,
+  "anonymousPageStatus": 307,
+  "anonymousApiStatus": 401,
+  "mainListenAddress": "0.0.0.0",
+  "qaServicesStopped": true,
+  "syntheticDataStoredInMainDatabase": false,
+  "typeCheck": "通过",
+  "productionBuild": "通过",
+  "fullRegression": "86/86",
+  "liuyaoAssertions": 16649,
+  "browserChecks": 54,
+  "responsiveAccessibilityAudits": 30,
+  "pageErrors": 0,
+  "realAiContentQuality": "未核验：AI功能验收使用本机模拟供应商",
+  "realMobileDevices": "未实机验收，已覆盖浏览器宽度模拟",
+  "remoteRepositoryChanged": false
+}

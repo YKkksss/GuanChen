@@ -1,0 +1,588 @@
+{
+  "verifiedAt": "2026-10-15T11:41:55Z",
+  "timezone": "UTC+08:00",
+  "total": 95,
+  "firstRunPassed": 93,
+  "finalPassed": 95,
+  "note": "首次全量93/95；两个失败均为新旧校验器重复错误标签。统一标签后，两项各自重跑成功。",
+  "retests": [
+    "test:bazi-relation-audit",
+    "test:bazi-relation-adjudication"
+  ],
+  "ruleChecks": 26656,
+  "existingFineReadingChecks": 640,
+  "readingIntegrationChecks": 303,
+  "firstRunLogDirectory": "C:\\Users\\11474\\AppData\\Local\\Temp\\guanchen-v1-checks-9FqDEr",
+  "results": [
+    {
+      "name": "test:qimen",
+      "firstRunPassed": true,
+      "finalPassed": true,
+      "retested": false
+    },
+    {
+      "name": "test:liuyao",
+      "firstRunPassed": true,
+      "finalPassed": true,
+      "retested": false
+    },
+    {
+      "name": "test:meihua",
+      "firstRunPassed": true,
+      "finalPassed": true,
+      "retested": false
+    },
+    {
+      "name": "test:election",
+      "firstRunPassed": true,
+      "finalPassed": true,
+      "retested": false
+    },
+    {
+      "name": "test:synthesis",
+      "firstRunPassed": true,
+      "finalPassed": true,
+      "retested": false
+    },
+    {
+      "name": "test:bazi-reading",
+      "firstRunPassed": true,
+      "finalPassed": true,
+      "retested": false
+    },
+    {
+      "name": "test:fortune-topics",
+      "firstRunPassed": true,
+      "finalPassed": true,
+      "retested": false
+    },
+    {
+      "name": "test:fortune-calendar",
+      "firstRunPassed": true,
+      "finalPassed": true,
+      "retested": false
+    },
+    {
+      "name": "test:accounts",
+      "firstRunPassed": true,
+      "finalPassed": true,
+      "retested": false
+    },
+    {
+      "name": "test:request-boundary",
+      "firstRunPassed": true,
+      "finalPassed": true,
+      "retested": false
+    },
+    {
+      "name": "test:v1-intake-history",
+      "firstRunPassed": true,
+      "finalPassed": true,
+      "retested": false
+    },
+    {
+      "name": "test:ai-markdown",
+      "firstRunPassed": true,
+      "finalPassed": true,
+      "retested": false
+    },
+    {
+      "name": "test:chat-preferences",
+      "firstRunPassed": true,
+      "finalPassed": true,
+      "retested": false
+    },
+    {
+      "name": "test:chat-split",
+      "firstRunPassed": true,
+      "finalPassed": true,
+      "retested": false
+    },
+    {
+      "name": "test:conversations",
+      "firstRunPassed": true,
+      "finalPassed": true,
+      "retested": false
+    },
+    {
+      "name": "test:event-period-context",
+      "firstRunPassed": true,
+      "finalPassed": true,
+      "retested": false
+    },
+    {
+      "name": "test:event-year-context",
+      "firstRunPassed": true,
+      "finalPassed": true,
+      "retested": false
+    },
+    {
+      "name": "test:natural-transit",
+      "firstRunPassed": true,
+      "finalPassed": true,
+      "retested": false
+    },
+    {
+      "name": "test:ziwei-followup",
+      "firstRunPassed": true,
+      "finalPassed": true,
+      "retested": false
+    },
+    {
+      "name": "test:context",
+      "firstRunPassed": true,
+      "finalPassed": true,
+      "retested": false
+    },
+    {
+      "name": "test:transits",
+      "firstRunPassed": true,
+      "finalPassed": true,
+      "retested": false
+    },
+    {
+      "name": "test:monthly-transits",
+      "firstRunPassed": true,
+      "finalPassed": true,
+      "retested": false
+    },
+    {
+      "name": "test:monthly-transit-year",
+      "firstRunPassed": true,
+      "finalPassed": true,
+      "retested": false
+    },
+    {
+      "name": "test:daily-transits",
+      "firstRunPassed": true,
+      "finalPassed": true,
+      "retested": false
+    },
+    {
+      "name": "test:events",
+      "firstRunPassed": true,
+      "finalPassed": true,
+      "retested": false
+    },
+    {
+      "name": "test:event-axis",
+      "firstRunPassed": true,
+      "finalPassed": true,
+      "retested": false
+    },
+    {
+      "name": "test:event-candidates",
+      "firstRunPassed": true,
+      "finalPassed": true,
+      "retested": false
+    },
+    {
+      "name": "test:event-analyses",
+      "firstRunPassed": true,
+      "finalPassed": true,
+      "retested": false
+    },
+    {
+      "name": "test:report-evidence",
+      "firstRunPassed": true,
+      "finalPassed": true,
+      "retested": false
+    },
+    {
+      "name": "test:report-facts",
+      "firstRunPassed": true,
+      "finalPassed": true,
+      "retested": false
+    },
+    {
+      "name": "test:reports",
+      "firstRunPassed": true,
+      "finalPassed": true,
+      "retested": false
+    },
+    {
+      "name": "test:report-pdf",
+      "firstRunPassed": true,
+      "finalPassed": true,
+      "retested": false
+    },
+    {
+      "name": "test:report-comparisons",
+      "firstRunPassed": true,
+      "finalPassed": true,
+      "retested": false
+    },
+    {
+      "name": "test:report-revisions",
+      "firstRunPassed": true,
+      "finalPassed": true,
+      "retested": false
+    },
+    {
+      "name": "test:heming-methodology",
+      "firstRunPassed": true,
+      "finalPassed": true,
+      "retested": false
+    },
+    {
+      "name": "test:heming-conversations",
+      "firstRunPassed": true,
+      "finalPassed": true,
+      "retested": false
+    },
+    {
+      "name": "test:heming-engine",
+      "firstRunPassed": true,
+      "finalPassed": true,
+      "retested": false
+    },
+    {
+      "name": "test:heming-context",
+      "firstRunPassed": true,
+      "finalPassed": true,
+      "retested": false
+    },
+    {
+      "name": "test:heming-reports",
+      "firstRunPassed": true,
+      "finalPassed": true,
+      "retested": false
+    },
+    {
+      "name": "test:heming-transits",
+      "firstRunPassed": true,
+      "finalPassed": true,
+      "retested": false
+    },
+    {
+      "name": "test:heming-stage",
+      "firstRunPassed": true,
+      "finalPassed": true,
+      "retested": false
+    },
+    {
+      "name": "test:rectification-methodology",
+      "firstRunPassed": true,
+      "finalPassed": true,
+      "retested": false
+    },
+    {
+      "name": "test:rectification-sessions",
+      "firstRunPassed": true,
+      "finalPassed": true,
+      "retested": false
+    },
+    {
+      "name": "test:rectification-events",
+      "firstRunPassed": true,
+      "finalPassed": true,
+      "retested": false
+    },
+    {
+      "name": "test:rectification-evaluation",
+      "firstRunPassed": true,
+      "finalPassed": true,
+      "retested": false
+    },
+    {
+      "name": "test:rectification-workbench",
+      "firstRunPassed": true,
+      "finalPassed": true,
+      "retested": false
+    },
+    {
+      "name": "test:rectification-report",
+      "firstRunPassed": true,
+      "finalPassed": true,
+      "retested": false
+    },
+    {
+      "name": "test:learning-foundation",
+      "firstRunPassed": true,
+      "finalPassed": true,
+      "retested": false
+    },
+    {
+      "name": "test:learning-courses",
+      "firstRunPassed": true,
+      "finalPassed": true,
+      "retested": false
+    },
+    {
+      "name": "test:learning-practice",
+      "firstRunPassed": true,
+      "finalPassed": true,
+      "retested": false
+    },
+    {
+      "name": "test:learning-open-practice",
+      "firstRunPassed": true,
+      "finalPassed": true,
+      "retested": false
+    },
+    {
+      "name": "test:cases",
+      "firstRunPassed": true,
+      "finalPassed": true,
+      "retested": false
+    },
+    {
+      "name": "test:case-search",
+      "firstRunPassed": true,
+      "finalPassed": true,
+      "retested": false
+    },
+    {
+      "name": "test:case-comparisons",
+      "firstRunPassed": true,
+      "finalPassed": true,
+      "retested": false
+    },
+    {
+      "name": "test:reminder-foundation",
+      "firstRunPassed": true,
+      "finalPassed": true,
+      "retested": false
+    },
+    {
+      "name": "test:reminder-center",
+      "firstRunPassed": true,
+      "finalPassed": true,
+      "retested": false
+    },
+    {
+      "name": "test:monthly-reviews",
+      "firstRunPassed": true,
+      "finalPassed": true,
+      "retested": false
+    },
+    {
+      "name": "test:bazi-foundation",
+      "firstRunPassed": true,
+      "finalPassed": true,
+      "retested": false
+    },
+    {
+      "name": "test:bazi-persistence",
+      "firstRunPassed": true,
+      "finalPassed": true,
+      "retested": false
+    },
+    {
+      "name": "test:bazi-conversations",
+      "firstRunPassed": true,
+      "finalPassed": true,
+      "retested": false
+    },
+    {
+      "name": "test:bazi-interpretation",
+      "firstRunPassed": true,
+      "finalPassed": true,
+      "retested": false
+    },
+    {
+      "name": "test:bazi-luck-cycles",
+      "firstRunPassed": true,
+      "finalPassed": true,
+      "retested": false
+    },
+    {
+      "name": "test:bazi-timeline-selection",
+      "firstRunPassed": true,
+      "finalPassed": true,
+      "retested": false
+    },
+    {
+      "name": "test:bazi-question-scope",
+      "firstRunPassed": true,
+      "finalPassed": true,
+      "retested": false
+    },
+    {
+      "name": "test:bazi-annual-timeline",
+      "firstRunPassed": true,
+      "finalPassed": true,
+      "retested": false
+    },
+    {
+      "name": "test:bazi-relation-audit",
+      "firstRunPassed": false,
+      "finalPassed": true,
+      "retested": true
+    },
+    {
+      "name": "test:bazi-relation-adjudication",
+      "firstRunPassed": false,
+      "finalPassed": true,
+      "retested": true
+    },
+    {
+      "name": "test:bazi-dynamic-ten-gods",
+      "firstRunPassed": true,
+      "finalPassed": true,
+      "retested": false
+    },
+    {
+      "name": "test:bazi-ten-god-repeats",
+      "firstRunPassed": true,
+      "finalPassed": true,
+      "retested": false
+    },
+    {
+      "name": "test:bazi-transparency-roots",
+      "firstRunPassed": true,
+      "finalPassed": true,
+      "retested": false
+    },
+    {
+      "name": "test:bazi-hidden-stem-activations",
+      "firstRunPassed": true,
+      "finalPassed": true,
+      "retested": false
+    },
+    {
+      "name": "test:bazi-strength-composites",
+      "firstRunPassed": true,
+      "finalPassed": true,
+      "retested": false
+    },
+    {
+      "name": "test:bazi-pattern-conditions",
+      "firstRunPassed": true,
+      "finalPassed": true,
+      "retested": false
+    },
+    {
+      "name": "test:bazi-month-day-timeline",
+      "firstRunPassed": true,
+      "finalPassed": true,
+      "retested": false
+    },
+    {
+      "name": "test:bazi-month-day-relations",
+      "firstRunPassed": true,
+      "finalPassed": true,
+      "retested": false
+    },
+    {
+      "name": "test:bazi-month-day-visibility",
+      "firstRunPassed": true,
+      "finalPassed": true,
+      "retested": false
+    },
+    {
+      "name": "test:bazi-month-day-strength",
+      "firstRunPassed": true,
+      "finalPassed": true,
+      "retested": false
+    },
+    {
+      "name": "test:bazi-month-day-patterns",
+      "firstRunPassed": true,
+      "finalPassed": true,
+      "retested": false
+    },
+    {
+      "name": "test:chat-scroll",
+      "firstRunPassed": true,
+      "finalPassed": true,
+      "retested": false
+    },
+    {
+      "name": "test:chat-keyboard",
+      "firstRunPassed": true,
+      "finalPassed": true,
+      "retested": false
+    },
+    {
+      "name": "test:workspace-navigation",
+      "firstRunPassed": true,
+      "finalPassed": true,
+      "retested": false
+    },
+    {
+      "name": "test:chat-generation",
+      "firstRunPassed": true,
+      "finalPassed": true,
+      "retested": false
+    },
+    {
+      "name": "test:backups",
+      "firstRunPassed": true,
+      "finalPassed": true,
+      "retested": false
+    },
+    {
+      "name": "test:backup-lifecycle",
+      "firstRunPassed": true,
+      "finalPassed": true,
+      "retested": false
+    },
+    {
+      "name": "test:encrypted-backups",
+      "firstRunPassed": true,
+      "finalPassed": true,
+      "retested": false
+    },
+    {
+      "name": "test:chart-transfer",
+      "firstRunPassed": true,
+      "finalPassed": true,
+      "retested": false
+    },
+    {
+      "name": "test:ziwei-birth",
+      "firstRunPassed": true,
+      "finalPassed": true,
+      "retested": false
+    },
+    {
+      "name": "test:election-hours",
+      "firstRunPassed": true,
+      "finalPassed": true,
+      "retested": false
+    },
+    {
+      "name": "test:bazi-fine-reading",
+      "firstRunPassed": true,
+      "finalPassed": true,
+      "retested": false
+    },
+    {
+      "name": "test:election-personal",
+      "firstRunPassed": true,
+      "finalPassed": true,
+      "retested": false
+    },
+    {
+      "name": "test:liuyao-reading",
+      "firstRunPassed": true,
+      "finalPassed": true,
+      "retested": false
+    },
+    {
+      "name": "test:qimen-reading",
+      "firstRunPassed": true,
+      "finalPassed": true,
+      "retested": false
+    },
+    {
+      "name": "test:synthesis-dynamic",
+      "firstRunPassed": true,
+      "finalPassed": true,
+      "retested": false
+    },
+    {
+      "name": "test:meihua-reading",
+      "firstRunPassed": true,
+      "finalPassed": true,
+      "retested": false
+    },
+    {
+      "name": "test:bazi-natal-effects",
+      "firstRunPassed": true,
+      "finalPassed": true,
+      "retested": false
+    }
+  ]
+}

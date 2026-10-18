@@ -1,0 +1,242 @@
+{
+  "completedAt": "2026-10-15T10:03:14.801Z",
+  "timezone": "UTC+08:00",
+  "environment": "独立生产构建、临时账号与SQLite；AI使用本机模拟供应商",
+  "webChecks": 34,
+  "checks": [
+    "独立合成账号注册并进入梅花中心",
+    "手动卦没有参考时间时不套当前季节",
+    "明确补充季节时间后定位节令寅月，原卦与起卦历法不变",
+    "改月界清除旧预览，农历十二月丑土与节令寅木分开",
+    "body应期参照使用明确卦位",
+    "use应期参照使用明确卦位",
+    "changed_use应期参照使用明确卦位",
+    "取消季节参考后撤回季节标签",
+    "简化报数仍六爻动，未补时间不定位季节",
+    "加时报数保留姤之巽起例结构并共用起卦时刻",
+    "年月日時法原算法继续可用并包含新复核",
+    "物数10配酉时10得兑，原数20除六为二爻动",
+    "预览中改条件取消旧请求，迟到响应不覆盖新选择",
+    "生扶克制位置、应期与规则来源可展开，明确不生成日期",
+    "保存锁定条件，服务端保存结果与预览一致",
+    "刷新回看固定卦象、季节与参考卦，未重算",
+    "预览、保存与回看不调用AI",
+    "三个深化快捷问题只填草稿，不自动调用AI",
+    "新对话按保存时季节与参考卦回复并引用reading依据",
+    "Markdown标题正常显示，引用展开为同版规则",
+    "深化对话停止后原问题仍保留",
+    "失败重试新增回复，旧失败与完成对话保留",
+    "刷新回看历史对话不再调用AI",
+    "旧记录明确固定卦象，不补算新季节与应期",
+    "旧问答保留原快捷、原依据，回复后卦象JSON不变",
+    "私有卦象响应private no-store",
+    "非法月界/参考卦/物数与冲突时间均400",
+    "跨来源写入403",
+    "匿名读取与预览均401",
+    "其他账号列表不泄露，读/发问/停止/删除均404",
+    "伪造账号与reading被忽略，由当前账号原始条件重算",
+    "历史查询与取消移除保留快照",
+    "确认移除旧合成快照后详情404",
+    "本轮浏览器页面运行错误为0"
+  ],
+  "layoutChecks": 30,
+  "layouts": [
+    {
+      "view": "home",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "home",
+      "width": 375,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "home",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "home",
+      "width": 768,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "home",
+      "width": 1024,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "home",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "preview",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "preview",
+      "width": 375,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "preview",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "preview",
+      "width": 768,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "preview",
+      "width": 1024,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "preview",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "facts",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "facts",
+      "width": 375,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "facts",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "facts",
+      "width": 768,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "facts",
+      "width": 1024,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "facts",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "chat",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "chat",
+      "width": 375,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "chat",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "chat",
+      "width": 768,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "chat",
+      "width": 1024,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "chat",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "legacy",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "legacy",
+      "width": 375,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "legacy",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "legacy",
+      "width": 768,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "legacy",
+      "width": 1024,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "legacy",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    }
+  ],
+  "pageErrors": [],
+  "promptAudit": {
+    "requests": 5,
+    "newRequests": 4,
+    "legacyRequests": 1,
+    "allScopesCorrect": true
+  },
+  "screenshots": [
+    "2026-10-15-meihua-reading-facts-1440.png",
+    "2026-10-15-meihua-reading-facts-320.png",
+    "2026-10-15-meihua-reading-chat-390.png"
+  ],
+  "limitations": [
+    "模拟供应商不替代真实模型内容质量验收",
+    "响应式检查不替代真实外部设备",
+    "条件应期只列卦气月份，不宣称精确应验日或完整效力裁决"
+  ]
+}

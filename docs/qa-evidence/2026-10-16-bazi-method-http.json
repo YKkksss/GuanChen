@@ -1,0 +1,66 @@
+{
+  "at": "2026-10-15T16:08:11.156Z",
+  "checks": 35,
+  "passed": true,
+  "cases": [
+    {
+      "label": "杂气多候选",
+      "patternCount": 2,
+      "paths": [
+        "seal",
+        "month_robbery"
+      ],
+      "unknown": false
+    },
+    {
+      "label": "月劫",
+      "patternCount": 1,
+      "paths": [
+        "month_robbery"
+      ],
+      "unknown": false
+    },
+    {
+      "label": "建禄",
+      "patternCount": 1,
+      "paths": [
+        "build_prosperity"
+      ],
+      "unknown": false
+    },
+    {
+      "label": "阳刃",
+      "patternCount": 1,
+      "paths": [
+        "yang_blade"
+      ],
+      "unknown": false
+    },
+    {
+      "label": "冬月调候",
+      "patternCount": 1,
+      "paths": [
+        "wealth"
+      ],
+      "unknown": false
+    },
+    {
+      "label": "夏月调候",
+      "patternCount": 2,
+      "paths": [
+        "hurting_officer",
+        "month_robbery"
+      ],
+      "unknown": false
+    },
+    {
+      "label": "未知时辰",
+      "patternCount": 1,
+      "paths": [
+        "seal"
+      ],
+      "unknown": true
+    }
+  ],
+  "scope": "真实应用与隔离账号SQLite；供应商为本机合成响应，不证明外部模型质量"
+}

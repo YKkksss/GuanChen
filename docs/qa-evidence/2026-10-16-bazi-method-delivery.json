@@ -1,0 +1,49 @@
+{
+  "completedAt": "2026-10-16T00:11:43+08:00",
+  "module": "八字分方法旺衰格局取用复核",
+  "methodVersion": "bazi-method-review-v1-separated-premises",
+  "factsVersion": "bazi-reading-v4-method-premise-review",
+  "databaseVersion": 56,
+  "tests": {
+    "specialized": 4135,
+    "reading": 305,
+    "fullRegression": {
+      "passed": 96,
+      "total": 96,
+      "note": "其后阳刃名称和纯动态上下文选择调整已通过新增专项与流月流日格局专项定向复验"
+    },
+    "web": 31,
+    "http": 35,
+    "layout": 30,
+    "typecheck": true,
+    "productionBuild": true
+  },
+  "chatProof": {
+    "methodVersion": true,
+    "allCandidates": true,
+    "flowPending": true
+  },
+  "health": [
+    {
+      "url": "http://localhost:30001/login",
+      "status": 200,
+      "expected": 200
+    },
+    {
+      "url": "http://localhost:30001/bazi/reading/qa-no-private-id",
+      "status": 307,
+      "expected": 307
+    },
+    {
+      "url": "http://localhost:30001/api/bazi/charts/qa-no-private-id/reading",
+      "status": 401,
+      "expected": 401
+    }
+  ],
+  "limitations": [
+    "AI为本机模拟供应商，未评价真实模型质量",
+    "响应式模拟不替代实际设备；未宣称完整无障碍认证",
+    "未裁决最终旺衰、格局成败、通关效力或完整喜忌"
+  ],
+  "remoteCommit": false
+}

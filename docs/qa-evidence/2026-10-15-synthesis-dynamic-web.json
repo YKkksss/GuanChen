@@ -1,0 +1,278 @@
+{
+  "completedAt": "2026-10-15T08:57:59.520Z",
+  "timezone": "UTC+08:00",
+  "environment": "独立生产构建、临时账号及SQLite；AI使用本机模拟供应商",
+  "webChecks": 40,
+  "checks": [
+    "独立合成账号注册并由网页建立双盘",
+    "动态入口整理默认阶段，不自动调用AI",
+    "改条件清除旧结果，应用后同观察点显示春节与立春不同年份",
+    "月观察用真实公历观察日，分别展示农历月与节令月",
+    "流年层级只含运限与流年，不混入月层级",
+    "立春节界前后一秒网页定位改变年、月，边界前闭后开",
+    "应用请求未完成改时刻会取消，迟到结果不覆盖",
+    "保存期间锁定条件",
+    "保存完整阶段依据，不调用AI，也不误当已生成报告",
+    "综合主题五章解读独立保存并引用动态两侧依据",
+    "事业主题五章解读独立保存并引用动态两侧依据",
+    "感情主题五章解读独立保存并引用动态两侧依据",
+    "财运主题五章解读独立保存并引用动态两侧依据",
+    "学习主题五章解读独立保存并引用动态两侧依据",
+    "Markdown正文正常渲染，引用从报告固定facts展开",
+    "重新生成保留旧版，版本下拉可回看原报告",
+    "供应商失败保留旧报告并可重试",
+    "生成期间锁定主题与时刻，完成后解锁",
+    "同一观察点年、月层级独立保存，不串报告",
+    "历史下拉恢复保存时主题、时刻、层级与报告",
+    "刷新进入动态阶段不新增模型调用",
+    "本命合参原五章生成独立，不含动态阶段或版本",
+    "首运前不套第一运，童限与正式大限区分",
+    "末八运之后标不可用，保留年月但不补造后续大运",
+    "未知时辰明确子时试排、缺时柱和精确大运撤回",
+    "重新进入优先打开当前主题的已保存阶段，避免落入其他主题未保存预览",
+    "历史入口提交原stageKey，旧规则版本固定facts不重算",
+    "旧阶段继续生成使用旧事实，未改写旧依据快照",
+    "动态私有数据响应private no-store",
+    "未知主题/层级、非法日时、偏移后缀、操作与生成参数均400",
+    "GET缺少成对观察条件400",
+    "不存在旧键404，与旧快照不一致的观察条件400",
+    "伪造账号和事实被忽略，按当前账号底层双盘计算保存",
+    "跨来源写入403",
+    "匿名动态读取和写入均401",
+    "其他账号不能读取旧key、保存或生成本账号动态阶段，均404",
+    "真实HTTP同主题跨阶段并发409，首任务正常完成",
+    "已完成同事实生成复用，不重复调用AI",
+    "合参中心查询与取消移除仍保留动态快照",
+    "确认移除后动态读404，独立紫微及八字档案继续保留"
+  ],
+  "layoutChecks": 30,
+  "layouts": [
+    {
+      "view": "facts",
+      "theme": "light",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "facts",
+      "theme": "light",
+      "width": 375,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "facts",
+      "theme": "light",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "facts",
+      "theme": "light",
+      "width": 768,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "facts",
+      "theme": "light",
+      "width": 1024,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "facts",
+      "theme": "light",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "report",
+      "theme": "light",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "report",
+      "theme": "light",
+      "width": 375,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "report",
+      "theme": "light",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "report",
+      "theme": "light",
+      "width": 768,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "report",
+      "theme": "light",
+      "width": 1024,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "report",
+      "theme": "light",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "year",
+      "theme": "light",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "year",
+      "theme": "light",
+      "width": 375,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "year",
+      "theme": "light",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "year",
+      "theme": "light",
+      "width": 768,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "year",
+      "theme": "light",
+      "width": 1024,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "year",
+      "theme": "light",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "unknown",
+      "theme": "light",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "unknown",
+      "theme": "light",
+      "width": 375,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "unknown",
+      "theme": "light",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "unknown",
+      "theme": "light",
+      "width": 768,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "unknown",
+      "theme": "light",
+      "width": 1024,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "unknown",
+      "theme": "light",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "facts",
+      "theme": "dark",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "facts",
+      "theme": "dark",
+      "width": 375,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "facts",
+      "theme": "dark",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "facts",
+      "theme": "dark",
+      "width": 768,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "facts",
+      "theme": "dark",
+      "width": 1024,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "facts",
+      "theme": "dark",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    }
+  ],
+  "promptAudit": {
+    "requests": 11,
+    "dynamicRequests": 10,
+    "natalRequests": 1,
+    "allScopeCorrect": true,
+    "allDynamicHaveBothEvidence": true
+  },
+  "screenshots": [
+    "2026-10-15-synthesis-dynamic-facts-1440.png",
+    "2026-10-15-synthesis-dynamic-facts-320.png",
+    "2026-10-15-synthesis-dynamic-report-390.png"
+  ],
+  "limitations": [
+    "真实模型的解读质量及真实外部设备未在本轮验收",
+    "只开放已计算的运限、年月及十神角色，不宣称完整动态旺衰、喜忌或事件裁决"
+  ],
+  "followUp": "默认历史调整后动态专项1453项复验通过，生产构建及网页历史恢复复验通过"
+}

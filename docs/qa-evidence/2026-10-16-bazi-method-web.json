@@ -1,0 +1,130 @@
+{
+  "checks": 31,
+  "results": [
+    {
+      "label": "旺衰视图保留承载待核",
+      "passed": true
+    },
+    {
+      "label": "杂气月两个格局候选同时展示",
+      "passed": true
+    },
+    {
+      "label": "救应展开可追溯对应风险",
+      "passed": true
+    },
+    {
+      "label": "方法版本可见",
+      "passed": true
+    },
+    {
+      "label": "原典来源外链保护",
+      "passed": true
+    },
+    {
+      "label": "键盘可切换扶抑视图",
+      "passed": true
+    },
+    {
+      "label": "调候保留效力待核",
+      "passed": true
+    },
+    {
+      "label": "五条通关路径及来源折叠展示",
+      "passed": true
+    },
+    {
+      "label": "通关展开保留势均门槛",
+      "passed": true
+    },
+    {
+      "label": "通关不按缺项补五行",
+      "passed": true
+    },
+    {
+      "label": "杂气多候选候选完整展示",
+      "passed": true
+    },
+    {
+      "label": "月劫候选完整展示",
+      "passed": true
+    },
+    {
+      "label": "月劫保留另查路径",
+      "passed": true
+    },
+    {
+      "label": "建禄候选完整展示",
+      "passed": true
+    },
+    {
+      "label": "建禄保留另查路径",
+      "passed": true
+    },
+    {
+      "label": "阳刃候选完整展示",
+      "passed": true
+    },
+    {
+      "label": "阳刃保留另查路径",
+      "passed": true
+    },
+    {
+      "label": "新版明确显示阳刃路径",
+      "passed": true
+    },
+    {
+      "label": "冬月调候候选完整展示",
+      "passed": true
+    },
+    {
+      "label": "冬月调候具体用干可展开",
+      "passed": true
+    },
+    {
+      "label": "夏月调候候选完整展示",
+      "passed": true
+    },
+    {
+      "label": "夏月调候具体用干可展开",
+      "passed": true
+    },
+    {
+      "label": "未知时辰候选完整展示",
+      "passed": true
+    },
+    {
+      "label": "未知时辰暂不列扶抑候选",
+      "passed": true
+    },
+    {
+      "label": "未知时辰保留通关缺失边界",
+      "passed": true
+    },
+    {
+      "label": "新版报告正文消费全部方法候选",
+      "passed": true
+    },
+    {
+      "label": "旧报告按原快照展示并提示升级",
+      "passed": true
+    },
+    {
+      "label": "五章依据可展开查看新方法",
+      "passed": true
+    },
+    {
+      "label": "网页重新生成新增版本并保留旧版",
+      "passed": true
+    },
+    {
+      "label": "刷新后报告版本仍完整保存",
+      "passed": true
+    },
+    {
+      "label": "论命报告可进入同盘问答",
+      "passed": true
+    }
+  ],
+  "scope": "隔离账号及合成出生资料；生产构建网页交互；AI为本机模拟；响应式和键盘检查不等同完整无障碍认证"
+}

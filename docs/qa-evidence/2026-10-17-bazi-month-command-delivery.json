@@ -1,0 +1,126 @@
+{
+  "module": "八字人元司令与月令分日复核",
+  "completedAt": "2026-10-16T16:54:28.653Z",
+  "timezone": "Asia/Shanghai",
+  "passed": true,
+  "capability": {
+    "policy": "三命通会主段·三十日定长观察",
+    "features": [
+      "分日定位、司令与透藏、月令对照、规则来源四视图",
+      "精确交节起86400秒日数；长月尾段待核、短月截断、未知时辰整日候选",
+      "原字天干待核、实际透藏与格局来源连接；不改原藏干及调候分支",
+      "论命v5、五代提示能力、连续问答v22、保存新旧报告及双章节依据"
+    ],
+    "limits": [
+      "明确来源主段复核，不是全部司令流派或科学结论",
+      "不裁完整效力、最终旺衰、格局成败或唯一喜忌"
+    ]
+  },
+  "validation": {
+    "newAssertions": 5283,
+    "realMonthAndDayMasterCombinations": 120,
+    "legacyAssertions": {
+      "reading": 305,
+      "natalEffects": 26656,
+      "methodReview": 4135,
+      "fineReading": 640
+    },
+    "independentReviewChecks": 43,
+    "allProjectSuites": {
+      "total": 103,
+      "passed": 103,
+      "runs": 1,
+      "failures": 0,
+      "originalSummary": "C:/Users/11474/AppData/Local/Temp/guanchen-v1-checks-9AXKvX/summary.json"
+    },
+    "http": 99,
+    "web": 42,
+    "layout": {
+      "views": 4,
+      "widths": [
+        320,
+        390,
+        768,
+        1280
+      ],
+      "groups": 16
+    },
+    "productionReadOnly": 21,
+    "productionBuild": {
+      "passed": true,
+      "session": 9968
+    },
+    "finalTypecheck": {
+      "passed": true,
+      "session": 64020,
+      "restoredDailyConfiguration": true
+    },
+    "repairs": [
+      "未知时辰新层月藏十神也撤回为null，专项从5280补到5283并复验，原盘不改",
+      "首次tsc的TS7022推断错误补显式boolean后通过，运行逻辑未改",
+      "v4历史夹具metadata在全量执行该组前改为真实旧标识，旧prompt标识不改"
+    ]
+  },
+  "ai": {
+    "sharedDevelopmentMockRequests": 5,
+    "webReportRequests": 1,
+    "httpRequests": 4,
+    "productionRequests": 0,
+    "newSpecializedIndependentMockRequests": 4,
+    "realProviderRequests": 0,
+    "note": "独立专项、旧专项和全量各自模拟不混加；不能据此评价真实模型质量。"
+  },
+  "data": {
+    "independentSyntheticDataOnly": true,
+    "databaseVersion": 56,
+    "migrationAdded": false,
+    "savedChartsChanged": false,
+    "oldReportFactsRecalculated": false,
+    "agentReadRealCredentialFiles": false
+  },
+  "cleanup": {
+    "qaPorts30002And30003Stopped": true,
+    "dailyPort30001Kept": true,
+    "dailyPid": 35724,
+    "dailyLoginHttpStatus": 200,
+    "temporaryTypeIncludesRemoved": true,
+    "nextEnvRestoredToDailyNext": true,
+    "browserTemporaryTabClosed": true,
+    "originalBrowserTabKept": true,
+    "viewportRestored": true,
+    "tempQaDataKeptForAudit": true
+  },
+  "limitations": [
+    "未运行axe，响应式不替代实机",
+    "仅覆盖本轮新增网页流程与旧报告兼容；全项目其他功能由103组自动回归覆盖",
+    "当前固定UTC+08民用时口径，历史异常时钟、其他时区及真太阳时降级"
+  ],
+  "nextStage": {
+    "name": "月令取用入口深化：透干与会支分流复核",
+    "implemented": false,
+    "tasks": [
+      "校勘用神变化与杂气取用窄条目，整理版本及适用条件",
+      "区分本气、他藏未透、单透、多透入口并保留原候选",
+      "关联含月支的完整三合三会，目标五行不强指阴阳干",
+      "并列来源入口和阻碍，不以司令选格、不排名或判合化",
+      "接入报告和问答，验收多路径、未知时辰、保存引用及旧版保留"
+    ]
+  },
+  "git": {
+    "branch": "codex/user-accounts",
+    "committed": false,
+    "pushed": false
+  },
+  "evidence": [
+    "docs/qa-evidence/2026-10-17-bazi-month-command-regressions.json",
+    "docs/qa-evidence/2026-10-17-bazi-month-command-http.json",
+    "docs/qa-evidence/2026-10-17-bazi-month-command-web.json",
+    "docs/qa-evidence/2026-10-17-bazi-month-command-layout.json",
+    "docs/qa-evidence/2026-10-17-bazi-month-command-production.json",
+    "docs/qa-evidence/2026-10-17-bazi-month-command-review.json"
+  ],
+  "sources": [
+    "https://zh.wikisource.org/wiki/三命通會/卷二#論人元司事",
+    "https://zh.wikisource.org/wiki/三命通會_(四庫全書本)/卷02#論人元司事"
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "verifiedAt": "2026-10-13T10:26:32.1256317+08:00",
+  "module": "梅花易数第一版",
+  "moduleUrl": "http://localhost:30001/meihua",
+  "loginStatus": 200,
+  "mainListenAddress": "0.0.0.0",
+  "qaServicesStopped": true,
+  "syntheticDataStoredInMainDatabase": false,
+  "typeCheck": "通过",
+  "productionBuild": "通过",
+  "fullRegression": "85/85",
+  "meihuaAssertions": 2456,
+  "browserChecks": 51,
+  "responsiveAccessibilityAudits": 24,
+  "pageErrors": 0,
+  "realAiContentQuality": "未核验：AI功能验收使用本机模拟供应商",
+  "realMobileDevices": "本模块未实机验收，已验收浏览器宽度模拟",
+  "remoteRepositoryChanged": false
+}

@@ -1,0 +1,216 @@
+{
+  "验收日期": "2026-10-13 UTC+08:00",
+  "状态": "通过",
+  "数据": "独立临时账号与合成资料，AI使用本机模拟供应商",
+  "功能安全检查数量": 51,
+  "布局无障碍检查数量": 24,
+  "checks": [
+    "独立测试账号进入梅花易数",
+    "占问必填拦截空提交",
+    "报数加酉时姤之巽",
+    "预览不建立档案",
+    "改起卦条件清除旧预览",
+    "合数取爻与加时分开",
+    "零报数拒绝",
+    "大数精确余数",
+    "手动纯乾坤取变卦互卦",
+    "统一中爻法纯乾互乾",
+    "北京时间回填",
+    "年月日時革之咸",
+    "保存后显示三组六爻图",
+    "空消息禁用发送",
+    "快速问题填入输入框",
+    "回复Markdown加粗正常",
+    "回复可展开当前卦象依据",
+    "刷新回看不调用AI",
+    "失败保留旧对话、原消息及草稿",
+    "成功重试关联原消息",
+    "停止回复保留原消息和草稿",
+    "停止后可重试恢复",
+    "继续追问完成后清空草稿",
+    "对话不改变固定本卦",
+    "最新历史按30轮分页展示",
+    "更早历史加载完整且无重复",
+    "搜索无结果提示",
+    "可按占问内容搜索",
+    "名称HTML文本转义",
+    "移除确认可取消",
+    "确认移除后占问消失",
+    "自己的占问可读取且禁用共享缓存",
+    "第二独立账号注册成功",
+    "第二账号列表不包含他人占问",
+    "跨账号读取拒绝且不暴露存在性",
+    "跨账号发问拒绝且不暴露存在性",
+    "跨账号停止拒绝且不暴露存在性",
+    "跨账号删除拒绝且不暴露存在性",
+    "匿名读取被拒绝",
+    "匿名发问被拒绝",
+    "匿名停止被拒绝",
+    "匿名删除被拒绝",
+    "跨站写入被同源保护拒绝",
+    "越权与跨站请求没有改变自己的记录",
+    "列表读取故障提示并可重新加载",
+    "预览故障保留表单且可以恢复",
+    "详情故障可重新读取原卦象",
+    "键盘可切换占问视图并进入聊天",
+    "不存在记录明确提示并可返回",
+    "生成中移除先停止上游再删除",
+    "迟到响应不能复活已删除占问"
+  ],
+  "audits": [
+    {
+      "view": "home",
+      "width": 1440,
+      "scrollWidth": 1435,
+      "violations": []
+    },
+    {
+      "view": "home",
+      "width": 1024,
+      "scrollWidth": 1019,
+      "violations": []
+    },
+    {
+      "view": "home",
+      "width": 820,
+      "scrollWidth": 815,
+      "violations": []
+    },
+    {
+      "view": "home",
+      "width": 768,
+      "scrollWidth": 763,
+      "violations": []
+    },
+    {
+      "view": "home",
+      "width": 390,
+      "scrollWidth": 385,
+      "violations": []
+    },
+    {
+      "view": "home",
+      "width": 320,
+      "scrollWidth": 315,
+      "violations": []
+    },
+    {
+      "view": "preview",
+      "width": 1440,
+      "scrollWidth": 1435,
+      "violations": []
+    },
+    {
+      "view": "preview",
+      "width": 1024,
+      "scrollWidth": 1019,
+      "violations": []
+    },
+    {
+      "view": "preview",
+      "width": 820,
+      "scrollWidth": 815,
+      "violations": []
+    },
+    {
+      "view": "preview",
+      "width": 768,
+      "scrollWidth": 763,
+      "violations": []
+    },
+    {
+      "view": "preview",
+      "width": 390,
+      "scrollWidth": 385,
+      "violations": []
+    },
+    {
+      "view": "preview",
+      "width": 320,
+      "scrollWidth": 315,
+      "violations": []
+    },
+    {
+      "view": "facts",
+      "width": 1440,
+      "scrollWidth": 1435,
+      "violations": []
+    },
+    {
+      "view": "facts",
+      "width": 1024,
+      "scrollWidth": 1019,
+      "violations": []
+    },
+    {
+      "view": "facts",
+      "width": 820,
+      "scrollWidth": 815,
+      "violations": []
+    },
+    {
+      "view": "facts",
+      "width": 768,
+      "scrollWidth": 763,
+      "violations": []
+    },
+    {
+      "view": "facts",
+      "width": 390,
+      "scrollWidth": 385,
+      "violations": []
+    },
+    {
+      "view": "facts",
+      "width": 320,
+      "scrollWidth": 315,
+      "violations": []
+    },
+    {
+      "view": "chat",
+      "width": 1440,
+      "scrollWidth": 1435,
+      "violations": []
+    },
+    {
+      "view": "chat",
+      "width": 1024,
+      "scrollWidth": 1019,
+      "violations": []
+    },
+    {
+      "view": "chat",
+      "width": 820,
+      "scrollWidth": 815,
+      "violations": []
+    },
+    {
+      "view": "chat",
+      "width": 768,
+      "scrollWidth": 763,
+      "violations": []
+    },
+    {
+      "view": "chat",
+      "width": 390,
+      "scrollWidth": 385,
+      "violations": []
+    },
+    {
+      "view": "chat",
+      "width": 320,
+      "scrollWidth": 315,
+      "violations": []
+    }
+  ],
+  "errors": [],
+  "真实模型内容质量": "尚未核验，模拟供应商仅验收功能链路",
+  "screenshots": [
+    "2026-10-13-meihua-home-desktop.png",
+    "2026-10-13-meihua-home-mobile.png",
+    "2026-10-13-meihua-facts-desktop.png",
+    "2026-10-13-meihua-facts-mobile.png",
+    "2026-10-13-meihua-chat-desktop.png",
+    "2026-10-13-meihua-chat-mobile.png"
+  ]
+}

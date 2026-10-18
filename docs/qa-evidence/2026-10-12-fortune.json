@@ -1,0 +1,153 @@
+{
+  "testedAt": "2026-10-12T15:33:23.934457+08:00",
+  "environment": {
+    "accountData": "系统临时目录下的独立合成账号库",
+    "ai": "本机模拟供应商，未以模拟内容代替真实模型质量验收",
+    "browser": "Playwright Chromium，开发版与生产版",
+    "schemaVersion": 49
+  },
+  "checks": [
+    {
+      "name": "网页生成并保存",
+      "ok": true
+    },
+    {
+      "name": "旧版本选择",
+      "ok": true
+    },
+    {
+      "name": "章节依据展开",
+      "ok": true
+    },
+    {
+      "name": "刷新回看不调用AI",
+      "ok": true
+    },
+    {
+      "name": "失败保留旧版本",
+      "ok": true
+    },
+    {
+      "name": "失败后重试",
+      "ok": true
+    },
+    {
+      "name": "感情专题生成",
+      "ok": true
+    },
+    {
+      "name": "财运专题生成",
+      "ok": true
+    },
+    {
+      "name": "学习专题生成",
+      "ok": true
+    },
+    {
+      "name": "两年度对比7章节",
+      "ok": true
+    },
+    {
+      "name": "重复阶段提示",
+      "ok": true
+    },
+    {
+      "name": "正常月与闰月网页对比",
+      "ok": true
+    },
+    {
+      "name": "程序变化展开",
+      "ok": true
+    },
+    {
+      "name": "生成中切换主题不串结果",
+      "ok": true
+    },
+    {
+      "name": "历史专题恢复主题与阶段",
+      "ok": true
+    },
+    {
+      "name": "实际HTTP匿名与跨用户隔离",
+      "ok": true
+    },
+    {
+      "name": "实际HTTP同源写保护",
+      "ok": true
+    },
+    {
+      "name": "生产版选盘入口",
+      "ok": true
+    },
+    {
+      "name": "生产版保存版本回看",
+      "ok": true
+    },
+    {
+      "name": "生产版出生边界童限",
+      "ok": true
+    },
+    {
+      "name": "生产版末年缺少大限提示",
+      "ok": true
+    },
+    {
+      "name": "生产版事业月度对比生成",
+      "ok": true
+    }
+  ],
+  "views": [
+    {
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "width": 1280,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "width": 1024,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "width": 768,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    }
+  ],
+  "errors": [],
+  "http": {
+    "anonymous": 401,
+    "crossUserRead": 404,
+    "crossUserVersions": 404,
+    "crossUserGenerate": 404,
+    "crossOriginWrite": 403
+  },
+  "tests": {
+    "moduleChecks": 94,
+    "modulePassed": true,
+    "regressionScriptsPassed": 81,
+    "regressionScriptsTotal": 81,
+    "regressionLogs": "C:/Users/11474/AppData/Local/Temp/guanchen-v1-checks-3PQhaC",
+    "affectedEngineAndCalendarRerun": true,
+    "productionBuild": true,
+    "staticPages": 80
+  },
+  "screenshots": [
+    "2026-10-12-fortune-desktop.png",
+    "2026-10-12-fortune-mobile.png"
+  ]
+}

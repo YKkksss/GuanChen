@@ -1,0 +1,583 @@
+{
+  "completedAt": "2026-10-15T16:03:21.127Z",
+  "total": 96,
+  "passed": 96,
+  "results": [
+    {
+      "name": "test:qimen",
+      "passed": true,
+      "durationMs": 1937,
+      "log": "C:\\Users\\11474\\AppData\\Local\\Temp\\guanchen-v1-checks-H3uFGc\\test-qimen.log"
+    },
+    {
+      "name": "test:liuyao",
+      "passed": true,
+      "durationMs": 1909,
+      "log": "C:\\Users\\11474\\AppData\\Local\\Temp\\guanchen-v1-checks-H3uFGc\\test-liuyao.log"
+    },
+    {
+      "name": "test:meihua",
+      "passed": true,
+      "durationMs": 1595,
+      "log": "C:\\Users\\11474\\AppData\\Local\\Temp\\guanchen-v1-checks-H3uFGc\\test-meihua.log"
+    },
+    {
+      "name": "test:election",
+      "passed": true,
+      "durationMs": 1814,
+      "log": "C:\\Users\\11474\\AppData\\Local\\Temp\\guanchen-v1-checks-H3uFGc\\test-election.log"
+    },
+    {
+      "name": "test:synthesis",
+      "passed": true,
+      "durationMs": 10043,
+      "log": "C:\\Users\\11474\\AppData\\Local\\Temp\\guanchen-v1-checks-H3uFGc\\test-synthesis.log"
+    },
+    {
+      "name": "test:bazi-reading",
+      "passed": true,
+      "durationMs": 11788,
+      "log": "C:\\Users\\11474\\AppData\\Local\\Temp\\guanchen-v1-checks-H3uFGc\\test-bazi-reading.log"
+    },
+    {
+      "name": "test:fortune-topics",
+      "passed": true,
+      "durationMs": 3003,
+      "log": "C:\\Users\\11474\\AppData\\Local\\Temp\\guanchen-v1-checks-H3uFGc\\test-fortune-topics.log"
+    },
+    {
+      "name": "test:fortune-calendar",
+      "passed": true,
+      "durationMs": 6311,
+      "log": "C:\\Users\\11474\\AppData\\Local\\Temp\\guanchen-v1-checks-H3uFGc\\test-fortune-calendar.log"
+    },
+    {
+      "name": "test:accounts",
+      "passed": true,
+      "durationMs": 8258,
+      "log": "C:\\Users\\11474\\AppData\\Local\\Temp\\guanchen-v1-checks-H3uFGc\\test-accounts.log"
+    },
+    {
+      "name": "test:request-boundary",
+      "passed": true,
+      "durationMs": 707,
+      "log": "C:\\Users\\11474\\AppData\\Local\\Temp\\guanchen-v1-checks-H3uFGc\\test-request-boundary.log"
+    },
+    {
+      "name": "test:v1-intake-history",
+      "passed": true,
+      "durationMs": 921,
+      "log": "C:\\Users\\11474\\AppData\\Local\\Temp\\guanchen-v1-checks-H3uFGc\\test-v1-intake-history.log"
+    },
+    {
+      "name": "test:ai-markdown",
+      "passed": true,
+      "durationMs": 927,
+      "log": "C:\\Users\\11474\\AppData\\Local\\Temp\\guanchen-v1-checks-H3uFGc\\test-ai-markdown.log"
+    },
+    {
+      "name": "test:chat-preferences",
+      "passed": true,
+      "durationMs": 572,
+      "log": "C:\\Users\\11474\\AppData\\Local\\Temp\\guanchen-v1-checks-H3uFGc\\test-chat-preferences.log"
+    },
+    {
+      "name": "test:chat-split",
+      "passed": true,
+      "durationMs": 596,
+      "log": "C:\\Users\\11474\\AppData\\Local\\Temp\\guanchen-v1-checks-H3uFGc\\test-chat-split.log"
+    },
+    {
+      "name": "test:conversations",
+      "passed": true,
+      "durationMs": 658,
+      "log": "C:\\Users\\11474\\AppData\\Local\\Temp\\guanchen-v1-checks-H3uFGc\\test-conversations.log"
+    },
+    {
+      "name": "test:event-period-context",
+      "passed": true,
+      "durationMs": 1442,
+      "log": "C:\\Users\\11474\\AppData\\Local\\Temp\\guanchen-v1-checks-H3uFGc\\test-event-period-context.log"
+    },
+    {
+      "name": "test:event-year-context",
+      "passed": true,
+      "durationMs": 1270,
+      "log": "C:\\Users\\11474\\AppData\\Local\\Temp\\guanchen-v1-checks-H3uFGc\\test-event-year-context.log"
+    },
+    {
+      "name": "test:natural-transit",
+      "passed": true,
+      "durationMs": 2013,
+      "log": "C:\\Users\\11474\\AppData\\Local\\Temp\\guanchen-v1-checks-H3uFGc\\test-natural-transit.log"
+    },
+    {
+      "name": "test:ziwei-followup",
+      "passed": true,
+      "durationMs": 1251,
+      "log": "C:\\Users\\11474\\AppData\\Local\\Temp\\guanchen-v1-checks-H3uFGc\\test-ziwei-followup.log"
+    },
+    {
+      "name": "test:context",
+      "passed": true,
+      "durationMs": 1013,
+      "log": "C:\\Users\\11474\\AppData\\Local\\Temp\\guanchen-v1-checks-H3uFGc\\test-context.log"
+    },
+    {
+      "name": "test:transits",
+      "passed": true,
+      "durationMs": 1036,
+      "log": "C:\\Users\\11474\\AppData\\Local\\Temp\\guanchen-v1-checks-H3uFGc\\test-transits.log"
+    },
+    {
+      "name": "test:monthly-transits",
+      "passed": true,
+      "durationMs": 1133,
+      "log": "C:\\Users\\11474\\AppData\\Local\\Temp\\guanchen-v1-checks-H3uFGc\\test-monthly-transits.log"
+    },
+    {
+      "name": "test:monthly-transit-year",
+      "passed": true,
+      "durationMs": 1641,
+      "log": "C:\\Users\\11474\\AppData\\Local\\Temp\\guanchen-v1-checks-H3uFGc\\test-monthly-transit-year.log"
+    },
+    {
+      "name": "test:daily-transits",
+      "passed": true,
+      "durationMs": 1067,
+      "log": "C:\\Users\\11474\\AppData\\Local\\Temp\\guanchen-v1-checks-H3uFGc\\test-daily-transits.log"
+    },
+    {
+      "name": "test:events",
+      "passed": true,
+      "durationMs": 1325,
+      "log": "C:\\Users\\11474\\AppData\\Local\\Temp\\guanchen-v1-checks-H3uFGc\\test-events.log"
+    },
+    {
+      "name": "test:event-axis",
+      "passed": true,
+      "durationMs": 549,
+      "log": "C:\\Users\\11474\\AppData\\Local\\Temp\\guanchen-v1-checks-H3uFGc\\test-event-axis.log"
+    },
+    {
+      "name": "test:event-candidates",
+      "passed": true,
+      "durationMs": 1146,
+      "log": "C:\\Users\\11474\\AppData\\Local\\Temp\\guanchen-v1-checks-H3uFGc\\test-event-candidates.log"
+    },
+    {
+      "name": "test:event-analyses",
+      "passed": true,
+      "durationMs": 1204,
+      "log": "C:\\Users\\11474\\AppData\\Local\\Temp\\guanchen-v1-checks-H3uFGc\\test-event-analyses.log"
+    },
+    {
+      "name": "test:report-evidence",
+      "passed": true,
+      "durationMs": 540,
+      "log": "C:\\Users\\11474\\AppData\\Local\\Temp\\guanchen-v1-checks-H3uFGc\\test-report-evidence.log"
+    },
+    {
+      "name": "test:report-facts",
+      "passed": true,
+      "durationMs": 904,
+      "log": "C:\\Users\\11474\\AppData\\Local\\Temp\\guanchen-v1-checks-H3uFGc\\test-report-facts.log"
+    },
+    {
+      "name": "test:reports",
+      "passed": true,
+      "durationMs": 925,
+      "log": "C:\\Users\\11474\\AppData\\Local\\Temp\\guanchen-v1-checks-H3uFGc\\test-reports.log"
+    },
+    {
+      "name": "test:report-pdf",
+      "passed": true,
+      "durationMs": 1465,
+      "log": "C:\\Users\\11474\\AppData\\Local\\Temp\\guanchen-v1-checks-H3uFGc\\test-report-pdf.log"
+    },
+    {
+      "name": "test:report-comparisons",
+      "passed": true,
+      "durationMs": 1122,
+      "log": "C:\\Users\\11474\\AppData\\Local\\Temp\\guanchen-v1-checks-H3uFGc\\test-report-comparisons.log"
+    },
+    {
+      "name": "test:report-revisions",
+      "passed": true,
+      "durationMs": 1082,
+      "log": "C:\\Users\\11474\\AppData\\Local\\Temp\\guanchen-v1-checks-H3uFGc\\test-report-revisions.log"
+    },
+    {
+      "name": "test:heming-methodology",
+      "passed": true,
+      "durationMs": 545,
+      "log": "C:\\Users\\11474\\AppData\\Local\\Temp\\guanchen-v1-checks-H3uFGc\\test-heming-methodology.log"
+    },
+    {
+      "name": "test:heming-conversations",
+      "passed": true,
+      "durationMs": 656,
+      "log": "C:\\Users\\11474\\AppData\\Local\\Temp\\guanchen-v1-checks-H3uFGc\\test-heming-conversations.log"
+    },
+    {
+      "name": "test:heming-engine",
+      "passed": true,
+      "durationMs": 745,
+      "log": "C:\\Users\\11474\\AppData\\Local\\Temp\\guanchen-v1-checks-H3uFGc\\test-heming-engine.log"
+    },
+    {
+      "name": "test:heming-context",
+      "passed": true,
+      "durationMs": 908,
+      "log": "C:\\Users\\11474\\AppData\\Local\\Temp\\guanchen-v1-checks-H3uFGc\\test-heming-context.log"
+    },
+    {
+      "name": "test:heming-reports",
+      "passed": true,
+      "durationMs": 920,
+      "log": "C:\\Users\\11474\\AppData\\Local\\Temp\\guanchen-v1-checks-H3uFGc\\test-heming-reports.log"
+    },
+    {
+      "name": "test:heming-transits",
+      "passed": true,
+      "durationMs": 1107,
+      "log": "C:\\Users\\11474\\AppData\\Local\\Temp\\guanchen-v1-checks-H3uFGc\\test-heming-transits.log"
+    },
+    {
+      "name": "test:heming-stage",
+      "passed": true,
+      "durationMs": 1496,
+      "log": "C:\\Users\\11474\\AppData\\Local\\Temp\\guanchen-v1-checks-H3uFGc\\test-heming-stage.log"
+    },
+    {
+      "name": "test:rectification-methodology",
+      "passed": true,
+      "durationMs": 699,
+      "log": "C:\\Users\\11474\\AppData\\Local\\Temp\\guanchen-v1-checks-H3uFGc\\test-rectification-methodology.log"
+    },
+    {
+      "name": "test:rectification-sessions",
+      "passed": true,
+      "durationMs": 1172,
+      "log": "C:\\Users\\11474\\AppData\\Local\\Temp\\guanchen-v1-checks-H3uFGc\\test-rectification-sessions.log"
+    },
+    {
+      "name": "test:rectification-events",
+      "passed": true,
+      "durationMs": 1877,
+      "log": "C:\\Users\\11474\\AppData\\Local\\Temp\\guanchen-v1-checks-H3uFGc\\test-rectification-events.log"
+    },
+    {
+      "name": "test:rectification-evaluation",
+      "passed": true,
+      "durationMs": 1817,
+      "log": "C:\\Users\\11474\\AppData\\Local\\Temp\\guanchen-v1-checks-H3uFGc\\test-rectification-evaluation.log"
+    },
+    {
+      "name": "test:rectification-workbench",
+      "passed": true,
+      "durationMs": 1296,
+      "log": "C:\\Users\\11474\\AppData\\Local\\Temp\\guanchen-v1-checks-H3uFGc\\test-rectification-workbench.log"
+    },
+    {
+      "name": "test:rectification-report",
+      "passed": true,
+      "durationMs": 1402,
+      "log": "C:\\Users\\11474\\AppData\\Local\\Temp\\guanchen-v1-checks-H3uFGc\\test-rectification-report.log"
+    },
+    {
+      "name": "test:learning-foundation",
+      "passed": true,
+      "durationMs": 945,
+      "log": "C:\\Users\\11474\\AppData\\Local\\Temp\\guanchen-v1-checks-H3uFGc\\test-learning-foundation.log"
+    },
+    {
+      "name": "test:learning-courses",
+      "passed": true,
+      "durationMs": 785,
+      "log": "C:\\Users\\11474\\AppData\\Local\\Temp\\guanchen-v1-checks-H3uFGc\\test-learning-courses.log"
+    },
+    {
+      "name": "test:learning-practice",
+      "passed": true,
+      "durationMs": 961,
+      "log": "C:\\Users\\11474\\AppData\\Local\\Temp\\guanchen-v1-checks-H3uFGc\\test-learning-practice.log"
+    },
+    {
+      "name": "test:learning-open-practice",
+      "passed": true,
+      "durationMs": 958,
+      "log": "C:\\Users\\11474\\AppData\\Local\\Temp\\guanchen-v1-checks-H3uFGc\\test-learning-open-practice.log"
+    },
+    {
+      "name": "test:cases",
+      "passed": true,
+      "durationMs": 959,
+      "log": "C:\\Users\\11474\\AppData\\Local\\Temp\\guanchen-v1-checks-H3uFGc\\test-cases.log"
+    },
+    {
+      "name": "test:case-search",
+      "passed": true,
+      "durationMs": 1046,
+      "log": "C:\\Users\\11474\\AppData\\Local\\Temp\\guanchen-v1-checks-H3uFGc\\test-case-search.log"
+    },
+    {
+      "name": "test:case-comparisons",
+      "passed": true,
+      "durationMs": 1005,
+      "log": "C:\\Users\\11474\\AppData\\Local\\Temp\\guanchen-v1-checks-H3uFGc\\test-case-comparisons.log"
+    },
+    {
+      "name": "test:reminder-foundation",
+      "passed": true,
+      "durationMs": 980,
+      "log": "C:\\Users\\11474\\AppData\\Local\\Temp\\guanchen-v1-checks-H3uFGc\\test-reminder-foundation.log"
+    },
+    {
+      "name": "test:reminder-center",
+      "passed": true,
+      "durationMs": 976,
+      "log": "C:\\Users\\11474\\AppData\\Local\\Temp\\guanchen-v1-checks-H3uFGc\\test-reminder-center.log"
+    },
+    {
+      "name": "test:monthly-reviews",
+      "passed": true,
+      "durationMs": 1209,
+      "log": "C:\\Users\\11474\\AppData\\Local\\Temp\\guanchen-v1-checks-H3uFGc\\test-monthly-reviews.log"
+    },
+    {
+      "name": "test:bazi-foundation",
+      "passed": true,
+      "durationMs": 812,
+      "log": "C:\\Users\\11474\\AppData\\Local\\Temp\\guanchen-v1-checks-H3uFGc\\test-bazi-foundation.log"
+    },
+    {
+      "name": "test:bazi-persistence",
+      "passed": true,
+      "durationMs": 1090,
+      "log": "C:\\Users\\11474\\AppData\\Local\\Temp\\guanchen-v1-checks-H3uFGc\\test-bazi-persistence.log"
+    },
+    {
+      "name": "test:bazi-conversations",
+      "passed": true,
+      "durationMs": 5496,
+      "log": "C:\\Users\\11474\\AppData\\Local\\Temp\\guanchen-v1-checks-H3uFGc\\test-bazi-conversations.log"
+    },
+    {
+      "name": "test:bazi-interpretation",
+      "passed": true,
+      "durationMs": 2599,
+      "log": "C:\\Users\\11474\\AppData\\Local\\Temp\\guanchen-v1-checks-H3uFGc\\test-bazi-interpretation.log"
+    },
+    {
+      "name": "test:bazi-luck-cycles",
+      "passed": true,
+      "durationMs": 2671,
+      "log": "C:\\Users\\11474\\AppData\\Local\\Temp\\guanchen-v1-checks-H3uFGc\\test-bazi-luck-cycles.log"
+    },
+    {
+      "name": "test:bazi-timeline-selection",
+      "passed": true,
+      "durationMs": 980,
+      "log": "C:\\Users\\11474\\AppData\\Local\\Temp\\guanchen-v1-checks-H3uFGc\\test-bazi-timeline-selection.log"
+    },
+    {
+      "name": "test:bazi-question-scope",
+      "passed": true,
+      "durationMs": 2722,
+      "log": "C:\\Users\\11474\\AppData\\Local\\Temp\\guanchen-v1-checks-H3uFGc\\test-bazi-question-scope.log"
+    },
+    {
+      "name": "test:bazi-annual-timeline",
+      "passed": true,
+      "durationMs": 2721,
+      "log": "C:\\Users\\11474\\AppData\\Local\\Temp\\guanchen-v1-checks-H3uFGc\\test-bazi-annual-timeline.log"
+    },
+    {
+      "name": "test:bazi-relation-audit",
+      "passed": true,
+      "durationMs": 2772,
+      "log": "C:\\Users\\11474\\AppData\\Local\\Temp\\guanchen-v1-checks-H3uFGc\\test-bazi-relation-audit.log"
+    },
+    {
+      "name": "test:bazi-relation-adjudication",
+      "passed": true,
+      "durationMs": 2829,
+      "log": "C:\\Users\\11474\\AppData\\Local\\Temp\\guanchen-v1-checks-H3uFGc\\test-bazi-relation-adjudication.log"
+    },
+    {
+      "name": "test:bazi-dynamic-ten-gods",
+      "passed": true,
+      "durationMs": 2815,
+      "log": "C:\\Users\\11474\\AppData\\Local\\Temp\\guanchen-v1-checks-H3uFGc\\test-bazi-dynamic-ten-gods.log"
+    },
+    {
+      "name": "test:bazi-ten-god-repeats",
+      "passed": true,
+      "durationMs": 2856,
+      "log": "C:\\Users\\11474\\AppData\\Local\\Temp\\guanchen-v1-checks-H3uFGc\\test-bazi-ten-god-repeats.log"
+    },
+    {
+      "name": "test:bazi-transparency-roots",
+      "passed": true,
+      "durationMs": 2979,
+      "log": "C:\\Users\\11474\\AppData\\Local\\Temp\\guanchen-v1-checks-H3uFGc\\test-bazi-transparency-roots.log"
+    },
+    {
+      "name": "test:bazi-hidden-stem-activations",
+      "passed": true,
+      "durationMs": 3273,
+      "log": "C:\\Users\\11474\\AppData\\Local\\Temp\\guanchen-v1-checks-H3uFGc\\test-bazi-hidden-stem-activations.log"
+    },
+    {
+      "name": "test:bazi-strength-composites",
+      "passed": true,
+      "durationMs": 3286,
+      "log": "C:\\Users\\11474\\AppData\\Local\\Temp\\guanchen-v1-checks-H3uFGc\\test-bazi-strength-composites.log"
+    },
+    {
+      "name": "test:bazi-pattern-conditions",
+      "passed": true,
+      "durationMs": 3256,
+      "log": "C:\\Users\\11474\\AppData\\Local\\Temp\\guanchen-v1-checks-H3uFGc\\test-bazi-pattern-conditions.log"
+    },
+    {
+      "name": "test:bazi-month-day-timeline",
+      "passed": true,
+      "durationMs": 2811,
+      "log": "C:\\Users\\11474\\AppData\\Local\\Temp\\guanchen-v1-checks-H3uFGc\\test-bazi-month-day-timeline.log"
+    },
+    {
+      "name": "test:bazi-month-day-relations",
+      "passed": true,
+      "durationMs": 2907,
+      "log": "C:\\Users\\11474\\AppData\\Local\\Temp\\guanchen-v1-checks-H3uFGc\\test-bazi-month-day-relations.log"
+    },
+    {
+      "name": "test:bazi-month-day-visibility",
+      "passed": true,
+      "durationMs": 2822,
+      "log": "C:\\Users\\11474\\AppData\\Local\\Temp\\guanchen-v1-checks-H3uFGc\\test-bazi-month-day-visibility.log"
+    },
+    {
+      "name": "test:bazi-month-day-strength",
+      "passed": true,
+      "durationMs": 2800,
+      "log": "C:\\Users\\11474\\AppData\\Local\\Temp\\guanchen-v1-checks-H3uFGc\\test-bazi-month-day-strength.log"
+    },
+    {
+      "name": "test:bazi-month-day-patterns",
+      "passed": true,
+      "durationMs": 3627,
+      "log": "C:\\Users\\11474\\AppData\\Local\\Temp\\guanchen-v1-checks-H3uFGc\\test-bazi-month-day-patterns.log"
+    },
+    {
+      "name": "test:chat-scroll",
+      "passed": true,
+      "durationMs": 604,
+      "log": "C:\\Users\\11474\\AppData\\Local\\Temp\\guanchen-v1-checks-H3uFGc\\test-chat-scroll.log"
+    },
+    {
+      "name": "test:chat-keyboard",
+      "passed": true,
+      "durationMs": 638,
+      "log": "C:\\Users\\11474\\AppData\\Local\\Temp\\guanchen-v1-checks-H3uFGc\\test-chat-keyboard.log"
+    },
+    {
+      "name": "test:workspace-navigation",
+      "passed": true,
+      "durationMs": 622,
+      "log": "C:\\Users\\11474\\AppData\\Local\\Temp\\guanchen-v1-checks-H3uFGc\\test-workspace-navigation.log"
+    },
+    {
+      "name": "test:chat-generation",
+      "passed": true,
+      "durationMs": 3374,
+      "log": "C:\\Users\\11474\\AppData\\Local\\Temp\\guanchen-v1-checks-H3uFGc\\test-chat-generation.log"
+    },
+    {
+      "name": "test:backups",
+      "passed": true,
+      "durationMs": 1381,
+      "log": "C:\\Users\\11474\\AppData\\Local\\Temp\\guanchen-v1-checks-H3uFGc\\test-backups.log"
+    },
+    {
+      "name": "test:backup-lifecycle",
+      "passed": true,
+      "durationMs": 1423,
+      "log": "C:\\Users\\11474\\AppData\\Local\\Temp\\guanchen-v1-checks-H3uFGc\\test-backup-lifecycle.log"
+    },
+    {
+      "name": "test:encrypted-backups",
+      "passed": true,
+      "durationMs": 1650,
+      "log": "C:\\Users\\11474\\AppData\\Local\\Temp\\guanchen-v1-checks-H3uFGc\\test-encrypted-backups.log"
+    },
+    {
+      "name": "test:chart-transfer",
+      "passed": true,
+      "durationMs": 1697,
+      "log": "C:\\Users\\11474\\AppData\\Local\\Temp\\guanchen-v1-checks-H3uFGc\\test-chart-transfer.log"
+    },
+    {
+      "name": "test:ziwei-birth",
+      "passed": true,
+      "durationMs": 959,
+      "log": "C:\\Users\\11474\\AppData\\Local\\Temp\\guanchen-v1-checks-H3uFGc\\test-ziwei-birth.log"
+    },
+    {
+      "name": "test:election-hours",
+      "passed": true,
+      "durationMs": 2029,
+      "log": "C:\\Users\\11474\\AppData\\Local\\Temp\\guanchen-v1-checks-H3uFGc\\test-election-hours.log"
+    },
+    {
+      "name": "test:bazi-fine-reading",
+      "passed": true,
+      "durationMs": 873,
+      "log": "C:\\Users\\11474\\AppData\\Local\\Temp\\guanchen-v1-checks-H3uFGc\\test-bazi-fine-reading.log"
+    },
+    {
+      "name": "test:election-personal",
+      "passed": true,
+      "durationMs": 1665,
+      "log": "C:\\Users\\11474\\AppData\\Local\\Temp\\guanchen-v1-checks-H3uFGc\\test-election-personal.log"
+    },
+    {
+      "name": "test:liuyao-reading",
+      "passed": true,
+      "durationMs": 1991,
+      "log": "C:\\Users\\11474\\AppData\\Local\\Temp\\guanchen-v1-checks-H3uFGc\\test-liuyao-reading.log"
+    },
+    {
+      "name": "test:qimen-reading",
+      "passed": true,
+      "durationMs": 2097,
+      "log": "C:\\Users\\11474\\AppData\\Local\\Temp\\guanchen-v1-checks-H3uFGc\\test-qimen-reading.log"
+    },
+    {
+      "name": "test:synthesis-dynamic",
+      "passed": true,
+      "durationMs": 45983,
+      "log": "C:\\Users\\11474\\AppData\\Local\\Temp\\guanchen-v1-checks-H3uFGc\\test-synthesis-dynamic.log"
+    },
+    {
+      "name": "test:meihua-reading",
+      "passed": true,
+      "durationMs": 1539,
+      "log": "C:\\Users\\11474\\AppData\\Local\\Temp\\guanchen-v1-checks-H3uFGc\\test-meihua-reading.log"
+    },
+    {
+      "name": "test:bazi-natal-effects",
+      "passed": true,
+      "durationMs": 1220,
+      "log": "C:\\Users\\11474\\AppData\\Local\\Temp\\guanchen-v1-checks-H3uFGc\\test-bazi-natal-effects.log"
+    },
+    {
+      "name": "test:bazi-method-review",
+      "passed": true,
+      "durationMs": 1167,
+      "log": "C:\\Users\\11474\\AppData\\Local\\Temp\\guanchen-v1-checks-H3uFGc\\test-bazi-method-review.log"
+    }
+  ]
+}

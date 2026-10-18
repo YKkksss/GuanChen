@@ -1,0 +1,236 @@
+{
+  "module": "梅花易数·八卦取象与主互变溯源",
+  "verifiedAt": "2026-10-16T16:05:16Z",
+  "timezone": "Asia/Shanghai",
+  "environment": "独立临时SQLite，QA 127.0.0.1:30002，本机模拟供应商30003",
+  "browser": "Chrome，通过CUA回退；Tabbit CLI注册不可用",
+  "syntheticSavedSessionId": "b3f1ef79-e027-45d9-8221-b3e9b71ad7e1",
+  "total": 33,
+  "passed": 33,
+  "checks": [
+    {
+      "label": "合成账号网页登录成功",
+      "passed": true
+    },
+    {
+      "label": "手动纯乾预览显示五个位置候选",
+      "passed": true
+    },
+    {
+      "label": "无参考时刻不补套季节",
+      "passed": true
+    },
+    {
+      "label": "物象形态候选可展开且不按词数投票",
+      "passed": true
+    },
+    {
+      "label": "方向键切换爻位溯源",
+      "passed": true
+    },
+    {
+      "label": "纯乾特殊互卦明确取自变卦盘",
+      "passed": true
+    },
+    {
+      "label": "包含原动位与实际翻转分别显示",
+      "passed": true
+    },
+    {
+      "label": "五节点逐爻来源完整展开",
+      "passed": true
+    },
+    {
+      "label": "原体保持原上卦且不随变卦换体",
+      "passed": true
+    },
+    {
+      "label": "更换互卦口径撤下旧预览",
+      "passed": true
+    },
+    {
+      "label": "统一中爻口径明确从本卦取互",
+      "passed": true
+    },
+    {
+      "label": "新建取象快照可保存进入详情",
+      "passed": true
+    },
+    {
+      "label": "保存刷新后五位置取象仍可回看",
+      "passed": true
+    },
+    {
+      "label": "同源关系完整列出十组配对",
+      "passed": true
+    },
+    {
+      "label": "同卦与共享原爻分别保留而不投票",
+      "passed": true
+    },
+    {
+      "label": "同原爻不同阴阳现值可追溯",
+      "passed": true
+    },
+    {
+      "label": "End切换来源并展示版本与边界",
+      "passed": true
+    },
+    {
+      "label": "取象与溯源原典链接可核对",
+      "passed": true
+    },
+    {
+      "label": "Home返回卦象取象",
+      "passed": true
+    },
+    {
+      "label": "起卦季节取象三层来源展示不重复",
+      "passed": true
+    },
+    {
+      "label": "初爻动不把互卦误标为使用翻转爻值",
+      "passed": true
+    },
+    {
+      "label": "上爻动不把互卦误标为使用翻转爻值",
+      "passed": true
+    },
+    {
+      "label": "无时间旧条件可用取象而不伪造季节",
+      "passed": true
+    },
+    {
+      "label": "旧季节记录提示取象层不补算",
+      "passed": true
+    },
+    {
+      "label": "旧季节记录保留季节互变应期快捷能力",
+      "passed": true
+    },
+    {
+      "label": "基础旧卦保留原版提示而不补取象",
+      "passed": true
+    },
+    {
+      "label": "基础旧记录保留原三条快捷能力",
+      "passed": true
+    },
+    {
+      "label": "卦象取象快捷项仅填入草稿",
+      "passed": true
+    },
+    {
+      "label": "爻位溯源快捷项仅填入草稿",
+      "passed": true
+    },
+    {
+      "label": "同源复核快捷项仅填入草稿",
+      "passed": true
+    },
+    {
+      "label": "新版快捷问题完成一次模拟AI回复",
+      "passed": true
+    },
+    {
+      "label": "新版回复展开三条可追踪原典引用",
+      "passed": true
+    },
+    {
+      "label": "刷新回看保留模拟问答和草稿清空",
+      "passed": true
+    }
+  ],
+  "simulatedAi": {
+    "httpBaseline": 5,
+    "webRequests": 1,
+    "finalMockRequestCount": 6,
+    "realProviderRequests": 0,
+    "finalMode": "normal"
+  },
+  "console": {
+    "sampleLimit": 30,
+    "captured": 11,
+    "messages": [
+      {
+        "level": "error",
+        "message": "Another version of Vue Devtools seems to be installed. Please enable only one version at a time.",
+        "timestamp": "2026-10-16T15:56:47.600Z",
+        "url": "chrome-extension://iaajmlceplecbljialhhkmedjlpdblhp/build/hook-exec.js"
+      },
+      {
+        "level": "error",
+        "message": "Another version of Vue Devtools seems to be installed. Please enable only one version at a time.",
+        "timestamp": "2026-10-16T15:58:11.933Z",
+        "url": "chrome-extension://iaajmlceplecbljialhhkmedjlpdblhp/build/hook-exec.js"
+      },
+      {
+        "level": "error",
+        "message": "Another version of Vue Devtools seems to be installed. Please enable only one version at a time.",
+        "timestamp": "2026-10-16T16:00:04.194Z",
+        "url": "http://127.0.0.1:30002/_next/static/chunks/node_modules_next_dist_b0daae9a._.js"
+      },
+      {
+        "level": "error",
+        "message": "Another version of Vue Devtools seems to be installed. Please enable only one version at a time.",
+        "timestamp": "2026-10-16T16:00:05.695Z",
+        "url": "chrome-extension://iaajmlceplecbljialhhkmedjlpdblhp/build/hook-exec.js"
+      },
+      {
+        "level": "error",
+        "message": "Another version of Vue Devtools seems to be installed. Please enable only one version at a time.",
+        "timestamp": "2026-10-16T16:00:07.490Z",
+        "url": "chrome-extension://iaajmlceplecbljialhhkmedjlpdblhp/build/hook-exec.js"
+      },
+      {
+        "level": "error",
+        "message": "Another version of Vue Devtools seems to be installed. Please enable only one version at a time.",
+        "timestamp": "2026-10-16T16:00:09.166Z",
+        "url": "chrome-extension://iaajmlceplecbljialhhkmedjlpdblhp/build/hook-exec.js"
+      },
+      {
+        "level": "error",
+        "message": "Another version of Vue Devtools seems to be installed. Please enable only one version at a time.",
+        "timestamp": "2026-10-16T16:00:11.909Z",
+        "url": "chrome-extension://iaajmlceplecbljialhhkmedjlpdblhp/build/hook-exec.js"
+      },
+      {
+        "level": "error",
+        "message": "Another version of Vue Devtools seems to be installed. Please enable only one version at a time.",
+        "timestamp": "2026-10-16T16:02:07.425Z",
+        "url": "chrome-extension://iaajmlceplecbljialhhkmedjlpdblhp/build/hook-exec.js"
+      },
+      {
+        "level": "error",
+        "message": "Another version of Vue Devtools seems to be installed. Please enable only one version at a time.",
+        "timestamp": "2026-10-16T16:02:31.341Z",
+        "url": "chrome-extension://iaajmlceplecbljialhhkmedjlpdblhp/build/hook-exec.js"
+      },
+      {
+        "level": "error",
+        "message": "Another version of Vue Devtools seems to be installed. Please enable only one version at a time.",
+        "timestamp": "2026-10-16T16:02:33.428Z",
+        "url": "chrome-extension://iaajmlceplecbljialhhkmedjlpdblhp/build/hook-exec.js"
+      },
+      {
+        "level": "error",
+        "message": "Another version of Vue Devtools seems to be installed. Please enable only one version at a time.",
+        "timestamp": "2026-10-16T16:03:01.198Z",
+        "url": "chrome-extension://iaajmlceplecbljialhhkmedjlpdblhp/build/hook-exec.js"
+      }
+    ],
+    "assessment": "本次读取的控制台条目均为同一条重复Vue Devtools安装提示；大部分来源为浏览器扩展，另有一条经Next开发日志转发，未观察到不同的应用报错。"
+  },
+  "screenshots": {
+    "desktop": "2026-10-16-meihua-imagery-desktop.jpg",
+    "mobile": "2026-10-16-meihua-imagery-mobile.jpg",
+    "finalDiskImagesVisuallyInspected": true
+  },
+  "limitations": [
+    "未运行axe；仅验证实际原生键盘、可见语义与布局。",
+    "响应式为Chrome视口模拟，不等同真实移动设备测试。",
+    "本轮网页只发送一次本机模拟AI请求，不据此评价真实模型质量。",
+    "网页覆盖本轮新增面板、两种纯乾互卦口径及两代旧快照，不重新全测所有既有起卦方式。",
+    "未访问原典外站；验证链接存在及其href。"
+  ]
+}

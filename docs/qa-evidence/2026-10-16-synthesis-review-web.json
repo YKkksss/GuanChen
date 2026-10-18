@@ -1,0 +1,286 @@
+{
+  "date": "2026-10-16",
+  "timezone": "UTC+08:00",
+  "environment": "本机独立SQLite与模拟供应商，合成账号",
+  "browser": "Chrome CUA fallback",
+  "sessionId": "7dd302f9-9333-41df-bbd9-2fd280ec7454",
+  "webSavedObservation": "2026-10-16T14:23:25",
+  "passed": 42,
+  "total": 42,
+  "checks": [
+    {
+      "label": "合成账号网页登录成功",
+      "passed": true
+    },
+    {
+      "label": "从本命记录切换到动态条件复核",
+      "passed": true
+    },
+    {
+      "label": "流月阶段紫微保留年与月两层",
+      "passed": true
+    },
+    {
+      "label": "本命与阶段主题锚点分列",
+      "passed": true
+    },
+    {
+      "label": "逐项四化完整保留四条位置记录",
+      "passed": true
+    },
+    {
+      "label": "紫微三方对宫保留本命与阶段身份",
+      "passed": true
+    },
+    {
+      "label": "综合主题载入对应固定阶段复核",
+      "passed": true
+    },
+    {
+      "label": "事业主题载入对应固定阶段复核",
+      "passed": true
+    },
+    {
+      "label": "感情主题载入对应固定阶段复核",
+      "passed": true
+    },
+    {
+      "label": "财运主题载入对应固定阶段复核",
+      "passed": true
+    },
+    {
+      "label": "学习主题载入对应固定阶段复核",
+      "passed": true
+    },
+    {
+      "label": "方向键切换八字关系视图",
+      "passed": true
+    },
+    {
+      "label": "表干与藏干主题角色分开标注",
+      "passed": true
+    },
+    {
+      "label": "八字完整关系可展开且条数无截断",
+      "passed": true,
+      "detail": {
+        "count": 21
+      }
+    },
+    {
+      "label": "原局和岁运节点分别保留",
+      "passed": true
+    },
+    {
+      "label": "双侧并列保留两套结果且拒绝独立互证",
+      "passed": true
+    },
+    {
+      "label": "End切换来源并显示复核方法版本",
+      "passed": true
+    },
+    {
+      "label": "紫微八字来源分组可分别核对",
+      "passed": true
+    },
+    {
+      "label": "双盘边界可展开并保留体系限制",
+      "passed": true
+    },
+    {
+      "label": "Home返回紫微主题",
+      "passed": true
+    },
+    {
+      "label": "修改观察层级撤下旧预览等待应用",
+      "passed": true
+    },
+    {
+      "label": "流年观察只列年四化不冒充流月",
+      "passed": true
+    },
+    {
+      "label": "网页保存流年阶段依据不生成报告",
+      "passed": true
+    },
+    {
+      "label": "填入当前北京时间形成新观察点待应用",
+      "passed": true,
+      "detail": {
+        "previous": "2026-10-16T12:00",
+        "current": "2026-10-16T14:23:25"
+      }
+    },
+    {
+      "label": "新观察点应用后展示未保存预览",
+      "passed": true
+    },
+    {
+      "label": "新观察点快照可保存",
+      "passed": true
+    },
+    {
+      "label": "新快照保存后报告仍需明确生成",
+      "passed": true
+    },
+    {
+      "label": "模拟生成失败保留阶段并提供重试",
+      "passed": true
+    },
+    {
+      "label": "失败后重试完成五章阶段解读",
+      "passed": true
+    },
+    {
+      "label": "阶段报告引用可展开并保留固定快照",
+      "passed": true
+    },
+    {
+      "label": "重新生成保留本阶段旧版本",
+      "passed": true
+    },
+    {
+      "label": "旧报告版本仍可选择回看",
+      "passed": true
+    },
+    {
+      "label": "历史阶段切换不混用新阶段报告",
+      "passed": true
+    },
+    {
+      "label": "刷新后新保存的观察点仍可从历史回看",
+      "passed": true
+    },
+    {
+      "label": "未知时辰显著标明紫微试排参考",
+      "passed": true
+    },
+    {
+      "label": "未知时辰八字不补时柱",
+      "passed": true
+    },
+    {
+      "label": "未知出生当日撤回个人适用",
+      "passed": true
+    },
+    {
+      "label": "出生后一天恢复阶段参考但保留未知时辰限制",
+      "passed": true
+    },
+    {
+      "label": "首运前状态保留且不补造大运节点",
+      "passed": true
+    },
+    {
+      "label": "首运前关系仍可查看原局与流年且无大运",
+      "passed": true
+    },
+    {
+      "label": "末步之后明确大运不可用不续排",
+      "passed": true
+    },
+    {
+      "label": "旧阶段快照提示不补算新复核",
+      "passed": true
+    }
+  ],
+  "simulatedAi": {
+    "httpBaseline": 8,
+    "webFailure": 1,
+    "webRetry": 1,
+    "webRegeneration": 1,
+    "finalMockRequestCount": 11,
+    "realRequests": 0,
+    "finalMode": "normal"
+  },
+  "visualReview": {
+    "desktopViewport": {
+      "width": 1440,
+      "height": 1100
+    },
+    "mobileViewport": {
+      "width": 390,
+      "height": 900
+    },
+    "bodyFontSize": "14px",
+    "supportingFontSize": "13px",
+    "selectedTabAndLinkColor": "rgb(180,43,34)",
+    "verifiedFromFinalDiskImages": true,
+    "notes": [
+      "新版标题和四标签在两张截图中可见。",
+      "本命/阶段锚点、双侧并列、纸白底与暗红标签实图可读。",
+      "常显机器版本已移至规则来源视图。"
+    ]
+  },
+  "console": {
+    "captured": [
+      {
+        "level": "error",
+        "message": "Another version of Vue Devtools seems to be installed. Please enable only one version at a time.",
+        "timestamp": "2026-10-16T06:20:19.061Z",
+        "url": "chrome-extension://iaajmlceplecbljialhhkmedjlpdblhp/build/hook-exec.js"
+      },
+      {
+        "level": "error",
+        "message": "Another version of Vue Devtools seems to be installed. Please enable only one version at a time.",
+        "timestamp": "2026-10-16T06:20:30.736Z",
+        "url": "chrome-extension://iaajmlceplecbljialhhkmedjlpdblhp/build/hook-exec.js"
+      },
+      {
+        "level": "error",
+        "message": "Another version of Vue Devtools seems to be installed. Please enable only one version at a time.",
+        "timestamp": "2026-10-16T06:25:35.583Z",
+        "url": "chrome-extension://iaajmlceplecbljialhhkmedjlpdblhp/build/hook-exec.js"
+      },
+      {
+        "level": "error",
+        "message": "Another version of Vue Devtools seems to be installed. Please enable only one version at a time.",
+        "timestamp": "2026-10-16T06:25:40.431Z",
+        "url": "chrome-extension://iaajmlceplecbljialhhkmedjlpdblhp/build/hook-exec.js"
+      },
+      {
+        "level": "error",
+        "message": "Another version of Vue Devtools seems to be installed. Please enable only one version at a time.",
+        "timestamp": "2026-10-16T06:25:44.185Z",
+        "url": "chrome-extension://iaajmlceplecbljialhhkmedjlpdblhp/build/hook-exec.js"
+      },
+      {
+        "level": "error",
+        "message": "Another version of Vue Devtools seems to be installed. Please enable only one version at a time.",
+        "timestamp": "2026-10-16T06:26:35.587Z",
+        "url": "chrome-extension://iaajmlceplecbljialhhkmedjlpdblhp/build/hook-exec.js"
+      },
+      {
+        "level": "error",
+        "message": "Another version of Vue Devtools seems to be installed. Please enable only one version at a time.",
+        "timestamp": "2026-10-16T06:26:39.430Z",
+        "url": "chrome-extension://iaajmlceplecbljialhhkmedjlpdblhp/build/hook-exec.js"
+      },
+      {
+        "level": "error",
+        "message": "Another version of Vue Devtools seems to be installed. Please enable only one version at a time.",
+        "timestamp": "2026-10-16T06:26:43.016Z",
+        "url": "chrome-extension://iaajmlceplecbljialhhkmedjlpdblhp/build/hook-exec.js"
+      },
+      {
+        "level": "error",
+        "message": "Another version of Vue Devtools seems to be installed. Please enable only one version at a time.",
+        "timestamp": "2026-10-16T06:27:19.665Z",
+        "url": "chrome-extension://iaajmlceplecbljialhhkmedjlpdblhp/build/hook-exec.js"
+      }
+    ],
+    "applicationErrorEntries": 0,
+    "note": "捕获范围内只有已有浏览器扩展重复Vue Devtools注入日志。"
+  },
+  "limitations": [
+    "未运行axe；仅记录真实键盘、语义、可见布局和操作检查。",
+    "响应式模拟不替代真实手机验收。",
+    "未取得浏览器网络事件日志；本机模拟失败/重试链路已在网页验证，HTTP验收由根任务单独记录。",
+    "新观察点通过页面“填入当前北京时间”保存；出生后一天另用原生键盘提交日期控件并应用。",
+    "Tabbit注册不可用，使用新建Chrome验收页，不控制用户原标签页。"
+  ],
+  "screenshots": [
+    "2026-10-16-synthesis-review-desktop.jpg",
+    "2026-10-16-synthesis-review-mobile.jpg"
+  ]
+}

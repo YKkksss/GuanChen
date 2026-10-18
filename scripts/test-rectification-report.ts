@@ -1,3 +1,4 @@
+import { closeDatabaseConnection } from '../lib/db/client';
 import assert from 'node:assert/strict';
 import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -98,9 +99,7 @@ async function main() {
     assert.ok(getDatabase().prepare('SELECT 1 FROM schema_migrations WHERE version = 13').get());
     console.log('M5-5 校时结论测试通过：事实包、提示词边界、结构校验、报告版本、失败回退、工作命盘幂等创建与证据失效保护均正常。');
   } finally {
-    const database = globalThis.__ziweiSqlite;
-    if (database?.open) database.close();
-    globalThis.__ziweiSqlite = undefined;
+    closeDatabaseConnection();
     rmSync(tempDirectory, { recursive: true, force: true });
   }
 }

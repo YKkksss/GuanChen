@@ -1,3 +1,6 @@
+import { BAZI_CHAT_PROMPT_VERSION } from '../lib/db/bazi-conversations';
+import { runAccountTest } from './account-test-session';
+import { closeDatabaseConnection } from '../lib/db/client';
 import assert from 'node:assert/strict';
 import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -103,7 +106,7 @@ async function main() {
     }));
     const conversation = (await json<{ conversation: { id: string; analysisVersionId: string; promptVersion: string } }>(conversationResponse)).conversation;
     assert.equal(conversation.analysisVersionId, createdAnalysis.id);
-    assert.equal(conversation.promptVersion, 'bazi-chat-month-day-pattern-v17');
+    assert.equal(conversation.promptVersion, BAZI_CHAT_PROMPT_VERSION);
     const question = appendBaziMessage({ conversationId: conversation.id, role: 'user', content: '解释旺衰证据和格局候选。' });
     const built = buildBaziConversationContext({
       conversationId: conversation.id, currentMessageId: question.id,
@@ -122,14 +125,12 @@ async function main() {
 
     console.log('M9-3 八字解释测试通过：方法论、旺衰证据、格局候选、取用分层、未知时辰降级、结构复核、v25 版本持久化与对话绑定均正常。');
   } finally {
-    const database = globalThis.__ziweiSqlite;
-    if (database?.open) database.close();
-    globalThis.__ziweiSqlite = undefined;
+    closeDatabaseConnection();
     rmSync(tempDirectory, { recursive: true, force: true });
   }
 }
 
-main().catch(error => {
+runAccountTest(main).catch(error => {
   console.error(error);
   process.exitCode = 1;
 });

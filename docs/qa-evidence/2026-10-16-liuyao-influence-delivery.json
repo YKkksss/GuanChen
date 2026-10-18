@@ -1,0 +1,42 @@
+{
+  "date": "2026-10-16",
+  "timezone": "UTC+08:00",
+  "module": "六爻用神与作用路径条件复核",
+  "implementation": "complete",
+  "databaseVersion": 56,
+  "migrationRequired": false,
+  "pushed": false,
+  "tests": {
+    "focusedAssertions": 65827,
+    "originalReadingAssertions": 79320,
+    "regressionPassed": 98,
+    "regressionTotal": 98,
+    "httpPassed": 61,
+    "webPassed": 28,
+    "webTotal": 28,
+    "layoutPassed": 16,
+    "layoutTotal": 16,
+    "productionBuild": true,
+    "typeScript": true,
+    "mockAiRequests": 6,
+    "realAiRequests": 0
+  },
+  "screenshots": [
+    "2026-10-16-liuyao-influence-desktop.jpg",
+    "2026-10-16-liuyao-influence-mobile.jpg"
+  ],
+  "limitations": [
+    "结构路径不等于生克有效、自动取用、贪生忘克或现实结果",
+    "完整三合、墓绝、反伏吟及精确应期尚未裁决",
+    "仅本机模拟供应商验收，未评价真实模型表达质量",
+    "浏览器响应式模拟不替代实际设备验收，未运行axe"
+  ],
+  "browserFallback": "Tabbit组件注册不可用，改用CUA Chrome完成验收；截图已实际核对",
+  "runtimeUrl": "http://localhost:30001/liuyao",
+  "evidence": [
+    "2026-10-16-liuyao-influence-http.json",
+    "2026-10-16-liuyao-influence-web.json",
+    "2026-10-16-liuyao-influence-layout.json",
+    "2026-10-16-liuyao-influence-regression.json"
+  ]
+}

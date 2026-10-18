@@ -1,0 +1,136 @@
+{
+  "at": "2026-10-15T16:57:32.088Z",
+  "method": "四视图×四宽度；DOM可见main元素横向边界检查，无自动axe检查",
+  "passed": true,
+  "count": 16,
+  "checks": [
+    {
+      "view": "双人背景",
+      "requestedWidth": 320,
+      "overflows": [],
+      "scroll": 315,
+      "width": 320,
+      "passed": true
+    },
+    {
+      "view": "旧版方案",
+      "requestedWidth": 320,
+      "overflows": [],
+      "scroll": 315,
+      "width": 320,
+      "passed": true
+    },
+    {
+      "view": "删源日期背景",
+      "requestedWidth": 320,
+      "overflows": [],
+      "scroll": 315,
+      "width": 320,
+      "passed": true
+    },
+    {
+      "view": "双人背景",
+      "requestedWidth": 390,
+      "overflows": [],
+      "scroll": 385,
+      "width": 390,
+      "passed": true
+    },
+    {
+      "view": "旧版方案",
+      "requestedWidth": 390,
+      "overflows": [],
+      "scroll": 385,
+      "width": 390,
+      "passed": true
+    },
+    {
+      "view": "删源日期背景",
+      "requestedWidth": 390,
+      "overflows": [],
+      "scroll": 385,
+      "width": 390,
+      "passed": true
+    },
+    {
+      "view": "双人背景",
+      "requestedWidth": 768,
+      "overflows": [],
+      "scroll": 763,
+      "width": 768,
+      "passed": true
+    },
+    {
+      "view": "旧版方案",
+      "requestedWidth": 768,
+      "overflows": [],
+      "scroll": 763,
+      "width": 768,
+      "passed": true
+    },
+    {
+      "view": "删源日期背景",
+      "requestedWidth": 768,
+      "overflows": [],
+      "scroll": 763,
+      "width": 768,
+      "passed": true
+    },
+    {
+      "view": "双人背景",
+      "requestedWidth": 1280,
+      "overflows": [],
+      "scroll": 1275,
+      "width": 1280,
+      "passed": true
+    },
+    {
+      "view": "旧版方案",
+      "requestedWidth": 1280,
+      "overflows": [],
+      "scroll": 1275,
+      "width": 1280,
+      "passed": true
+    },
+    {
+      "view": "删源日期背景",
+      "requestedWidth": 1280,
+      "overflows": [],
+      "scroll": 1275,
+      "width": 1280,
+      "passed": true
+    },
+    {
+      "view": "删源交节时段及展开岁运",
+      "requestedWidth": 320,
+      "overflows": [],
+      "scroll": 315,
+      "width": 320,
+      "passed": true
+    },
+    {
+      "view": "删源交节时段及展开岁运",
+      "requestedWidth": 390,
+      "overflows": [],
+      "scroll": 385,
+      "width": 390,
+      "passed": true
+    },
+    {
+      "view": "删源交节时段及展开岁运",
+      "requestedWidth": 768,
+      "overflows": [],
+      "scroll": 763,
+      "width": 768,
+      "passed": true
+    },
+    {
+      "view": "删源交节时段及展开岁运",
+      "requestedWidth": 1280,
+      "overflows": [],
+      "scroll": 1275,
+      "width": 1280,
+      "passed": true
+    }
+  ]
+}

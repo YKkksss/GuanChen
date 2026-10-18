@@ -1,3 +1,4 @@
+import { runAccountTest } from './account-test-session';
 import assert from 'node:assert/strict';
 import { mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -71,4 +72,4 @@ async function main() {
     console.log('紫微连续追问测试通过：宫位、连续追问、换题、指定年份、降级事实、预算与跨档案隔离。');
   } finally { closeDatabaseConnection(); }
 }
-void main();
+void runAccountTest(main);

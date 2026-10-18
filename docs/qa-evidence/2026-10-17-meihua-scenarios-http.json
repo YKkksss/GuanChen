@@ -1,0 +1,429 @@
+{
+  "at": "2026-10-16T16:19:15.077Z",
+  "scope": "真实本地HTTP、独立合成账号和本机模拟供应商；真实供应商0",
+  "passed": true,
+  "count": 105,
+  "checks": [
+    {
+      "label": "current私有响应不缓存",
+      "passed": true
+    },
+    {
+      "label": "current本人读取：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "current五角色及三个辅助位置完整",
+      "passed": true
+    },
+    {
+      "label": "current占类条文与通用辅助分开",
+      "passed": true
+    },
+    {
+      "label": "wealth私有响应不缓存",
+      "passed": true
+    },
+    {
+      "label": "wealth本人读取：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "wealth五角色及三个辅助位置完整",
+      "passed": true
+    },
+    {
+      "label": "wealth占类条文与通用辅助分开",
+      "passed": true
+    },
+    {
+      "label": "travel私有响应不缓存",
+      "passed": true
+    },
+    {
+      "label": "travel本人读取：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "travel五角色及三个辅助位置完整",
+      "passed": true
+    },
+    {
+      "label": "travel占类条文与通用辅助分开",
+      "passed": true
+    },
+    {
+      "label": "none私有响应不缓存",
+      "passed": true
+    },
+    {
+      "label": "none本人读取：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "含求财出行文字但未指定不猜占类",
+      "passed": true
+    },
+    {
+      "label": "noTime私有响应不缓存",
+      "passed": true
+    },
+    {
+      "label": "noTime本人读取：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "noTime五角色及三个辅助位置完整",
+      "passed": true
+    },
+    {
+      "label": "noTime占类条文与通用辅助分开",
+      "passed": true
+    },
+    {
+      "label": "无时刻不补两侧季节",
+      "passed": true
+    },
+    {
+      "label": "pure私有响应不缓存",
+      "passed": true
+    },
+    {
+      "label": "pure本人读取：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "pure五角色及三个辅助位置完整",
+      "passed": true
+    },
+    {
+      "label": "pure占类条文与通用辅助分开",
+      "passed": true
+    },
+    {
+      "label": "纯乾异例场景沿用真实变盘来源",
+      "passed": true
+    },
+    {
+      "label": "imagery私有响应不缓存",
+      "passed": true
+    },
+    {
+      "label": "imagery本人读取：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "imagery旧快照不追加占类",
+      "passed": true
+    },
+    {
+      "label": "season私有响应不缓存",
+      "passed": true
+    },
+    {
+      "label": "season本人读取：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "season旧快照不追加占类",
+      "passed": true
+    },
+    {
+      "label": "base私有响应不缓存",
+      "passed": true
+    },
+    {
+      "label": "base本人读取：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "base旧快照不追加占类",
+      "passed": true
+    },
+    {
+      "label": "匿名拒绝：HTTP 401",
+      "passed": true
+    },
+    {
+      "label": "跨账号读取拒绝：HTTP 404",
+      "passed": true
+    },
+    {
+      "label": "拒绝响应不泄漏占类",
+      "passed": true
+    },
+    {
+      "label": "跨账号问答拒绝：HTTP 404",
+      "passed": true
+    },
+    {
+      "label": "异源预览拒绝：HTTP 403",
+      "passed": true
+    },
+    {
+      "label": "异源保存拒绝：HTTP 403",
+      "passed": true
+    },
+    {
+      "label": "非法占类和原型键拒绝：HTTP 400",
+      "passed": true
+    },
+    {
+      "label": "非法占类和原型键拒绝：HTTP 400",
+      "passed": true
+    },
+    {
+      "label": "非法占类和原型键拒绝：HTTP 400",
+      "passed": true
+    },
+    {
+      "label": "非法占类和原型键拒绝：HTTP 400",
+      "passed": true
+    },
+    {
+      "label": "非法占类和原型键拒绝：HTTP 400",
+      "passed": true
+    },
+    {
+      "label": "非法占类和原型键拒绝：HTTP 400",
+      "passed": true
+    },
+    {
+      "label": "非法占类和原型键拒绝：HTTP 400",
+      "passed": true
+    },
+    {
+      "label": "非法占类和原型键拒绝：HTTP 400",
+      "passed": true
+    },
+    {
+      "label": "非法占类和原型键拒绝：HTTP 400",
+      "passed": true
+    },
+    {
+      "label": "预览服务端重算：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "伪造占类不进入预览",
+      "passed": true
+    },
+    {
+      "label": "保存合成占问：HTTP 201",
+      "passed": true
+    },
+    {
+      "label": "保存采用原始参数重算",
+      "passed": true
+    },
+    {
+      "label": "同条件保存复用：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "幂等复用同一占问",
+      "passed": true
+    },
+    {
+      "label": "更换占类另存：HTTP 201",
+      "passed": true
+    },
+    {
+      "label": "占类进入指纹隔离",
+      "passed": true
+    },
+    {
+      "label": "伪造用户字段不能跨库保存：HTTP 404",
+      "passed": true
+    },
+    {
+      "label": "预览保存回看均不调用AI",
+      "passed": true
+    },
+    {
+      "label": "模拟问答完成：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "current对应能力完成回复",
+      "passed": true
+    },
+    {
+      "label": "current保存实际提示版本",
+      "passed": true
+    },
+    {
+      "label": "current占类引用符合保存能力",
+      "passed": true
+    },
+    {
+      "label": "模拟问答完成：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "none对应能力完成回复",
+      "passed": true
+    },
+    {
+      "label": "none保存实际提示版本",
+      "passed": true
+    },
+    {
+      "label": "none占类引用符合保存能力",
+      "passed": true
+    },
+    {
+      "label": "模拟问答完成：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "imagery对应能力完成回复",
+      "passed": true
+    },
+    {
+      "label": "imagery保存实际提示版本",
+      "passed": true
+    },
+    {
+      "label": "imagery占类引用符合保存能力",
+      "passed": true
+    },
+    {
+      "label": "模拟问答完成：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "season对应能力完成回复",
+      "passed": true
+    },
+    {
+      "label": "season保存实际提示版本",
+      "passed": true
+    },
+    {
+      "label": "season占类引用符合保存能力",
+      "passed": true
+    },
+    {
+      "label": "模拟问答完成：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "base对应能力完成回复",
+      "passed": true
+    },
+    {
+      "label": "base保存实际提示版本",
+      "passed": true
+    },
+    {
+      "label": "base占类引用符合保存能力",
+      "passed": true
+    },
+    {
+      "label": "供应商失败脱敏：HTTP 502",
+      "passed": true
+    },
+    {
+      "label": "失败后读取：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "失败保留原完成回复",
+      "passed": true
+    },
+    {
+      "label": "模拟问答完成：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "重试另存完成",
+      "passed": true
+    },
+    {
+      "label": "慢回复进入生成状态",
+      "passed": true
+    },
+    {
+      "label": "生成中停止：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "停止后未被迟到回复覆盖",
+      "passed": true
+    },
+    {
+      "label": "复读固定快照：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "问答和重开不重写四代快照",
+      "passed": true
+    },
+    {
+      "label": "复读固定快照：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "问答和重开不重写四代快照",
+      "passed": true
+    },
+    {
+      "label": "复读固定快照：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "问答和重开不重写四代快照",
+      "passed": true
+    },
+    {
+      "label": "复读固定快照：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "问答和重开不重写四代快照",
+      "passed": true
+    },
+    {
+      "label": "复读固定快照：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "问答和重开不重写四代快照",
+      "passed": true
+    },
+    {
+      "label": "复读固定快照：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "问答和重开不重写四代快照",
+      "passed": true
+    },
+    {
+      "label": "复读固定快照：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "问答和重开不重写四代快照",
+      "passed": true
+    },
+    {
+      "label": "复读固定快照：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "问答和重开不重写四代快照",
+      "passed": true
+    },
+    {
+      "label": "复读固定快照：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "问答和重开不重写四代快照",
+      "passed": true
+    }
+  ],
+  "mockRequests": 8
+}

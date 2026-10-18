@@ -1,3 +1,6 @@
+import { BAZI_CHAT_PROMPT_VERSION } from '../lib/db/bazi-conversations';
+import { runAccountTest } from './account-test-session';
+import { closeDatabaseConnection } from '../lib/db/client';
 import assert from 'node:assert/strict';
 import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -108,7 +111,7 @@ async function main() {
     }));
     const conversation = (await json<{ conversation: { id: string; annualTimelineVersionId: string; promptVersion: string } }>(conversationResponse)).conversation;
     assert.equal(conversation.annualTimelineVersionId, first.id);
-    assert.equal(conversation.promptVersion, 'bazi-chat-month-day-pattern-v17');
+    assert.equal(conversation.promptVersion, BAZI_CHAT_PROMPT_VERSION);
     const question = appendBaziMessage({ conversationId: conversation.id, role: 'user', content: '请解释2030年流年的时间归属' });
     const built = buildBaziConversationContext({
       conversationId: conversation.id, currentMessageId: question.id,
@@ -124,14 +127,12 @@ async function main() {
 
     console.log('M9-5 流年时间轴测试通过：立春切年、出生裁剪、跨运拆段、降级、v27 持久化与上下文绑定均正常。');
   } finally {
-    const database = globalThis.__ziweiSqlite;
-    if (database?.open) database.close();
-    globalThis.__ziweiSqlite = undefined;
+    closeDatabaseConnection();
     rmSync(tempDirectory, { recursive: true, force: true });
   }
 }
 
-main().catch(error => {
+runAccountTest(main).catch(error => {
   console.error(error);
   process.exitCode = 1;
 });

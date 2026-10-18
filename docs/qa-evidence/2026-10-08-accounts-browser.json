@@ -1,0 +1,63 @@
+{
+  "date": "2026-10-08",
+  "environment": "独立生产 QA 服务，合成账号与模拟 AI",
+  "results": [
+    {
+      "width": 1440,
+      "path": "/settings/account",
+      "violations": [],
+      "incomplete": 2,
+      "overflow": false
+    },
+    {
+      "width": 1440,
+      "path": "/settings/users",
+      "violations": [],
+      "incomplete": 2,
+      "overflow": false
+    },
+    {
+      "width": 1440,
+      "path": "/login",
+      "violations": [],
+      "incomplete": 0,
+      "overflow": false
+    },
+    {
+      "width": 1440,
+      "path": "/register",
+      "violations": [],
+      "incomplete": 0,
+      "overflow": false
+    },
+    {
+      "width": 390,
+      "path": "/settings/account",
+      "violations": [],
+      "incomplete": 2,
+      "overflow": false
+    },
+    {
+      "width": 390,
+      "path": "/settings/users",
+      "violations": [],
+      "incomplete": 2,
+      "overflow": false
+    },
+    {
+      "width": 390,
+      "path": "/login",
+      "violations": [],
+      "incomplete": 0,
+      "overflow": false
+    },
+    {
+      "width": 390,
+      "path": "/register",
+      "violations": [],
+      "incomplete": 0,
+      "overflow": false
+    }
+  ],
+  "pageErrors": []
+}

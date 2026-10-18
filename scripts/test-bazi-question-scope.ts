@@ -1,3 +1,5 @@
+import { runAccountTest } from './account-test-session';
+import { closeDatabaseConnection } from '../lib/db/client';
 import assert from 'node:assert/strict';
 import { mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -45,6 +47,6 @@ async function main() {
     assert.equal(changed.manifest.monthDayRelationVersionId, null);
     assert.equal(build('再看看原局').manifest.questionScope, null);
     console.log('八字范围测试通过：日期草稿语义、跨立春、追问延续、显式切年、原局切换和助手日期隔离。');
-  } finally { getDatabase().close(); globalThis.__ziweiSqlite = undefined; }
+  } finally { closeDatabaseConnection(); }
 }
-main().catch(error => { console.error(error); process.exitCode = 1; });
+runAccountTest(main).catch(error => { console.error(error); process.exitCode = 1; });

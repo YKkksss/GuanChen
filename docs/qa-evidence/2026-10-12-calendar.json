@@ -1,0 +1,197 @@
+{
+  "date": "2026-10-12",
+  "timezone": "Asia/Shanghai",
+  "data": "临时账号数据库与合成出生资料",
+  "ai": "本机模拟供应商",
+  "specialized": {
+    "command": "npm run test:fortune-calendar",
+    "passed": 63,
+    "total": 63
+  },
+  "regression": {
+    "command": "npm run test:v1-all",
+    "passed": 80,
+    "total": 80,
+    "logDirectory": "C:/Users/11474/AppData/Local/Temp/guanchen-v1-checks-cVWvn3"
+  },
+  "build": {
+    "passed": true,
+    "staticPages": 80,
+    "log": "C:/Users/11474/AppData/Local/Temp/guanchen-full-qa-6gp0mk/calendar-build.log"
+  },
+  "browserFunctions": [
+    {
+      "label": "五主题生成保存",
+      "passed": true
+    },
+    {
+      "label": "刷新与切换主题缓存",
+      "passed": true
+    },
+    {
+      "label": "日期保存标记",
+      "passed": true
+    },
+    {
+      "label": "依据展开",
+      "passed": true
+    },
+    {
+      "label": "切月与今日定位",
+      "passed": true
+    },
+    {
+      "label": "出生日期限制",
+      "passed": true
+    },
+    {
+      "label": "最大月份限制",
+      "passed": true
+    },
+    {
+      "label": "键盘选日",
+      "passed": true
+    },
+    {
+      "label": "延迟日期响应防串用",
+      "passed": true
+    },
+    {
+      "label": "生成中切换日期",
+      "passed": true
+    },
+    {
+      "label": "生成失败提示与重试",
+      "passed": true
+    },
+    {
+      "label": "书签恢复",
+      "passed": true
+    }
+  ],
+  "initialAudit": {
+    "race": {
+      "label": "迟到日期响应不会串到当前日期",
+      "passed": true,
+      "expectedGanZhi": "辛酉"
+    },
+    "layouts": [
+      {
+        "width": 1440,
+        "overflow": false,
+        "violations": []
+      },
+      {
+        "width": 1280,
+        "overflow": false,
+        "violations": []
+      },
+      {
+        "width": 1024,
+        "overflow": false,
+        "violations": [
+          {
+            "id": "link-name",
+            "nodes": [
+              {
+                "target": [
+                  ".EasternAppFrame-module__k6bxEq__collapseHint"
+                ],
+                "summary": "Fix all of the following:\n  Element is in tab order and does not have accessible text\n\nFix any of the following:\n  Element does not have text that is visible to screen readers\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\n  Element has no title attribute"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "width": 768,
+        "overflow": false,
+        "violations": []
+      },
+      {
+        "width": 390,
+        "overflow": false,
+        "violations": []
+      },
+      {
+        "width": 320,
+        "overflow": false,
+        "violations": []
+      }
+    ]
+  },
+  "security": [
+    {
+      "label": "真实HTTP跨账号读取",
+      "passed": true
+    },
+    {
+      "label": "真实HTTP跨账号生成",
+      "passed": true
+    },
+    {
+      "label": "他人页面隐藏已保存内容",
+      "passed": true
+    },
+    {
+      "label": "匿名API拒绝与页面登录引导",
+      "passed": true
+    },
+    {
+      "label": "网页未知时辰提示",
+      "passed": true
+    }
+  ],
+  "production": {
+    "production": {
+      "arrowCrossMonth": true,
+      "pageUpFocus": true,
+      "picker": true,
+      "productionGeneration": true,
+      "reopen": true
+    },
+    "layouts": [
+      {
+        "width": 1440,
+        "overflow": false,
+        "violations": []
+      },
+      {
+        "width": 1280,
+        "overflow": false,
+        "violations": []
+      },
+      {
+        "width": 1024,
+        "overflow": false,
+        "violations": []
+      },
+      {
+        "width": 768,
+        "overflow": false,
+        "violations": []
+      },
+      {
+        "width": 390,
+        "overflow": false,
+        "violations": []
+      },
+      {
+        "width": 320,
+        "overflow": false,
+        "violations": []
+      }
+    ],
+    "pageErrors": []
+  },
+  "corrections": [
+    "闰月名称重复已修复",
+    "1024px侧栏返回首页链接名称已修复",
+    "跨月键盘焦点已修复",
+    "首轮延迟响应断言的手写日干支预期错误，按权威日快照重新断言后通过"
+  ],
+  "realAi": {
+    "tested": false,
+    "reason": "独立真实模型验收服务启动被自动审批拒绝，仅返回 blocked by policy"
+  }
+}

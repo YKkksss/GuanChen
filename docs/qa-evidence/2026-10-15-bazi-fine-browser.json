@@ -1,0 +1,190 @@
+{
+  "验收日期": "2026-10-15 UTC+08:00",
+  "状态": "通过",
+  "数据": "独立临时账号、合成出生资料及旧格式报告；本机模拟AI供应商",
+  "功能安全检查数量": 33,
+  "布局自动无障碍检查数量": 24,
+  "checks": [
+    "独立账号创建合成八字并打开总览",
+    "120组来源粒度统计准确",
+    "甲辰具体用干与章节参考",
+    "合论映射明确标识",
+    "月内分支明确待核",
+    "查阅索引不改变当前四柱",
+    "八类特殊格局复核可展开",
+    "五合入口不裁定化气",
+    "同干根与同五行其他根分开展示",
+    "结构待核条件可展开",
+    "读取依据不调用AI",
+    "五章模拟报告生成保存",
+    "Markdown加粗列表正常",
+    "章节依据可展开",
+    "刷新回看不重复AI",
+    "合成旧格式报告明确提示规则差异",
+    "新规则另存报告且旧版可回看",
+    "切换新旧报告各自标识正确",
+    "失败保留已完成报告",
+    "重试另存完整版本",
+    "未知时辰教学示例可读",
+    "快速切换示例不串旧结果",
+    "继续问八字带入总览草稿",
+    "新依据对话可发送并保存模拟回复",
+    "报告供应商请求携带新规则与复核清单",
+    "八字聊天使用v19及精细调候依据",
+    "未知时辰省略时柱与喜忌降级",
+    "未知时辰界面保留不确定性",
+    "匿名读取新依据401",
+    "跨账号读写及示例404",
+    "私有依据响应不缓存",
+    "跨源生成403",
+    "依据读取故障可重试恢复"
+  ],
+  "audits": [
+    {
+      "view": "facts",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "facts",
+      "width": 1024,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "facts",
+      "width": 820,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "facts",
+      "width": 768,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "facts",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "facts",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "reading",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "reading",
+      "width": 1024,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "reading",
+      "width": 820,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "reading",
+      "width": 768,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "reading",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "reading",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "examples",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "examples",
+      "width": 1024,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "examples",
+      "width": 820,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "examples",
+      "width": 768,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "examples",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "examples",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "unknown",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "unknown",
+      "width": 1024,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "unknown",
+      "width": 820,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "unknown",
+      "width": 768,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "unknown",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "unknown",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    }
+  ],
+  "errors": [],
+  "说明": "四视图六宽度；真实AI质量和实际设备另行核对。模拟旧格式报告仅修改隔离验收库。"
+}

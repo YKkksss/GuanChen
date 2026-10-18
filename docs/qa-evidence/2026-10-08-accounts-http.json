@@ -1,0 +1,991 @@
+{
+  "total": 203,
+  "passed": 203,
+  "results": [
+    {
+      "label": "注册不能指定权限与身份",
+      "passed": true
+    },
+    {
+      "label": "会话 Cookie 受保护",
+      "passed": true
+    },
+    {
+      "label": "注册乙",
+      "passed": true
+    },
+    {
+      "label": "GET /api/admin/users 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "PATCH /api/admin/users/00000000-0000-4000-8000-000000000099 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "POST /api/auth/password 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "POST /api/backups/auto-check 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "GET /api/backups/automatic/00000000-0000-4000-8000-000000000099 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "POST /api/backups/export/encrypted 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "GET /api/backups/export 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "POST /api/backups/inspect 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "POST /api/backups/managed 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "DELETE /api/backups/managed/00000000-0000-4000-8000-000000000099 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "POST /api/backups/managed/00000000-0000-4000-8000-000000000099/verify 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "PATCH /api/backups/policy 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "POST /api/backups/restore 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "GET /api/backups 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "POST /api/bazi/calculate 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "GET /api/bazi/charts/00000000-0000-4000-8000-000000000099/analysis 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "POST /api/bazi/charts/00000000-0000-4000-8000-000000000099/analysis 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "GET /api/bazi/charts/00000000-0000-4000-8000-000000000099/annual-timeline 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "POST /api/bazi/charts/00000000-0000-4000-8000-000000000099/annual-timeline 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "GET /api/bazi/charts/00000000-0000-4000-8000-000000000099/dynamic-ten-gods 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "POST /api/bazi/charts/00000000-0000-4000-8000-000000000099/dynamic-ten-gods 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "GET /api/bazi/charts/00000000-0000-4000-8000-000000000099/hidden-stem-activations 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "POST /api/bazi/charts/00000000-0000-4000-8000-000000000099/hidden-stem-activations 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "GET /api/bazi/charts/00000000-0000-4000-8000-000000000099/luck-cycles 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "POST /api/bazi/charts/00000000-0000-4000-8000-000000000099/luck-cycles 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "GET /api/bazi/charts/00000000-0000-4000-8000-000000000099/month-day-patterns 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "POST /api/bazi/charts/00000000-0000-4000-8000-000000000099/month-day-patterns 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "GET /api/bazi/charts/00000000-0000-4000-8000-000000000099/month-day-relations 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "POST /api/bazi/charts/00000000-0000-4000-8000-000000000099/month-day-relations 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "GET /api/bazi/charts/00000000-0000-4000-8000-000000000099/month-day-strength 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "POST /api/bazi/charts/00000000-0000-4000-8000-000000000099/month-day-strength 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "GET /api/bazi/charts/00000000-0000-4000-8000-000000000099/month-day-timeline 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "POST /api/bazi/charts/00000000-0000-4000-8000-000000000099/month-day-timeline 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "GET /api/bazi/charts/00000000-0000-4000-8000-000000000099/month-day-visibility 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "POST /api/bazi/charts/00000000-0000-4000-8000-000000000099/month-day-visibility 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "GET /api/bazi/charts/00000000-0000-4000-8000-000000000099/pattern-conditions 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "POST /api/bazi/charts/00000000-0000-4000-8000-000000000099/pattern-conditions 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "GET /api/bazi/charts/00000000-0000-4000-8000-000000000099/relation-adjudication 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "POST /api/bazi/charts/00000000-0000-4000-8000-000000000099/relation-adjudication 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "GET /api/bazi/charts/00000000-0000-4000-8000-000000000099/relation-audit 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "POST /api/bazi/charts/00000000-0000-4000-8000-000000000099/relation-audit 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "GET /api/bazi/charts/00000000-0000-4000-8000-000000000099 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "DELETE /api/bazi/charts/00000000-0000-4000-8000-000000000099 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "GET /api/bazi/charts/00000000-0000-4000-8000-000000000099/strength-composites 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "POST /api/bazi/charts/00000000-0000-4000-8000-000000000099/strength-composites 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "GET /api/bazi/charts/00000000-0000-4000-8000-000000000099/ten-god-repeats 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "POST /api/bazi/charts/00000000-0000-4000-8000-000000000099/ten-god-repeats 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "GET /api/bazi/charts/00000000-0000-4000-8000-000000000099/transparency-roots 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "POST /api/bazi/charts/00000000-0000-4000-8000-000000000099/transparency-roots 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "GET /api/bazi/conversations 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "POST /api/bazi/conversations 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "GET /api/bazi/conversations/00000000-0000-4000-8000-000000000099/context 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "GET /api/bazi/conversations/00000000-0000-4000-8000-000000000099/messages 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "POST /api/bazi/conversations/00000000-0000-4000-8000-000000000099/respond/cancel 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "POST /api/bazi/conversations/00000000-0000-4000-8000-000000000099/respond 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "GET /api/bazi/conversations/00000000-0000-4000-8000-000000000099 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "PATCH /api/bazi/conversations/00000000-0000-4000-8000-000000000099 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "DELETE /api/bazi/conversations/00000000-0000-4000-8000-000000000099 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "GET /api/bazi/profiles 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "POST /api/bazi/profiles 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "POST /api/bazi/profiles/00000000-0000-4000-8000-000000000099/charts 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "GET /api/bazi/profiles/00000000-0000-4000-8000-000000000099 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "PATCH /api/bazi/profiles/00000000-0000-4000-8000-000000000099 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "DELETE /api/bazi/profiles/00000000-0000-4000-8000-000000000099 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "GET /api/case-comparisons 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "POST /api/case-comparisons 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "GET /api/case-comparisons/00000000-0000-4000-8000-000000000099 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "PATCH /api/case-comparisons/00000000-0000-4000-8000-000000000099 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "POST /api/cases/preview 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "GET /api/cases 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "POST /api/cases 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "GET /api/cases/search 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "PATCH /api/cases/00000000-0000-4000-8000-000000000099/consent 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "GET /api/cases/00000000-0000-4000-8000-000000000099/export 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "GET /api/cases/00000000-0000-4000-8000-000000000099 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "PATCH /api/cases/00000000-0000-4000-8000-000000000099 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "DELETE /api/cases/00000000-0000-4000-8000-000000000099 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "GET /api/cases/00000000-0000-4000-8000-000000000099/teaching 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "GET /api/chart-packages/export 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "POST /api/chart-packages/import 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "POST /api/chart-packages/inspect 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "GET /api/conversations 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "POST /api/conversations 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "GET /api/conversations/00000000-0000-4000-8000-000000000099/context 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "POST /api/conversations/00000000-0000-4000-8000-000000000099/context 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "GET /api/conversations/00000000-0000-4000-8000-000000000099/event-candidates 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "POST /api/conversations/00000000-0000-4000-8000-000000000099/event-candidates 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "PATCH /api/conversations/00000000-0000-4000-8000-000000000099/event-candidates/00000000-0000-4000-8000-000000000099 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "GET /api/conversations/00000000-0000-4000-8000-000000000099/events 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "POST /api/conversations/00000000-0000-4000-8000-000000000099/events 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "GET /api/conversations/00000000-0000-4000-8000-000000000099/events/00000000-0000-4000-8000-000000000099/analysis 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "POST /api/conversations/00000000-0000-4000-8000-000000000099/events/00000000-0000-4000-8000-000000000099/analysis 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "GET /api/conversations/00000000-0000-4000-8000-000000000099/events/00000000-0000-4000-8000-000000000099 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "PATCH /api/conversations/00000000-0000-4000-8000-000000000099/events/00000000-0000-4000-8000-000000000099 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "DELETE /api/conversations/00000000-0000-4000-8000-000000000099/events/00000000-0000-4000-8000-000000000099 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "GET /api/conversations/00000000-0000-4000-8000-000000000099/heming-evaluation 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "GET /api/conversations/00000000-0000-4000-8000-000000000099/heming-transits 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "PUT /api/conversations/00000000-0000-4000-8000-000000000099/learning/notes 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "GET /api/conversations/00000000-0000-4000-8000-000000000099/learning 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "PATCH /api/conversations/00000000-0000-4000-8000-000000000099/memories/00000000-0000-4000-8000-000000000099 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "DELETE /api/conversations/00000000-0000-4000-8000-000000000099/memories/00000000-0000-4000-8000-000000000099 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "GET /api/conversations/00000000-0000-4000-8000-000000000099/messages 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "GET /api/conversations/00000000-0000-4000-8000-000000000099/reports 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "POST /api/conversations/00000000-0000-4000-8000-000000000099/reports 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "POST /api/conversations/00000000-0000-4000-8000-000000000099/respond/cancel 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "POST /api/conversations/00000000-0000-4000-8000-000000000099/respond 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "GET /api/conversations/00000000-0000-4000-8000-000000000099 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "PATCH /api/conversations/00000000-0000-4000-8000-000000000099 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "DELETE /api/conversations/00000000-0000-4000-8000-000000000099 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "GET /api/conversations/00000000-0000-4000-8000-000000000099/transit-reports 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "POST /api/conversations/00000000-0000-4000-8000-000000000099/transit-reports 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "GET /api/conversations/00000000-0000-4000-8000-000000000099/transits/months 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "GET /api/conversations/00000000-0000-4000-8000-000000000099/transits 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "POST /api/generate 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "POST /api/heming 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "POST /api/interpret 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "GET /api/learning/courses 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "POST /api/learning/courses/00000000-0000-4000-8000-000000000099/lessons/00000000-0000-4000-8000-000000000099/attempts 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "PUT /api/learning/courses/00000000-0000-4000-8000-000000000099/lessons/00000000-0000-4000-8000-000000000099/progress 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "GET /api/learning/courses/00000000-0000-4000-8000-000000000099/progress 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "GET /api/learning/practice/chart-structure 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "POST /api/learning/practice/chart-structure 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "GET /api/learning/practice/foundation-review 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "POST /api/learning/practice/foundation-review 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "GET /api/learning/practice/open-ended 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "POST /api/learning/practice/open-ended 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "POST /api/learning/practice/open-ended/00000000-0000-4000-8000-000000000099/feedback 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "GET /api/learning/practice/overview 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "GET /api/learning/review 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "POST /api/learning/review/00000000-0000-4000-8000-000000000099/attempts 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "PUT /api/learning/review/00000000-0000-4000-8000-000000000099 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "GET /api/monthly-reviews 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "POST /api/monthly-reviews 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "POST /api/monthly-reviews/00000000-0000-4000-8000-000000000099/confirm 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "GET /api/monthly-reviews/00000000-0000-4000-8000-000000000099 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "PATCH /api/monthly-reviews/00000000-0000-4000-8000-000000000099 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "DELETE /api/monthly-reviews/00000000-0000-4000-8000-000000000099 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "POST /api/rectification-reports/00000000-0000-4000-8000-000000000099/regenerate 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "GET /api/rectification-reports/00000000-0000-4000-8000-000000000099 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "GET /api/rectifications 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "POST /api/rectifications 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "POST /api/rectifications/00000000-0000-4000-8000-000000000099/conversation 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "GET /api/rectifications/00000000-0000-4000-8000-000000000099/evaluation 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "POST /api/rectifications/00000000-0000-4000-8000-000000000099/evaluation 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "GET /api/rectifications/00000000-0000-4000-8000-000000000099/evaluations 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "GET /api/rectifications/00000000-0000-4000-8000-000000000099/event-matrix 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "GET /api/rectifications/00000000-0000-4000-8000-000000000099/events 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "POST /api/rectifications/00000000-0000-4000-8000-000000000099/events 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "PATCH /api/rectifications/00000000-0000-4000-8000-000000000099/events/00000000-0000-4000-8000-000000000099 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "DELETE /api/rectifications/00000000-0000-4000-8000-000000000099/events/00000000-0000-4000-8000-000000000099 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "GET /api/rectifications/00000000-0000-4000-8000-000000000099/reports 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "POST /api/rectifications/00000000-0000-4000-8000-000000000099/reports 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "GET /api/rectifications/00000000-0000-4000-8000-000000000099 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "DELETE /api/rectifications/00000000-0000-4000-8000-000000000099 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "GET /api/rectifications/00000000-0000-4000-8000-000000000099/selection 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "POST /api/rectifications/00000000-0000-4000-8000-000000000099/selection 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "GET /api/reminder-instances 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "GET /api/reminder-instances/00000000-0000-4000-8000-000000000099 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "PATCH /api/reminder-instances/00000000-0000-4000-8000-000000000099 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "POST /api/reminders/materialize 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "GET /api/reminders 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "POST /api/reminders 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "GET /api/reminders/00000000-0000-4000-8000-000000000099 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "PATCH /api/reminders/00000000-0000-4000-8000-000000000099 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "DELETE /api/reminders/00000000-0000-4000-8000-000000000099 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "GET /api/report-comparisons 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "GET /api/report-exports 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "POST /api/report-exports 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "GET /api/report-exports/00000000-0000-4000-8000-000000000099/download 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "GET /api/report-user-revisions 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "PUT /api/report-user-revisions 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "POST /api/reports/00000000-0000-4000-8000-000000000099/regenerate 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "GET /api/reports/00000000-0000-4000-8000-000000000099 未登录拒绝",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "label": "登录后可排盘",
+      "passed": true
+    },
+    {
+      "label": "客户端 userId 不改变归属",
+      "passed": true
+    },
+    {
+      "label": "流式聊天成功",
+      "passed": true
+    },
+    {
+      "label": "本人聊天持久化",
+      "passed": true
+    },
+    {
+      "label": "乙不能读取甲",
+      "passed": true
+    },
+    {
+      "label": "乙不能PATCH甲",
+      "passed": true
+    },
+    {
+      "label": "乙不能DELETE甲",
+      "passed": true
+    },
+    {
+      "label": "列表与搜索隔离",
+      "passed": true
+    },
+    {
+      "label": "普通用户不能访问管理列表",
+      "passed": true
+    },
+    {
+      "label": "八字档案可保存",
+      "passed": true
+    },
+    {
+      "label": "八字档案隔离",
+      "passed": true
+    },
+    {
+      "label": "八字版本隔离",
+      "passed": true
+    },
+    {
+      "label": "八字对话可建立",
+      "passed": true
+    },
+    {
+      "label": "八字对话隔离",
+      "passed": true
+    },
+    {
+      "label": "专题报告可生成",
+      "passed": true
+    },
+    {
+      "label": "报告返回有效 ID",
+      "passed": true
+    },
+    {
+      "label": "报告详情隔离",
+      "passed": true
+    },
+    {
+      "label": "PDF可导出",
+      "passed": true
+    },
+    {
+      "label": "PDF返回有效 ID",
+      "passed": true
+    },
+    {
+      "label": "本人可下载 PDF",
+      "passed": true
+    },
+    {
+      "label": "乙不能下载甲 PDF",
+      "passed": true
+    },
+    {
+      "label": "登录拒绝跨站写入",
+      "passed": true
+    },
+    {
+      "label": "修改密码成功",
+      "passed": true
+    },
+    {
+      "label": "改密后旧会话失效",
+      "passed": true
+    },
+    {
+      "label": "新密码可登录",
+      "passed": true
+    },
+    {
+      "label": "退出成功",
+      "passed": true
+    },
+    {
+      "label": "退出后会话不可重用",
+      "passed": true
+    }
+  ]
+}

@@ -1,3 +1,4 @@
+import { runAccountTest } from './account-test-session';
 import assert from 'node:assert/strict';
 import { mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -87,4 +88,4 @@ async function main() {
     console.log('自然语言年度运限通过：北京时间跨年、相对年份、比较、追问、日期澄清、降级和实际请求注入。');
   } finally { closeDatabaseConnection(); }
 }
-void main();
+void runAccountTest(main);

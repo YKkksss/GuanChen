@@ -1,0 +1,246 @@
+{
+  "completedAt": "2026-10-15T08:19:58.242Z",
+  "environment": "独立临时账号、SQLite与生产构建；AI使用本机模拟供应商",
+  "webChecks": 40,
+  "checks": [
+    "使用独立临时账号和生产服务",
+    "未指定参考对象：不自动取用，提示先明确对象",
+    "day_stem模板定位与清旧预览",
+    "hour_stem模板定位与清旧预览",
+    "day_hour模板定位与清旧预览",
+    "opening模板定位与清旧预览",
+    "wealth模板定位与清旧预览",
+    "study模板定位与清旧预览",
+    "手选中五：原地盘保留，不补造活动门星、加临或固定地支",
+    "切模板删除手选宫位参数",
+    "预览中改条件取消旧请求，迟到响应不覆盖",
+    "手动阳遁保留自动拆补参考并展示深化",
+    "丁艮八墓位置仅列一次，页面保留异文提示",
+    "手动阴遁切换后重算深化",
+    "星伏吟成立而门伏吟不成立：全盘结构分层展示",
+    "23点午夜与子初口径同步日时干及参考对象",
+    "甲日遁壬与甲时遁戊分别按自己的旬，原中五与寄宫保留",
+    "坤二双天干乘双地干四组加临、天芮天禽两星、己刑只列一次",
+    "水月水宫为普通旺，天蓬水星为专门口诀相，分开展示",
+    "九宫方向键与Home/End联动深化宫位",
+    "乾六时旬空戌亥及逢冲辰巳仅列条件，不生成确定日期",
+    "保存盘面与预览完全一致",
+    "刷新按保存时深化与依据完整回看",
+    "带入宫位追问保留原草稿和真实空行，未自动发送",
+    "三个深化快捷问题可填入草稿",
+    "新对话使用明确定位及保存时reading依据",
+    "Markdown标题正常渲染，复核引用可展开",
+    "深化对话停止后保留原问题",
+    "失败重试新增一轮，原失败与已完成历史保留",
+    "刷新回看四轮对话不新增模型调用",
+    "旧记录明确固定盘面，无深化快照时不自动补算",
+    "旧盘保留原快捷问题与原引用，回复后result_json不变",
+    "账号私有响应标记private no-store",
+    "未知及继承模板、超范围手选宫、非手选混入宫位均400",
+    "跨来源写请求403",
+    "匿名列表、详情和预览均401",
+    "另一账号列表不泄露记录，读、发问、停止与删除均404",
+    "客户端伪造用户与复核被忽略，服务端按当前账号重算",
+    "历史查询、取消移除、确认移除及旧盘级联对话兼容",
+    "折叠可查看固定版本、两套月令口径、局限及安全原典链接"
+  ],
+  "layoutChecks": 30,
+  "layouts": [
+    {
+      "view": "home",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "home",
+      "width": 375,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "home",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "home",
+      "width": 768,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "home",
+      "width": 1024,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "home",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "preview",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "preview",
+      "width": 375,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "preview",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "preview",
+      "width": 768,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "preview",
+      "width": 1024,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "preview",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "facts",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "facts",
+      "width": 375,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "facts",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "facts",
+      "width": 768,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "facts",
+      "width": 1024,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "facts",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "chat",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "chat",
+      "width": 375,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "chat",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "chat",
+      "width": 768,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "chat",
+      "width": 1024,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "chat",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "legacy",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "legacy",
+      "width": 375,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "legacy",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "legacy",
+      "width": 768,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "legacy",
+      "width": 1024,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "legacy",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    }
+  ],
+  "promptAudit": {
+    "newRequests": 4,
+    "newReadingAndPrompt": true,
+    "legacyRequests": 1,
+    "legacyPromptWithoutReading": true
+  },
+  "screenshots": [
+    "2026-10-15-qimen-reading-facts-1440.png",
+    "2026-10-15-qimen-reading-facts-320.png",
+    "2026-10-15-qimen-reading-patterns-390.png",
+    "2026-10-15-qimen-reading-chat-390.png"
+  ],
+  "limitations": [
+    "真实模型内容质量及真实多设备未在本轮验收",
+    "仅验证本阶段固定规则，不代表全部流派及精确应期裁决"
+  ]
+}

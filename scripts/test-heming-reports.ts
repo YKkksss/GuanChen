@@ -1,3 +1,4 @@
+import { closeDatabaseConnection } from '../lib/db/client';
 import assert from 'node:assert/strict';
 import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -111,9 +112,7 @@ async function main() {
     assert.equal((getDatabase().prepare('SELECT COUNT(*) AS count FROM reports WHERE conversation_id = ?').get(conversation.id) as { count: number }).count, 0);
     console.log('M4-4 合盘报告测试通过：双盘证据、提示词边界、结构校验、版本保留、失败回退与级联删除均正常。');
   } finally {
-    const database = globalThis.__ziweiSqlite;
-    if (database?.open) database.close();
-    globalThis.__ziweiSqlite = undefined;
+    closeDatabaseConnection();
     rmSync(tempDirectory, { recursive: true, force: true });
   }
 }

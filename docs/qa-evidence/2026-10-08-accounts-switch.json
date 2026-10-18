@@ -1,0 +1,15 @@
+{
+  "date": "2026-10-08",
+  "environment": "最新生产 QA 构建，手机模拟宽度 390",
+  "logoutPrivateVisible": false,
+  "userBSeesA": false,
+  "foreignStatus": 404,
+  "pageErrors": [],
+  "finalReplay": {
+    "nextVersion": "15.5.27",
+    "username": "web-account-b",
+    "foreignStatus": 404,
+    "userBSeesA": false,
+    "pageErrors": []
+  }
+}

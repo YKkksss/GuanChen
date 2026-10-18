@@ -1,0 +1,183 @@
+{
+  "completedAt": "2026-10-12T12:48:44.237Z",
+  "timezone": "UTC+08:00",
+  "environment": "独立生产构建与临时账号、本机模拟AI供应商",
+  "checks": [
+    "独立合成账号注册并进入合参中心",
+    "必填校验拦截空资料",
+    "23点次日口径预览",
+    "预览不建立档案",
+    "改口径清除旧预览",
+    "当日晚子时预览",
+    "真太阳时跨日前一日预览",
+    "时间未知隐藏输入并关闭太阳校正",
+    "保存后展示原始与有效时间口径",
+    "综合主题生成并展示五章",
+    "综合主题独立保存",
+    "事业主题生成并展示五章",
+    "事业主题独立保存",
+    "感情主题生成并展示五章",
+    "感情主题独立保存",
+    "财运主题生成并展示五章",
+    "财运主题独立保存",
+    "学习主题生成并展示五章",
+    "学习主题独立保存",
+    "共同观察两侧引用展开",
+    "Markdown加粗正常渲染",
+    "刷新回看不调用AI",
+    "重新生成后可回看旧版本",
+    "上游失败提示且旧报告可读",
+    "生成失败后重试恢复",
+    "生成中防止重复提交",
+    "生成期间快速切主题不串报告",
+    "紫微依据可展开",
+    "双盘跳转八字原局",
+    "双盘跳转紫微命盘",
+    "旧紫微预填日期并要求补准确时分",
+    "旧来源预填的时间口径提醒",
+    "合参列表空搜索状态",
+    "合参列表名称搜索",
+    "时辰未知页面降级说明",
+    "名称注入HTML按普通文本显示",
+    "移除确认可取消",
+    "确认移除删除合参",
+    "移除后独立双盘保留",
+    "真实HTTP匿名读取拒绝",
+    "真实HTTP跨账号 get /api/synthesis/5150c276-862a-43ad-a172-240a6d583aba",
+    "真实HTTP跨账号 post /api/synthesis/5150c276-862a-43ad-a172-240a6d583aba/reports",
+    "真实HTTP跨账号 delete /api/synthesis/5150c276-862a-43ad-a172-240a6d583aba",
+    "真实HTTP跨账号 get /api/synthesis",
+    "真实HTTP跨账号 post /api/synthesis/preview",
+    "真实HTTP跨账号列表隔离",
+    "真实HTTP拒绝跨站写入",
+    "私有接口不缓存",
+    "加载错误提示并可重试恢复"
+  ],
+  "audits": [
+    {
+      "view": "home",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "home",
+      "width": 1024,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "home",
+      "width": 820,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "home",
+      "width": 768,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "home",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "home",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "facts",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "facts",
+      "width": 1024,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "facts",
+      "width": 820,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "facts",
+      "width": 768,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "facts",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "facts",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "report",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "report",
+      "width": 1024,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "report",
+      "width": 820,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "report",
+      "width": 768,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "report",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "report",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    }
+  ],
+  "pageErrors": [],
+  "automated": {
+    "synthesisChecks": 117,
+    "allSuitesPassed": 83,
+    "allSuitesTotal": 83,
+    "staticPagesBuilt": 81
+  },
+  "limitations": [
+    "真实AI内容质量尚需实用核对",
+    "此处手机为浏览器响应式模拟"
+  ],
+  "delivery": {
+    "mainUrl": "http://localhost:30001/synthesis",
+    "loginHttpStatus": 200,
+    "defaultCacheRestored": true,
+    "testServicesStopped": true
+  }
+}

@@ -16,7 +16,7 @@ for (const name of checks) {
     cwd: root, shell: process.platform === 'win32', encoding: 'utf8', timeout: 180_000,
     maxBuffer: 8 * 1024 * 1024,
     env: { ...process.env,
-      SQLITE_PATH: path.join(isolated, 'fallback.sqlite'), REPORT_EXPORT_DIR: path.join(isolated, 'exports'),
+      ACCOUNT_DATA_DIR: path.join(isolated, 'accounts'), SQLITE_PATH: path.join(isolated, 'fallback.sqlite'), REPORT_EXPORT_DIR: path.join(isolated, 'exports'),
       AI_PROVIDER: 'deepseek', DEEPSEEK_API_KEY: 'local-test-only', DEEPSEEK_BASE_URL: 'http://127.0.0.1:39999',
     },
   });

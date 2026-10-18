@@ -1,0 +1,434 @@
+{
+  "completedAt": "2026-10-12T14:36:38.057Z",
+  "total": 85,
+  "passed": 85,
+  "meihuaAssertions": 2456,
+  "dataScope": "独立临时数据库、合成资料与本机模拟 AI；不表示真实解读质量已验收",
+  "results": [
+    {
+      "name": "test:meihua",
+      "passed": true,
+      "durationMs": 1465
+    },
+    {
+      "name": "test:election",
+      "passed": true,
+      "durationMs": 1589
+    },
+    {
+      "name": "test:synthesis",
+      "passed": true,
+      "durationMs": 9141
+    },
+    {
+      "name": "test:bazi-reading",
+      "passed": true,
+      "durationMs": 10352
+    },
+    {
+      "name": "test:fortune-topics",
+      "passed": true,
+      "durationMs": 2821
+    },
+    {
+      "name": "test:fortune-calendar",
+      "passed": true,
+      "durationMs": 5254
+    },
+    {
+      "name": "test:accounts",
+      "passed": true,
+      "durationMs": 3720
+    },
+    {
+      "name": "test:request-boundary",
+      "passed": true,
+      "durationMs": 593
+    },
+    {
+      "name": "test:v1-intake-history",
+      "passed": true,
+      "durationMs": 803
+    },
+    {
+      "name": "test:ai-markdown",
+      "passed": true,
+      "durationMs": 649
+    },
+    {
+      "name": "test:chat-preferences",
+      "passed": true,
+      "durationMs": 597
+    },
+    {
+      "name": "test:chat-split",
+      "passed": true,
+      "durationMs": 605
+    },
+    {
+      "name": "test:conversations",
+      "passed": true,
+      "durationMs": 749
+    },
+    {
+      "name": "test:event-period-context",
+      "passed": true,
+      "durationMs": 1546
+    },
+    {
+      "name": "test:event-year-context",
+      "passed": true,
+      "durationMs": 1260
+    },
+    {
+      "name": "test:natural-transit",
+      "passed": true,
+      "durationMs": 1540
+    },
+    {
+      "name": "test:ziwei-followup",
+      "passed": true,
+      "durationMs": 1249
+    },
+    {
+      "name": "test:context",
+      "passed": true,
+      "durationMs": 1027
+    },
+    {
+      "name": "test:transits",
+      "passed": true,
+      "durationMs": 1073
+    },
+    {
+      "name": "test:monthly-transits",
+      "passed": true,
+      "durationMs": 1146
+    },
+    {
+      "name": "test:monthly-transit-year",
+      "passed": true,
+      "durationMs": 1569
+    },
+    {
+      "name": "test:daily-transits",
+      "passed": true,
+      "durationMs": 1066
+    },
+    {
+      "name": "test:events",
+      "passed": true,
+      "durationMs": 1369
+    },
+    {
+      "name": "test:event-axis",
+      "passed": true,
+      "durationMs": 643
+    },
+    {
+      "name": "test:event-candidates",
+      "passed": true,
+      "durationMs": 1733
+    },
+    {
+      "name": "test:event-analyses",
+      "passed": true,
+      "durationMs": 1259
+    },
+    {
+      "name": "test:report-evidence",
+      "passed": true,
+      "durationMs": 594
+    },
+    {
+      "name": "test:report-facts",
+      "passed": true,
+      "durationMs": 999
+    },
+    {
+      "name": "test:reports",
+      "passed": true,
+      "durationMs": 1540
+    },
+    {
+      "name": "test:report-pdf",
+      "passed": true,
+      "durationMs": 1469
+    },
+    {
+      "name": "test:report-comparisons",
+      "passed": true,
+      "durationMs": 1131
+    },
+    {
+      "name": "test:report-revisions",
+      "passed": true,
+      "durationMs": 1115
+    },
+    {
+      "name": "test:heming-methodology",
+      "passed": true,
+      "durationMs": 592
+    },
+    {
+      "name": "test:heming-conversations",
+      "passed": true,
+      "durationMs": 716
+    },
+    {
+      "name": "test:heming-engine",
+      "passed": true,
+      "durationMs": 795
+    },
+    {
+      "name": "test:heming-context",
+      "passed": true,
+      "durationMs": 951
+    },
+    {
+      "name": "test:heming-reports",
+      "passed": true,
+      "durationMs": 1034
+    },
+    {
+      "name": "test:heming-transits",
+      "passed": true,
+      "durationMs": 1067
+    },
+    {
+      "name": "test:heming-stage",
+      "passed": true,
+      "durationMs": 1096
+    },
+    {
+      "name": "test:rectification-methodology",
+      "passed": true,
+      "durationMs": 675
+    },
+    {
+      "name": "test:rectification-sessions",
+      "passed": true,
+      "durationMs": 1078
+    },
+    {
+      "name": "test:rectification-events",
+      "passed": true,
+      "durationMs": 1525
+    },
+    {
+      "name": "test:rectification-evaluation",
+      "passed": true,
+      "durationMs": 1722
+    },
+    {
+      "name": "test:rectification-workbench",
+      "passed": true,
+      "durationMs": 1389
+    },
+    {
+      "name": "test:rectification-report",
+      "passed": true,
+      "durationMs": 1668
+    },
+    {
+      "name": "test:learning-foundation",
+      "passed": true,
+      "durationMs": 1195
+    },
+    {
+      "name": "test:learning-courses",
+      "passed": true,
+      "durationMs": 870
+    },
+    {
+      "name": "test:learning-practice",
+      "passed": true,
+      "durationMs": 1116
+    },
+    {
+      "name": "test:learning-open-practice",
+      "passed": true,
+      "durationMs": 1220
+    },
+    {
+      "name": "test:cases",
+      "passed": true,
+      "durationMs": 1282
+    },
+    {
+      "name": "test:case-search",
+      "passed": true,
+      "durationMs": 1310
+    },
+    {
+      "name": "test:case-comparisons",
+      "passed": true,
+      "durationMs": 1268
+    },
+    {
+      "name": "test:reminder-foundation",
+      "passed": true,
+      "durationMs": 1283
+    },
+    {
+      "name": "test:reminder-center",
+      "passed": true,
+      "durationMs": 1255
+    },
+    {
+      "name": "test:monthly-reviews",
+      "passed": true,
+      "durationMs": 1825
+    },
+    {
+      "name": "test:bazi-foundation",
+      "passed": true,
+      "durationMs": 974
+    },
+    {
+      "name": "test:bazi-persistence",
+      "passed": true,
+      "durationMs": 1490
+    },
+    {
+      "name": "test:bazi-conversations",
+      "passed": true,
+      "durationMs": 7513
+    },
+    {
+      "name": "test:bazi-interpretation",
+      "passed": true,
+      "durationMs": 3376
+    },
+    {
+      "name": "test:bazi-luck-cycles",
+      "passed": true,
+      "durationMs": 3466
+    },
+    {
+      "name": "test:bazi-timeline-selection",
+      "passed": true,
+      "durationMs": 1238
+    },
+    {
+      "name": "test:bazi-question-scope",
+      "passed": true,
+      "durationMs": 2795
+    },
+    {
+      "name": "test:bazi-annual-timeline",
+      "passed": true,
+      "durationMs": 2695
+    },
+    {
+      "name": "test:bazi-relation-audit",
+      "passed": true,
+      "durationMs": 2727
+    },
+    {
+      "name": "test:bazi-relation-adjudication",
+      "passed": true,
+      "durationMs": 2627
+    },
+    {
+      "name": "test:bazi-dynamic-ten-gods",
+      "passed": true,
+      "durationMs": 2604
+    },
+    {
+      "name": "test:bazi-ten-god-repeats",
+      "passed": true,
+      "durationMs": 2756
+    },
+    {
+      "name": "test:bazi-transparency-roots",
+      "passed": true,
+      "durationMs": 2718
+    },
+    {
+      "name": "test:bazi-hidden-stem-activations",
+      "passed": true,
+      "durationMs": 2914
+    },
+    {
+      "name": "test:bazi-strength-composites",
+      "passed": true,
+      "durationMs": 2978
+    },
+    {
+      "name": "test:bazi-pattern-conditions",
+      "passed": true,
+      "durationMs": 3019
+    },
+    {
+      "name": "test:bazi-month-day-timeline",
+      "passed": true,
+      "durationMs": 2644
+    },
+    {
+      "name": "test:bazi-month-day-relations",
+      "passed": true,
+      "durationMs": 2563
+    },
+    {
+      "name": "test:bazi-month-day-visibility",
+      "passed": true,
+      "durationMs": 2626
+    },
+    {
+      "name": "test:bazi-month-day-strength",
+      "passed": true,
+      "durationMs": 2571
+    },
+    {
+      "name": "test:bazi-month-day-patterns",
+      "passed": true,
+      "durationMs": 3298
+    },
+    {
+      "name": "test:chat-scroll",
+      "passed": true,
+      "durationMs": 537
+    },
+    {
+      "name": "test:chat-keyboard",
+      "passed": true,
+      "durationMs": 539
+    },
+    {
+      "name": "test:workspace-navigation",
+      "passed": true,
+      "durationMs": 547
+    },
+    {
+      "name": "test:chat-generation",
+      "passed": true,
+      "durationMs": 2894
+    },
+    {
+      "name": "test:backups",
+      "passed": true,
+      "durationMs": 1199
+    },
+    {
+      "name": "test:backup-lifecycle",
+      "passed": true,
+      "durationMs": 1301
+    },
+    {
+      "name": "test:encrypted-backups",
+      "passed": true,
+      "durationMs": 1452
+    },
+    {
+      "name": "test:chart-transfer",
+      "passed": true,
+      "durationMs": 1140
+    },
+    {
+      "name": "test:ziwei-birth",
+      "passed": true,
+      "durationMs": 564
+    }
+  ]
+}

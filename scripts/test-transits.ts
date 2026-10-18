@@ -1,3 +1,4 @@
+import { closeDatabaseConnection } from '../lib/db/client';
 import assert from 'node:assert/strict';
 import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -157,9 +158,7 @@ async function main() {
 }
 
 function getDatabaseSafeClose() {
-  const database = globalThis.__ziweiSqlite;
-  if (database?.open) database.close();
-  globalThis.__ziweiSqlite = undefined;
+  closeDatabaseConnection();
 }
 
 main().catch(error => {

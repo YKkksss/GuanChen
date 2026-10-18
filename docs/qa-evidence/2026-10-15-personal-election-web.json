@@ -1,0 +1,219 @@
+{
+  "completedAt": "2026-10-15T07:05:07.189Z",
+  "environment": "独立临时账号、SQLite数据库与生产构建，浏览器模拟用户操作",
+  "webChecks": 50,
+  "checks": [
+    "独立临时账号注册并登录",
+    "无八字时正确提示先保存命盘",
+    "当前账号八字列表刷新并选择指定版本",
+    "单人未知时辰不补造时柱",
+    "单人默认关系展示可筛选且保留黄历原状态",
+    "更换参与者清除旧预览",
+    "双方选择与同档案选项禁用",
+    "无人工五行时开启过滤正确阻止提交",
+    "人工五行必须填写依据",
+    "人工依据纯空格拒绝",
+    "人工偏好与谨慎五行互斥",
+    "双方人工条件分别满足且无交集不强行推荐",
+    "四项日时避冲按显式条件保存",
+    "无候选仍可查看全部日期与逐人原因",
+    "更改个人条件清除旧结果",
+    "日期对照最多三个，第四个阻止并提示",
+    "双日期并排对照展示个人依据",
+    "普通日时辰13段包含早晚子",
+    "时段同时展示日条件与时条件",
+    "晚子时保留公历日与次日日界说明",
+    "时辰共同候选筛选切换",
+    "三个时段上限，第四个不增加",
+    "取消时段与选择晚子时",
+    "网页保存双方八字条件、日期、晚子时段与备注",
+    "刷新后双方快照、日期时段与备注持久化",
+    "网页修改备注保留原个人快照",
+    "交节日按实际秒界切成14段并保留个人条件",
+    "源八字删除后历史方案与已选时段完整回看",
+    "删除来源后网页新增时段仍用原个人快照",
+    "复筛来源缺失明确要求重选且不降级普通择日",
+    "来源列表失败有提示且可重试恢复",
+    "方案接口禁止共享缓存",
+    "跨账号 GET /api/election/[planId] 返回404且不泄露来源",
+    "跨账号 PATCH /api/election/[planId] 返回404且不泄露来源",
+    "跨账号 DELETE /api/election/[planId] 返回404且不泄露来源",
+    "跨账号 POST /api/election/hours 返回404且不泄露来源",
+    "跨账号 POST /api/election/preview 返回404且不泄露来源",
+    "跨账号 POST /api/election/hours 返回404且不泄露来源",
+    "跨账号 POST /api/election 返回404且不泄露来源",
+    "其他账号来源列表没有甲的八字",
+    "其他账号网页看不到甲的方案与八字",
+    "匿名来源及个人时辰接口401",
+    "非同源写入403",
+    "客户端伪造个人快照400",
+    "更换不同档案清空前人的人工条件",
+    "关闭个人条件兼容普通黄历且不携带个人数据",
+    "普通方案保存与列表查找兼容",
+    "网页方案删除需确认且取消有效，确认后404",
+    "历史时辰故障可重试恢复且使用原快照",
+    "本轮网页验收AI调用为0"
+  ],
+  "layoutChecks": 24,
+  "layouts": [
+    {
+      "view": "saved",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "saved",
+      "width": 375,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "saved",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "saved",
+      "width": 768,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "saved",
+      "width": 1024,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "saved",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "hours",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "hours",
+      "width": 375,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "hours",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "hours",
+      "width": 768,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "hours",
+      "width": 1024,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "hours",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "compare",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "compare",
+      "width": 375,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "compare",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "compare",
+      "width": 768,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "compare",
+      "width": 1024,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "compare",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "settings",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "settings",
+      "width": 375,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "settings",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "settings",
+      "width": 768,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "settings",
+      "width": 1024,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "settings",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    }
+  ],
+  "aiCalls": 0,
+  "harnessNotes": [
+    "原生option使用attached等待而非visible",
+    "超限复选框用点击后检查未选，避免check期望成功",
+    "删除八字接口成功为204",
+    "失效来源提示已增加最近200版本范围",
+    "错误段落含重试按钮，调整文本定位"
+  ],
+  "screenshots": [
+    "2026-10-15-personal-election-saved-desktop.png",
+    "2026-10-15-personal-election-hours-320.png",
+    "2026-10-15-personal-election-hours-1440.png",
+    "2026-10-15-personal-election-settings-320.png",
+    "2026-10-15-personal-election-settings-1440.png"
+  ]
+}

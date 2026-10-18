@@ -1,0 +1,91 @@
+{
+  "module": "月令取用入口深化——透干与会支分流复核",
+  "completedAt": "2026-10-18T07:02:24.271Z",
+  "timezone": "Asia/Shanghai",
+  "passed": true,
+  "capability": {
+    "policy": "子平真诠用神变化与杂气取用·窄条目",
+    "features": [
+      "本气、他藏未透、单透、多透并列入口；日主同干仅参照",
+      "含月支完整三合、三会逐组建立会支入口，只指向五行",
+      "缺字、六合、月支六冲、天干五合、五行相克分别单列为待核条件",
+      "分日定位、会支缺字、阻碍并列与规则来源四视图",
+      "旧报告按实际字段回退v1至v6，未知入口层及依据同步撤回"
+    ],
+    "limits": [
+      "只校勘两个窄条目，不裁定合化、去留、优先级或解冲",
+      "不裁最终旺衰、格局成败或唯一喜忌",
+      "未运行axe、真实浏览器与真机验收"
+    ]
+  },
+  "versions": {
+    "factsMethodology": "bazi-reading-v6-month-intake-review",
+    "intakeLayer": "bazi-month-intake-v1-transparency-meeting-routes",
+    "intakePolicy": "ziping-zhenquan-useful-god-change-narrow",
+    "reportPrompt": "bazi-reading-report-v6-month-intake",
+    "chatPrompt": "bazi-chat-month-intake-v23",
+    "databaseSchema": 56,
+    "migrationAdded": false
+  },
+  "validation": {
+    "newAssertions": 2687,
+    "realMonthAndDayMasterCombinations": 120,
+    "completeMeetingGroups": 8,
+    "incompleteMeetingCases": 8,
+    "sixCombineCases": 6,
+    "monthClashCases": 6,
+    "stemCombineCases": 5,
+    "elementOppositionCases": 1,
+    "legacyAssertions": {
+      "monthCommand": 5283,
+      "reading": 305,
+      "natalEffects": 26656,
+      "methodReview": 4135,
+      "fineReading": 640
+    },
+    "allProjectSuites": {
+      "total": 104,
+      "passed": 104,
+      "runs": 1,
+      "failures": 0,
+      "summary": "docs/qa-evidence/2026-10-18-bazi-month-intake-regressions.json",
+      "originalSummary": "C:/Users/11474/AppData/Local/Temp/guanchen-v1-checks-YBFuzw/summary.json",
+      "completedAt": "2026-10-18T07:01:52.352Z"
+    },
+    "productionBuild": {
+      "passed": true,
+      "command": "next build",
+      "generatedStaticPages": 81
+    },
+    "finalTypecheck": {
+      "passed": true,
+      "command": "tsc --noEmit"
+    },
+    "webBrowser": "not_run_this_round",
+    "layout": "not_run_this_round",
+    "productionRead": "not_run_this_round",
+    "axe": "not_run"
+  },
+  "ai": {
+    "newSpecializedMockRequests": 2,
+    "realProviderRequests": 0,
+    "note": "仅本机模拟供应商；HTTP路由测试与被测代码在同一进程，未启动浏览器，不代表真实模型质量。"
+  },
+  "data": {
+    "independentSyntheticDataOnly": true,
+    "databaseVersion": 56,
+    "migrationAdded": false,
+    "savedChartsChanged": false,
+    "oldReportFactsRecalculated": false,
+    "agentReadRealCredentialFiles": false
+  },
+  "repairs": [
+    "首次类型检查发现入口输出检查器 related 的TS7022推断问题，补显式boolean后通过",
+    "新专项首次运行修正六合期望ID为实际分支数组比较，未弱化断言"
+  ],
+  "limitations": [
+    "原典节录以通行本为准，未声称唯一古法",
+    "未校勘五合去留、争合妒合与完整合化条件",
+    "未重新生成真实AI报告，未评价语义表达质量"
+  ]
+}

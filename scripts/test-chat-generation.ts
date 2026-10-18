@@ -1,3 +1,4 @@
+import { runAccountTest } from './account-test-session';
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 import { mkdtempSync, rmSync } from 'node:fs';
@@ -57,7 +58,7 @@ async function main() {
   const assistant = (response: Response) => db.getMessage(response.headers.get('X-Assistant-Message-Id')!)!;
 
   try {
-    assert.equal((client.getDatabase().prepare('SELECT MAX(version) AS version FROM schema_migrations').get() as { version: number }).version, 47);
+    assert.equal((client.getDatabase().prepare('SELECT MAX(version) AS version FROM schema_migrations').get() as { version: number }).version, 56);
     // 每个 UTF-8 字节独立到达，包含 CRLF 和末尾未换行的完成标记。
     const bytes = encoder.encode('data: {"delta":{"text":"紫微"}}\r\n\r\ndata: [DONE]');
     const events: string[] = [];
@@ -196,7 +197,7 @@ async function main() {
     assert.equal(db.getMessage(interrupted.id)?.status, 'failed');
     assert.equal(links.resolveRetryQuestion('ziwei', solo.id, interrupted.id).content, '分析原宫位');
     assert.equal(globalThis.__ziweiGenerations?.size, 0, '终态必须释放所有任务锁');
-    console.log('聊天生命周期验收通过：SQLite v47、流解析、首字前停止、部分保留、上游取消、断流失败、并发和幂等、重试隔离、草稿保持、八字输出审查、重启恢复。');
+    console.log('聊天生命周期验收通过：SQLite v56、流解析、首字前停止、部分保留、上游取消、断流失败、并发和幂等、重试隔离、草稿保持、八字输出审查、重启恢复。');
   } finally {
     globalThis.fetch = originalFetch;
     client.closeDatabaseConnection();
@@ -204,4 +205,4 @@ async function main() {
     rmSync(directory, { recursive: true, force: true });
   }
 }
-main().catch(error => { console.error(error); process.exitCode = 1; });
+runAccountTest(main).catch(error => { console.error(error); process.exitCode = 1; });

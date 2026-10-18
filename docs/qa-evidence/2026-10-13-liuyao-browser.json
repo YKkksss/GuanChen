@@ -1,0 +1,257 @@
+{
+  "验收日期": "2026-10-13 UTC+08:00",
+  "状态": "通过",
+  "数据": "独立临时账号与合成资料，AI使用本机模拟供应商",
+  "功能安全检查数量": 54,
+  "布局无障碍检查数量": 30,
+  "checks": [
+    "独立账号注册并由首页进入六爻纳甲",
+    "占问必填阻止空保存",
+    "静卦本变一致与上下爻方向",
+    "预览不存档且不调用AI",
+    "改变条件清除旧预览",
+    "六个动爻全部翻转并明确标记",
+    "缺亲伏神与所选用神候选一致",
+    "三钱未完成六次时禁止预览保存",
+    "逐次投掷六次并保留三枚正反面",
+    "三钱原始记录与四象装卦一致",
+    "重新投掷清空记录和旧预览",
+    "换日选择同步更新日辰旬空及六神",
+    "当前北京时间由服务器回填",
+    "四个动爻需之讼保存并保留备注",
+    "静爻之卦核对不冒充实际变出爻",
+    "可展开计算过程与原典来源",
+    "键盘切换视图且空消息禁止发送",
+    "快速问题只填草稿不自动发送",
+    "缺少randomUUID时仍可发送并保存回复",
+    "Markdown回复加粗与列表正常渲染",
+    "回复引用可展开对应本卦依据",
+    "刷新读取已保存对话不调用AI",
+    "失败保留原消息旧回复与草稿",
+    "重试另建回复且关联失败原消息",
+    "停止回复保留原消息与草稿",
+    "停止后的原消息可以重试完成",
+    "继续追问清空成功草稿且不改变本卦",
+    "后续回复不覆盖已停止轮次",
+    "37轮历史先按30轮展示",
+    "更早对话加载完整且没有重复",
+    "无匹配查询明确提示",
+    "占问内容可以作为搜索条件",
+    "名称HTML作为文本安全展示",
+    "移除确认可以取消",
+    "确认移除后占问不再出现",
+    "自己的占问可读取并禁用共享缓存",
+    "第二独立账号注册成功",
+    "第二账号列表不包含他人占问",
+    "跨账号读取拒绝且不暴露记录存在性",
+    "跨账号发问拒绝且不暴露记录存在性",
+    "跨账号停止拒绝且不暴露记录存在性",
+    "跨账号删除拒绝且不暴露记录存在性",
+    "匿名读取被拒绝",
+    "匿名发问被拒绝",
+    "匿名停止被拒绝",
+    "匿名删除被拒绝",
+    "跨站写入被同源保护拒绝",
+    "越权请求不改变原账号记录",
+    "列表故障提示并可重新加载",
+    "预览故障保留表单并可恢复",
+    "详情故障可恢复原卦象",
+    "不存在记录明确提示并可返回",
+    "生成中的占问可先停止上游再删除",
+    "迟到响应不能恢复已删除记录"
+  ],
+  "audits": [
+    {
+      "view": "home",
+      "width": 1440,
+      "scrollWidth": 1435,
+      "violations": []
+    },
+    {
+      "view": "home",
+      "width": 1024,
+      "scrollWidth": 1019,
+      "violations": []
+    },
+    {
+      "view": "home",
+      "width": 820,
+      "scrollWidth": 815,
+      "violations": []
+    },
+    {
+      "view": "home",
+      "width": 768,
+      "scrollWidth": 763,
+      "violations": []
+    },
+    {
+      "view": "home",
+      "width": 390,
+      "scrollWidth": 385,
+      "violations": []
+    },
+    {
+      "view": "home",
+      "width": 320,
+      "scrollWidth": 315,
+      "violations": []
+    },
+    {
+      "view": "coins",
+      "width": 1440,
+      "scrollWidth": 1435,
+      "violations": []
+    },
+    {
+      "view": "coins",
+      "width": 1024,
+      "scrollWidth": 1019,
+      "violations": []
+    },
+    {
+      "view": "coins",
+      "width": 820,
+      "scrollWidth": 815,
+      "violations": []
+    },
+    {
+      "view": "coins",
+      "width": 768,
+      "scrollWidth": 763,
+      "violations": []
+    },
+    {
+      "view": "coins",
+      "width": 390,
+      "scrollWidth": 385,
+      "violations": []
+    },
+    {
+      "view": "coins",
+      "width": 320,
+      "scrollWidth": 315,
+      "violations": []
+    },
+    {
+      "view": "preview",
+      "width": 1440,
+      "scrollWidth": 1435,
+      "violations": []
+    },
+    {
+      "view": "preview",
+      "width": 1024,
+      "scrollWidth": 1019,
+      "violations": []
+    },
+    {
+      "view": "preview",
+      "width": 820,
+      "scrollWidth": 815,
+      "violations": []
+    },
+    {
+      "view": "preview",
+      "width": 768,
+      "scrollWidth": 763,
+      "violations": []
+    },
+    {
+      "view": "preview",
+      "width": 390,
+      "scrollWidth": 385,
+      "violations": []
+    },
+    {
+      "view": "preview",
+      "width": 320,
+      "scrollWidth": 315,
+      "violations": []
+    },
+    {
+      "view": "facts",
+      "width": 1440,
+      "scrollWidth": 1435,
+      "violations": []
+    },
+    {
+      "view": "facts",
+      "width": 1024,
+      "scrollWidth": 1019,
+      "violations": []
+    },
+    {
+      "view": "facts",
+      "width": 820,
+      "scrollWidth": 815,
+      "violations": []
+    },
+    {
+      "view": "facts",
+      "width": 768,
+      "scrollWidth": 763,
+      "violations": []
+    },
+    {
+      "view": "facts",
+      "width": 390,
+      "scrollWidth": 385,
+      "violations": []
+    },
+    {
+      "view": "facts",
+      "width": 320,
+      "scrollWidth": 315,
+      "violations": []
+    },
+    {
+      "view": "chat",
+      "width": 1440,
+      "scrollWidth": 1435,
+      "violations": []
+    },
+    {
+      "view": "chat",
+      "width": 1024,
+      "scrollWidth": 1019,
+      "violations": []
+    },
+    {
+      "view": "chat",
+      "width": 820,
+      "scrollWidth": 815,
+      "violations": []
+    },
+    {
+      "view": "chat",
+      "width": 768,
+      "scrollWidth": 763,
+      "violations": []
+    },
+    {
+      "view": "chat",
+      "width": 390,
+      "scrollWidth": 385,
+      "violations": []
+    },
+    {
+      "view": "chat",
+      "width": 320,
+      "scrollWidth": 315,
+      "violations": []
+    }
+  ],
+  "errors": [],
+  "真实模型内容质量": "未核验，模拟供应商仅验收功能链路",
+  "真实移动设备": "未实机验收，已覆盖浏览器宽度模拟",
+  "screenshots": [
+    "2026-10-13-liuyao-home-desktop.png",
+    "2026-10-13-liuyao-home-mobile.png",
+    "2026-10-13-liuyao-coins-mobile.png",
+    "2026-10-13-liuyao-facts-desktop.png",
+    "2026-10-13-liuyao-facts-mobile.png",
+    "2026-10-13-liuyao-chat-desktop.png",
+    "2026-10-13-liuyao-chat-mobile.png"
+  ]
+}

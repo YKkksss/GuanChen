@@ -1,0 +1,255 @@
+{
+  "completedAt": "2026-10-15T07:42:33.462Z",
+  "environment": "独立临时账号、SQLite与生产构建；AI使用本机模拟供应商",
+  "webChecks": 50,
+  "checks": [
+    "使用独立临时账号和生产服务",
+    "未选择对象不自动取用或生成应期",
+    "文书模板映射父母",
+    "同类两现保留3、6爻且不生成混合应期",
+    "切换模板清空旧预览",
+    "非候选爻位400并展示明确错误",
+    "手动定位有效候选并生成该爻条件",
+    "月令与日辰分开展示且无总分",
+    "换对象清除原用神爻位",
+    "姤卦缺财自动定位二爻伏神且伏神不冒充发动",
+    "静卦不把整卦核对位置当实际变出爻",
+    "缺亲飞伏与月日条件可展开回看",
+    "预览未完成切换对象会取消，迟到响应不覆盖新表单",
+    "三钱六次完成后预览含新复核",
+    "自占只取本卦世爻且不指定其他同类",
+    "重新投掷清空复核",
+    "晚子显式换日同步日辰旬空和新复核",
+    "需之讼四个实际动爻才展示回头生克",
+    "展开元忌仇分类及应期地支依据",
+    "应期只展示条件与地支，不指定公历发生日",
+    "网页保存复核、原始起卦条件与明确世爻",
+    "刷新按保存时复核与依据完整回看",
+    "新版快捷提问发送并引用reading依据",
+    "模拟回复使用明确世爻定位与候选边界",
+    "Markdown标题正常渲染",
+    "回复依据展开为保存时的复核细节",
+    "新版复核对话停止后保留原问题",
+    "失败重试另建回复并保留已完成历史",
+    "刷新回看历史不调用模型且复核固定",
+    "旧记录页面明确固定快照且没有深化面板",
+    "旧记录API不补算reading或新依据",
+    "旧问答没有新快捷问并只引用旧依据",
+    "旧记录追问后原始快照保持不变",
+    "实际动爻进神支对网页展示",
+    "实际动爻退神支对网页展示",
+    "新复核接口private no-store禁止共享缓存",
+    "跨账号GET /api/liuyao/[id] 返回404不泄露复核",
+    "跨账号GET /api/liuyao/[legacyId] 返回404不泄露复核",
+    "跨账号POST /api/liuyao/[id]/messages 返回404不泄露复核",
+    "跨账号POST /api/liuyao/[id]/cancel 返回404不泄露复核",
+    "跨账号DELETE /api/liuyao/[id] 返回404不泄露复核",
+    "乙列表不包含甲的新旧占问",
+    "客户端伪造账号及复核被忽略，服务端按当前账号重算",
+    "乙网页仅显示自己的占问",
+    "匿名GET /api/liuyao/[id] 返回401",
+    "匿名POST /api/liuyao/preview 返回401",
+    "匿名POST /api/liuyao/[id]/messages 返回401",
+    "非同源写入403",
+    "原型键对象模板400",
+    "旧记录查找、取消删除与确认移除兼容"
+  ],
+  "layoutChecks": 30,
+  "layouts": [
+    {
+      "view": "home",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "home",
+      "width": 375,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "home",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "home",
+      "width": 768,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "home",
+      "width": 1024,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "home",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "preview",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "preview",
+      "width": 375,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "preview",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "preview",
+      "width": 768,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "preview",
+      "width": 1024,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "preview",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "facts",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "facts",
+      "width": 375,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "facts",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "facts",
+      "width": 768,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "facts",
+      "width": 1024,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "facts",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "chat",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "chat",
+      "width": 375,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "chat",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "chat",
+      "width": 768,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "chat",
+      "width": 1024,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "chat",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "legacy",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "legacy",
+      "width": 375,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "legacy",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "legacy",
+      "width": 768,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "legacy",
+      "width": 1024,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "legacy",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    }
+  ],
+  "ai": {
+    "mockRequests": 5,
+    "realProviderRequests": 0,
+    "newSnapshotRequests": 4,
+    "legacySnapshotRequests": 1,
+    "newAndLegacyPolicyMatched": true
+  },
+  "harnessNotes": [
+    "进退神文案也出现在折叠来源区，定位限定动变分区后复验通过"
+  ],
+  "screenshots": [
+    "2026-10-15-liuyao-reading-facts-320.png",
+    "2026-10-15-liuyao-reading-facts-1440.png",
+    "2026-10-15-liuyao-reading-chat-390.png"
+  ]
+}

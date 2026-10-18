@@ -1,3 +1,6 @@
+import { BAZI_CHAT_PROMPT_VERSION } from '../lib/db/bazi-conversations';
+import { runAccountTest } from './account-test-session';
+import { closeDatabaseConnection } from '../lib/db/client';
 import assert from 'node:assert/strict';
 import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -121,7 +124,7 @@ async function main() {
     }));
     const conversation = (await json<{ conversation: { id: string; monthDayTimelineVersionId: string; promptVersion: string } }>(conversationResponse)).conversation;
     assert.ok(conversation.monthDayTimelineVersionId);
-    assert.equal(conversation.promptVersion, 'bazi-chat-month-day-pattern-v17');
+    assert.equal(conversation.promptVersion, BAZI_CHAT_PROMPT_VERSION);
     const question = appendBaziMessage({
       conversationId: conversation.id,
       role: 'user',
@@ -143,14 +146,12 @@ async function main() {
 
     console.log('M9-14 流月流日时间轴测试通过：精确节界、晚子时换日、跨节跨运拆段、按年缓存、v36 持久化与上下文路由均正常。');
   } finally {
-    const database = globalThis.__ziweiSqlite;
-    if (database?.open) database.close();
-    globalThis.__ziweiSqlite = undefined;
+    closeDatabaseConnection();
     rmSync(tempDirectory, { recursive: true, force: true });
   }
 }
 
-main().catch(error => {
+runAccountTest(main).catch(error => {
   console.error(error);
   process.exitCode = 1;
 });

@@ -1,0 +1,43 @@
+{
+  "date": "2026-10-16",
+  "timezone": "UTC+08:00",
+  "module": "奇门占类取用与条件对照",
+  "implementation": "complete",
+  "databaseVersion": 56,
+  "migrationRequired": false,
+  "pushed": false,
+  "tests": {
+    "focusedAssertions": 63079,
+    "originalReadingAssertions": 297710,
+    "regressionPassed": 99,
+    "regressionTotal": 99,
+    "httpPassed": 75,
+    "webPassed": 30,
+    "webTotal": 30,
+    "layoutPassed": 16,
+    "layoutTotal": 16,
+    "productionBuild": true,
+    "typeScript": true,
+    "mockAiRequests": 8,
+    "realAiRequests": 0
+  },
+  "screenshots": [
+    "2026-10-16-qimen-scenarios-desktop.jpg",
+    "2026-10-16-qimen-scenarios-mobile.jpg"
+  ],
+  "limits": [
+    "只覆盖三个明确占类分支；完整格局效力、其他占类及精确应期未裁决",
+    "求财星自身五行与宫五行、其他场景宫五行分别核对",
+    "未运行axe；响应式模拟不替代真实设备",
+    "AI使用本机模拟供应商，未评价真实模型表达质量"
+  ],
+  "browserFallback": "Tabbit组件注册不可用，使用CUA Chrome完成实际网页验收，最终截图已核对",
+  "runtimeUrl": "http://localhost:30001/qimen",
+  "qaServicesStopped": true,
+  "evidence": [
+    "2026-10-16-qimen-scenarios-http.json",
+    "2026-10-16-qimen-scenarios-web.json",
+    "2026-10-16-qimen-scenarios-layout.json",
+    "2026-10-16-qimen-scenarios-regression.json"
+  ]
+}

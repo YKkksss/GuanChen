@@ -1,0 +1,2627 @@
+{
+  "reviewedAt": "2026-10-15 UTC+08:00",
+  "methodologyVersion": "bazi-reading-v2-monthly-conditional-review",
+  "note": "来源映射供复核；合论及月内条件不等于独立精细月断，无最终喜忌裁决",
+  "references": {
+    "甲:寅": {
+      "elements": [
+        "火",
+        "水"
+      ],
+      "stems": [
+        "丙",
+        "癸"
+      ],
+      "coreStems": [
+        "丙",
+        "癸"
+      ],
+      "rationale": "寅月先核对丙的温暖与癸的滋润，水火是否适当仍需结合原局。",
+      "section": "三春甲木 · 正月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三春甲木",
+      "basis": "month_paragraph",
+      "conditional": [],
+      "periodNote": null
+    },
+    "甲:卯": {
+      "elements": [
+        "金",
+        "火"
+      ],
+      "stems": [
+        "庚",
+        "丁"
+      ],
+      "coreStems": [
+        "庚",
+        "丁"
+      ],
+      "rationale": "卯月核对庚的制约及丁的泄秀路径，不把阳刃驾杀等名称直接判为成立。",
+      "section": "三春甲木 · 二月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三春甲木",
+      "basis": "month_paragraph",
+      "conditional": [],
+      "periodNote": null
+    },
+    "甲:辰": {
+      "elements": [
+        "金",
+        "水"
+      ],
+      "stems": [
+        "庚",
+        "壬"
+      ],
+      "coreStems": [
+        "庚",
+        "壬"
+      ],
+      "rationale": "辰月按先庚后壬的章节次序核对，土、水与火的位置另行复核。",
+      "section": "三春甲木 · 三月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三春甲木",
+      "basis": "month_paragraph",
+      "conditional": [],
+      "periodNote": null
+    },
+    "甲:巳": {
+      "elements": [
+        "水",
+        "火"
+      ],
+      "stems": [
+        "癸",
+        "丁"
+      ],
+      "coreStems": [
+        "癸",
+        "丁"
+      ],
+      "rationale": "巳月以癸的滋润、丁的配合作为入口，不把夏木机械等同缺水。",
+      "section": "三夏甲木 · 四月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三夏甲木",
+      "basis": "month_paragraph",
+      "conditional": [],
+      "periodNote": null
+    },
+    "甲:午": {
+      "elements": [
+        "水",
+        "火",
+        "金"
+      ],
+      "stems": [
+        "癸",
+        "丁",
+        "庚"
+      ],
+      "coreStems": [
+        "癸",
+        "丁",
+        "庚"
+      ],
+      "rationale": "午月先核对癸，丁与庚为后续配合；木盛、庚盛是不同支线。",
+      "section": "三夏甲木 · 五月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三夏甲木",
+      "basis": "month_paragraph",
+      "conditional": [],
+      "periodNote": null
+    },
+    "甲:未": {
+      "elements": [
+        "火",
+        "金"
+      ],
+      "stems": [
+        "丁",
+        "庚"
+      ],
+      "coreStems": [
+        "丁",
+        "庚"
+      ],
+      "rationale": "未月核对丁与庚，原文与午月先癸的叙述有别，不能整季套表。",
+      "section": "三夏甲木 · 六月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三夏甲木",
+      "basis": "month_paragraph",
+      "conditional": [],
+      "periodNote": null
+    },
+    "甲:申": {
+      "elements": [
+        "火",
+        "金"
+      ],
+      "stems": [
+        "丁",
+        "庚"
+      ],
+      "coreStems": [
+        "丁",
+        "庚"
+      ],
+      "rationale": "申月先丁后庚，核对火金配合，不因庚当令就认定实际效力。",
+      "section": "三秋甲木 · 七月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三秋甲木",
+      "basis": "month_paragraph",
+      "conditional": [],
+      "periodNote": null
+    },
+    "甲:酉": {
+      "elements": [
+        "火",
+        "金"
+      ],
+      "stems": [
+        "丁",
+        "丙",
+        "庚"
+      ],
+      "coreStems": [
+        "丁",
+        "丙",
+        "庚"
+      ],
+      "rationale": "酉月先丁、次丙、再庚；木局支线与一般路径分开。",
+      "section": "三秋甲木 · 八月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三秋甲木",
+      "basis": "month_paragraph",
+      "conditional": [],
+      "periodNote": null
+    },
+    "甲:戌": {
+      "elements": [
+        "火",
+        "水"
+      ],
+      "stems": [
+        "丁",
+        "癸",
+        "壬"
+      ],
+      "coreStems": [
+        "丁",
+        "癸"
+      ],
+      "rationale": "戌月核对丁与癸，章节另有壬水滋扶支线，不能把壬癸视为同一干。",
+      "section": "三秋甲木 · 九月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三秋甲木",
+      "basis": "month_paragraph",
+      "conditional": [
+        {
+          "stem": "壬",
+          "when": "water_present",
+          "detail": "原文并论壬癸滋扶，需复核水火及戊己条件。"
+        }
+      ],
+      "periodNote": null
+    },
+    "甲:亥": {
+      "elements": [
+        "金",
+        "火"
+      ],
+      "stems": [
+        "庚",
+        "丁",
+        "丙",
+        "戊"
+      ],
+      "coreStems": [
+        "庚",
+        "丁",
+        "丙"
+      ],
+      "rationale": "亥月以庚丁为入口，丙为温暖辅助。",
+      "section": "三冬甲木 · 十月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三冬甲木",
+      "basis": "month_paragraph",
+      "conditional": [
+        {
+          "stem": "戊",
+          "when": "water_present",
+          "detail": "水的原局位置只是制水支线入口，未证明水泛。"
+        }
+      ],
+      "periodNote": null
+    },
+    "甲:子": {
+      "elements": [
+        "火",
+        "金"
+      ],
+      "stems": [
+        "丁",
+        "庚",
+        "丙"
+      ],
+      "coreStems": [
+        "丁",
+        "庚",
+        "丙"
+      ],
+      "rationale": "子月先丁后庚，丙作辅助；水的状态和制水条件另核。",
+      "section": "三冬甲木 · 十一月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三冬甲木",
+      "basis": "month_paragraph",
+      "conditional": [],
+      "periodNote": null
+    },
+    "甲:丑": {
+      "elements": [
+        "金",
+        "火"
+      ],
+      "stems": [
+        "庚",
+        "丁"
+      ],
+      "coreStems": [
+        "庚",
+        "丁"
+      ],
+      "rationale": "丑月核对庚与丁的配合；章节先后次序不是原局中的力量排名。",
+      "section": "三冬甲木 · 十二月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三冬甲木",
+      "basis": "month_paragraph",
+      "conditional": [],
+      "periodNote": null
+    },
+    "乙:寅": {
+      "elements": [
+        "火",
+        "水"
+      ],
+      "stems": [
+        "丙",
+        "癸"
+      ],
+      "coreStems": [
+        "丙",
+        "癸"
+      ],
+      "rationale": "寅月丙先癸后，区分温暖与滋润，不能把癸多直接称为有利。",
+      "section": "三春乙木 · 正月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三春乙木",
+      "basis": "month_paragraph",
+      "conditional": [],
+      "periodNote": null
+    },
+    "乙:卯": {
+      "elements": [
+        "火",
+        "水"
+      ],
+      "stems": [
+        "丙",
+        "癸"
+      ],
+      "coreStems": [
+        "丙",
+        "癸"
+      ],
+      "rationale": "卯月丙癸配合，金木关系与水火位置分别复核。",
+      "section": "三春乙木 · 二月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三春乙木",
+      "basis": "month_paragraph",
+      "conditional": [],
+      "periodNote": null
+    },
+    "乙:辰": {
+      "elements": [
+        "水",
+        "火"
+      ],
+      "stems": [
+        "癸",
+        "丙"
+      ],
+      "coreStems": [
+        "癸",
+        "丙"
+      ],
+      "rationale": "辰月先癸后丙，区分月份转暖后的滋润条件。",
+      "section": "三春乙木 · 三月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三春乙木",
+      "basis": "month_paragraph",
+      "conditional": [],
+      "periodNote": null
+    },
+    "乙:巳": {
+      "elements": [
+        "水"
+      ],
+      "stems": [
+        "癸",
+        "辛",
+        "丙"
+      ],
+      "coreStems": [
+        "癸"
+      ],
+      "rationale": "巳月以癸为主要入口。",
+      "section": "三夏乙木 · 四月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三夏乙木",
+      "basis": "month_paragraph",
+      "conditional": [
+        {
+          "stem": "辛",
+          "when": "metal_present",
+          "detail": "辛及庚佐癸为生源支线，是否真正生助须另核。"
+        },
+        {
+          "stem": "丙",
+          "when": "fire_present",
+          "detail": "丙火属于酌用，不能与癸无条件并取。"
+        }
+      ],
+      "periodNote": null
+    },
+    "乙:午": {
+      "elements": [
+        "水",
+        "火"
+      ],
+      "stems": [
+        "癸",
+        "丙"
+      ],
+      "coreStems": [
+        "癸",
+        "丙"
+      ],
+      "rationale": "午月原文分上下半月及金水条件，本版保留两侧参考而不自动判司令。",
+      "section": "三夏乙木 · 五月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三夏乙木",
+      "basis": "period_conditional",
+      "conditional": [],
+      "periodNote": "上下半月与三伏等分段没有直接等同公历15日；本版不自动选择分支。"
+    },
+    "乙:未": {
+      "elements": [
+        "水",
+        "火"
+      ],
+      "stems": [
+        "癸",
+        "丙"
+      ],
+      "coreStems": [
+        "癸",
+        "丙"
+      ],
+      "rationale": "未月核对癸及金水条件下的丙，不按整季固定取一五行。",
+      "section": "三夏乙木 · 六月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三夏乙木",
+      "basis": "month_paragraph",
+      "conditional": [],
+      "periodNote": null
+    },
+    "乙:申": {
+      "elements": [
+        "土",
+        "火"
+      ],
+      "stems": [
+        "己",
+        "丙"
+      ],
+      "coreStems": [
+        "己",
+        "丙"
+      ],
+      "rationale": "申月原文重己并论丙，区分土的位置与金木承载，不以同元素代替指定干。",
+      "section": "三秋乙木 · 七月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三秋乙木",
+      "basis": "month_paragraph",
+      "conditional": [],
+      "periodNote": null
+    },
+    "乙:酉": {
+      "elements": [
+        "水",
+        "火"
+      ],
+      "stems": [
+        "癸",
+        "丙"
+      ],
+      "coreStems": [
+        "癸",
+        "丙"
+      ],
+      "rationale": "酉月原文区分白露后与秋分后，癸滋润、丙向阳分别保留。",
+      "section": "三秋乙木 · 八月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三秋乙木",
+      "basis": "period_conditional",
+      "conditional": [],
+      "periodNote": "需复核秋分前后及原局，本版不以整月标签替代月内条件。"
+    },
+    "乙:戌": {
+      "elements": [
+        "水",
+        "金"
+      ],
+      "stems": [
+        "癸",
+        "辛"
+      ],
+      "coreStems": [
+        "癸",
+        "辛"
+      ],
+      "rationale": "戌月以癸滋润，辛为生源配合；藤萝系甲仅为另一支线。",
+      "section": "三秋乙木 · 九月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三秋乙木",
+      "basis": "month_paragraph",
+      "conditional": [],
+      "periodNote": null
+    },
+    "乙:亥": {
+      "elements": [
+        "火",
+        "土"
+      ],
+      "stems": [
+        "丙",
+        "戊"
+      ],
+      "coreStems": [
+        "丙",
+        "戊"
+      ],
+      "rationale": "亥月先丙，戊用于制水支线，水势不能只按月份认定。",
+      "section": "三冬乙木 · 十月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三冬乙木",
+      "basis": "month_paragraph",
+      "conditional": [],
+      "periodNote": null
+    },
+    "乙:子": {
+      "elements": [
+        "火"
+      ],
+      "stems": [
+        "丙"
+      ],
+      "coreStems": [
+        "丙"
+      ],
+      "rationale": "子月核对丙的温暖，不把丁直接当作同等解冻条件。",
+      "section": "三冬乙木 · 十一月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三冬乙木",
+      "basis": "month_paragraph",
+      "conditional": [],
+      "periodNote": null
+    },
+    "乙:丑": {
+      "elements": [
+        "火"
+      ],
+      "stems": [
+        "丙"
+      ],
+      "coreStems": [
+        "丙"
+      ],
+      "rationale": "丑月使用三冬乙木的温暖合论，当前版本未单列完整丑月表。",
+      "section": "三冬乙木 · 合论（映射十二月）",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三冬乙木",
+      "basis": "shared_paragraph",
+      "conditional": [],
+      "periodNote": null
+    },
+    "丙:寅": {
+      "elements": [
+        "水",
+        "金"
+      ],
+      "stems": [
+        "壬",
+        "庚"
+      ],
+      "coreStems": [
+        "壬",
+        "庚"
+      ],
+      "rationale": "寅月壬为入口、庚为辅助，检查生源与水火配合。",
+      "section": "三春丙火 · 正月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三春丙火",
+      "basis": "month_paragraph",
+      "conditional": [],
+      "periodNote": null
+    },
+    "丙:卯": {
+      "elements": [
+        "水"
+      ],
+      "stems": [
+        "壬"
+      ],
+      "coreStems": [
+        "壬"
+      ],
+      "rationale": "卯月核对壬水，丁壬相合及戊己等条件不得省略。",
+      "section": "三春丙火 · 二月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三春丙火",
+      "basis": "month_paragraph",
+      "conditional": [],
+      "periodNote": null
+    },
+    "丙:辰": {
+      "elements": [
+        "水"
+      ],
+      "stems": [
+        "壬",
+        "甲"
+      ],
+      "coreStems": [
+        "壬"
+      ],
+      "rationale": "辰月核对壬，土局支线另看甲。",
+      "section": "三春丙火 · 三月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三春丙火",
+      "basis": "month_paragraph",
+      "conditional": [
+        {
+          "stem": "甲",
+          "when": "earth_present",
+          "detail": "甲疏土属于土的条件支线，见土不等于土局成立。"
+        }
+      ],
+      "periodNote": null
+    },
+    "丙:巳": {
+      "elements": [
+        "水",
+        "金"
+      ],
+      "stems": [
+        "壬",
+        "庚"
+      ],
+      "coreStems": [
+        "壬",
+        "庚"
+      ],
+      "rationale": "巳月壬与庚配合，记录实际透藏与受制条件。",
+      "section": "三夏丙火 · 四月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三夏丙火",
+      "basis": "month_paragraph",
+      "conditional": [],
+      "periodNote": null
+    },
+    "丙:午": {
+      "elements": [
+        "水",
+        "金"
+      ],
+      "stems": [
+        "壬",
+        "庚"
+      ],
+      "coreStems": [
+        "壬",
+        "庚"
+      ],
+      "rationale": "午月核对壬及庚的生源，丁壬相合、土制水须单列风险。",
+      "section": "三夏丙火 · 五月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三夏丙火",
+      "basis": "month_paragraph",
+      "conditional": [],
+      "periodNote": null
+    },
+    "丙:未": {
+      "elements": [
+        "水",
+        "金"
+      ],
+      "stems": [
+        "壬",
+        "庚"
+      ],
+      "coreStems": [
+        "壬",
+        "庚"
+      ],
+      "rationale": "未月壬为入口、庚为辅，不凭三伏叙述认定实测气温。",
+      "section": "三夏丙火 · 六月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三夏丙火",
+      "basis": "month_paragraph",
+      "conditional": [],
+      "periodNote": null
+    },
+    "丙:申": {
+      "elements": [
+        "水"
+      ],
+      "stems": [
+        "壬"
+      ],
+      "coreStems": [
+        "壬"
+      ],
+      "rationale": "申月按章节核对壬，不因秋火一般原则自动改成木火用神。",
+      "section": "三秋丙火 · 七月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三秋丙火",
+      "basis": "month_paragraph",
+      "conditional": [],
+      "periodNote": null
+    },
+    "丙:酉": {
+      "elements": [
+        "水"
+      ],
+      "stems": [
+        "壬"
+      ],
+      "coreStems": [
+        "壬"
+      ],
+      "rationale": "酉月仍核对壬的配合，不能将四时概括覆盖具体日干月令。",
+      "section": "三秋丙火 · 八月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三秋丙火",
+      "basis": "month_paragraph",
+      "conditional": [],
+      "periodNote": null
+    },
+    "丙:戌": {
+      "elements": [
+        "木",
+        "水"
+      ],
+      "stems": [
+        "甲",
+        "壬",
+        "癸"
+      ],
+      "coreStems": [
+        "甲",
+        "壬"
+      ],
+      "rationale": "戌月先甲后壬，原文允许癸为替代支线，但不是壬癸等效。",
+      "section": "三秋丙火 · 九月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三秋丙火",
+      "basis": "month_paragraph",
+      "conditional": [
+        {
+          "stem": "癸",
+          "when": "water_present",
+          "detail": "无壬时的替代条件应独立复核，不自动替换。"
+        }
+      ],
+      "periodNote": null
+    },
+    "丙:亥": {
+      "elements": [
+        "木",
+        "土",
+        "金"
+      ],
+      "stems": [
+        "甲",
+        "戊",
+        "庚"
+      ],
+      "coreStems": [
+        "甲",
+        "戊",
+        "庚"
+      ],
+      "rationale": "亥月采用本版本甲戊庚的段落入口，区别于其他月份壬水主线。",
+      "section": "三冬丙火 · 十月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三冬丙火",
+      "basis": "month_paragraph",
+      "conditional": [],
+      "periodNote": null
+    },
+    "丙:子": {
+      "elements": [
+        "水",
+        "土"
+      ],
+      "stems": [
+        "壬",
+        "戊"
+      ],
+      "coreStems": [
+        "壬",
+        "戊"
+      ],
+      "rationale": "子月以壬与戊的配合作为入口，不直接判定强弱。",
+      "section": "三冬丙火 · 十一月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三冬丙火",
+      "basis": "month_paragraph",
+      "conditional": [],
+      "periodNote": null
+    },
+    "丙:丑": {
+      "elements": [
+        "水"
+      ],
+      "stems": [
+        "壬",
+        "甲"
+      ],
+      "coreStems": [
+        "壬"
+      ],
+      "rationale": "丑月核对壬，土多支线另看甲。",
+      "section": "三冬丙火 · 十二月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三冬丙火",
+      "basis": "month_paragraph",
+      "conditional": [
+        {
+          "stem": "甲",
+          "when": "earth_present",
+          "detail": "甲的疏土配合需复核土的结构，不能因丑为土支便定土多。"
+        }
+      ],
+      "periodNote": null
+    },
+    "丁:寅": {
+      "elements": [
+        "金",
+        "木"
+      ],
+      "stems": [
+        "庚",
+        "甲"
+      ],
+      "coreStems": [
+        "庚",
+        "甲"
+      ],
+      "rationale": "寅月先核对庚与甲的引火配合，不能把春火一般水方向直接当具体用神。",
+      "section": "三春丁火 · 正月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三春丁火",
+      "basis": "month_paragraph",
+      "conditional": [],
+      "periodNote": null
+    },
+    "丁:卯": {
+      "elements": [
+        "金",
+        "木"
+      ],
+      "stems": [
+        "庚",
+        "甲"
+      ],
+      "coreStems": [
+        "庚",
+        "甲"
+      ],
+      "rationale": "卯月先庚后甲，湿乙与引丁的条件分开核对。",
+      "section": "三春丁火 · 二月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三春丁火",
+      "basis": "month_paragraph",
+      "conditional": [],
+      "periodNote": null
+    },
+    "丁:辰": {
+      "elements": [
+        "木",
+        "金"
+      ],
+      "stems": [
+        "甲",
+        "庚"
+      ],
+      "coreStems": [
+        "甲",
+        "庚"
+      ],
+      "rationale": "辰月先甲后庚，以引火、制土条件复核。",
+      "section": "三春丁火 · 三月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三春丁火",
+      "basis": "month_paragraph",
+      "conditional": [],
+      "periodNote": null
+    },
+    "丁:巳": {
+      "elements": [
+        "木",
+        "金"
+      ],
+      "stems": [
+        "甲",
+        "庚"
+      ],
+      "coreStems": [
+        "甲",
+        "庚"
+      ],
+      "rationale": "巳月甲庚配合，甲多与火局为不同条件支线。",
+      "section": "三夏丁火 · 四月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三夏丁火",
+      "basis": "month_paragraph",
+      "conditional": [],
+      "periodNote": null
+    },
+    "丁:午": {
+      "elements": [
+        "水",
+        "金"
+      ],
+      "stems": [
+        "壬",
+        "庚",
+        "甲"
+      ],
+      "coreStems": [
+        "壬",
+        "庚"
+      ],
+      "rationale": "午月重点核对壬及庚；无火局、有水时另看甲庚，不机械套用其他月份甲木主线。",
+      "section": "三夏丁火 · 五月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三夏丁火",
+      "basis": "month_paragraph",
+      "conditional": [
+        {
+          "stem": "甲",
+          "when": "water_present",
+          "detail": "无火局而水透时的甲庚支线需要人工核对合局。"
+        }
+      ],
+      "periodNote": null
+    },
+    "丁:未": {
+      "elements": [
+        "木",
+        "水"
+      ],
+      "stems": [
+        "甲",
+        "壬",
+        "庚"
+      ],
+      "coreStems": [
+        "甲",
+        "壬"
+      ],
+      "rationale": "未月先甲，壬为配合；原文另要求核对庚，不能忽略湿木条件。",
+      "section": "三夏丁火 · 六月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三夏丁火",
+      "basis": "month_paragraph",
+      "conditional": [
+        {
+          "stem": "庚",
+          "when": "wood_present",
+          "detail": "庚甲关系为复核入口，不判真实劈甲引火。"
+        }
+      ],
+      "periodNote": null
+    },
+    "丁:申": {
+      "elements": [
+        "木",
+        "火",
+        "金"
+      ],
+      "stems": [
+        "甲",
+        "丙",
+        "庚"
+      ],
+      "coreStems": [
+        "甲",
+        "丙",
+        "庚"
+      ],
+      "rationale": "申月原文并论甲丙及申中庚，透藏角色分开记录。",
+      "section": "三秋丁火 · 七月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三秋丁火",
+      "basis": "month_paragraph",
+      "conditional": [],
+      "periodNote": null
+    },
+    "丁:酉": {
+      "elements": [
+        "木",
+        "火",
+        "金"
+      ],
+      "stems": [
+        "甲",
+        "丙",
+        "庚"
+      ],
+      "coreStems": [
+        "甲",
+        "丙",
+        "庚"
+      ],
+      "rationale": "酉月甲丙庚并论，从财支线不能仅由金多触发。",
+      "section": "三秋丁火 · 八月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三秋丁火",
+      "basis": "month_paragraph",
+      "conditional": [],
+      "periodNote": null
+    },
+    "丁:戌": {
+      "elements": [
+        "木",
+        "金"
+      ],
+      "stems": [
+        "甲",
+        "庚"
+      ],
+      "coreStems": [
+        "甲",
+        "庚"
+      ],
+      "rationale": "戌月依三秋分月段取甲庚，戊土泄火与甲的关系另核。",
+      "section": "三秋丁火 · 九月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三秋丁火",
+      "basis": "month_paragraph",
+      "conditional": [],
+      "periodNote": null
+    },
+    "丁:亥": {
+      "elements": [
+        "木",
+        "金"
+      ],
+      "stems": [
+        "甲",
+        "庚"
+      ],
+      "coreStems": [
+        "甲",
+        "庚"
+      ],
+      "rationale": "亥月采用三冬甲庚合论，制丙与争合属于条件支线。",
+      "section": "三冬丁火 · 合论（映射十月）",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三冬丁火",
+      "basis": "shared_paragraph",
+      "conditional": [],
+      "periodNote": null
+    },
+    "丁:子": {
+      "elements": [
+        "木",
+        "金"
+      ],
+      "stems": [
+        "甲",
+        "庚"
+      ],
+      "coreStems": [
+        "甲",
+        "庚"
+      ],
+      "rationale": "子月采用三冬甲庚合论，水旺而无比印的从杀支线仅列复核。",
+      "section": "三冬丁火 · 合论（映射十一月）",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三冬丁火",
+      "basis": "shared_paragraph",
+      "conditional": [],
+      "periodNote": null
+    },
+    "丁:丑": {
+      "elements": [
+        "木",
+        "金"
+      ],
+      "stems": [
+        "甲",
+        "庚"
+      ],
+      "coreStems": [
+        "甲",
+        "庚"
+      ],
+      "rationale": "丑月采用三冬甲庚合论，不把合论伪装成独立月断。",
+      "section": "三冬丁火 · 合论（映射十二月）",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三冬丁火",
+      "basis": "shared_paragraph",
+      "conditional": [],
+      "periodNote": null
+    },
+    "戊:寅": {
+      "elements": [
+        "火",
+        "木",
+        "水"
+      ],
+      "stems": [
+        "丙",
+        "甲",
+        "癸"
+      ],
+      "coreStems": [
+        "丙",
+        "甲",
+        "癸"
+      ],
+      "rationale": "寅月依正二月合论先丙后甲，再看癸，分别核对暖、疏、润。",
+      "section": "三春戊土 · 合论（映射正月）",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三春戊土",
+      "basis": "shared_paragraph",
+      "conditional": [],
+      "periodNote": null
+    },
+    "戊:卯": {
+      "elements": [
+        "火",
+        "木",
+        "水"
+      ],
+      "stems": [
+        "丙",
+        "甲",
+        "癸"
+      ],
+      "coreStems": [
+        "丙",
+        "甲",
+        "癸"
+      ],
+      "rationale": "卯月依正二月合论先丙后甲，再看癸，不能以月令旺衰替代全部条件。",
+      "section": "三春戊土 · 合论（映射二月）",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三春戊土",
+      "basis": "shared_paragraph",
+      "conditional": [],
+      "periodNote": null
+    },
+    "戊:辰": {
+      "elements": [
+        "木",
+        "火",
+        "水"
+      ],
+      "stems": [
+        "甲",
+        "丙",
+        "癸"
+      ],
+      "coreStems": [
+        "甲",
+        "丙",
+        "癸"
+      ],
+      "rationale": "辰月甲先丙后，癸再参；与寅卯次序不同。",
+      "section": "三春戊土 · 三月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三春戊土",
+      "basis": "month_paragraph",
+      "conditional": [],
+      "periodNote": null
+    },
+    "戊:巳": {
+      "elements": [
+        "木",
+        "火",
+        "水"
+      ],
+      "stems": [
+        "甲",
+        "丙",
+        "癸"
+      ],
+      "coreStems": [
+        "甲",
+        "丙",
+        "癸"
+      ],
+      "rationale": "巳月先甲，丙癸为佐，不按夏土一般原则只给水。",
+      "section": "三夏戊土 · 四月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三夏戊土",
+      "basis": "month_paragraph",
+      "conditional": [],
+      "periodNote": null
+    },
+    "戊:午": {
+      "elements": [
+        "水",
+        "木"
+      ],
+      "stems": [
+        "壬",
+        "甲"
+      ],
+      "coreStems": [
+        "壬",
+        "甲"
+      ],
+      "rationale": "午月先壬后甲，丙酌用，不能以癸直接等同壬。",
+      "section": "三夏戊土 · 五月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三夏戊土",
+      "basis": "month_paragraph",
+      "conditional": [],
+      "periodNote": null
+    },
+    "戊:未": {
+      "elements": [
+        "水",
+        "火",
+        "木"
+      ],
+      "stems": [
+        "癸",
+        "丙",
+        "甲"
+      ],
+      "coreStems": [
+        "癸",
+        "丙",
+        "甲"
+      ],
+      "rationale": "未月先癸，次丙甲，保留火土与滋润的协调问题。",
+      "section": "三夏戊土 · 六月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三夏戊土",
+      "basis": "month_paragraph",
+      "conditional": [],
+      "periodNote": null
+    },
+    "戊:申": {
+      "elements": [
+        "火",
+        "水",
+        "木"
+      ],
+      "stems": [
+        "丙",
+        "癸",
+        "甲"
+      ],
+      "coreStems": [
+        "丙",
+        "癸",
+        "甲"
+      ],
+      "rationale": "申月先丙后癸，甲再参，核对温润与疏通的不同目的。",
+      "section": "三秋戊土 · 七月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三秋戊土",
+      "basis": "month_paragraph",
+      "conditional": [],
+      "periodNote": null
+    },
+    "戊:酉": {
+      "elements": [
+        "火",
+        "水"
+      ],
+      "stems": [
+        "丙",
+        "癸"
+      ],
+      "coreStems": [
+        "丙",
+        "癸"
+      ],
+      "rationale": "酉月丙癸配合，原文不要求无条件再加木疏。",
+      "section": "三秋戊土 · 八月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三秋戊土",
+      "basis": "month_paragraph",
+      "conditional": [],
+      "periodNote": null
+    },
+    "戊:戌": {
+      "elements": [
+        "木",
+        "水"
+      ],
+      "stems": [
+        "甲",
+        "癸",
+        "丙"
+      ],
+      "coreStems": [
+        "甲",
+        "癸"
+      ],
+      "rationale": "戌月先甲后癸，见金等支线可能改变次序，须另核。",
+      "section": "三秋戊土 · 九月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三秋戊土",
+      "basis": "month_paragraph",
+      "conditional": [
+        {
+          "stem": "丙",
+          "when": "metal_present",
+          "detail": "见金先癸后丙是条件支线，不能按固定表自动替代主线。"
+        }
+      ],
+      "periodNote": null
+    },
+    "戊:亥": {
+      "elements": [
+        "木",
+        "火"
+      ],
+      "stems": [
+        "甲",
+        "丙"
+      ],
+      "coreStems": [
+        "甲",
+        "丙"
+      ],
+      "rationale": "亥月先甲后丙，疏土与温暖分开核对。",
+      "section": "三冬戊土 · 十月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三冬戊土",
+      "basis": "month_paragraph",
+      "conditional": [],
+      "periodNote": null
+    },
+    "戊:子": {
+      "elements": [
+        "火",
+        "木"
+      ],
+      "stems": [
+        "丙",
+        "甲"
+      ],
+      "coreStems": [
+        "丙",
+        "甲"
+      ],
+      "rationale": "子月采用十一二月合论，丙为入口、甲为佐。",
+      "section": "三冬戊土 · 合论（映射十一月）",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三冬戊土",
+      "basis": "shared_paragraph",
+      "conditional": [],
+      "periodNote": null
+    },
+    "戊:丑": {
+      "elements": [
+        "火",
+        "木"
+      ],
+      "stems": [
+        "丙",
+        "甲"
+      ],
+      "coreStems": [
+        "丙",
+        "甲"
+      ],
+      "rationale": "丑月采用十一二月合论，丙为入口、甲为佐。",
+      "section": "三冬戊土 · 合论（映射十二月）",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三冬戊土",
+      "basis": "shared_paragraph",
+      "conditional": [],
+      "periodNote": null
+    },
+    "己:寅": {
+      "elements": [
+        "火"
+      ],
+      "stems": [
+        "丙",
+        "戊"
+      ],
+      "coreStems": [
+        "丙"
+      ],
+      "rationale": "寅月以丙为入口。",
+      "section": "三春己土 · 正月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三春己土",
+      "basis": "month_paragraph",
+      "conditional": [
+        {
+          "stem": "戊",
+          "when": "water_present",
+          "detail": "壬水条件下戊作堤是复核支线，水多与否仍未裁定。"
+        }
+      ],
+      "periodNote": null
+    },
+    "己:卯": {
+      "elements": [
+        "木",
+        "水"
+      ],
+      "stems": [
+        "甲",
+        "癸",
+        "丙"
+      ],
+      "coreStems": [
+        "甲",
+        "癸"
+      ],
+      "rationale": "卯月先甲后癸，甲己相合须复核，不把甲出现视作疏土已经有效。",
+      "section": "三春己土 · 二月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三春己土",
+      "basis": "month_paragraph",
+      "conditional": [
+        {
+          "stem": "丙",
+          "when": "fire_present",
+          "detail": "丙为原文补充配合，不与主线自动合并。"
+        }
+      ],
+      "periodNote": null
+    },
+    "己:辰": {
+      "elements": [
+        "火",
+        "水"
+      ],
+      "stems": [
+        "丙",
+        "癸",
+        "甲"
+      ],
+      "coreStems": [
+        "丙",
+        "癸"
+      ],
+      "rationale": "辰月先丙后癸，甲疏为条件参考。",
+      "section": "三春己土 · 三月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三春己土",
+      "basis": "month_paragraph",
+      "conditional": [
+        {
+          "stem": "甲",
+          "when": "earth_present",
+          "detail": "土的原局结构需要疏通时再核对甲。"
+        }
+      ],
+      "periodNote": null
+    },
+    "己:巳": {
+      "elements": [
+        "水",
+        "火"
+      ],
+      "stems": [
+        "癸",
+        "丙"
+      ],
+      "coreStems": [
+        "癸",
+        "丙"
+      ],
+      "rationale": "巳月采用三夏己土合论，先癸后丙，保留戊癸合等条件。",
+      "section": "三夏己土 · 合论（映射四月）",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三夏己土",
+      "basis": "shared_paragraph",
+      "conditional": [],
+      "periodNote": null
+    },
+    "己:午": {
+      "elements": [
+        "水",
+        "火"
+      ],
+      "stems": [
+        "癸",
+        "丙"
+      ],
+      "coreStems": [
+        "癸",
+        "丙"
+      ],
+      "rationale": "午月采用三夏己土合论，不能因太阳已旺便删除原文丙的配合。",
+      "section": "三夏己土 · 合论（映射五月）",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三夏己土",
+      "basis": "shared_paragraph",
+      "conditional": [],
+      "periodNote": null
+    },
+    "己:未": {
+      "elements": [
+        "水",
+        "火"
+      ],
+      "stems": [
+        "癸",
+        "丙"
+      ],
+      "coreStems": [
+        "癸",
+        "丙"
+      ],
+      "rationale": "未月采用三夏己土合论，辛生癸及壬替代支线需独立复核。",
+      "section": "三夏己土 · 合论（映射六月）",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三夏己土",
+      "basis": "shared_paragraph",
+      "conditional": [],
+      "periodNote": null
+    },
+    "己:申": {
+      "elements": [
+        "水",
+        "火",
+        "金"
+      ],
+      "stems": [
+        "癸",
+        "丙",
+        "辛"
+      ],
+      "coreStems": [
+        "癸",
+        "丙",
+        "辛"
+      ],
+      "rationale": "申月采用三秋己土先癸后丙、辛辅癸合论。",
+      "section": "三秋己土 · 合论（映射七月）",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三秋己土",
+      "basis": "shared_paragraph",
+      "conditional": [],
+      "periodNote": null
+    },
+    "己:酉": {
+      "elements": [
+        "水",
+        "火",
+        "金"
+      ],
+      "stems": [
+        "癸",
+        "丙",
+        "辛"
+      ],
+      "coreStems": [
+        "癸",
+        "丙",
+        "辛"
+      ],
+      "rationale": "酉月采用三秋己土合论，金局的丙丁条件另核。",
+      "section": "三秋己土 · 合论（映射八月）",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三秋己土",
+      "basis": "shared_paragraph",
+      "conditional": [],
+      "periodNote": null
+    },
+    "己:戌": {
+      "elements": [
+        "木",
+        "水",
+        "火",
+        "金"
+      ],
+      "stems": [
+        "甲",
+        "癸",
+        "丙",
+        "辛"
+      ],
+      "coreStems": [
+        "甲",
+        "癸",
+        "丙",
+        "辛"
+      ],
+      "rationale": "戌月保留甲疏土的月段及三秋温润合论，不认定四干同时为最终用神。",
+      "section": "三秋己土 · 九月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三秋己土",
+      "basis": "month_paragraph",
+      "conditional": [],
+      "periodNote": null
+    },
+    "己:亥": {
+      "elements": [
+        "火"
+      ],
+      "stems": [
+        "丙",
+        "戊",
+        "甲"
+      ],
+      "coreStems": [
+        "丙"
+      ],
+      "rationale": "亥月以三冬温暖合论为主。",
+      "section": "三冬己土 · 合论（映射十月）",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三冬己土",
+      "basis": "shared_paragraph",
+      "conditional": [
+        {
+          "stem": "戊",
+          "when": "water_present",
+          "detail": "仅初冬壬水支线参戊，不能全冬无条件加戊。"
+        },
+        {
+          "stem": "甲",
+          "when": "earth_present",
+          "detail": "甲木参酌，是否需要疏土需核对。"
+        }
+      ],
+      "periodNote": null
+    },
+    "己:子": {
+      "elements": [
+        "火"
+      ],
+      "stems": [
+        "丙",
+        "甲"
+      ],
+      "coreStems": [
+        "丙"
+      ],
+      "rationale": "子月采用三冬己土合论，以丙为主要入口。",
+      "section": "三冬己土 · 合论（映射十一月）",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三冬己土",
+      "basis": "shared_paragraph",
+      "conditional": [
+        {
+          "stem": "甲",
+          "when": "earth_present",
+          "detail": "甲木属于参酌支线。"
+        }
+      ],
+      "periodNote": null
+    },
+    "己:丑": {
+      "elements": [
+        "火"
+      ],
+      "stems": [
+        "丙",
+        "甲"
+      ],
+      "coreStems": [
+        "丙"
+      ],
+      "rationale": "丑月采用三冬己土合论，以丙为主要入口。",
+      "section": "三冬己土 · 合论（映射十二月）",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三冬己土",
+      "basis": "shared_paragraph",
+      "conditional": [
+        {
+          "stem": "甲",
+          "when": "earth_present",
+          "detail": "甲木属于参酌支线。"
+        }
+      ],
+      "periodNote": null
+    },
+    "庚:寅": {
+      "elements": [
+        "火"
+      ],
+      "stems": [
+        "丙",
+        "甲"
+      ],
+      "coreStems": [
+        "丙"
+      ],
+      "rationale": "寅月先丙暖金。",
+      "section": "三春庚金 · 正月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三春庚金",
+      "basis": "month_paragraph",
+      "conditional": [
+        {
+          "stem": "甲",
+          "when": "earth_present",
+          "detail": "甲疏土为土厚支线，当前只能检查土的位置，不自动判土厚。"
+        }
+      ],
+      "periodNote": null
+    },
+    "庚:卯": {
+      "elements": [
+        "火",
+        "木"
+      ],
+      "stems": [
+        "丁",
+        "甲"
+      ],
+      "coreStems": [
+        "丁",
+        "甲"
+      ],
+      "rationale": "卯月丁为入口、甲引丁，丙替代支线另核。",
+      "section": "三春庚金 · 二月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三春庚金",
+      "basis": "month_paragraph",
+      "conditional": [],
+      "periodNote": null
+    },
+    "庚:辰": {
+      "elements": [
+        "木",
+        "火"
+      ],
+      "stems": [
+        "甲",
+        "丁"
+      ],
+      "coreStems": [
+        "甲",
+        "丁"
+      ],
+      "rationale": "辰月先甲后丁，疏土与炼金分开，不无条件再取庚劈甲。",
+      "section": "三春庚金 · 三月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三春庚金",
+      "basis": "month_paragraph",
+      "conditional": [],
+      "periodNote": null
+    },
+    "庚:巳": {
+      "elements": [
+        "水",
+        "土",
+        "火"
+      ],
+      "stems": [
+        "壬",
+        "戊",
+        "丙"
+      ],
+      "coreStems": [
+        "壬",
+        "戊",
+        "丙"
+      ],
+      "rationale": "巳月壬戊丙并参，原文强调按条件酌用，不拘执固定先后。",
+      "section": "三夏庚金 · 四月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三夏庚金",
+      "basis": "month_paragraph",
+      "conditional": [],
+      "periodNote": null
+    },
+    "庚:午": {
+      "elements": [
+        "水"
+      ],
+      "stems": [
+        "壬",
+        "癸"
+      ],
+      "coreStems": [
+        "壬",
+        "癸"
+      ],
+      "rationale": "午月壬为入口、癸为次参，戊己制水须核对。",
+      "section": "三夏庚金 · 五月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三夏庚金",
+      "basis": "month_paragraph",
+      "conditional": [],
+      "periodNote": null
+    },
+    "庚:未": {
+      "elements": [
+        "火",
+        "木"
+      ],
+      "stems": [
+        "丁",
+        "甲"
+      ],
+      "coreStems": [
+        "丁",
+        "甲"
+      ],
+      "rationale": "未月先丁后甲，癸与丁的关系作为待核。",
+      "section": "三夏庚金 · 六月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三夏庚金",
+      "basis": "month_paragraph",
+      "conditional": [],
+      "periodNote": null
+    },
+    "庚:申": {
+      "elements": [
+        "火",
+        "木"
+      ],
+      "stems": [
+        "丁",
+        "甲"
+      ],
+      "coreStems": [
+        "丁",
+        "甲"
+      ],
+      "rationale": "申月先丁后甲，水局、土局为另行复核支线。",
+      "section": "三秋庚金 · 七月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三秋庚金",
+      "basis": "month_paragraph",
+      "conditional": [],
+      "periodNote": null
+    },
+    "庚:酉": {
+      "elements": [
+        "火",
+        "木"
+      ],
+      "stems": [
+        "丁",
+        "甲",
+        "丙"
+      ],
+      "coreStems": [
+        "丁",
+        "甲",
+        "丙"
+      ],
+      "rationale": "酉月丁甲并论并参丙，不凭标签直接判羊刃驾杀成立。",
+      "section": "三秋庚金 · 八月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三秋庚金",
+      "basis": "month_paragraph",
+      "conditional": [],
+      "periodNote": null
+    },
+    "庚:戌": {
+      "elements": [
+        "木",
+        "水"
+      ],
+      "stems": [
+        "甲",
+        "壬"
+      ],
+      "coreStems": [
+        "甲",
+        "壬"
+      ],
+      "rationale": "戌月先甲疏土、后壬洗金，己土与壬关系须核对。",
+      "section": "三秋庚金 · 九月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三秋庚金",
+      "basis": "month_paragraph",
+      "conditional": [],
+      "periodNote": null
+    },
+    "庚:亥": {
+      "elements": [
+        "火",
+        "木"
+      ],
+      "stems": [
+        "丁",
+        "丙",
+        "甲"
+      ],
+      "coreStems": [
+        "丁",
+        "丙",
+        "甲"
+      ],
+      "rationale": "亥月区分丁炼、丙暖与甲引火，三者作用不可混为同一火数量。",
+      "section": "三冬庚金 · 十月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三冬庚金",
+      "basis": "month_paragraph",
+      "conditional": [],
+      "periodNote": null
+    },
+    "庚:子": {
+      "elements": [
+        "火",
+        "木"
+      ],
+      "stems": [
+        "丁",
+        "甲",
+        "丙"
+      ],
+      "coreStems": [
+        "丁",
+        "甲",
+        "丙"
+      ],
+      "rationale": "子月先丁甲，再看丙的温暖配合。",
+      "section": "三冬庚金 · 十一月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三冬庚金",
+      "basis": "month_paragraph",
+      "conditional": [],
+      "periodNote": null
+    },
+    "庚:丑": {
+      "elements": [
+        "火",
+        "木"
+      ],
+      "stems": [
+        "丙",
+        "丁",
+        "甲"
+      ],
+      "coreStems": [
+        "丙",
+        "丁",
+        "甲"
+      ],
+      "rationale": "丑月先丙后丁，甲亦为配合，区别于子月的次序。",
+      "section": "三冬庚金 · 十二月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三冬庚金",
+      "basis": "month_paragraph",
+      "conditional": [],
+      "periodNote": null
+    },
+    "辛:寅": {
+      "elements": [
+        "土",
+        "水",
+        "金"
+      ],
+      "stems": [
+        "己",
+        "壬",
+        "庚"
+      ],
+      "coreStems": [
+        "己",
+        "壬",
+        "庚"
+      ],
+      "rationale": "寅月先己后壬，庚作制甲辅助，保留有条件的丙火支线。",
+      "section": "三春辛金 · 正月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三春辛金",
+      "basis": "month_paragraph",
+      "conditional": [],
+      "periodNote": null
+    },
+    "辛:卯": {
+      "elements": [
+        "水"
+      ],
+      "stems": [
+        "壬",
+        "甲"
+      ],
+      "coreStems": [
+        "壬"
+      ],
+      "rationale": "卯月壬为主要入口。",
+      "section": "三春辛金 · 二月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三春辛金",
+      "basis": "month_paragraph",
+      "conditional": [
+        {
+          "stem": "甲",
+          "when": "earth_present",
+          "detail": "原文见戊己才核对甲制土，无土不能机械加甲。"
+        }
+      ],
+      "periodNote": null
+    },
+    "辛:辰": {
+      "elements": [
+        "水",
+        "木"
+      ],
+      "stems": [
+        "壬",
+        "甲"
+      ],
+      "coreStems": [
+        "壬",
+        "甲"
+      ],
+      "rationale": "辰月先壬后甲，辛与丙相合、土对水的条件分别记录。",
+      "section": "三春辛金 · 三月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三春辛金",
+      "basis": "month_paragraph",
+      "conditional": [],
+      "periodNote": null
+    },
+    "辛:巳": {
+      "elements": [
+        "水"
+      ],
+      "stems": [
+        "壬",
+        "甲",
+        "癸"
+      ],
+      "coreStems": [
+        "壬"
+      ],
+      "rationale": "巳月核对壬水。",
+      "section": "三夏辛金 · 四月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三夏辛金",
+      "basis": "month_paragraph",
+      "conditional": [
+        {
+          "stem": "甲",
+          "when": "earth_present",
+          "detail": "木制戊属条件入口。"
+        },
+        {
+          "stem": "癸",
+          "when": "water_present",
+          "detail": "癸为替代参考，不能称作与壬效力相同。"
+        }
+      ],
+      "periodNote": null
+    },
+    "辛:午": {
+      "elements": [
+        "土",
+        "水"
+      ],
+      "stems": [
+        "己",
+        "壬",
+        "癸"
+      ],
+      "coreStems": [
+        "己",
+        "壬"
+      ],
+      "rationale": "午月己壬兼用，癸为替代支线；火局需要单列待核。",
+      "section": "三夏辛金 · 五月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三夏辛金",
+      "basis": "month_paragraph",
+      "conditional": [
+        {
+          "stem": "癸",
+          "when": "water_present",
+          "detail": "原文无壬时参癸，替代条件不自动判为成立。"
+        }
+      ],
+      "periodNote": null
+    },
+    "辛:未": {
+      "elements": [
+        "水",
+        "金"
+      ],
+      "stems": [
+        "壬",
+        "庚",
+        "甲"
+      ],
+      "coreStems": [
+        "壬",
+        "庚"
+      ],
+      "rationale": "未月先壬，庚佐；土多与未中一己是不同条件。",
+      "section": "三夏辛金 · 六月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三夏辛金",
+      "basis": "month_paragraph",
+      "conditional": [
+        {
+          "stem": "甲",
+          "when": "earth_present",
+          "detail": "甲制戊须同时复核甲己合及土的实际结构，不能只见土便用甲。"
+        }
+      ],
+      "periodNote": null
+    },
+    "辛:申": {
+      "elements": [
+        "水"
+      ],
+      "stems": [
+        "壬",
+        "甲",
+        "戊"
+      ],
+      "coreStems": [
+        "壬"
+      ],
+      "rationale": "申月壬为主要入口，甲戊按土水条件参用。",
+      "section": "三秋辛金 · 七月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三秋辛金",
+      "basis": "month_paragraph",
+      "conditional": [
+        {
+          "stem": "甲",
+          "when": "earth_present",
+          "detail": "有土才复核疏通。"
+        },
+        {
+          "stem": "戊",
+          "when": "water_present",
+          "detail": "水的原局结构是否需要堤防仍待核。"
+        }
+      ],
+      "periodNote": null
+    },
+    "辛:酉": {
+      "elements": [
+        "水"
+      ],
+      "stems": [
+        "壬",
+        "甲"
+      ],
+      "coreStems": [
+        "壬"
+      ],
+      "rationale": "酉月以壬为入口。",
+      "section": "三秋辛金 · 八月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三秋辛金",
+      "basis": "month_paragraph",
+      "conditional": [
+        {
+          "stem": "甲",
+          "when": "earth_present",
+          "detail": "仅见戊己等土条件时复核甲，不能不见土也固定加甲。"
+        }
+      ],
+      "periodNote": null
+    },
+    "辛:戌": {
+      "elements": [
+        "水",
+        "木"
+      ],
+      "stems": [
+        "壬",
+        "甲"
+      ],
+      "coreStems": [
+        "壬",
+        "甲"
+      ],
+      "rationale": "戌月先壬后甲，疏土及流通入口分开。",
+      "section": "三秋辛金 · 九月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三秋辛金",
+      "basis": "month_paragraph",
+      "conditional": [],
+      "periodNote": null
+    },
+    "辛:亥": {
+      "elements": [
+        "水",
+        "火"
+      ],
+      "stems": [
+        "壬",
+        "丙"
+      ],
+      "coreStems": [
+        "壬",
+        "丙"
+      ],
+      "rationale": "亥月先壬后丙，温暖与水的配合不能由金白水清名称代替。",
+      "section": "三冬辛金 · 十月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三冬辛金",
+      "basis": "month_paragraph",
+      "conditional": [],
+      "periodNote": null
+    },
+    "辛:子": {
+      "elements": [
+        "水",
+        "火"
+      ],
+      "stems": [
+        "壬",
+        "丙"
+      ],
+      "coreStems": [
+        "壬",
+        "丙"
+      ],
+      "rationale": "子月壬丙并论，癸及戊的支线需复核。",
+      "section": "三冬辛金 · 十一月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三冬辛金",
+      "basis": "month_paragraph",
+      "conditional": [],
+      "periodNote": null
+    },
+    "辛:丑": {
+      "elements": [
+        "火",
+        "水"
+      ],
+      "stems": [
+        "丙",
+        "壬"
+      ],
+      "coreStems": [
+        "丙",
+        "壬"
+      ],
+      "rationale": "丑月丙先壬后，戊己属于次参，不当作普遍喜土。",
+      "section": "三冬辛金 · 十二月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三冬辛金",
+      "basis": "month_paragraph",
+      "conditional": [],
+      "periodNote": null
+    },
+    "壬:寅": {
+      "elements": [
+        "金",
+        "火"
+      ],
+      "stems": [
+        "庚",
+        "丙",
+        "戊"
+      ],
+      "coreStems": [
+        "庚",
+        "丙"
+      ],
+      "rationale": "寅月庚为生源、丙为佐，戊须有比刃等支线条件。",
+      "section": "三春壬水 · 正月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三春壬水",
+      "basis": "month_paragraph",
+      "conditional": [
+        {
+          "stem": "戊",
+          "when": "water_present",
+          "detail": "是否需要制水依比刃、印星与原局结构复核。"
+        }
+      ],
+      "periodNote": null
+    },
+    "壬:卯": {
+      "elements": [
+        "土",
+        "金"
+      ],
+      "stems": [
+        "戊",
+        "辛",
+        "庚"
+      ],
+      "coreStems": [
+        "戊",
+        "辛",
+        "庚"
+      ],
+      "rationale": "卯月先戊后辛，庚为次参，不沿用初春丙暖主线。",
+      "section": "三春壬水 · 二月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三春壬水",
+      "basis": "month_paragraph",
+      "conditional": [],
+      "periodNote": null
+    },
+    "壬:辰": {
+      "elements": [
+        "木",
+        "金"
+      ],
+      "stems": [
+        "甲",
+        "庚"
+      ],
+      "coreStems": [
+        "甲",
+        "庚"
+      ],
+      "rationale": "辰月先甲后庚，区别疏土与发源。",
+      "section": "三春壬水 · 三月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三春壬水",
+      "basis": "month_paragraph",
+      "conditional": [],
+      "periodNote": null
+    },
+    "壬:巳": {
+      "elements": [
+        "水",
+        "金"
+      ],
+      "stems": [
+        "壬",
+        "辛",
+        "庚"
+      ],
+      "coreStems": [
+        "壬",
+        "辛",
+        "庚"
+      ],
+      "rationale": "巳月先核对非日干位置的壬比肩，辛及庚为生源；日干自身不算比助已齐。",
+      "section": "三夏壬水 · 四月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三夏壬水",
+      "basis": "month_paragraph",
+      "conditional": [],
+      "periodNote": null
+    },
+    "壬:午": {
+      "elements": [
+        "水",
+        "金"
+      ],
+      "stems": [
+        "癸",
+        "庚",
+        "辛"
+      ],
+      "coreStems": [
+        "癸",
+        "庚",
+        "辛"
+      ],
+      "rationale": "午月癸为入口、庚为佐，辛癸的替代配合另核。",
+      "section": "三夏壬水 · 五月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三夏壬水",
+      "basis": "month_paragraph",
+      "conditional": [],
+      "periodNote": null
+    },
+    "壬:未": {
+      "elements": [
+        "金",
+        "木",
+        "水"
+      ],
+      "stems": [
+        "辛",
+        "甲",
+        "癸"
+      ],
+      "coreStems": [
+        "辛",
+        "甲",
+        "癸"
+      ],
+      "rationale": "未月保留先辛后甲、次癸及辛癸并论，不据列表次序定力量高低。",
+      "section": "三夏壬水 · 六月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三夏壬水",
+      "basis": "month_paragraph",
+      "conditional": [],
+      "periodNote": null
+    },
+    "壬:申": {
+      "elements": [
+        "土",
+        "火"
+      ],
+      "stems": [
+        "戊",
+        "丁"
+      ],
+      "coreStems": [
+        "戊",
+        "丁"
+      ],
+      "rationale": "申月先戊后丁，戊来自何支及戊癸合分别复核。",
+      "section": "三秋壬水 · 七月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三秋壬水",
+      "basis": "month_paragraph",
+      "conditional": [],
+      "periodNote": null
+    },
+    "壬:酉": {
+      "elements": [
+        "木",
+        "金"
+      ],
+      "stems": [
+        "甲",
+        "庚"
+      ],
+      "coreStems": [
+        "甲",
+        "庚"
+      ],
+      "rationale": "酉月以甲为入口、庚次参，甲制戊支线需看到具体土位置。",
+      "section": "三秋壬水 · 八月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三秋壬水",
+      "basis": "month_paragraph",
+      "conditional": [],
+      "periodNote": null
+    },
+    "壬:戌": {
+      "elements": [
+        "木",
+        "火"
+      ],
+      "stems": [
+        "甲",
+        "丙"
+      ],
+      "coreStems": [
+        "甲",
+        "丙"
+      ],
+      "rationale": "戌月甲为入口、丙为次参，水土结构的条件仍需保留。",
+      "section": "三秋壬水 · 九月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三秋壬水",
+      "basis": "month_paragraph",
+      "conditional": [],
+      "periodNote": null
+    },
+    "壬:亥": {
+      "elements": [
+        "土",
+        "火",
+        "金"
+      ],
+      "stems": [
+        "戊",
+        "丙",
+        "庚"
+      ],
+      "coreStems": [
+        "戊",
+        "丙",
+        "庚"
+      ],
+      "rationale": "亥月戊丙并用、庚次参，不直接判作旺极。",
+      "section": "三冬壬水 · 十月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三冬壬水",
+      "basis": "month_paragraph",
+      "conditional": [],
+      "periodNote": null
+    },
+    "壬:子": {
+      "elements": [
+        "土",
+        "火"
+      ],
+      "stems": [
+        "戊",
+        "丙"
+      ],
+      "coreStems": [
+        "戊",
+        "丙"
+      ],
+      "rationale": "子月戊丙并用，阳刃和堤防只作为条件入口。",
+      "section": "三冬壬水 · 十一月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三冬壬水",
+      "basis": "month_paragraph",
+      "conditional": [],
+      "periodNote": null
+    },
+    "壬:丑": {
+      "elements": [
+        "火",
+        "木"
+      ],
+      "stems": [
+        "丙",
+        "甲"
+      ],
+      "coreStems": [
+        "丙",
+        "甲"
+      ],
+      "rationale": "丑月原文分上下半月，丙为主，甲佐为支线。",
+      "section": "三冬壬水 · 十二月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三冬壬水",
+      "basis": "period_conditional",
+      "conditional": [],
+      "periodNote": "司令分日未启用；不以公历半月机械判定旺衰分支。"
+    },
+    "癸:寅": {
+      "elements": [
+        "金",
+        "火"
+      ],
+      "stems": [
+        "辛",
+        "丙",
+        "庚"
+      ],
+      "coreStems": [
+        "辛",
+        "丙",
+        "庚"
+      ],
+      "rationale": "寅月先辛、丙暖、庚为次参，生源与温暖分别核对。",
+      "section": "三春癸水 · 正月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三春癸水",
+      "basis": "month_paragraph",
+      "conditional": [],
+      "periodNote": null
+    },
+    "癸:卯": {
+      "elements": [
+        "金"
+      ],
+      "stems": [
+        "庚",
+        "辛"
+      ],
+      "coreStems": [
+        "庚",
+        "辛"
+      ],
+      "rationale": "卯月庚为入口、辛为次参，丁及金水位置须核对。",
+      "section": "三春癸水 · 二月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三春癸水",
+      "basis": "month_paragraph",
+      "conditional": [],
+      "periodNote": null
+    },
+    "癸:辰": {
+      "elements": [
+        "火",
+        "金",
+        "木"
+      ],
+      "stems": [
+        "丙",
+        "辛",
+        "甲"
+      ],
+      "coreStems": [
+        "丙",
+        "辛",
+        "甲"
+      ],
+      "rationale": "辰月原文区分清明、谷雨后，丙为主，辛甲为后段参用。",
+      "section": "三春癸水 · 三月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三春癸水",
+      "basis": "period_conditional",
+      "conditional": [],
+      "periodNote": "清明谷雨前后需要复核，本版不把整月三个天干都当无条件取用。"
+    },
+    "癸:巳": {
+      "elements": [
+        "金"
+      ],
+      "stems": [
+        "辛",
+        "庚"
+      ],
+      "coreStems": [
+        "辛",
+        "庚"
+      ],
+      "rationale": "巳月辛为主、庚为替代参考，丁及壬的制化支线另核。",
+      "section": "三夏癸水 · 四月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三夏癸水",
+      "basis": "month_paragraph",
+      "conditional": [],
+      "periodNote": null
+    },
+    "癸:午": {
+      "elements": [
+        "金",
+        "水"
+      ],
+      "stems": [
+        "庚",
+        "辛",
+        "壬"
+      ],
+      "coreStems": [
+        "庚",
+        "辛",
+        "壬"
+      ],
+      "rationale": "午月庚辛壬参酌并用，不仅看金出现，还需核对比助与火的结构。",
+      "section": "三夏癸水 · 五月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三夏癸水",
+      "basis": "month_paragraph",
+      "conditional": [],
+      "periodNote": null
+    },
+    "癸:未": {
+      "elements": [
+        "金",
+        "水"
+      ],
+      "stems": [
+        "庚",
+        "辛",
+        "壬"
+      ],
+      "coreStems": [
+        "庚",
+        "辛",
+        "壬"
+      ],
+      "rationale": "未月原文分上下半月与比劫条件，参照庚辛及比助。",
+      "section": "三夏癸水 · 六月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三夏癸水",
+      "basis": "period_conditional",
+      "conditional": [],
+      "periodNote": "上半月金弱需比助、下半月金有气等为原文条件，本版不自动判人元司令。"
+    },
+    "癸:申": {
+      "elements": [
+        "火",
+        "木"
+      ],
+      "stems": [
+        "丁",
+        "甲"
+      ],
+      "coreStems": [
+        "丁",
+        "甲"
+      ],
+      "rationale": "申月丁制金、甲引丁为入口，不能因为是水日主便机械加金水。",
+      "section": "三秋癸水 · 七月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三秋癸水",
+      "basis": "month_paragraph",
+      "conditional": [],
+      "periodNote": null
+    },
+    "癸:酉": {
+      "elements": [
+        "金",
+        "火"
+      ],
+      "stems": [
+        "辛",
+        "丙"
+      ],
+      "coreStems": [
+        "辛",
+        "丙"
+      ],
+      "rationale": "酉月辛丙并用，核对透干间隔与水土条件。",
+      "section": "三秋癸水 · 八月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三秋癸水",
+      "basis": "month_paragraph",
+      "conditional": [],
+      "periodNote": null
+    },
+    "癸:戌": {
+      "elements": [
+        "金",
+        "木",
+        "水"
+      ],
+      "stems": [
+        "辛",
+        "甲",
+        "癸"
+      ],
+      "coreStems": [
+        "辛",
+        "甲",
+        "癸"
+      ],
+      "rationale": "戌月辛甲并参，非日干位置的癸比助须另核，日干不重复充当候选。",
+      "section": "三秋癸水 · 九月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三秋癸水",
+      "basis": "month_paragraph",
+      "conditional": [],
+      "periodNote": null
+    },
+    "癸:亥": {
+      "elements": [
+        "金"
+      ],
+      "stems": [
+        "庚",
+        "辛"
+      ],
+      "coreStems": [
+        "庚",
+        "辛"
+      ],
+      "rationale": "亥月按本版本生源入口核对，水局、木局及火的支线另核。",
+      "section": "三冬癸水 · 十月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三冬癸水",
+      "basis": "month_paragraph",
+      "conditional": [],
+      "periodNote": null
+    },
+    "癸:子": {
+      "elements": [
+        "火",
+        "金"
+      ],
+      "stems": [
+        "丙",
+        "辛"
+      ],
+      "coreStems": [
+        "丙",
+        "辛"
+      ],
+      "rationale": "子月丙解冻、辛滋扶，明确区别冬季一般火土概括。",
+      "section": "三冬癸水 · 十一月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三冬癸水",
+      "basis": "month_paragraph",
+      "conditional": [],
+      "periodNote": null
+    },
+    "癸:丑": {
+      "elements": [
+        "火"
+      ],
+      "stems": [
+        "丙",
+        "壬"
+      ],
+      "coreStems": [
+        "丙"
+      ],
+      "rationale": "丑月以丙温暖为主。",
+      "section": "三冬癸水 · 十二月",
+      "sourceUrl": "https://zh.wikisource.org/zh-hans/穷通宝鉴#三冬癸水",
+      "basis": "month_paragraph",
+      "conditional": [
+        {
+          "stem": "壬",
+          "when": "earth_present",
+          "detail": "壬出且支中多戊的原文支线需要多重条件，不因出现土便认定成立。"
+        }
+      ],
+      "periodNote": null
+    }
+  }
+}

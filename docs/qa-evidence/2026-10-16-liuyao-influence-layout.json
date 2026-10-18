@@ -1,0 +1,189 @@
+{
+  "date": "2026-10-16",
+  "timezone": "UTC+08:00",
+  "method": "CUA真实浏览器viewport；逐视图确认tabpanel可见及aria-selected；展开首条details；检查文档scrollWidth与main内可见元素边界。",
+  "passed": 16,
+  "total": 16,
+  "checks": [
+    {
+      "view": "候选对照",
+      "requestedWidth": 320,
+      "detailsExpanded": true,
+      "selected": true,
+      "clientWidth": 315,
+      "overflows": [],
+      "scrollWidth": 315,
+      "width": 320,
+      "passed": true
+    },
+    {
+      "view": "作用路径",
+      "requestedWidth": 320,
+      "detailsExpanded": true,
+      "selected": true,
+      "clientWidth": 315,
+      "overflows": [],
+      "scrollWidth": 315,
+      "width": 320,
+      "passed": true
+    },
+    {
+      "view": "共同发动",
+      "requestedWidth": 320,
+      "detailsExpanded": true,
+      "selected": true,
+      "clientWidth": 315,
+      "overflows": [],
+      "scrollWidth": 315,
+      "width": 320,
+      "passed": true
+    },
+    {
+      "view": "规则来源",
+      "requestedWidth": 320,
+      "detailsExpanded": true,
+      "selected": true,
+      "clientWidth": 315,
+      "overflows": [],
+      "scrollWidth": 315,
+      "width": 320,
+      "passed": true
+    },
+    {
+      "view": "候选对照",
+      "requestedWidth": 390,
+      "detailsExpanded": true,
+      "selected": true,
+      "clientWidth": 385,
+      "overflows": [],
+      "scrollWidth": 385,
+      "width": 390,
+      "passed": true
+    },
+    {
+      "view": "作用路径",
+      "requestedWidth": 390,
+      "detailsExpanded": true,
+      "selected": true,
+      "clientWidth": 385,
+      "overflows": [],
+      "scrollWidth": 385,
+      "width": 390,
+      "passed": true
+    },
+    {
+      "view": "共同发动",
+      "requestedWidth": 390,
+      "detailsExpanded": true,
+      "selected": true,
+      "clientWidth": 385,
+      "overflows": [],
+      "scrollWidth": 385,
+      "width": 390,
+      "passed": true
+    },
+    {
+      "view": "规则来源",
+      "requestedWidth": 390,
+      "detailsExpanded": true,
+      "selected": true,
+      "clientWidth": 385,
+      "overflows": [],
+      "scrollWidth": 385,
+      "width": 390,
+      "passed": true
+    },
+    {
+      "view": "候选对照",
+      "requestedWidth": 768,
+      "detailsExpanded": true,
+      "selected": true,
+      "clientWidth": 763,
+      "overflows": [],
+      "scrollWidth": 763,
+      "width": 768,
+      "passed": true
+    },
+    {
+      "view": "作用路径",
+      "requestedWidth": 768,
+      "detailsExpanded": true,
+      "selected": true,
+      "clientWidth": 763,
+      "overflows": [],
+      "scrollWidth": 763,
+      "width": 768,
+      "passed": true
+    },
+    {
+      "view": "共同发动",
+      "requestedWidth": 768,
+      "detailsExpanded": true,
+      "selected": true,
+      "clientWidth": 763,
+      "overflows": [],
+      "scrollWidth": 763,
+      "width": 768,
+      "passed": true
+    },
+    {
+      "view": "规则来源",
+      "requestedWidth": 768,
+      "detailsExpanded": true,
+      "selected": true,
+      "clientWidth": 763,
+      "overflows": [],
+      "scrollWidth": 763,
+      "width": 768,
+      "passed": true
+    },
+    {
+      "view": "候选对照",
+      "requestedWidth": 1280,
+      "detailsExpanded": true,
+      "selected": true,
+      "clientWidth": 1275,
+      "overflows": [],
+      "scrollWidth": 1275,
+      "width": 1280,
+      "passed": true
+    },
+    {
+      "view": "作用路径",
+      "requestedWidth": 1280,
+      "detailsExpanded": true,
+      "selected": true,
+      "clientWidth": 1275,
+      "overflows": [],
+      "scrollWidth": 1275,
+      "width": 1280,
+      "passed": true
+    },
+    {
+      "view": "共同发动",
+      "requestedWidth": 1280,
+      "detailsExpanded": true,
+      "selected": true,
+      "clientWidth": 1275,
+      "overflows": [],
+      "scrollWidth": 1275,
+      "width": 1280,
+      "passed": true
+    },
+    {
+      "view": "规则来源",
+      "requestedWidth": 1280,
+      "detailsExpanded": true,
+      "selected": true,
+      "clientWidth": 1275,
+      "overflows": [],
+      "scrollWidth": 1275,
+      "width": 1280,
+      "passed": true
+    }
+  ],
+  "limitations": [
+    "响应式模拟不替代真实手机验收。",
+    "未运行axe。"
+  ]
+}

@@ -1,0 +1,232 @@
+{
+  "验收日期": "2026-10-13 UTC+08:00",
+  "状态": "通过",
+  "数据": "独立临时账号与合成资料，AI使用本机模拟供应商",
+  "功能安全检查数量": 40,
+  "布局无障碍检查数量": 30,
+  "checks": [
+    "独立账号注册及首页奇门入口",
+    "空占问阻止保存",
+    "古例自动阳九下元预览",
+    "预览不保存也不调用AI",
+    "九宫数量与中五详情",
+    "方向键及Home/End选宫",
+    "改变条件清除旧预览",
+    "手动阴八核对与自动参考",
+    "午夜子初日时同步",
+    "服务器当前时间回填",
+    "保存后自动口径去掉手动字段",
+    "固定盘值符值使七宫",
+    "备注按纯文本展示",
+    "宫位追问只填草稿",
+    "带入保留草稿及真实换行",
+    "含尾部空白的2000字草稿不被覆盖",
+    "空消息禁用与快捷追问",
+    "缺randomUUID兼容发送",
+    "Markdown加粗与列表渲染",
+    "回复依据展开",
+    "刷新不重复AI",
+    "失败保留问题草稿及旧回复",
+    "失败重试另存完成轮",
+    "停止保留原问题",
+    "停止后重试且迟到回复不复活",
+    "聊天不改变固定盘面",
+    "三十轮分页与加载更早三十六轮不遗漏",
+    "私有响应不缓存",
+    "匿名接口401",
+    "另一账号列表隔离",
+    "另一账号读取发问停止删除404",
+    "跨源写入403",
+    "列表关键词搜索及空结果",
+    "取消移除保留记录",
+    "列表故障后重新加载",
+    "预览故障恢复保留输入",
+    "详情故障后重新加载",
+    "不存在占问提供返回入口",
+    "生成中确认移除占问与对话",
+    "移除后迟到回复不复活"
+  ],
+  "audits": [
+    {
+      "view": "home",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "home",
+      "width": 1024,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "home",
+      "width": 820,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "home",
+      "width": 768,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "home",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "home",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "auto-preview",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "auto-preview",
+      "width": 1024,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "auto-preview",
+      "width": 820,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "auto-preview",
+      "width": 768,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "auto-preview",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "auto-preview",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "manual-preview",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "manual-preview",
+      "width": 1024,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "manual-preview",
+      "width": 820,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "manual-preview",
+      "width": 768,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "manual-preview",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "manual-preview",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "facts",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "facts",
+      "width": 1024,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "facts",
+      "width": 820,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "facts",
+      "width": 768,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "facts",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "facts",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "chat",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "chat",
+      "width": 1024,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "chat",
+      "width": 820,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "chat",
+      "width": 768,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "chat",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "chat",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    }
+  ],
+  "说明": "五视图×六宽度；自动无障碍扫描通过不等于完整人工无障碍或实机验收。测试定位器首次因按钮使用aria-label而超时，修正测试定位后通过。"
+}

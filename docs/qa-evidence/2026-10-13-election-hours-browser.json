@@ -1,0 +1,299 @@
+{
+  "验收日期": "2026-10-13 UTC+08:00",
+  "状态": "通过",
+  "数据": "独立临时账号与合成资料，本模块不调用AI",
+  "功能安全检查数量": 34,
+  "布局自动无障碍检查数量": 36,
+  "checks": [
+    "注册并从首页进入择日",
+    "打开时辰展示十三段",
+    "黑道标签不抵消明确日时列宜",
+    "晚子双日干支与待核依据",
+    "只看共同候选筛选",
+    "保存草稿保留候选及待核状态",
+    "三个时段上限",
+    "移除所选时段",
+    "预览不调用AI",
+    "方案保存并带时段进入详情",
+    "刷新恢复所选时段快照",
+    "合成备注按纯文本处理",
+    "保存时段依据展开",
+    "修改备注不重算快照",
+    "取消时段保存后刷新仍有效",
+    "复筛另建方案保留原方案",
+    "实际交节拆成十四段",
+    "交节秒界包含规则准确显示",
+    "条件变化清空旧时段选择",
+    "查询故障可重试且不丢所选时段",
+    "快速切换日期不会显示旧时段",
+    "键盘展开与收起时辰",
+    "匿名时辰接口401",
+    "另一账号读取修改删除方案404",
+    "时辰响应私有不缓存",
+    "跨源查询403",
+    "拒绝客户端伪造时段快照",
+    "拒绝区间外日期",
+    "共同候选为空时有明确提示",
+    "退出候选筛选恢复全部时段",
+    "保存事项忌时段不改写判断",
+    "取消删除保留方案及所选时段",
+    "确认删除后时段不可读取",
+    "整条网页操作链AI调用为零"
+  ],
+  "audits": [
+    {
+      "view": "all-hours",
+      "preference": "light",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "all-hours",
+      "preference": "light",
+      "width": 1024,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "all-hours",
+      "preference": "light",
+      "width": 820,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "all-hours",
+      "preference": "light",
+      "width": 768,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "all-hours",
+      "preference": "light",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "all-hours",
+      "preference": "light",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "saved-evidence",
+      "preference": "light",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "saved-evidence",
+      "preference": "light",
+      "width": 1024,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "saved-evidence",
+      "preference": "light",
+      "width": 820,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "saved-evidence",
+      "preference": "light",
+      "width": 768,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "saved-evidence",
+      "preference": "light",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "saved-evidence",
+      "preference": "light",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "all-hours",
+      "preference": "dark",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "all-hours",
+      "preference": "dark",
+      "width": 1024,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "all-hours",
+      "preference": "dark",
+      "width": 820,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "all-hours",
+      "preference": "dark",
+      "width": 768,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "all-hours",
+      "preference": "dark",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "all-hours",
+      "preference": "dark",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "saved-evidence",
+      "preference": "dark",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "saved-evidence",
+      "preference": "dark",
+      "width": 1024,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "saved-evidence",
+      "preference": "dark",
+      "width": 820,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "saved-evidence",
+      "preference": "dark",
+      "width": 768,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "saved-evidence",
+      "preference": "dark",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "saved-evidence",
+      "preference": "dark",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "term-boundary",
+      "preference": "light",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "term-boundary",
+      "preference": "light",
+      "width": 1024,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "term-boundary",
+      "preference": "light",
+      "width": 820,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "term-boundary",
+      "preference": "light",
+      "width": 768,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "term-boundary",
+      "preference": "light",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "term-boundary",
+      "preference": "light",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "term-boundary",
+      "preference": "dark",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "term-boundary",
+      "preference": "dark",
+      "width": 1024,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "term-boundary",
+      "preference": "dark",
+      "width": 820,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "term-boundary",
+      "preference": "dark",
+      "width": 768,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "term-boundary",
+      "preference": "dark",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "view": "term-boundary",
+      "preference": "dark",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    }
+  ],
+  "errors": [],
+  "说明": "3种时辰视图×6种宽度×2种主题偏好。沿用工作台现有纸色外观；两种偏好兼容不表示新增全局深色皮肤。自动扫描不替代完整人工无障碍或真机测试。"
+}

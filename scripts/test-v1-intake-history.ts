@@ -1,3 +1,4 @@
+import { runAccountTest } from './account-test-session';
 import assert from 'node:assert/strict';
 import { mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -44,4 +45,4 @@ async function main() {
     closeDatabaseConnection();
   }
 }
-void main().catch(error => { console.error(error); process.exitCode = 1; });
+void runAccountTest(main).catch(error => { console.error(error); process.exitCode = 1; });

@@ -1,3 +1,6 @@
+import { BAZI_CHAT_PROMPT_VERSION } from '../lib/db/bazi-conversations';
+import { runAccountTest } from './account-test-session';
+import { closeDatabaseConnection } from '../lib/db/client';
 import assert from 'node:assert/strict';
 import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -157,7 +160,7 @@ async function main() {
       id: string; monthDayVisibilityVersionId: string; promptVersion: string;
     } }>(conversationResponse)).conversation;
     assert.ok(conversation.monthDayVisibilityVersionId);
-    assert.equal(conversation.promptVersion, 'bazi-chat-month-day-pattern-v17');
+    assert.equal(conversation.promptVersion, BAZI_CHAT_PROMPT_VERSION);
     const question = appendBaziMessage({
       conversationId: conversation.id,
       role: 'user',
@@ -181,14 +184,12 @@ async function main() {
 
     console.log('M9-16 流月流日显隐条件测试通过：按片段重复簇、透根分离、三类触达、流月流日过滤、v38 按日缓存与上下文路由均正常。');
   } finally {
-    const database = globalThis.__ziweiSqlite;
-    if (database?.open) database.close();
-    globalThis.__ziweiSqlite = undefined;
+    closeDatabaseConnection();
     rmSync(tempDirectory, { recursive: true, force: true });
   }
 }
 
-main().catch(error => {
+runAccountTest(main).catch(error => {
   console.error(error);
   process.exitCode = 1;
 });

@@ -1,0 +1,136 @@
+{
+  "date": "2026-10-16",
+  "timezone": "UTC+08:00",
+  "environment": "本机独立SQLite与模拟供应商，合成账号",
+  "browser": "Chrome CUA fallback",
+  "savedSessionId": "734243df-84c0-49be-ad78-b06369b4df58",
+  "passed": 28,
+  "total": 28,
+  "checks": [
+    {
+      "label": "合成账号网页登录成功",
+      "passed": true
+    },
+    {
+      "label": "新建多现预览展示两个候选且不自动取用",
+      "passed": true
+    },
+    {
+      "label": "网页手动指定候选后展示明确用神",
+      "passed": true
+    },
+    {
+      "label": "手选结果网页保存进入详情",
+      "passed": true
+    },
+    {
+      "label": "保存刷新后保留第1爻取用",
+      "passed": true
+    },
+    {
+      "label": "浏览其他候选不改变已保存取用",
+      "passed": true
+    },
+    {
+      "label": "来源目标条件可展开且旬空不被擦除",
+      "passed": true
+    },
+    {
+      "label": "来源生克与泄耗方向有准确语义",
+      "passed": true
+    },
+    {
+      "label": "方向键切换共同发动视图",
+      "passed": true
+    },
+    {
+      "label": "Home返回候选视图",
+      "passed": true
+    },
+    {
+      "label": "End切换规则来源",
+      "passed": true
+    },
+    {
+      "label": "原典来源和本阶段边界可核对",
+      "passed": true,
+      "detail": "原断言错误期待正文含书名；实际按四条原典URL与键盘展开的边界复验。"
+    },
+    {
+      "label": "两类共同发动链并列展示",
+      "passed": true
+    },
+    {
+      "label": "共同发动限制可展开且不宣布有效",
+      "passed": true
+    },
+    {
+      "label": "缺亲伏神以独立身份显示",
+      "passed": true
+    },
+    {
+      "label": "伏神飞爻条件可展开",
+      "passed": true
+    },
+    {
+      "label": "伏神作为目标时来源不误标变爻",
+      "passed": true
+    },
+    {
+      "label": "未指定用神时保留无候选状态",
+      "passed": true
+    },
+    {
+      "label": "无候选不默认推导路径",
+      "passed": true
+    },
+    {
+      "label": "v1条件快照显示旧阶段提示不自动补算",
+      "passed": true
+    },
+    {
+      "label": "基础旧卦象不补生成新版作用面板",
+      "passed": true
+    },
+    {
+      "label": "静卦候选明确显示静爻",
+      "passed": true
+    },
+    {
+      "label": "静爻来源显示静爻条件而非实际发动",
+      "passed": true
+    },
+    {
+      "label": "静卦不生成明动同动链",
+      "passed": true
+    },
+    {
+      "label": "作用证据链快捷问载入条件边界",
+      "passed": true
+    },
+    {
+      "label": "一次网页模拟问答完成且包含作用链边界",
+      "passed": true
+    },
+    {
+      "label": "模拟回复依据可展开",
+      "passed": true
+    },
+    {
+      "label": "刷新回看保留模拟对话",
+      "passed": true
+    }
+  ],
+  "limitations": [
+    "未运行axe；仅检查实际键盘、标签及可见布局。",
+    "日期时间控件fill后状态未提交，本次网页新建沿用默认北京时间；专项与HTTP另核固定时刻。",
+    "Tabbit注册不可用；原浏览器2不可用，改用Chrome新建临时tab，未控制原用户tab。",
+    "一次原典正文断言误期待书名，已改按四条原典URL与展开边界复验；不是产品失败。"
+  ],
+  "screenshots": [
+    "2026-10-16-liuyao-influence-desktop.jpg",
+    "2026-10-16-liuyao-influence-mobile.jpg"
+  ],
+  "simulatedAiWebRequests": 1,
+  "realAiRequests": 0
+}

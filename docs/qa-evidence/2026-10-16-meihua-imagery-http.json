@@ -1,0 +1,345 @@
+{
+  "at": "2026-10-16T15:55:48.927Z",
+  "scope": "真实应用、独立账号与本机模拟AI；真实供应商请求0",
+  "passed": true,
+  "count": 84,
+  "checks": [
+    {
+      "label": "current私有响应不缓存",
+      "passed": true
+    },
+    {
+      "label": "current当前账号读取：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "current完整五节点与十组同源关系",
+      "passed": true
+    },
+    {
+      "label": "pure私有响应不缓存",
+      "passed": true
+    },
+    {
+      "label": "pure当前账号读取：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "pure完整五节点与十组同源关系",
+      "passed": true
+    },
+    {
+      "label": "纯乾异例读取变卦翻转值",
+      "passed": true
+    },
+    {
+      "label": "middle私有响应不缓存",
+      "passed": true
+    },
+    {
+      "label": "middle当前账号读取：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "middle完整五节点与十组同源关系",
+      "passed": true
+    },
+    {
+      "label": "纯乾通用口径不翻互卦值",
+      "passed": true
+    },
+    {
+      "label": "first私有响应不缓存",
+      "passed": true
+    },
+    {
+      "label": "first当前账号读取：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "first完整五节点与十组同源关系",
+      "passed": true
+    },
+    {
+      "label": "first原动位不进入互卦",
+      "passed": true
+    },
+    {
+      "label": "sixth私有响应不缓存",
+      "passed": true
+    },
+    {
+      "label": "sixth当前账号读取：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "sixth完整五节点与十组同源关系",
+      "passed": true
+    },
+    {
+      "label": "sixth原动位不进入互卦",
+      "passed": true
+    },
+    {
+      "label": "noTime私有响应不缓存",
+      "passed": true
+    },
+    {
+      "label": "noTime当前账号读取：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "noTime完整五节点与十组同源关系",
+      "passed": true
+    },
+    {
+      "label": "无明确时刻不套当前季节",
+      "passed": true
+    },
+    {
+      "label": "objects私有响应不缓存",
+      "passed": true
+    },
+    {
+      "label": "objects当前账号读取：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "objects完整五节点与十组同源关系",
+      "passed": true
+    },
+    {
+      "label": "season私有响应不缓存",
+      "passed": true
+    },
+    {
+      "label": "season当前账号读取：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "上一版季节快照不追加取象",
+      "passed": true
+    },
+    {
+      "label": "base私有响应不缓存",
+      "passed": true
+    },
+    {
+      "label": "base当前账号读取：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "基础旧卦不补深化",
+      "passed": true
+    },
+    {
+      "label": "匿名拒绝：HTTP 401",
+      "passed": true
+    },
+    {
+      "label": "跨账号读取拒绝：HTTP 404",
+      "passed": true
+    },
+    {
+      "label": "拒绝响应不泄漏取象与占问",
+      "passed": true
+    },
+    {
+      "label": "跨账号问答拒绝：HTTP 404",
+      "passed": true
+    },
+    {
+      "label": "异源写入拒绝：HTTP 403",
+      "passed": true
+    },
+    {
+      "label": "非法起卦与原型键拒绝：HTTP 400",
+      "passed": true
+    },
+    {
+      "label": "非法起卦与原型键拒绝：HTTP 400",
+      "passed": true
+    },
+    {
+      "label": "非法起卦与原型键拒绝：HTTP 400",
+      "passed": true
+    },
+    {
+      "label": "非法起卦与原型键拒绝：HTTP 400",
+      "passed": true
+    },
+    {
+      "label": "非法起卦与原型键拒绝：HTTP 400",
+      "passed": true
+    },
+    {
+      "label": "预览服务端计算：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "伪造取象不进入预览",
+      "passed": true
+    },
+    {
+      "label": "建立合成占问：HTTP 201",
+      "passed": true
+    },
+    {
+      "label": "保存只采用原始起卦参数计算",
+      "passed": true
+    },
+    {
+      "label": "相同输入重复保存复用：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "伪造账号字段不能跨库写入：HTTP 404",
+      "passed": true
+    },
+    {
+      "label": "预览保存回看均不调用AI",
+      "passed": true
+    },
+    {
+      "label": "模拟问答完成：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "current三代快照各自完成回复",
+      "passed": true
+    },
+    {
+      "label": "current保存对应提示版本",
+      "passed": true
+    },
+    {
+      "label": "current引用符合保存能力",
+      "passed": true
+    },
+    {
+      "label": "模拟问答完成：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "season三代快照各自完成回复",
+      "passed": true
+    },
+    {
+      "label": "season保存对应提示版本",
+      "passed": true
+    },
+    {
+      "label": "season引用符合保存能力",
+      "passed": true
+    },
+    {
+      "label": "模拟问答完成：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "base三代快照各自完成回复",
+      "passed": true
+    },
+    {
+      "label": "base保存对应提示版本",
+      "passed": true
+    },
+    {
+      "label": "base引用符合保存能力",
+      "passed": true
+    },
+    {
+      "label": "失败脱敏返回：HTTP 502",
+      "passed": true
+    },
+    {
+      "label": "失败后读取：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "失败不覆盖已完成对话",
+      "passed": true
+    },
+    {
+      "label": "模拟问答完成：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "按原消息重试另存完成",
+      "passed": true
+    },
+    {
+      "label": "复读保存卦象：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "问答及回看不重写三代快照",
+      "passed": true
+    },
+    {
+      "label": "复读保存卦象：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "问答及回看不重写三代快照",
+      "passed": true
+    },
+    {
+      "label": "复读保存卦象：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "问答及回看不重写三代快照",
+      "passed": true
+    },
+    {
+      "label": "复读保存卦象：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "问答及回看不重写三代快照",
+      "passed": true
+    },
+    {
+      "label": "复读保存卦象：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "问答及回看不重写三代快照",
+      "passed": true
+    },
+    {
+      "label": "复读保存卦象：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "问答及回看不重写三代快照",
+      "passed": true
+    },
+    {
+      "label": "复读保存卦象：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "问答及回看不重写三代快照",
+      "passed": true
+    },
+    {
+      "label": "复读保存卦象：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "问答及回看不重写三代快照",
+      "passed": true
+    },
+    {
+      "label": "复读保存卦象：HTTP 200",
+      "passed": true
+    },
+    {
+      "label": "问答及回看不重写三代快照",
+      "passed": true
+    }
+  ],
+  "mockRequests": 5
+}
