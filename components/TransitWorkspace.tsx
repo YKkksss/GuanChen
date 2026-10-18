@@ -132,13 +132,16 @@ export default function TransitWorkspace({ conversationId }: { conversationId: s
     setReport(null);
     setReportError('');
     setLoadingReport(true);
-    ensureAnnualReport(conversationId, year, false, controller.signal, setReport, setReportVersions)
-      .then(nextReport => {
-        if (!controller.signal.aborted) setReport(nextReport);
+    // 进入页面只读取已有年度报告，不在用户未操作时自动发起 AI 生成。
+    fetchAnnualReport(conversationId, year, controller.signal)
+      .then(detail => {
+        if (controller.signal.aborted) return;
+        setReport(detail.report);
+        setReportVersions(detail.versions);
       })
       .catch(loadError => {
         if (controller.signal.aborted) return;
-        setReportError(loadError instanceof Error ? loadError.message : '年度报告生成失败');
+        setReportError(loadError instanceof Error ? loadError.message : '年度报告读取失败');
       })
       .finally(() => {
         if (!controller.signal.aborted) setLoadingReport(false);

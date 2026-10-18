@@ -77,7 +77,7 @@ export default function AnnualReportPanel({
             className="rounded-lg px-3 py-1.5 text-[10px] transition-opacity disabled:cursor-not-allowed disabled:opacity-40"
             style={{ color: 'var(--t-gold)', border: '1px solid rgba(212,168,67,.28)', background: 'rgba(212,168,67,.06)' }}
           >
-            {loading && hasContent ? '正在重新生成…' : '重新生成'}
+            {loading && hasContent ? '正在重新生成…' : report ? '重新生成' : '生成年度报告'}
           </button>
         </div>
       </div>
@@ -130,7 +130,7 @@ export default function AnnualReportPanel({
 
       {!loading && !hasContent && !error && (
         <div className="px-5 py-10 text-center text-xs" style={{ color: 'var(--t-faint)' }}>
-          {report?.status === 'failed' ? '这个年度报告版本生成失败，请切换旧版本或重新生成。' : '暂无年度报告，系统将自动生成。'}
+          {report?.status === 'failed' ? '这个年度报告版本生成失败，请切换旧版本或重新生成。' : '暂无年度报告，点击“生成年度报告”开始；不会在打开页面时自动调用 AI。'}
         </div>
       )}
     </section>
