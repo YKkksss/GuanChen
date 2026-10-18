@@ -326,7 +326,7 @@ async function main() {
     closeAccountConnections();
     const absolute = path.resolve(directory), temporary = path.resolve(tmpdir());
     if (path.dirname(absolute) !== temporary || !path.basename(absolute).startsWith('guanchen-synthesis-dynamic-review-')) throw new Error('临时测试清理路径超出预期范围');
-    rmSync(absolute, { recursive: true, force: true });
+    rmSync(absolute, { recursive: true, force: true, maxRetries: 10, retryDelay: 200 });
   }
 }
 main().catch(error => { console.error(error); process.exitCode = 1; });

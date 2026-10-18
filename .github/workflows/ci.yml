@@ -77,4 +77,5 @@ jobs:
         with:
           name: v1-check-logs
           path: .qa-logs
+          include-hidden-files: true
           if-no-files-found: ignore
