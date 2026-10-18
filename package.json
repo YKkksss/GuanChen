@@ -125,7 +125,8 @@
     "ops:preflight": "tsx scripts/ops/preflight.ts",
     "ops:backup": "node scripts/ops/backup-all.mjs",
     "qa:staging-smoke": "node scripts/qa-staging-smoke.mjs",
-    "qa:web-e2e": "tsx scripts/qa-web-e2e.ts"
+    "qa:web-e2e": "tsx scripts/qa-web-e2e.ts",
+    "qa:ai-smoke": "tsx scripts/qa-ai-smoke.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.27.0",
