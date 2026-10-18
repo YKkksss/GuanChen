@@ -1,0 +1,90 @@
+{
+  "stage": "P0",
+  "stageName": "范围锁定与仓库收口",
+  "completedAt": "2026-10-18",
+  "timezone": "Asia/Shanghai",
+  "passed": true,
+  "branch": "release/2.0",
+  "baseBranch": "codex/user-accounts",
+  "tag": "v2.0.0-alpha.1",
+  "commits": [
+    "a4fa659 chore(repo): 锁定 v2.0 范围并收口忽略规则",
+    "6fe6104 feat(server): 收口统一账号、八字与术数服务端开发态",
+    "84b989c feat(ui): 收口工作台、报告与术数界面开发态",
+    "3627ed6 test(docs): 收口回归脚本、实施文档与验收证据",
+    "e1ad805 fix(repo): 允许原生依赖安装脚本并记录 P0 盘点结果"
+  ],
+  "workspace": {
+    "before": 610,
+    "afterIgnore": 600,
+    "trackedModified": 223,
+    "untracked": 377,
+    "sourceAndConfig": 281,
+    "testScripts": 116,
+    "docsAndEvidence": 203,
+    "buildOrPrivateStaged": 0
+  },
+  "trackedFiles": {
+    "app": 221,
+    "components": 151,
+    "lib": 348,
+    "scripts": 136,
+    "docs": 299
+  },
+  "excluded": [
+    ".next/ and .next-*/ (49 build dirs)",
+    "node_modules/",
+    "data/ (accounts, sqlite, backups, exports)",
+    "output/",
+    ".env* except .env.example",
+    "*.log, next-start.*, .codex-dev*",
+    "*.tsbuildinfo",
+    ".playwright-mcp/",
+    ".vercel/, dist/"
+  ],
+  "verification": {
+    "secretScan": {
+      "passed": true,
+      "patterns": ["sk-*", "gho_*", "github_pat_*", "AKIA*", "PRIVATE KEY block"],
+      "matches": 0
+    },
+    "trackedPrivateData": {
+      "passed": true,
+      "dataTrackedFiles": 0
+    },
+    "cleanClone": {
+      "passed": true,
+      "npmCi": true,
+      "packages": 379,
+      "nativeBetterSqlite3": true,
+      "productionBuild": true,
+      "staticPages": 81
+    },
+    "nativeModuleFinding": {
+      "firstAttempt": "better-sqlite3 binding missing because npm 12 blocked install scripts",
+      "fix": "package.json allowScripts + npm rebuild / fresh npm ci",
+      "retest": "passed"
+    },
+    "workingTreeClean": true
+  },
+  "github": {
+    "milestone": { "number": 1, "title": "v2.0.0" },
+    "labels": ["P0", "P1", "P2"],
+    "pushed": false,
+    "note": "仅创建 milestone 与标签；代码分支和 tag 仍在本地，未 push。"
+  },
+  "scope": {
+    "fiveCombine": "v2.1",
+    "realModelQuality": "smoke-and-sample-only",
+    "multiInstance": "not-promised",
+    "mobile": "blocking-for-key-flows"
+  },
+  "notDone": [
+    "真实浏览器 E2E 与入口面板四宽度验收（P4）",
+    "iOS/Android 真机（P4）",
+    "正式部署与恢复演练（P2）",
+    "真实模型冒烟与抽样审阅（P5）",
+    "axe、空/错/加载巡检（P4）"
+  ],
+  "nextStage": "P1 发布工程：CI、健康检查、结构化日志、依赖审计、发布自检脚本"
+}

@@ -80,8 +80,9 @@
 - [x] 四批提交完成，工作区干净（`git status --porcelain` 为空）。
 - [x] `release/2.0` 分支创建。
 - [x] 干净 clone 生产构建通过（`npm ci` + `next build`，81 个静态页）。
+- [x] 干净 clone 原生模块通过（`require('better-sqlite3')` 可打开内存库）。
 - [x] GitHub milestone `v2.0.0` 创建（编号 1），P0/P1/P2 标签已建。
-- [ ] `v2.0.0-alpha.1` 标签创建（在原生模块复现验证后打）。
+- [x] `v2.0.0-alpha.1` 标签创建。
 
 ### 5.1 原生模块复现问题（已定位，待提交修复）
 
@@ -99,6 +100,8 @@ node -e "require('better-sqlite3'); console.log('ok')"
 `approve` 会在 `package.json` 写入 `allowScripts`；本仓库已加入固定的 `better-sqlite3@12.4.1`、`esbuild@0.28.2`、`esbuild@0.25.12` 条目。仅 `approve` 不重新执行安装脚本，必须再 `npm rebuild` 或重新 `npm ci`。
 
 该项属于 P1/G1“原生模块可安装”的验收内容，但会影响 P2 干净部署，因此提前记录。修复提交后需在全新 clone 上复验 `npm ci → require('better-sqlite3')`，不能只在已有 `node_modules` 的工作区验证。
+
+复验结果（2026-10-18）：全新 clone `release/2.0` 后 `npm ci` 成功，`better-sqlite3` 可打开内存库并执行 `select 1`，`next build` 生成 81 个静态页。说明 `allowScripts` 条目已能在干净环境生效。
 
 ## 6. 残留风险
 
