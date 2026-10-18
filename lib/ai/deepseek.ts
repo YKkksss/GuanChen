@@ -1,3 +1,6 @@
+import { logEvent } from '@/lib/observability/logger';
+import { assertAiQuota } from './quota';
+
 type ChatRole = 'system' | 'user' | 'assistant';
 
 export interface ChatMessage {
@@ -54,6 +57,7 @@ export async function createChatCompletion(
 ): Promise<ChatCompletionResult> {
   const config = getProviderConfig();
   assertProviderConfig(config);
+  assertAiQuota();
   const url = `${config.baseUrl.replace(/\/$/, '')}/chat/completions`;
   const res = await fetch(url, {
     signal: options.signal,
@@ -75,7 +79,8 @@ export async function createChatCompletion(
   });
   if (!res.ok) {
     const detail = await res.text().catch(() => '');
-    throw new Error(`AI 请求失败：${res.status}${detail ? ` ${detail.slice(0, 300)}` : ''}`);
+    logEvent({ event: 'ai.provider_error', level: 'warn', provider: config.provider, status: res.status, detailLength: detail.length });
+    throw new Error(`AI 请求失败（HTTP ${res.status}）`);
   }
   const data = await res.json() as {
     choices?: Array<{ message?: { content?: unknown } }>;
@@ -106,6 +111,7 @@ export async function createChatCompletionStream(
 ): Promise<ReadableStream<Uint8Array>> {
   const config = getProviderConfig();
   assertProviderConfig(config);
+  assertAiQuota();
 
   const url = `${config.baseUrl.replace(/\/$/, '')}/chat/completions`;
   const res = await fetch(url, {
@@ -129,7 +135,8 @@ export async function createChatCompletionStream(
 
   if (!res.ok || !res.body) {
     const detail = await res.text().catch(() => '');
-    throw new Error(`AI 请求失败：${res.status}${detail ? ` ${detail.slice(0, 300)}` : ''}`);
+    logEvent({ event: 'ai.provider_error', level: 'warn', provider: config.provider, status: res.status, detailLength: detail.length });
+    throw new Error(`AI 请求失败（HTTP ${res.status}）`);
   }
 
   return res.body;

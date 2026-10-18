@@ -4,8 +4,10 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import Database from 'better-sqlite3';
-import { closeAccountConnections, createSession, registerUser } from '../lib/auth/accounts';
+import { closeAccountConnections, consumeAiUsage, createSession, registerUser } from '../lib/auth/accounts';
+import { runAsUser } from '../lib/auth/scope';
 import { withAccount } from '../lib/auth/route';
+import { AiQuotaError, assertAiQuota } from '../lib/ai/quota';
 import { redactLogValue } from '../lib/observability/logger';
 import { GET as health } from '../app/api/health/route';
 
@@ -15,6 +17,7 @@ process.env.ACCOUNT_DATA_DIR = accountRoot;
 let checks = 0;
 function check(value: unknown, label: string): asserts value { assert.ok(value, label); checks++; }
 function equal(actual: unknown, expected: unknown, label: string) { assert.deepEqual(actual, expected, label); checks++; }
+function rejects(work: () => unknown, label: string) { assert.throws(work, label); checks++; }
 function healthRequest() { return new Request('http://local/api/health'); }
 function accountRequest(token?: string) {
   return new Request('http://local/api/check', { headers: token ? { cookie: `guanchen_session=${token}` } : {} });
@@ -87,6 +90,17 @@ async function main() {
       const open = await health(healthRequest());
       const body = await open.json() as { checks: { database: { status: string } } };
       equal(body.checks.database.status, 'ok', '账号库打开后健康检查仍为 ok');
+
+      equal(consumeAiUsage(user.id, 2), { allowed: true, used: 1, limit: 2 }, 'AI 配额第一次扣减');
+      equal(consumeAiUsage(user.id, 2), { allowed: true, used: 2, limit: 2 }, 'AI 配额第二次扣减');
+      equal(consumeAiUsage(user.id, 2), { allowed: false, used: 2, limit: 2 }, 'AI 配额超限拒绝');
+      process.env.AI_DAILY_LIMIT = '4';
+      runAsUser(user, () => {
+        assertAiQuota(); assertAiQuota(); checks++;
+        rejects(() => assertAiQuota(), 'AI 配额在调用入口抛错');
+      });
+      delete process.env.AI_DAILY_LIMIT;
+      check(new AiQuotaError(2).status === 429, 'AI 配额错误带 429 状态');
     }
 
     console.log(`发布工程专项通过：${checks}项；健康检查未初始化/正常/损坏、只读数据库探测、日志脱敏、request id 与登录态响应；未调用 AI。`);
