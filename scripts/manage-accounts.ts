@@ -1,7 +1,7 @@
 import { loadEnvConfig } from '@next/env';
 import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
-import { closeAccountConnections, getUserByUsername, promoteLocalAdministrator } from '../lib/auth/accounts';
+import { closeAccountConnections, getUserByUsername, promoteLocalAdministrator, resetLocalPassword } from '../lib/auth/accounts';
 import { accountDataRoot, runAsUser } from '../lib/auth/scope';
 import { closeDatabaseConnection, getDatabase } from '../lib/db/client';
 import { createLocalBackupArchive, restoreLocalBackupArchive } from '../lib/backups/service';
@@ -10,9 +10,15 @@ import { LOCAL_BACKUP_CONFIRMATION } from '../lib/backups/types';
 loadEnvConfig(process.cwd());
 async function main() {
   const [operation, username] = process.argv.slice(2);
-  if (!username || !['admin', 'import-legacy'].includes(operation)) throw new Error('用法：npm run accounts:manage -- admin 用户名；或 import-legacy 用户名（服务停止后执行）');
+  if (!username || !['admin', 'import-legacy', 'reset-password'].includes(operation)) throw new Error('用法：npm run accounts:manage -- admin 用户名；reset-password 用户名；或 import-legacy 用户名（服务停止后执行）');
   const user = getUserByUsername(username);
   if (!user) throw new Error('请先在网页注册目标账号');
+  if (operation === 'reset-password') {
+    const result = await resetLocalPassword(username);
+    console.log(`已为 ${result.user.username} 生成一次性密码：${result.password}`);
+    console.log('该账号所有旧会话已撤销。请立即登录并修改密码；此密码不会再次显示。');
+    return;
+  }
   if (operation === 'admin') {
     promoteLocalAdministrator(username);
     console.log(`已将 ${user.username} 设为管理员。请重新登录。`);

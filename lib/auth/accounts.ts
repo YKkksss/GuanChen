@@ -29,7 +29,11 @@ function accounts() {
     expires_at INTEGER NOT NULL, created_at INTEGER NOT NULL
   );
   CREATE INDEX IF NOT EXISTS sessions_user ON sessions(user_id);
-  CREATE TABLE IF NOT EXISTS auth_limits (key TEXT PRIMARY KEY, count INTEGER NOT NULL, reset_at INTEGER NOT NULL);`);
+  CREATE TABLE IF NOT EXISTS auth_limits (key TEXT PRIMARY KEY, count INTEGER NOT NULL, reset_at INTEGER NOT NULL);
+  CREATE TABLE IF NOT EXISTS ai_usage (
+    day TEXT NOT NULL, user_id TEXT NOT NULL, count INTEGER NOT NULL, updated_at INTEGER NOT NULL,
+    PRIMARY KEY(day, user_id)
+  );`);
   all.set(root, db);
   return db;
 }
@@ -174,6 +178,44 @@ export function promoteLocalAdministrator(username: string) {
     accounts().prepare('DELETE FROM sessions WHERE user_id = ?').run(user.id);
   })();
   return getUserById(user.id)!;
+}
+
+/** 本地运维兜底：生成一次性随机密码并撤销该账号所有会话；不做邮件找回。 */
+export async function resetLocalPassword(username: string) {
+  const user = getUserByUsername(username);
+  if (!user) throw new AccountError('请先注册该账号');
+  const password = randomBytes(18).toString('base64url');
+  const hash = await passwordHash(password);
+  accounts().transaction(() => {
+    accounts().prepare('UPDATE users SET password_hash = ? WHERE id = ?').run(hash, user.id);
+    accounts().prepare('DELETE FROM sessions WHERE user_id = ?').run(user.id);
+    accounts().prepare('DELETE FROM auth_limits WHERE key IN (?, ?)').run(`login:${user.username}`, `password:${user.id}`);
+  })();
+  return { user, password };
+}
+
+export interface AiUsageResult {
+  allowed: boolean;
+  used: number;
+  limit: number;
+}
+
+/** 按账号、按北京日期累计 AI 调用次数；limit <= 0 表示不限制。 */
+export function consumeAiUsage(userId: string, limit: number): AiUsageResult {
+  if (!Number.isFinite(limit) || limit <= 0) return { allowed: true, used: 0, limit: 0 };
+  const db = accounts();
+  db.exec(`CREATE TABLE IF NOT EXISTS ai_usage (
+    day TEXT NOT NULL, user_id TEXT NOT NULL, count INTEGER NOT NULL, updated_at INTEGER NOT NULL,
+    PRIMARY KEY(day, user_id)
+  )`);
+  const day = new Date(Date.now() + 8 * 3_600_000).toISOString().slice(0, 10);
+  return db.transaction(() => {
+    const row = db.prepare('SELECT count FROM ai_usage WHERE day = ? AND user_id = ?').get(day, userId) as { count: number } | undefined;
+    if (row && row.count >= limit) return { allowed: false, used: row.count, limit };
+    if (row) db.prepare('UPDATE ai_usage SET count = count + 1, updated_at = ? WHERE day = ? AND user_id = ?').run(Date.now(), day, userId);
+    else db.prepare('INSERT INTO ai_usage(day, user_id, count, updated_at) VALUES (?, ?, 1, ?)').run(day, userId, Date.now());
+    return { allowed: true, used: (row?.count ?? 0) + 1, limit };
+  })();
 }
 
 export function closeAccountConnections() {
