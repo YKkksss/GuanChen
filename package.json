@@ -124,7 +124,8 @@
     "qa:production-readonly": "node scripts/qa-production-readonly.mjs",
     "ops:preflight": "tsx scripts/ops/preflight.ts",
     "ops:backup": "node scripts/ops/backup-all.mjs",
-    "qa:staging-smoke": "node scripts/qa-staging-smoke.mjs"
+    "qa:staging-smoke": "node scripts/qa-staging-smoke.mjs",
+    "qa:web-e2e": "tsx scripts/qa-web-e2e.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.27.0",
@@ -161,6 +162,7 @@
     "esbuild": "^0.28.2",
     "husky": "^9.1.7",
     "lint-staged": "^16.4.0",
+    "playwright-core": "^1.64.1",
     "postcss": "^8.5.28",
     "tailwindcss": "^3.4.0",
     "tsx": "^4.20.5",
