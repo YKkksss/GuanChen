@@ -1,0 +1,17 @@
+{
+  "at": "2026-10-18T11:16:04.146Z",
+  "base": "http://127.0.0.1:30004",
+  "passed": true,
+  "count": 46,
+  "failures": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "axeViolations": [],
+  "screenshots": [
+    "home-1280.jpg",
+    "home-390.jpg",
+    "chart-1280.jpg"
+  ],
+  "scope": "真实 Chrome + 本地 30004 + 隔离临时数据；注册、命盘创建、页面入口、四宽度、axe；不调用真实 AI。",
+  "limitation": "未覆盖真机、完整聊天/报告生成、PDF 下载与备份恢复；这些在各自专项或人工验收。"
+}

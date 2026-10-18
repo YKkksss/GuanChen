@@ -32,6 +32,7 @@ const required = [
   'docs/P1_RELEASE_ENGINEERING.md',
   'docs/P2_DEPLOYMENT.md',
   'docs/P3_SECURITY_ACCOUNT.md',
+  'docs/P4_QUALITY_EXPERIENCE.md',
   'docs/LOCAL_QUICKSTART.md',
   'docs/ACCOUNT_SERVICE.md',
   'docs/qa-evidence/2026-10-18-v2.0-p0-delivery.json',

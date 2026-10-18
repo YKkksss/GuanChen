@@ -1,0 +1,51 @@
+{
+  "stage": "P4",
+  "stageName": "质量与体验",
+  "completedAt": "2026-10-18",
+  "timezone": "Asia/Shanghai",
+  "passed": true,
+  "scopeStatus": "browser_local_complete_real_device_pending",
+  "branch": "release/2.0",
+  "tag": "v2.0.0-beta.5",
+  "features": [
+    "scripts/qa-web-e2e.ts：真实 Chrome/Edge、隔离数据、注册、命盘创建、11 个页面、四宽度",
+    "axe-core WCAG 2A/2AA 检查首页、命盘、八字、账号设置、数据保险箱",
+    "四宽度横向溢出检查",
+    "控制台/页面异常收集",
+    "三张合成截图证据"
+  ],
+  "validation": {
+    "browser": {
+      "checks": 46,
+      "passed": 46,
+      "failures": 0,
+      "widths": [1280, 768, 390, 320],
+      "pages": ["/", "/chart/[id]", "/bazi", "/meihua", "/liuyao", "/qimen", "/election", "/synthesis", "/history", "/settings/account", "/settings/data"],
+      "consoleErrors": 0,
+      "pageErrors": 0,
+      "overflow": 0
+    },
+    "axe": {
+      "passed": true,
+      "critical": 0,
+      "serious": 0,
+      "note": "首轮命盘页 color-contrast 为 Framer Motion 动画中间态；等待 1.2 秒后 0 违规"
+    },
+    "screenshots": [
+      "docs/qa-evidence/2026-10-18-v2.0-p4/home-1280.jpg",
+      "docs/qa-evidence/2026-10-18-v2.0-p4/home-390.jpg",
+      "docs/qa-evidence/2026-10-18-v2.0-p4/chart-1280.jpg"
+    ],
+    "ci": {
+      "status": "pending_after_push",
+      "note": "CI 在 windows-latest 运行 106 组回归 + 浏览器 E2E；结果见后续记录"
+    }
+  },
+  "notDone": [
+    "iOS/Android 真机（需要用户设备）",
+    "完整聊天流式、报告生成、PDF、备份恢复的浏览器 E2E",
+    "每模块空/错/加载/重试状态逐项人工巡检",
+    "真实供应商输出质量与延迟（P5 可选）"
+  ],
+  "nextStage": "P5 可选：真实模型冒烟与抽样；或进入本地 v2.0 冻结评估"
+}
