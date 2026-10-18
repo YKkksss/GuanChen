@@ -164,5 +164,10 @@
   },
   "lint-staged": {
     "*.{ts,tsx,md,mdx}": "node scripts/zh-punct-lint.mjs --fix"
+  },
+  "allowScripts": {
+    "better-sqlite3@12.4.1": true,
+    "esbuild@0.28.2": true,
+    "esbuild@0.25.12": true
   }
 }

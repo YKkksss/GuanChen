@@ -77,15 +77,33 @@
 - [x] 600 条变更完成五类归类。
 - [x] 源码/文档中未发现 `sk-*`、`gho_*`、`github_pat_*`、AKIA、私钥块。
 - [x] `data/` 无已跟踪文件。
-- [ ] 四批提交完成，工作区干净。
-- [ ] `release/2.0` 分支创建。
-- [ ] `v2.0.0-alpha.1` 标签创建。
-- [ ] 干净 clone 可构建。
-- [ ] GitHub milestone 创建（如网络可用）。
+- [x] 四批提交完成，工作区干净（`git status --porcelain` 为空）。
+- [x] `release/2.0` 分支创建。
+- [x] 干净 clone 生产构建通过（`npm ci` + `next build`，81 个静态页）。
+- [x] GitHub milestone `v2.0.0` 创建（编号 1），P0/P1/P2 标签已建。
+- [ ] `v2.0.0-alpha.1` 标签创建（在原生模块复现验证后打）。
+
+### 5.1 原生模块复现问题（已定位，待提交修复）
+
+首次干净 clone 用 `npm ci` 安装后，构建通过，但运行 `require('better-sqlite3')` 失败：npm 12 默认阻止依赖安装脚本，`better-sqlite3` 没有生成 `better_sqlite3.node`。
+
+复现与修复：
+
+```powershell
+npm ci
+npm install-scripts approve better-sqlite3 esbuild
+npm rebuild better-sqlite3
+node -e "require('better-sqlite3'); console.log('ok')"
+```
+
+`approve` 会在 `package.json` 写入 `allowScripts`；本仓库已加入固定的 `better-sqlite3@12.4.1`、`esbuild@0.28.2`、`esbuild@0.25.12` 条目。仅 `approve` 不重新执行安装脚本，必须再 `npm rebuild` 或重新 `npm ci`。
+
+该项属于 P1/G1“原生模块可安装”的验收内容，但会影响 P2 干净部署，因此提前记录。修复提交后需在全新 clone 上复验 `npm ci → require('better-sqlite3')`，不能只在已有 `node_modules` 的工作区验证。
 
 ## 6. 残留风险
 
-1. `docs/` 有 200 个未跟踪文件，包含实施文档、验收 JSON 与截图；已抽样确认是合成资料，但不排除个别文件含本机路径。发布前需再扫一次绝对路径与本机用户名。
+1. `docs/` 现有 299 个已跟踪文件，包含实施文档、验收 JSON 与截图；已扫描密钥模式，未发现真实凭据，但仍含本机绝对路径（如 `C:/Users/11474/...`），发布前可选择性清理，不影响源码安全。
 2. `docs/images` 与 `docs/qa-evidence` 体积较大，但单个文件均小于 1 MB，GitHub 可接受。
 3. `.next-*` 目录保留在磁盘，容易被误以为源码；`.gitignore` 已阻断入库，但清理前需确认不是唯一验收证据。
-4. 未推送远程；`release/2.0` 与标签目前只在本地，需用户确认后再 push。
+4. npm 12 默认阻止原生安装脚本；已通过 `allowScripts` 固定 `better-sqlite3` 与 `esbuild`，但每次依赖升级都要重新确认版本条目，否则干净部署会缺 `better_sqlite3.node`。
+5. 未推送远程；`release/2.0` 与标签目前只在本地，需用户确认后再 push。
