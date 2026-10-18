@@ -249,7 +249,7 @@ export default function HomeBirthForm({ loading = false, error = '', variant = '
 
       <p className={styles.privacy}>
         <LockKey size={14} aria-hidden="true" />
-        出生信息和对话记录保存在部署电脑，局域网访问者共享该数据
+        出生信息和对话记录保存在观辰服务端，仅当前登录账号可通过页面访问
       </p>
     </form>
   );

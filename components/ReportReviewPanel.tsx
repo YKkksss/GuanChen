@@ -1,4 +1,5 @@
 'use client';
+import { useAccount } from './AccountProvider';
 
 import {
   ArrowCounterClockwise,
@@ -46,7 +47,8 @@ export default function ReportReviewPanel({
   const hasUnsavedChanges = editDirty || noteDirty;
   useUnsavedChanges(hasUnsavedChanges, '当前报告备注或人工修订尚未保存，确定离开吗？草稿仍会保存在这个浏览器中。');
 
-  const draftKey = `ziwei-report-review-draft:${sourceKind}:${reportId}:${version}`;
+  const account = useAccount();
+  const draftKey = `guanchen-private:${account?.id}:report-review:${sourceKind}:${reportId}:${version}`;
 
   const keepLocalDraft = (nextNote: string, nextEditDraft: ReportEditableContent | null, nextEditing: boolean) => {
     window.localStorage.setItem(draftKey, JSON.stringify({ note: nextNote, editDraft: nextEditDraft, editing: nextEditing }));

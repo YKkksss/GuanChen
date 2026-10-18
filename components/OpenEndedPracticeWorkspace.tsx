@@ -1,4 +1,5 @@
 'use client';
+import { useAccount } from './AccountProvider';
 
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
@@ -18,6 +19,7 @@ interface WorkspaceResponse {
 }
 
 export default function OpenEndedPracticeWorkspace() {
+  const account = useAccount();
   const [charts, setCharts] = useState<ConversationListItem[]>([]);
   const [templates, setTemplates] = useState<LearningOpenExerciseTemplateSummary[]>([]);
   const [conversationId, setConversationId] = useState('');
@@ -34,8 +36,8 @@ export default function OpenEndedPracticeWorkspace() {
   const [answerDirty, setAnswerDirty] = useState(false);
 
   const draftKey = useMemo(
-    () => conversationId ? `ziwei-open-practice-draft:${conversationId}:${templateId}` : '',
-    [conversationId, templateId],
+    () => conversationId ? `guanchen-private:${account?.id}:open-practice:${conversationId}:${templateId}` : '',
+    [account?.id, conversationId, templateId],
   );
 
   useEffect(() => {

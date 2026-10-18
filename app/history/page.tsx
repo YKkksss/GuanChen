@@ -75,6 +75,6 @@ export default function HistoryPage() {
         <button type="button" className="min-h-11 px-3 disabled:opacity-40" disabled={(page + 1) * PAGE_SIZE >= total} onClick={() => setPage(value => value + 1)}>下一页</button>
       </nav>
     </>}
-    <p className="text-sm">档案保存在部署电脑，同一局域网部署的访问者共享这些数据。</p>
+    <p className="text-sm">档案保存在观辰服务端，仅当前登录账号可通过业务页面访问。</p>
   </main>;
 }

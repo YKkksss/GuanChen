@@ -94,11 +94,11 @@ export default function ReportsWorkspace({ conversationId }: { conversationId: s
         </div>
         <button
           type="button"
-          onClick={() => router.push(`/chart/${conversationId}/timeline`)}
+          onClick={() => router.push(`/chart/${conversationId}/fortune`)}
           className="rounded-lg px-4 py-2 text-xs"
           style={{ color: 'var(--t-gold)', border: '1px solid rgba(212,168,67,.28)' }}
         >
-          查看年度报告 →
+          年度 / 月度运势专题 →
         </button>
       </div>
 

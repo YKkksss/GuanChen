@@ -1,4 +1,5 @@
 'use client';
+import { useAccount } from './AccountProvider';
 
 import { ArrowSquareOut, BookOpen, CheckCircle, FloppyDisk, NotePencil, WarningCircle } from '@phosphor-icons/react';
 import Link from 'next/link';
@@ -26,7 +27,8 @@ export default function LearningPanel({
   const [noteDirty, setNoteDirty] = useState(false);
   useUnsavedChanges(noteDirty, '当前学习笔记尚未保存，确定离开吗？草稿仍会保存在这个浏览器中。');
 
-  const draftKey = `ziwei-learning-note-draft:${conversationId}:${branch}`;
+  const account = useAccount();
+  const draftKey = `guanchen-private:${account?.id}:learning-note:${conversationId}:${branch}`;
 
   useEffect(() => {
     onDirtyChange?.(noteDirty);

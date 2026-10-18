@@ -1,0 +1,31 @@
+.panel { min-width:0; margin:16px 0; border:1px solid var(--bdr,#ddd3c6); border-radius:12px; padding:20px; background:var(--bg-card,#fffdf9); overflow-wrap:anywhere; }
+.header { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:8px; }
+.header h2 { margin:0; font-size:18px; }
+.eyebrow { color:var(--ac,#a33224); font-size:12px; letter-spacing:.08em; }
+.version { color:var(--tx-2,#655c54); max-width:260px; font-size:11px; text-align:right; }
+.scope,.secondary { color:var(--tx-2,#655c54); font-size:13px; }
+.section { margin-top:12px; border:1px solid var(--bdr,#ddd3c6); border-radius:8px; }
+.section>summary { cursor:pointer; padding:10px 12px; font-weight:600; }
+.section>summary:focus-visible { outline:2px solid var(--ac,#a33224); outline-offset:3px; }
+.section[open]>summary { border-bottom:1px solid var(--bdr,#ddd3c6); }
+.body { padding:10px 12px 12px; }
+.body h3 { font-size:14px; margin:10px 0 5px; }
+.body h3:first-child { margin-top:0; }
+.body p { margin:0; }
+.context { margin-top:4px; }
+.context p + p { margin-top:2px; }
+.mark { display:inline-block; font-size:12px; font-weight:400; color:var(--tx-2,#655c54); margin-left:9px; }
+.rowHeading { display:flex; flex-wrap:wrap; gap:6px 12px; justify-content:space-between; align-items:baseline; }
+.accent { color:var(--ac,#a33224); font-size:13px; }
+.body .candidates,.body .lineList,.body .conditions { list-style:none; padding:0; margin:9px 0 0; }
+.body .candidates>li,.body .lineList>li,.body .conditions>li { padding:9px 0; margin:0; border-top:1px solid var(--bdr,#ddd3c6); }
+.body .candidates>li:first-child,.body .lineList>li:first-child,.body .conditions>li:first-child { border-top:0; }
+.body .candidates>li.selected { border-left:3px solid var(--ac,#a33224); padding-left:10px; }
+.roles { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; margin-top:10px; }
+.roles>div { min-width:0; border:1px solid var(--bdr,#ddd3c6); border-radius:6px; padding:9px 11px; }
+.body .roles ul { padding:0; margin:0; list-style:none; }
+.body .roles li { margin:0; padding:6px 0; }
+.source { border-top:1px solid var(--bdr,#ddd3c6); padding-top:9px; margin-top:9px; }
+.source a { font-size:13px; }
+@media(max-width:600px) { .roles { grid-template-columns:1fr; } .version { display:none; } }
+@media(max-width:480px) { .panel { padding:14px; } .body { padding:9px 10px; } .section>summary { padding:9px 10px; } .mark { margin-left:0; margin-right:9px; } }

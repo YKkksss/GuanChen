@@ -1,6 +1,7 @@
 'use client';
 
 import { BirthDateFields, BirthTimeFields } from './BirthDateTimeFields';
+import Link from 'next/link';
 import { formatBaziEvidenceLabel } from '@/lib/bazi/display-labels';
 import { resolveInitialAnnualYear, resolveInitialFlowDate } from '@/lib/bazi/timeline-selection';
 import {
@@ -730,6 +731,7 @@ function PersistenceBar({
     <div className="flex flex-wrap gap-2">
       <button type="button" disabled={saving || saved} onClick={() => void onSave()} className="btn-accent !px-5 !py-2.5 disabled:cursor-default disabled:opacity-55"><FloppyDisk size={15} /> {saving ? '正在保存…' : saved ? '已保存' : '保存当前排盘'}</button>
       {saved && <button type="button" disabled={startingChat} onClick={() => void onChat()} className="btn-accent !px-5 !py-2.5 disabled:opacity-55"><ChatCircleDots size={16} weight="fill" /> {startingChat ? '正在进入…' : '开始基础解读'}</button>}
+      {saved && <Link href={`/bazi/reading/${currentChartId}`} className="btn-accent !px-5 !py-2.5"><Sparkle size={16} /> 八字论命总览</Link>}
     </div>
   </section>;
 }

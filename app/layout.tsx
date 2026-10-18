@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
+import './accounts.css';
+import AccountProvider from '@/components/AccountProvider';
 import './ai-markdown.css';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import EasternAppFrame from '@/components/eastern/EasternAppFrame';
@@ -44,8 +46,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="min-h-screen">
         <ThemeProvider>
-          <AutomaticBackupBootstrap />
-          <EasternAppFrame>{children}</EasternAppFrame>
+          <AccountProvider>
+            <AutomaticBackupBootstrap />
+            <EasternAppFrame>{children}</EasternAppFrame>
+          </AccountProvider>
         </ThemeProvider>
       </body>
     </html>

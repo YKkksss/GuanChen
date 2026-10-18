@@ -1,0 +1,63 @@
+.settings,.snapshot,.assessment { min-width:0; overflow-wrap:anywhere; color:var(--tx-1,#29231f); }
+.settings { grid-column:1 / -1; border:1px solid var(--bdr,#ddd3c6); border-radius:8px; padding:12px; }
+.heading,.toolbar { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:8px 12px; }
+.settings .heading h3 { margin:0; font-size:15px; }
+.settings .note,.snapshot .note,.assessment .note { margin:5px 0; color:var(--tx-2,#655c54); font-size:13px; line-height:1.65; }
+.controls { min-width:0; margin:10px 0 0; padding:0; border:0; }
+.settings .checkbox { display:flex; flex-direction:row; align-items:flex-start; gap:7px; font-size:13px; line-height:1.6; min-width:0; }
+.settings .checkbox input { width:17px; height:17px; flex:0 0 17px; margin:2px 0 0; padding:0; accent-color:var(--ac,#a33224); }
+.participants { display:grid; gap:10px; margin:8px 0 10px; }
+.participant { min-width:0; margin:0; padding:10px; border:1px solid var(--bdr,#ddd3c6); border-radius:7px; }
+.participant>legend,.clashes>legend { padding:0 5px; font-size:13px; font-weight:600; }
+.settings .field { display:flex; flex-direction:column; gap:5px; font-size:13px; }
+.settings select,.settings textarea { width:100%; min-width:0; max-width:100%; padding:7px 9px; font:inherit; border:1px solid var(--bdr,#ddd3c6); border-radius:6px; background:var(--bg-card,#fffdf9); color:var(--tx-1,#29231f); }
+.settings select { text-overflow:ellipsis; }
+.settings textarea { min-height:68px; resize:vertical; }
+.manual { border-top:1px solid var(--bdr,#ddd3c6); margin-top:9px; padding-top:8px; }
+.settings summary,.snapshot summary,.assessment summary { cursor:pointer; font-size:13px; }
+.elementGroups { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; margin:8px 0; }
+.elements { display:flex; flex-wrap:wrap; gap:5px 10px; margin:0; padding:8px; border:1px solid var(--bdr,#ddd3c6); border-radius:6px; min-width:0; }
+.elements legend { font-size:12px; padding:0 4px; }
+.clashes { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:7px 12px; min-width:0; margin:12px 0 5px; border:1px solid var(--bdr,#ddd3c6); border-radius:7px; padding:9px; }
+.settings .textButton { border:0; background:transparent; color:var(--ac,#a33224); padding:4px 0; font-size:13px; text-align:left; }
+.settings .secondary { padding:7px 10px; border:1px solid var(--ac,#a33224); border-radius:6px; background:transparent; color:var(--ac,#a33224); }
+.settings button:disabled { cursor:default; }
+.error,.notice { padding:9px 11px; margin:8px 0; border-radius:6px; background:var(--bg,#f3ede5); }
+.error { background:#fbede7; color:#8d2d22; }
+.error p { margin:0; }
+.error button { border:1px solid #b76a58; border-radius:5px; background:var(--bg-card,#fffdf9); padding:4px 8px; margin-top:6px; color:#8d2d22; }
+.settings .errorText,.snapshot .errorText,.assessment .errorText { font-size:13px; line-height:1.65; margin:5px 0; color:#8d2d22; }
+.snapshot { margin-top:14px; border-top:1px solid var(--bdr,#ddd3c6); padding-top:10px; }
+.snapshotPeople { display:grid; gap:10px; margin:8px 0; }
+.personFacts { min-width:0; border-left:2px solid var(--bdr,#ddd3c6); padding-left:10px; margin-top:9px; }
+.snapshot .personFacts h4,.assessment h4,.assessment .personFacts h5 { font-size:14px; line-height:1.6; margin:0 0 4px; font-weight:600; }
+.snapshot .personFacts p,.assessment .personFacts p { margin:4px 0; font-size:13px; }
+.pillars { font-weight:500; font-variant-numeric:tabular-nums; }
+.evidence { margin:7px 0; }
+.snapshot .evidence p { margin:5px 0; }
+.snapshot .version,.assessment .version { margin-top:8px; color:var(--tx-2,#655c54); font-size:12px; line-height:1.6; }
+.assessment { margin-top:12px; border-top:1px solid var(--bdr,#ddd3c6); padding-top:10px; }
+.assessment ul { padding-left:19px; margin:6px 0; font-size:13px; }
+.assessment li { margin-bottom:5px; }
+.assessment .reasons { color:#8d2d22; }
+.luckSetting { margin-top:10px; padding-top:10px; border-top:1px solid var(--bdr,#ddd3c6); }
+.luckFacts { margin:8px 0; padding:8px 10px; border:1px solid var(--bdr,#ddd3c6); border-radius:6px; min-width:0; }
+.luckFacts>summary { font-weight:600; }
+.luckSegments { display:grid; gap:8px; margin:8px 0; }
+.luckSegment { min-width:0; padding:9px; border:1px solid var(--bdr,#ddd3c6); border-radius:5px; }
+.luckSegment h6 { font-size:13px; line-height:1.6; margin:0 0 6px; }
+.luckRange { margin:0 0 8px; font-size:12px; font-variant-numeric:tabular-nums; }
+.luckRange>div { display:grid; grid-template-columns:78px minmax(0,1fr); gap:4px 8px; margin:4px 0; }
+.luckRange dt { color:var(--tx-2,#655c54); }
+.luckRange dd { margin:0; min-width:0; overflow-wrap:anywhere; }
+.luckLayers { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:6px; margin:8px 0; font-size:13px; }
+.luckLayers>div { min-width:0; padding:6px 8px; background:var(--bg,#f3ede5); border-radius:4px; }
+.luckLayers dt { color:var(--tx-2,#655c54); font-size:12px; }
+.luckLayers dd { display:flex; flex-wrap:wrap; align-items:baseline; gap:2px 8px; margin:2px 0 0; }
+.luckLayers dd span { font-size:12px; }
+.assessment .luckWarnings,.snapshot .luckWarnings { margin:6px 0; padding-left:18px; font-size:12px; line-height:1.65; color:var(--tx-2,#655c54); }
+.assessment .luckRelations { line-height:1.7; }
+.settings :is(button,a,summary,input,select,textarea):focus-visible,.snapshot :is(a,summary):focus-visible,.assessment summary:focus-visible { outline:2px solid var(--ac,#a33224); outline-offset:3px; }
+.srOnly { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+@media(max-width:480px) { .settings { padding:10px; } .elementGroups,.clashes { grid-template-columns:1fr; } .heading { align-items:flex-start; } .participant { padding:8px; } .settings select { font-size:13px; } }
+@media(max-width:480px) { .luckFacts { padding:7px; } .luckSegment { padding:7px; } .luckRange>div { grid-template-columns:1fr; gap:1px; } .luckLayers { grid-template-columns:1fr; gap:4px; } .luckLayers>div { display:grid; grid-template-columns:42px minmax(0,1fr); align-items:baseline; gap:5px; } .luckLayers dd { margin:0; } }

@@ -89,7 +89,7 @@ export default function ConversationHistory({
       <div className="eastern-history-head">
         <div className="eastern-history-title">
           <strong>{historyTitle}</strong>
-          <span>部署电脑档案 · 自动保存</span>
+          <span>当前账号档案 · 自动保存</span>
         </div>
 
         <div className="eastern-history-tools">

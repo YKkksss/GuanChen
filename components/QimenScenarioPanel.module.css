@@ -1,0 +1,57 @@
+.settings { grid-column: 1 / -1; min-width: 0; }
+.settings p { margin-top: 5px; }
+.panel { min-width: 0; margin-top: 16px; border: 1px solid var(--bdr, #ddd3c6); border-radius: 8px; overflow-wrap: anywhere; }
+.panel .heading { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 8px 12px; padding: 12px; }
+.panel .heading h3 { margin: 0; font-size: 16px; }
+.heading .version { max-width: 250px; color: var(--tx-2, #655c54); font-size: 11px; text-align: right; }
+.panel .scope { margin: 0; padding: 0 12px 10px; }
+.note { color: var(--tx-2, #655c54); font-size: 13px; line-height: 1.7; }
+.panel .summary { margin: 0 12px 10px; padding: 8px 10px; border-left: 3px solid var(--ac, #a33224); background: var(--bg, #f3ede5); font-size: 13px; }
+.tabs { display: flex; flex-wrap: wrap; gap: 4px; padding: 0 8px 8px; border-bottom: 1px solid var(--bdr, #ddd3c6); }
+.tabs button { min-height: 38px; padding: 6px 12px; border: 1px solid transparent; border-radius: 6px; background: transparent; color: var(--tx-2, #655c54); font: inherit; font-size: 13px; cursor: pointer; }
+.tabs button[aria-selected='true'] { color: var(--ac, #a33224); border-color: var(--bdr, #ddd3c6); background: var(--bg, #f3ede5); font-weight: 600; }
+.panel :is(button, a, summary, select):focus-visible, .body:focus-visible { outline: 2px solid var(--ac, #a33224); outline-offset: 3px; }
+.body { min-width: 0; padding: 10px 12px 12px; }
+.body[hidden] { display: none; }
+.panel .body h4 { margin: 0; font-size: 14px; }
+.panel .body h5 { margin: 8px 0 4px; font-size: 13px; }
+.panel .body p { margin: 4px 0 0; }
+.panel .list { display: grid; gap: 10px; list-style: none; padding: 0; margin: 10px 0 0; }
+.panel .list > li { min-width: 0; padding: 10px; margin: 0; border: 1px solid var(--bdr, #ddd3c6); border-radius: 6px; }
+.panel .plainList { margin: 6px 0 0; padding-left: 19px; }
+.panel .plainList > li { margin: 4px 0; }
+.roleHeading { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 4px 12px; }
+.symbol { color: var(--ac, #a33224); font-size: 13px; }
+.location { border-top: 1px solid var(--bdr, #ddd3c6); padding-top: 8px; margin-top: 8px; }
+.locationHead { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 12px; }
+.locationHead strong { font-size: 13px; }
+.textButton { min-height: 34px; padding: 4px 0; border: 0; background: transparent; color: var(--ac, #a33224); font: inherit; font-size: 13px; cursor: pointer; }
+.palaceButtons { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+.palaceButtons button { min-height: 36px; padding: 5px 10px; border: 1px solid var(--bdr, #ddd3c6); border-radius: 6px; background: transparent; color: var(--tx-1, #29231f); font: inherit; font-size: 13px; cursor: pointer; }
+.palaceButtons button[aria-pressed='true'] { color: var(--ac, #a33224); border-color: var(--ac, #a33224); background: var(--bg, #f3ede5); }
+.columns { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 10px; }
+.columns > div { min-width: 0; }
+.details { margin-top: 8px; border-top: 1px solid var(--bdr, #ddd3c6); padding-top: 6px; }
+.details > summary { cursor: pointer; font-size: 13px; font-weight: 600; line-height: 1.7; }
+.detailBody { padding-top: 6px; }
+.panel .notice { margin-top: 8px; padding: 8px 10px; border-radius: 5px; background: var(--bg, #f3ede5); }
+.route { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; margin-top: 6px; font-size: 13px; }
+.arrow { color: var(--ac, #a33224); font-weight: 600; }
+.basis { display: block; color: var(--tx-2, #655c54); font-size: 12px; }
+.pairSides { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 8px; }
+.pairSides > div { min-width: 0; }
+.disputed { display: inline-block; margin-left: 6px; color: #8d2d22; font-size: 12px; }
+.source + .source { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--bdr, #ddd3c6); }
+.source a, .details a { color: var(--ac, #a33224); font-size: 13px; }
+.legacy { padding: 0 12px 12px; }
+
+@media (max-width: 600px) {
+  .columns, .pairSides { grid-template-columns: 1fr; }
+  .heading .version { max-width: none; width: 100%; text-align: left; }
+}
+@media (max-width: 400px) {
+  .tabs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .tabs button { min-width: 0; padding: 6px; }
+  .body { padding: 9px 10px 10px; }
+  .panel .list > li { padding: 8px; }
+}

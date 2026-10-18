@@ -17,6 +17,7 @@ import {
   Compass,
   Database,
   Heart,
+  GridFour,
   List,
   MapTrifold,
   Notebook,
@@ -26,6 +27,7 @@ import {
   X,
 } from '@phosphor-icons/react';
 import HomeBirthForm from '@/components/HomeBirthForm';
+import { AccountBar } from '@/components/AccountProvider';
 import type { Conversation } from '@/lib/conversations/types';
 import type { BirthInfo } from '@/lib/ziwei/types';
 import styles from './home.module.css';
@@ -38,13 +40,20 @@ const CAPABILITIES = [
 ];
 
 const MODULES = [
+  { href: '/meihua', icon: GridFour, title: '梅花易数', description: '报数或时间起卦，核对本卦、互卦、变卦与体用，保存占问并继续对话。', className: styles.moduleCompact },
+  { href: '/liuyao', icon: GridFour, title: '六爻纳甲', description: '三钱或手动记录六爻，核对本变卦、八宫世应与六亲，保存占问并继续对话。', className: styles.moduleCompact },
+  { href: '/qimen', icon: GridFour, title: '奇门遁甲', description: '按时间拆补定局，查看九宫、值符值使与星门神，保存占问并按宫继续追问。', className: styles.moduleCompact },
+  { href: '/election', icon: CalendarDots, title: '择日工具', description: '按事项与日期区间筛选，核对黄历口径、比较候选日期并保存方案。', className: styles.moduleCompact },
+  { href: '/synthesis', icon: MapTrifold, title: '紫微八字合参', description: '同一份出生资料建立双盘，比较共同观察、不同观点与两侧依据。', className: styles.moduleCompact },
+  { href: '/chart/select?target=fortune', icon: ChartLineUp, title: '紫微运势专题', description: '指定农历年份与月份，分析事业、感情、财运、学习并对比阶段变化。', className: styles.moduleCompact },
+  { href: '/chart/select?target=calendar', icon: CalendarDots, title: '运势日历', description: '按月查看紫微运限，选择日期生成主题解读并保存回看。', className: styles.moduleCompact },
   { href: '/heming', icon: UsersThree, title: '紫微合盘', description: '分析伴侣、亲子、合作等关系中的互动结构与共同课题。', className: styles.moduleWide },
   { href: '/learn', icon: Books, title: '学习中心', description: '从命盘结构、十二宫和十四主星开始，循序理解自己的盘。', className: styles.moduleTall },
   { href: '/bazi', icon: CalendarDots, title: '八字分析', description: '查看十神、强弱、格局与大运流年。', className: styles.moduleCompact },
   { href: '/rectification', icon: ClockCounterClockwise, title: '生时校正', description: '通过人生事件评估可能的出生时辰。', className: styles.moduleCompact },
   { href: '/cases', icon: Notebook, title: '案例研习', description: '用匿名案例训练命盘结构判断。', className: styles.moduleCompact },
   { href: '/reminders', icon: BellSimple, title: '人生提醒', description: '按流年、生日与重要事件建立本地提醒。', className: styles.moduleCompact },
-  { href: '/settings/data', icon: Database, title: '数据保险箱', description: '导出、预检并安全恢复完整本地档案。', className: styles.moduleCompact },
+  { href: '/settings/data', icon: Database, title: '数据保险箱', description: '导出、预检并安全恢复当前账号的完整档案。', className: styles.moduleCompact },
 ];
 
 function Reveal({ children, className = '', delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) {
@@ -102,7 +111,7 @@ export default function HomePage() {
         <div className={styles.headerInner}>
           <Link href="/" className={styles.brand} aria-label="观辰首页">
             <Image src="/assets/brand/guanchen-mark.svg" alt="" width={42} height={42} priority />
-            <span>观辰 <i /> 命盘与人生观察</span>
+            <span>观辰 <i /><small>命盘与人生观察</small></span>
           </Link>
 
           <nav className={styles.desktopNav} aria-label="主导航">
@@ -126,6 +135,7 @@ export default function HomePage() {
             >
               {mobileMenuOpen ? <X size={22} /> : <List size={22} />}
             </button>
+            <AccountBar variant="inline" />
           </div>
         </div>
 
@@ -205,7 +215,7 @@ export default function HomePage() {
               <div className={styles.methodList}>
                 <div><Compass size={22} aria-hidden="true" /><span><strong>规则可复核</strong>纳音五行局、命身宫、十四主星和四化依统一算法生成。</span></div>
                 <div><ShieldCheck size={22} aria-hidden="true" /><span><strong>算法与 AI 分工清楚</strong>AI 不改动基础盘，只结合知识库解释命盘结构。</span></div>
-                <div><MapTrifold size={22} aria-hidden="true" /><span><strong>长期命档持续积累</strong>历史对话、年度报告和重要事件在本地持续保存。</span></div>
+                <div><MapTrifold size={22} aria-hidden="true" /><span><strong>长期命档持续积累</strong>历史对话、年度报告和重要事件在当前账号空间持续保存。</span></div>
               </div>
             </Reveal>
 
@@ -273,7 +283,7 @@ export default function HomePage() {
             <span>观辰 <i /> 命盘与人生观察</span>
           </div>
           <p>内容仅供传统文化研究与个人成长参考，不构成医疗、投资或人生决策建议。</p>
-          <div className={styles.footerLinks}><Link href="/terms">本地版使用说明</Link><Link href="/privacy">数据与隐私说明</Link></div>
+          <div className={styles.footerLinks}><Link href="/terms">服务使用说明</Link><Link href="/privacy">数据与隐私说明</Link></div>
         </div>
       </footer>
     </div>

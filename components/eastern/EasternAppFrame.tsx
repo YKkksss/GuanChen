@@ -8,7 +8,9 @@ import {
   Bell,
   BookOpenText,
   Books,
+  CalendarDots,
   ChartDonut,
+  ChartLineUp,
   ClockCounterClockwise,
   Database,
   Exam,
@@ -26,6 +28,7 @@ import {
 } from '@phosphor-icons/react';
 import type { Icon } from '@phosphor-icons/react';
 import ResultNotice from './ResultNotice';
+import { AccountBar } from '@/components/AccountProvider';
 import styles from './EasternAppFrame.module.css';
 import { resolveWorkspaceDestination, type WorkspaceDestination } from '@/lib/ui/workspace-navigation';
 import { useModalFocus } from '@/lib/ui/use-modal-focus';
@@ -44,8 +47,15 @@ const SIDE_NAV: Array<{ label: string; items: NavItem[] }> = [
     label: '命理工具',
     items: [
       { label: '命盘', href: '/chart', icon: ChartDonut, matches: path => path === '/chart' || (path !== '/chart/select' && /^\/chart\/[^/]+$/.test(path)) },
+      { label: '运势日历', destination: 'calendar', href: '/chart/select?target=calendar', icon: CalendarDots, matches: path => path.endsWith('/calendar') },
+      { label: '紫微运势专题', destination: 'fortune', href: '/chart/select?target=fortune', icon: ChartLineUp, matches: path => path.endsWith('/fortune') },
       { label: '紫微合盘', href: '/heming', icon: UsersThree, matches: path => path.startsWith('/heming') },
       { label: '八字分析', href: '/bazi', icon: GridFour, matches: path => path.startsWith('/bazi') },
+      { label: '紫微八字合参', href: '/synthesis', icon: GridFour, matches: path => path.startsWith('/synthesis') },
+      { label: '择日工具', href: '/election', icon: CalendarDots, matches: path => path.startsWith('/election') },
+      { label: '梅花易数', href: '/meihua', icon: GridFour, matches: path => path.startsWith('/meihua') },
+      { label: '六爻纳甲', href: '/liuyao', icon: GridFour, matches: path => path.startsWith('/liuyao') },
+      { label: '奇门遁甲', href: '/qimen', icon: GridFour, matches: path => path.startsWith('/qimen') },
       { label: '生时校正', href: '/rectification', icon: ClockCounterClockwise, matches: path => path.startsWith('/rectification') },
     ],
   },
@@ -73,13 +83,14 @@ const SIDE_NAV: Array<{ label: string; items: NavItem[] }> = [
   {
     label: '数据管理',
     items: [
+      { label: '账号设置', href: '/settings/account', icon: UsersThree, matches: path => path === '/settings/account' },
       { label: '数据保险箱', href: '/settings/data', icon: Database, matches: path => path.startsWith('/settings/data') },
     ],
   },
 ];
 
 const TOP_NAV = [
-  { label: '命盘', href: '/chart', matches: (path: string) => path.startsWith('/chart') || path.startsWith('/bazi') || path.startsWith('/rectification') },
+  { label: '命盘', href: '/chart', matches: (path: string) => path.startsWith('/chart') || path.startsWith('/bazi') || path.startsWith('/synthesis') || path.startsWith('/election') || path.startsWith('/meihua') || path.startsWith('/liuyao') || path.startsWith('/qimen') || path.startsWith('/rectification') },
   { label: '合盘', href: '/heming', matches: (path: string) => path.startsWith('/heming') },
   { label: '学习', href: '/learn', matches: (path: string) => path.startsWith('/learn') || path.startsWith('/knowledge') || path.startsWith('/library') || path.startsWith('/practice') },
   { label: '案例', href: '/cases', matches: (path: string) => path.startsWith('/cases') },
@@ -94,7 +105,7 @@ let devWarmupStarted = false;
 function shouldUseFrame(pathname: string) {
   if (pathname === '/') return false;
   if (pathname === '/chart' || pathname === '/history') return true;
-  return ['/heming', '/bazi', '/rectification', '/reminders', '/reviews', '/learn', '/knowledge', '/library', '/practice', '/cases', '/settings', '/chart/']
+  return ['/heming', '/bazi', '/synthesis', '/election', '/meihua', '/liuyao', '/qimen', '/rectification', '/reminders', '/reviews', '/learn', '/knowledge', '/library', '/practice', '/cases', '/settings', '/chart/']
     .some(prefix => pathname.startsWith(prefix));
 }
 
@@ -102,6 +113,11 @@ function shouldShowNotice(pathname: string) {
   return pathname === '/chart'
     || pathname.startsWith('/heming')
     || pathname.startsWith('/bazi')
+    || pathname.startsWith('/synthesis')
+    || pathname.startsWith('/election')
+    || pathname.startsWith('/meihua')
+    || pathname.startsWith('/liuyao')
+    || pathname.startsWith('/qimen')
     || pathname.startsWith('/rectification')
     || /^\/chart\/[^/]+\/(reports|timeline|events)/.test(pathname);
 }
@@ -186,7 +202,7 @@ export default function EasternAppFrame({ children }: { children: React.ReactNod
 
 
 
-  if (!shouldUseFrame(pathname)) return children;
+  if (!shouldUseFrame(pathname)) return <>{pathname !== '/' && <AccountBar />}{children}</>;
 
   return (
     <div className={styles.frame} data-eastern-route={pathname}>
@@ -233,6 +249,7 @@ export default function EasternAppFrame({ children }: { children: React.ReactNod
             {mobileNavOpen ? <X size={20} aria-hidden="true" /> : <List size={20} aria-hidden="true" />}
             <span>功能</span>
           </button>
+          <AccountBar variant="inline" />
         </div>
       </header>
 
@@ -298,7 +315,7 @@ export default function EasternAppFrame({ children }: { children: React.ReactNod
               </section>
             ))}
           </nav>
-          <Link href="/" className={styles.collapseHint}><House size={16} aria-hidden="true" /><span>返回首页</span></Link>
+          <Link href="/" className={styles.collapseHint} aria-label="返回首页"><House size={16} aria-hidden="true" /><span>返回首页</span></Link>
         </aside>
 
         <div className={styles.content}>

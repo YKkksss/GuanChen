@@ -1,0 +1,27 @@
+.panel {min-width:0;margin:16px 0;padding:20px;border:1px solid var(--bdr,#ddd3c6);border-radius:12px;background:var(--bg-card,#fffdf9);overflow-wrap:anywhere;}
+.heading {display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;}
+.panel h2 {font-size:18px;font-weight:600;margin:0 0 8px;}
+.panel h3 {font-size:16px;font-weight:600;margin:0 0 8px;}
+.panel h4 {font-size:14px;font-weight:600;margin:0 0 5px;}
+.panel p {margin:4px 0;}
+.eyebrow {font-size:12px;color:var(--ac,#a33224);letter-spacing:.06em;}
+.note {font-size:13px;color:var(--tx-2,#655c54);}
+.tag {font-size:12px;padding:2px 8px;border:1px solid var(--bdr,#ddd3c6);border-radius:5px;}
+.block {padding-top:15px;margin-top:15px;border-top:1px solid var(--bdr,#ddd3c6);}
+.columns {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:12px;}
+.facts {margin:10px 0;display:grid;gap:10px;}
+.facts dt {font-weight:600;}
+.facts dd {margin:3px 0 0;}
+.inset {margin:10px 0!important;padding:10px 12px;border-left:2px solid var(--bdr,#ddd3c6);background:var(--bg,#f3ede5);}
+.palaces {display:flex;gap:6px;flex-wrap:wrap;margin:10px 0;}
+.palaces button {padding:5px 10px;border:1px solid var(--bdr,#ddd3c6);border-radius:6px;background:transparent;color:var(--tx-1,#29231f);}
+.palaces button[aria-pressed=true] {border-color:var(--ac,#a33224);color:var(--ac,#a33224);}
+.details {margin-top:12px;padding:9px 12px;border:1px solid var(--bdr,#ddd3c6);border-radius:8px;}
+.details summary {cursor:pointer;font-size:13px;font-weight:500;}
+.details[open] summary {margin-bottom:10px;}
+.panel ul {padding-left:19px;margin:8px 0;}
+.panel li {margin-bottom:9px;}
+.disputed {display:inline-block;font-size:12px;color:#8d2d22;background:#fbede7;border-radius:4px;margin-left:7px;padding:0 5px;}
+.structures {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 14px;margin:8px 0;}
+.source {padding-top:10px;margin-top:10px;border-top:1px solid var(--bdr,#ddd3c6);}
+@media(max-width:600px){.columns,.structures {grid-template-columns:1fr;}.panel {padding:14px;}.details {padding:9px 10px;}}

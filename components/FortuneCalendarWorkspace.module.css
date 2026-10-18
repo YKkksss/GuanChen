@@ -1,0 +1,101 @@
+.page { padding: 24px 28px 40px; max-width: 1600px; margin: 0 auto; color: var(--tx-1, #2b2420); }
+.pageHeader { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding-bottom: 22px; border-bottom: 1px solid var(--bdr, #ded3c2); }
+.pageHeader h1 { display: flex; align-items: center; gap: 10px; font-size: 30px; line-height: 1.4; margin: 3px 0 6px; }
+.pageHeader p, .monthToolbar p, .detailHeading p { color: var(--tx-2, #67594f); font-size: 13px; line-height: 1.7; }
+.eyebrow { color: var(--ac, #b42b22) !important; font-size: 11px !important; letter-spacing: .1em; }
+.pageLinks { display: flex; flex-wrap: wrap; gap: 12px; }
+.pageLinks a, .continueLink { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; font-size: 13px; text-decoration: underline; text-underline-offset: 4px; }
+.page button, .page input { font: inherit; }
+.page button { cursor: pointer; }
+.page button:disabled { cursor: default; opacity: .4; }
+.page button:focus-visible, .page a:focus-visible, .page summary:focus-visible, .page input:focus-visible { outline: 2px solid var(--ac, #b42b22); outline-offset: 3px; }
+.topics { display: flex; flex-wrap: wrap; gap: 8px; padding: 18px 0; }
+.topics legend { float: left; margin-right: 14px; padding-top: 13px; font-size: 13px; color: var(--tx-2, #67594f); }
+.topics button { min-height: 44px; padding: 8px 20px; font-size: 14px; border: 1px solid var(--bdr-med, #d6c9b7); border-radius: 5px; background: var(--bg-card, #fffdf8); }
+.topics button[aria-pressed="true"] { background: var(--ac, #b42b22); color: #fffaf3; border-color: var(--ac, #b42b22); }
+.notice { padding: 12px 16px; margin-bottom: 18px; border-left: 3px solid var(--ac, #b42b22); background: var(--ac-bg, #f7e9df); font-size: 13px; line-height: 1.7; }
+.workspace { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 24px; align-items: start; }
+.calendarPanel, .detailPanel { min-width: 0; border: 1px solid var(--bdr-med, #d6c9b7); border-radius: 8px; background: var(--bg-card, #fffdf8); }
+.calendarPanel { padding: 20px; position: sticky; top: 78px; }
+.detailPanel { padding: 22px; }
+.monthToolbar { display: flex; justify-content: space-between; gap: 14px; flex-wrap: wrap; }
+.monthToolbar h2 { font-size: 23px; line-height: 1.4; margin-bottom: 5px; }
+.monthButtons { display: flex; gap: 5px; }
+.monthButtons button { display: inline-flex; justify-content: center; align-items: center; height: 44px; min-width: 44px; padding: 6px 10px; border: 1px solid var(--bdr-med, #d6c9b7); border-radius: 5px; font-size: 13px; }
+.monthJump { display: flex; align-items: center; gap: 10px; margin: 16px 0 12px; font-size: 12px; color: var(--tx-2, #67594f); }
+.monthJump input { min-height: 40px; min-width: 0; max-width: 100%; padding: 6px 10px; border: 1px solid var(--bdr-med, #d6c9b7); background: var(--bg-page, #fffdf8); border-radius: 4px; color: var(--tx-1, #2b2420); }
+.week { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); }
+.week [role="columnheader"] { padding: 12px 0; text-align: center; color: var(--tx-2, #67594f); font-size: 12px; }
+.cell { min-width: 0; min-height: 91px; border-top: 1px solid var(--bdr, #ded3c2); border-left: 1px solid var(--bdr, #ded3c2); }
+.cell:last-child { border-right: 1px solid var(--bdr, #ded3c2); }
+.week:last-child .cell { border-bottom: 1px solid var(--bdr, #ded3c2); }
+.day { width: 100%; min-height: 90px; display: flex; flex-direction: column; gap: 2px; align-items: center; justify-content: center; position: relative; border: 2px solid transparent; }
+.day strong { font-size: 21px; font-weight: 500; line-height: 1.25; font-variant-numeric: tabular-nums; }
+.day span { font-size: 11px; color: var(--tx-2, #67594f); white-space: nowrap; }
+.day small { font-size: 10px; color: var(--tx-2, #67594f); }
+.day:hover:not(:disabled) { background: var(--ac-bg, #f7e9df); }
+.day.today { border-color: var(--ac-bdr, #e3b4a9); }
+.day.selectedDay, .day.selectedDay:hover { background: var(--ac, #b42b22); color: #fffaf3; border-color: var(--ac, #b42b22); }
+.selectedDay span, .selectedDay small { color: #fffaf3; }
+.savedMark, .pendingMark { display: inline-block; width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.savedMark { background: var(--ac, #b42b22); }
+.pendingMark { border: 1px solid var(--tx-2, #67594f); }
+.day .savedMark, .day .pendingMark { position: absolute; right: 6px; top: 6px; }
+.selectedDay .savedMark { background: #fffaf3; }
+.selectedDay .pendingMark { border-color: #fffaf3; }
+.calendarLegend { display: flex; flex-wrap: wrap; gap: 8px 14px; margin-top: 16px; color: var(--tx-2, #67594f); font-size: 11px; line-height: 1.6; }
+.calendarLegend span { display: inline-flex; align-items: center; gap: 6px; }
+.detailHeading { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; padding-bottom: 17px; border-bottom: 1px solid var(--bdr, #ded3c2); }
+.detailHeading h2 { font-size: 26px; margin: 3px 0 5px; font-variant-numeric: tabular-nums; }
+.readingLabel { display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; font-size: 11px; color: var(--ac, #b42b22); padding: 7px 0; }
+.stages { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 20px; padding: 18px 0; }
+.stages dt { font-size: 11px; color: var(--tx-2, #67594f); margin-bottom: 4px; }
+.stages dd { font-size: 14px; line-height: 1.6; overflow-wrap: anywhere; }
+.reading { border-top: 1px solid var(--bdr, #ded3c2); }
+.summary { padding: 16px 0; font-size: 15px; line-height: 1.9; font-weight: 500; }
+.reading > section { padding-bottom: 16px; }
+.reading h3 { font-size: 18px; margin-bottom: 9px; }
+.reading :global(.ai-markdown) { font-size: 14px; line-height: 1.9; }
+.savedMeta { font-size: 11px; color: var(--tx-2, #67594f); line-height: 1.7; margin-bottom: 18px; overflow-wrap: anywhere; }
+.evidence { margin-top: 10px; border-top: 1px solid var(--bdr, #ded3c2); }
+.evidence summary { cursor: pointer; padding: 12px 0; font-size: 12px; color: var(--tx-2, #67594f); min-height: 44px; }
+.evidence ul { display: grid; gap: 12px; margin: 0 0 16px; }
+.evidence li { padding-left: 10px; border-left: 2px solid var(--bdr-med, #d6c9b7); font-size: 12px; line-height: 1.8; }
+.evidence li strong { font-weight: 600; }
+.evidence li p { color: var(--tx-2, #67594f); margin-top: 3px; }
+.emptyReading { padding: 26px 14px; border-top: 1px solid var(--bdr, #ded3c2); text-align: center; }
+.emptyReading svg { margin: 0 auto 12px; color: var(--ac, #b42b22); }
+.emptyReading h3 { font-size: 20px; margin-bottom: 10px; }
+.emptyReading p { font-size: 13px; color: var(--tx-2, #67594f); line-height: 1.8; max-width: 34ch; margin: 0 auto 18px; }
+.generateButton { padding: 10px 22px; min-height: 46px; border-radius: 5px; background: var(--ac, #b42b22); color: #fffaf3; font-size: 14px; }
+.boundary { font-size: 11px; line-height: 1.8; color: var(--tx-2, #67594f); margin-top: 12px; }
+.continueLink { margin-top: 12px; color: var(--ac, #b42b22); }
+.error { font-size: 13px; line-height: 1.8; padding: 10px 0; color: #9d2520; }
+.state { padding: 24px 8px; font-size: 14px; line-height: 1.8; display: grid; gap: 12px; }
+.state button, .state a { min-height: 44px; text-align: left; text-decoration: underline; }
+.calendarSkeleton { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; padding-top: 15px; }
+.calendarSkeleton span { min-height: 86px; background: var(--bg-1, #f3ebde); border-radius: 4px; }
+.detailSkeleton { padding: 28px 0; min-height: 240px; font-size: 14px; color: var(--tx-2, #67594f); }
+@media (max-width: 1180px) { .workspace { grid-template-columns: 1fr; } .calendarPanel { position: static; } }
+@media (max-width: 620px) {
+  .page { padding: 18px 16px 32px; }
+  .pageHeader { flex-direction: column; align-items: stretch; gap: 6px; padding-bottom: 12px; }
+  .pageHeader h1 { font-size: 26px; }
+  .topics { gap: 5px; padding: 14px 0; }
+  .topics legend { float: none; padding: 0; margin-bottom: 7px; }
+  .topics button { flex: 1; min-width: 0; padding: 7px 9px; font-size: 13px; }
+  .workspace { gap: 18px; }
+  .calendarPanel { padding: 12px; }
+  .detailPanel { padding: 16px; }
+  .monthToolbar h2 { font-size: 21px; }
+  .monthToolbar p { font-size: 11px; }
+  .monthToolbar { gap: 10px; }
+  .cell { min-height: 74px; }
+  .day { min-height: 73px; }
+  .day strong { font-size: 18px; }
+  .day span { font-size: 10px; }
+  .day small { font-size: 9px; }
+  .day .savedMark, .day .pendingMark { top: 4px; right: 3px; width: 5px; height: 5px; }
+  .detailHeading h2 { font-size: 24px; }
+  .calendarSkeleton span { min-height: 72px; }
+}

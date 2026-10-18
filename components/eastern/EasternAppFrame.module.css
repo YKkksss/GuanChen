@@ -47,8 +47,9 @@
   top: 0;
   z-index: 90;
   display: grid;
-  grid-template-columns: 245px minmax(0, 1fr) 120px;
+  grid-template-columns: 245px minmax(0, 1fr) auto;
   align-items: center;
+  gap: 16px;
   height: 58px;
   padding: 0 20px;
   background: rgba(251, 248, 240, 0.94);
@@ -130,6 +131,7 @@
 
 .topnav {
   display: flex;
+  min-width: 0;
   justify-content: center;
   gap: 38px;
 }
@@ -447,7 +449,7 @@
 
 @media (max-width: 1080px) {
   .topbar {
-    grid-template-columns: 220px minmax(0, 1fr) 80px;
+    grid-template-columns: 220px minmax(0, 1fr) auto;
   }
 
   .topnav {

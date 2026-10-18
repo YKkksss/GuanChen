@@ -29,7 +29,7 @@ export default function ChartDestinationPicker({ target }: { target: WorkspaceDe
     void (async () => {
       try {
         const [conversations, rectifications] = await Promise.all([
-          read(`/api/conversations?status=active&limit=100${target === 'events' ? '&type=chart' : ''}`) as Promise<{ conversations: Conversation[] }>,
+          read(`/api/conversations?status=active&limit=100${target === 'events' || target === 'calendar' || target === 'fortune' ? '&type=chart' : ''}`) as Promise<{ conversations: Conversation[] }>,
           target === 'reports' ? read('/api/rectifications?limit=100') as Promise<{ sessions: RectificationSessionListItem[] }> : Promise.resolve({ sessions: [] }),
         ]);
         if (controller.signal.aborted) return;
@@ -58,7 +58,7 @@ export default function ChartDestinationPicker({ target }: { target: WorkspaceDe
       <label className={styles.search}>按名称筛选最近档案
         <input type="search" value={query} onChange={event => setQuery(event.target.value)} placeholder="输入档案名称" />
       </label>
-      <p className={styles.hint}>{target === 'events' ? '加载最近 100 份未归档个人命盘' : '个人命盘与合盘合计加载最近 100 份未归档会话'}{target === 'reports' ? '，另加载最近 100 份校正档案并排除已归档项' : ''}。</p>
+      <p className={styles.hint}>{target === 'events' || target === 'calendar' || target === 'fortune' ? '加载最近 100 份未归档个人命盘' : '个人命盘与合盘合计加载最近 100 份未归档会话'}{target === 'reports' ? '，另加载最近 100 份校正档案并排除已归档项' : ''}。</p>
       {loading ? <p role="status">正在加载档案…</p> : error ? (
         <div role="alert"><p>{error}</p><button type="button" onClick={() => setRetry(value => value + 1)}>重新加载</button></div>
       ) : visibleEntries.length ? (
@@ -73,7 +73,7 @@ export default function ChartDestinationPicker({ target }: { target: WorkspaceDe
       ) : <p role="status">{query ? '最近档案中没有匹配项，可更换名称或前往档案列表查找。' : '暂无可用档案，先建立命盘后即可继续。'}</p>}
       <div className={styles.actions}>
         <Link href="/chart">前往个人命盘</Link>
-        {target !== 'events' && <Link href="/heming">前往紫微合盘</Link>}
+        {target !== 'events' && target !== 'calendar' && target !== 'fortune' && <Link href="/heming">前往紫微合盘</Link>}
         {target === 'reports' && <Link href="/rectification">前往生时校正</Link>}
       </div>
     </main>

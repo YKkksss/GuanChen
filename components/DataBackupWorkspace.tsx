@@ -243,7 +243,7 @@ export default function DataBackupWorkspace() {
 
   async function restoreBackup() {
     if (!selectedFile || !preview?.compatible || confirmation !== LOCAL_BACKUP_CONFIRMATION) return;
-    if (!window.confirm('恢复会用备份中的全部数据替换当前本地档案。系统会先自动保存恢复前备份，确定继续吗？')) return;
+    if (!window.confirm('恢复会用备份中的全部数据替换当前账号的档案。系统会先自动保存恢复前备份，确定继续吗？')) return;
     setBusy('restoring');
     setError('');
     setSuccess(null);
@@ -279,9 +279,9 @@ export default function DataBackupWorkspace() {
         <div>
           <Link href="/" className="text-xs" style={{ color: 'var(--t-faint)' }}>← 返回首页</Link>
           <div className="mt-5 text-[10px] font-medium tracking-[.28em]" style={{ color: 'var(--t-gold)' }}>LOCAL DATA VAULT</div>
-          <h1 className="mt-2 text-2xl font-semibold sm:text-3xl" style={{ color: 'var(--t-text)' }}>本地数据保险箱</h1>
+          <h1 className="mt-2 text-2xl font-semibold sm:text-3xl" style={{ color: 'var(--t-text)' }}>账号数据保险箱</h1>
           <p className="mt-3 max-w-3xl text-xs leading-7" style={{ color: 'var(--t-text2)' }}>
-            档案与备份保存在部署电脑，局域网访问者共享。导入、解锁与预检由部署电脑处理，下载文件保存在当前访问设备。普通备份与数据库默认不加密。
+            档案与备份保存在观辰服务端，按登录账号隔离。备份和恢复只作用于当前账号。导入、解锁与预检由服务端处理，下载文件保存在当前访问设备。普通备份与数据库默认不加密。
           </p>
         </div>
         {view === 'full' && <div className="flex flex-wrap gap-2">
@@ -346,7 +346,7 @@ export default function DataBackupWorkspace() {
             <div className="flex items-start justify-between gap-4">
               <div className="flex items-start gap-3">
                 <div className="rounded-xl p-2.5" style={{ color: 'var(--t-gold)', background: 'var(--ac-bg)' }}><Database size={21} /></div>
-                <div><h2 className="text-base font-semibold" style={{ color: 'var(--t-text)' }}>当前本地档案</h2><p className="mt-1 text-[10px] leading-5" style={{ color: 'var(--t-faint)' }}>SQLite v{summary?.schemaVersion ?? '—'} · 数据库 {formatBytes(summary?.databaseBytes ?? 0)}</p></div>
+                <div><h2 className="text-base font-semibold" style={{ color: 'var(--t-text)' }}>当前账号档案</h2><p className="mt-1 text-[10px] leading-5" style={{ color: 'var(--t-faint)' }}>SQLite v{summary?.schemaVersion ?? '—'} · 数据库 {formatBytes(summary?.databaseBytes ?? 0)}</p></div>
               </div>
               {busy === 'loading' && <SpinnerGap className="animate-spin" size={18} style={{ color: 'var(--t-gold)' }} />}
             </div>
@@ -464,7 +464,7 @@ export default function DataBackupWorkspace() {
               </label>
               <button type="button" disabled={busy === 'restoring' || confirmation !== LOCAL_BACKUP_CONFIRMATION} onClick={() => void restoreBackup()} className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl px-5 py-3 text-xs disabled:cursor-not-allowed disabled:opacity-40" style={{ color: '#fffaf3', background: '#9f3f35' }}>
                 {busy === 'restoring' ? <SpinnerGap className="animate-spin" size={15} /> : <WarningCircle size={15} />}
-                {busy === 'restoring' ? '正在备份原数据并安全恢复…' : '替换当前全部本地数据'}
+                {busy === 'restoring' ? '正在备份原数据并安全恢复…' : '替换当前账号全部数据'}
               </button>
             </div>
           )}

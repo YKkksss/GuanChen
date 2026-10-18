@@ -246,6 +246,18 @@ export default function ChartWorkspace({ conversationId }: ChartWorkspaceProps) 
                 <TrendUp size={16} aria-hidden="true" />
                 <span>运限分析</span>
               </button>
+              <button type="button" onClick={() => navigateFromActions(`/chart/${conversationId}/fortune`)}>
+                <FileText size={16} aria-hidden="true" />
+                <span>紫微运势专题</span>
+              </button>
+              <button type="button" onClick={() => navigateFromActions(`/chart/${conversationId}/calendar`)}>
+                <CalendarDots size={16} aria-hidden="true" />
+                <span>运势日历</span>
+              </button>
+              <button type="button" onClick={() => navigateFromActions(`/synthesis?source=${conversationId}`)}>
+                <FileText size={16} aria-hidden="true" />
+                <span>紫微八字合参</span>
+              </button>
               <button type="button" onClick={() => navigateFromActions(`/rectification?conversationId=${conversationId}`)}>
                 <ClockCounterClockwise size={16} aria-hidden="true" />
                 <span>校正时辰</span>
