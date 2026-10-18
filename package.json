@@ -115,7 +115,10 @@
     "test:meihua-imagery": "tsx scripts/test-meihua-imagery.ts",
     "test:meihua-scenarios": "tsx scripts/test-meihua-scenarios.ts",
     "test:bazi-month-command": "tsx scripts/test-bazi-month-command.ts",
-    "test:bazi-month-intake": "tsx scripts/test-bazi-month-intake.ts"
+    "test:bazi-month-intake": "tsx scripts/test-bazi-month-intake.ts",
+    "test:release-engineering": "tsx scripts/test-release-engineering.ts",
+    "release:check": "node scripts/release-check.mjs",
+    "qa:production-readonly": "node scripts/qa-production-readonly.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.27.0",
