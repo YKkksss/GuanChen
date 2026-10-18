@@ -1,0 +1,77 @@
+{
+  "at": "2026-10-18T09:16:18.279Z",
+  "base": "http://127.0.0.1:30002",
+  "passed": true,
+  "count": 14,
+  "results": [
+    {
+      "name": "health 200",
+      "passed": true,
+      "detail": "{\"process\":{\"status\":\"ok\",\"uptimeSeconds\":2},\"dataDir\":{\"status\":\"ok\"},\"database\":{\"status\":\"not_initialized\"},\"disk\":{\"status\":\"ok\",\"freeMb\":229770}}"
+    },
+    {
+      "name": "health 禁止缓存",
+      "passed": true
+    },
+    {
+      "name": "登录页 200",
+      "passed": true
+    },
+    {
+      "name": "注册 201/200",
+      "passed": true,
+      "detail": "status=201"
+    },
+    {
+      "name": "注册返回会话 Cookie",
+      "passed": true,
+      "detail": "guanchen_session=***"
+    },
+    {
+      "name": "session 200",
+      "passed": true
+    },
+    {
+      "name": "只读 /api/conversations?type=chart",
+      "passed": true,
+      "detail": "status=200 cache=private, no-store"
+    },
+    {
+      "name": "只读 /api/bazi/profiles",
+      "passed": true,
+      "detail": "status=200 cache=private, no-store"
+    },
+    {
+      "name": "只读 /api/election",
+      "passed": true,
+      "detail": "status=200 cache=private, no-store"
+    },
+    {
+      "name": "只读 /api/reminders",
+      "passed": true,
+      "detail": "status=200 cache=private, no-store"
+    },
+    {
+      "name": "只读 /api/backups",
+      "passed": true,
+      "detail": "status=200 cache=private, no-store"
+    },
+    {
+      "name": "只读 /api/learning/courses",
+      "passed": true,
+      "detail": "status=200 cache=private, no-store"
+    },
+    {
+      "name": "只读 /api/cases",
+      "passed": true,
+      "detail": "status=200 cache=private, no-store"
+    },
+    {
+      "name": "注册后 health 数据库正常",
+      "passed": true,
+      "detail": "{\"process\":{\"status\":\"ok\",\"uptimeSeconds\":2},\"dataDir\":{\"status\":\"ok\"},\"database\":{\"status\":\"ok\"},\"disk\":{\"status\":\"ok\",\"freeMb\":229767}}"
+    }
+  ],
+  "scope": "本地 127.0.0.1 staging；隔离临时数据目录；仅健康/登录/注册/只读 GET；不调用 AI。",
+  "limitation": "未验证正式域名、HTTPS、反向代理、真机或真实模型。"
+}

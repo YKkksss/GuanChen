@@ -29,6 +29,8 @@ const required = [
   'docs/V2_RELEASE_PLAN.md',
   'docs/V2_MODULE_ACCEPTANCE.md',
   'docs/GIT_WORKFLOW.md',
+  'docs/P1_RELEASE_ENGINEERING.md',
+  'docs/P2_DEPLOYMENT.md',
   'docs/ACCOUNT_SERVICE.md',
   'docs/qa-evidence/2026-10-18-v2.0-p0-delivery.json',
 ];

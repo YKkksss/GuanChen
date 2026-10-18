@@ -1,0 +1,63 @@
+{
+  "stage": "P2",
+  "stageName": "数据与部署",
+  "completedAt": "2026-10-18",
+  "timezone": "Asia/Shanghai",
+  "passed": true,
+  "branch": "release/2.0",
+  "tag": "v2.0.0-rc.1",
+  "features": [
+    "docs/P2_DEPLOYMENT.md：安装、环境、反代、进程守护、备份、恢复、迁移、回滚、staging",
+    "ops/nginx/guanchen.conf：HTTPS、流式不缓冲、130m 上传、300s 超时",
+    "ops/systemd/guanchen.service：单进程守护、持久目录、重启策略",
+    "ops/windows/backup.ps1 + README：NSSM 与任务计划示例",
+    "scripts/ops/preflight.ts：Node、目录权限、原生 SQLite、PDF 字体、磁盘、来源与密钥预检",
+    "scripts/ops/backup-all.mjs：在线 SQLite 备份、附件复制、SHA-256 清单、保留策略、拒绝嵌套目标",
+    "scripts/qa-staging-smoke.mjs：本地 30002 staging 健康/登录/注册/只读冒烟",
+    "v47→v56 合成迁移演练"
+  ],
+  "validation": {
+    "deploymentOpsTest": {
+      "passed": true,
+      "assertions": 15,
+      "covers": ["preflight", "online backup", "integrity", "retention", "reject nested target", "loss and restore"]
+    },
+    "stagingSmoke": {
+      "passed": true,
+      "checks": 14,
+      "file": "docs/qa-evidence/2026-10-18-v2.0-p2-staging.json",
+      "scope": "127.0.0.1:30002, isolated temp ACCOUNT_DATA_DIR, registration + read-only GET, no AI"
+    },
+    "migrationDrill": {
+      "passed": true,
+      "from": 47,
+      "to": 56,
+      "file": "docs/qa-evidence/2026-10-18-v2.0-p2-migration-drill.json",
+      "markerPreserved": true,
+      "integrity": "ok"
+    },
+    "preflight": {
+      "passed": true,
+      "nativeSqlite": true,
+      "pdfFonts": true
+    },
+    "backup": {
+      "passed": true,
+      "sha256Manifest": true,
+      "retention": true,
+      "restoreVerified": true
+    },
+    "ci": {
+      "status": "pending_after_push",
+      "note": "P2 提交推送后由 GitHub Actions 运行 106 组回归"
+    }
+  },
+  "notDone": [
+    "正式主机、域名、HTTPS 证书与反代实测",
+    "服务器侧 cron/任务计划的真实定时执行",
+    "完整 v1 用户资料 import-legacy 与真实备份恢复",
+    "离机备份、监控告警与灾备演练",
+    "Linux 与 Windows 两套系统的字体/原生模块分别验收"
+  ],
+  "nextStage": "P3 安全与账号收口：跨账号矩阵、密码重置兜底、AI 配额、上传边界、仓库泄漏扫描"
+}

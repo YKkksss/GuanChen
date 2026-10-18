@@ -1,0 +1,22 @@
+{
+  "stage": "P2",
+  "drill": "v47 -> v56 migration",
+  "at": "2026-10-18T09:18:00+08:00",
+  "timezone": "Asia/Shanghai",
+  "passed": true,
+  "sourceVersion": "v1.0.0 (git tag 8e5afe5)",
+  "sourceSchema": 47,
+  "targetSchema": 56,
+  "method": "git worktree v1.0.0 生成合成 v47 业务库，放入当前代码的用户目录后由 runAsUser + getDatabase 自动迁移；未使用真实用户数据",
+  "checks": {
+    "schemaMigration": "47 -> 56",
+    "markerTablePreserved": "v47-preserved",
+    "conversationsTablePresent": true,
+    "integrityCheck": "ok"
+  },
+  "limitations": [
+    "使用空业务库 + 标记表，不是完整 v1 用户资料迁移",
+    "未演练旧共享库 import-legacy 的真实数据复制",
+    "正式升级前仍需用实际 v1 备份在副本上复验"
+  ]
+}
