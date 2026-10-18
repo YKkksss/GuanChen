@@ -65,7 +65,7 @@ npm run accounts:manage -- admin 你的用户名
 ```
 
 3. 在首页录入出生资料，进入命盘工作台。
-4. AI 问答/报告需要先在 `.env.local` 配置 `DEEPSEEK_API_KEY` 或 MIMO 配置，然后重启服务。
+4. AI 问答/报告需要先在 `.env.local` 配置 `DEEPSEEK_API_KEY` 或 MIMO 配置，然后重启服务。打开“账号设置”可看到 AI 是否已配置、当前模型和今日用量；`AI_DAILY_LIMIT` 控制每账号每日次数（0 表示不限）。
 
 ## 5. 数据与备份
 

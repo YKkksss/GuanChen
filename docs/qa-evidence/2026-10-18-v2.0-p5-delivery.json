@@ -1,0 +1,46 @@
+{
+  "stage": "P5",
+  "stageName": "真实模型冒烟与本地 AI 配置体验",
+  "completedAt": "2026-10-18",
+  "timezone": "Asia/Shanghai",
+  "passed": true,
+  "branch": "release/2.0",
+  "tag": "v2.0.0-beta.6",
+  "features": [
+    "GET /api/ai/status：只返回是否配置、供应商、模型、每日限额、今日用量，不返回密钥或地址",
+    "账号设置页“AI 服务”区块：已配置/未配置、模型、今日用量、密钥只在服务端说明",
+    "scripts/qa-ai-smoke.ts：四类合成短文真实模型冒烟，未配置时跳过",
+    "AI 配额状态展示与失败提示复用"
+  ],
+  "validation": {
+    "realModelSmoke": {
+      "passed": true,
+      "provider": "deepseek",
+      "model": "deepseek-v4-pro",
+      "requests": 4,
+      "passedCount": 4,
+      "totalInputTokens": 190,
+      "totalOutputTokens": 261,
+      "latencyMs": [2540, 2632, 2368, 1525],
+      "forbiddenHits": 0,
+      "estimatedCostUsd": null,
+      "file": "docs/qa-evidence/2026-10-18-v2.0-p5-ai-smoke.json"
+    },
+    "browser": {
+      "passed": true,
+      "checks": 46,
+      "axeCriticalOrSerious": 0,
+      "accountScreenshot": "docs/qa-evidence/2026-10-18-v2.0-p4/account-1280.jpg"
+    },
+    "ci": {
+      "status": "pending_after_push"
+    }
+  },
+  "notDone": [
+    "完整应用链路的真实模型报告/长上下文质量评估",
+    "供应商费用结算/账单平台（未配置单价，不估算金额）",
+    "多供应商自动路由与模型质量对比",
+    "真机 iOS/Android 验收（需用户设备）"
+  ],
+  "nextStage": "B：本地 v2.0 冻结评估与发布说明"
+}

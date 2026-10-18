@@ -1,0 +1,65 @@
+{
+  "at": "2026-10-18T12:25:00.661Z",
+  "passed": true,
+  "skipped": false,
+  "provider": "deepseek",
+  "model": "deepseek-v4-pro",
+  "requestCount": 4,
+  "maxTokensPerRequest": 180,
+  "totalInputTokens": 190,
+  "totalOutputTokens": 261,
+  "estimatedCostUsd": null,
+  "pricingNote": "未设置 AI_PRICE_INPUT_PER_M / AI_PRICE_OUTPUT_PER_M，未估算金额。",
+  "results": [
+    {
+      "id": "chart",
+      "passed": true,
+      "latencyMs": 2540,
+      "usage": {
+        "inputTokens": 52,
+        "outputTokens": 60,
+        "cachedInputTokens": 0
+      },
+      "length": 97,
+      "excerpt": "宫位与星曜适合解释为性格倾向、思维模式与人生领域的潜在特质，例如某星入某宫可描述该领域可能呈现的风格或关注点。不能据此宣告具体事件，因为命盘呈现的是象征性的能量组合，而非对现实因果的确定性预言。"
+    },
+    {
+      "id": "bazi",
+      "passed": true,
+      "latencyMs": 2632,
+      "usage": {
+        "inputTokens": 51,
+        "outputTokens": 104,
+        "cachedInputTokens": 0
+      },
+      "length": 136,
+      "excerpt": "月令、透干、旺衰只是判断日主与十神力量分布的“原始证据”，说明某五行在命局中强或弱、有根无根；而最终喜用必须结合全局的流通、制化、寒暖燥湿以及日主本身是否需要该五行来定。同一五行在旺衰上为“旺”，但若已成忌神或阻塞全局，反而要取泄耗制化之物为用，不能仅凭旺衰直接定为喜用。"
+    },
+    {
+      "id": "report",
+      "passed": true,
+      "latencyMs": 2368,
+      "usage": {
+        "inputTokens": 40,
+        "outputTokens": 62,
+        "cachedInputTokens": 0
+      },
+      "length": 97,
+      "excerpt": "**命理报告摘要**  \n1. 结论须标注前提与时效，避免绝对化表述。  \n2. 对不确定处明示“待验”或“倾向性判断”，保留修正余地。  \n3. 预留现实反馈接口，鼓励用户以实际经历校准解读。"
+    },
+    {
+      "id": "divination",
+      "passed": true,
+      "latencyMs": 1525,
+      "usage": {
+        "inputTokens": 47,
+        "outputTokens": 35,
+        "cachedInputTokens": 0
+      },
+      "length": 57,
+      "excerpt": "结构是模型内的符号关系，只表示“可发生”的条件组合；现实事件是否发生，还取决于时间到位、动应触发与外部情境的介入。"
+    }
+  ],
+  "scope": "四类合成短文冒烟：命盘问答、八字论命、报告摘要、独立术数；不含真实用户资料。",
+  "limitation": "不是完整应用链路、报告校验或真实解读质量评估。"
+}
