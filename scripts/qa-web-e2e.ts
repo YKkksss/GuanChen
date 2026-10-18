@@ -74,7 +74,9 @@ async function main() {
   page.on('pageerror', error => pageErrors.push(`${error.message} @ ${page.url()}`));
 
   // 通过真实注册表单建立账号，后续页面共用同一个浏览器会话。
-  await page.goto(`${base}/register`, { waitUntil: 'networkidle' });
+  await page.goto(`${base}/register`, { waitUntil: 'domcontentloaded' });
+  await page.waitForSelector('#auth-username', { timeout: 20_000 });
+  await page.waitForTimeout(500);
   const username = `e2e-${Date.now()}`;
   const password = `e2e-${Math.random().toString(36).slice(2)}!A1`;
   await page.fill('#auth-username', username);
@@ -113,7 +115,8 @@ async function main() {
   for (const width of widths) {
     await page.setViewportSize({ width, height: width < 500 ? 844 : 900 });
     for (const target of pages) {
-      const response = await page.goto(`${base}${target.path}`, { waitUntil: 'networkidle' });
+      const response = await page.goto(`${base}${target.path}`, { waitUntil: 'domcontentloaded' });
+      await page.waitForTimeout(700);
       const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
       results.push({ name: `${target.name} ${width}`, passed: (response?.status() ?? 500) < 400 && overflow <= 1, status: response?.status() ?? 0, overflow });
     }
@@ -125,9 +128,9 @@ async function main() {
   for (const width of [390, 1280]) {
     await page.setViewportSize({ width, height: width < 500 ? 844 : 900 });
     for (const target of axePages) {
-      await page.goto(`${base}${target}`, { waitUntil: 'networkidle' });
+      await page.goto(`${base}${target}`, { waitUntil: 'domcontentloaded' });
       // 等 Framer Motion 的入场透明度/缩放结束，避免把动画中间态当成真实对比度。
-      await page.waitForTimeout(1200);
+      await page.waitForTimeout(1500);
       await page.addScriptTag({ content: axeSource });
       const result = await page.evaluate(async () => {
         // @ts-expect-error axe 由页面脚本注入
@@ -140,14 +143,17 @@ async function main() {
   }
 
   await page.setViewportSize({ width: 1280, height: 900 });
-  await page.goto(`${base}/`, { waitUntil: 'networkidle' });
+  await page.goto(`${base}/`, { waitUntil: 'domcontentloaded' });
+  await page.waitForTimeout(1200);
   await page.screenshot({ path: path.join(screenshotDirectory, 'home-1280.jpg'), type: 'jpeg', quality: 70, fullPage: false });
   if (chartId) {
-    await page.goto(`${base}/chart/${chartId}`, { waitUntil: 'networkidle' });
+    await page.goto(`${base}/chart/${chartId}`, { waitUntil: 'domcontentloaded' });
+    await page.waitForTimeout(1500);
     await page.screenshot({ path: path.join(screenshotDirectory, 'chart-1280.jpg'), type: 'jpeg', quality: 70, fullPage: false });
   }
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto(`${base}/`, { waitUntil: 'networkidle' });
+  await page.goto(`${base}/`, { waitUntil: 'domcontentloaded' });
+  await page.waitForTimeout(1200);
   await page.screenshot({ path: path.join(screenshotDirectory, 'home-390.jpg'), type: 'jpeg', quality: 70, fullPage: false });
 
   const report = {
