@@ -22,6 +22,7 @@ process.env.ACCOUNT_DATA_DIR = path.join(directory, 'accounts');
 process.env.SQLITE_PATH = path.join(directory, 'legacy.sqlite');
 process.env.REPORT_EXPORT_DIR = path.join(directory, 'legacy-exports');
 let checks = 0;
+let rawDatabase: Database.Database | null = null;
 function check(value: unknown, message: string) { assert.ok(value, message); checks++; }
 function request(url: string, token?: string, method = 'GET', body?: unknown) {
   return new Request(`http://local${url}`, { method, headers: { ...(token ? { cookie: `${SESSION_COOKIE}=${token}` } : {}), 'Content-Type': 'application/json' }, ...(body === undefined ? {} : { body: JSON.stringify(body) }) });
@@ -46,7 +47,7 @@ async function main() {
   const tokenB = createSession(b.id);
   check(userForSession(tokenA)?.id === a.id, '会话绑定用户');
   check(!userForSession('forged') && !userForSession('f'.repeat(64)), '拒绝伪造会话');
-  const raw = new Database(path.join(process.env.ACCOUNT_DATA_DIR!, 'accounts.sqlite'));
+  const raw = rawDatabase = new Database(path.join(process.env.ACCOUNT_DATA_DIR!, 'accounts.sqlite'));
   const row = raw.prepare('SELECT password_hash FROM users WHERE id = ?').get(a.id) as {password_hash: string};
   check(row.password_hash.startsWith('scrypt:') && !row.password_hash.includes('synthetic-password-a'), '密码加盐派生存储');
   check(!raw.prepare('SELECT 1 FROM sessions WHERE token_hash = ?').get(tokenA), '会话只保存哈希');
@@ -55,7 +56,7 @@ async function main() {
   // 枚举所有业务方法，保证新增登录保护没有漏掉下载、备份及次级资源。
   for (const file of walk('app/api').filter(file => file.endsWith('route.ts'))) {
     const normalized = file.replaceAll('\\', '/');
-    if (/\/auth\/(login|register|session|logout)\//.test(normalized)) continue;
+    if (/\/auth\/(login|register|session|logout)\//.test(normalized) || /\/health\/route\.ts$/.test(normalized)) continue;
     const route = await import(`../${normalized}`);
     const url = '/' + normalized.replace(/^app\//, '').replace(/\/route.ts$/, '').replace(/\[[^\]]+\]/g, 'foreign-resource');
     for (const method of ['GET', 'POST', 'PATCH', 'PUT', 'DELETE']) {
@@ -64,6 +65,9 @@ async function main() {
       check(response.status === 401, `未登录接口必须拒绝：${method} ${url}`);
     }
   }
+  const healthRoute = await import('../app/api/health/route');
+  const healthResponse = await healthRoute.GET(request('/api/health'));
+  check(healthResponse.status === 200 && (await healthResponse.json()).service === 'guanchen', '健康检查公开可用且不要求登录');
   const conversationRoute = await import('../app/api/conversations/route');
   const detailRoute = await import('../app/api/conversations/[id]/route');
   const messageRoute = await import('../app/api/conversations/[id]/messages/route');
@@ -190,7 +194,8 @@ async function main() {
   check(!runAsUser(b, () => getConversation(original.id)), '其他账号不会获得迁移的旧资料');
   check(getConversation(original.id)?.title === '原库保留的私密资料', '迁移后原库继续保留');
   runAsUser(legacyOwner, closeDatabaseConnection);
-  raw.close();
+  rawDatabase?.close();
+  rawDatabase = null;
   for (const user of [a, b]) runAsUser(user, closeDatabaseConnection);
   closeDatabaseConnection(); closeAccountConnections();
   console.log(`账号与隔离测试通过：${checks} 项，包含全业务接口未登录拒绝、并发、流式、备份、越权与会话撤销。`);
@@ -198,5 +203,7 @@ async function main() {
 main().catch(error => { console.error(error); process.exitCode = 1; }).finally(() => {
   closeAccountConnections();
   for (const slot of globalThis.__guanchenDatabases?.values() ?? []) if (slot.db?.open) slot.db.close();
+  rawDatabase?.close();
+  rawDatabase = null;
   rmSync(directory, { recursive: true, force: true });
 });
