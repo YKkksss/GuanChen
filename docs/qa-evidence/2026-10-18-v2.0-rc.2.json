@@ -1,0 +1,40 @@
+{
+  "version": "2.0.0-rc.2",
+  "stage": "C / 平板与手机响应式修复",
+  "date": "2026-10-18",
+  "timezone": "Asia/Shanghai",
+  "branch": "release/2.0",
+  "tag": "v2.0.0-rc.2",
+  "passed": true,
+  "responsiveAudit": {
+    "script": "scripts/qa-responsive-audit.ts",
+    "command": "npm run qa:responsive",
+    "routeCount": 37,
+    "widths": [320, 360, 390, 414, 768, 834, 1024],
+    "checks": 259,
+    "failures": 0,
+    "documentOverflow": 0,
+    "offenders": 0,
+    "consoleErrors": 0,
+    "pageErrors": 0,
+    "apiErrors": 0,
+    "evidence": "docs/qa-evidence/2026-10-18-v2.0-responsive-audit.json",
+    "screenshots": "docs/qa-evidence/2026-10-18-v2.0-responsive/"
+  },
+  "fixes": [
+    "320/360 合盘双方卡片超出视口：窄屏单列 minmax(0,1fr)、减 padding、min-width:0",
+    "390 合盘头部返回/标题/历史竖排：nowrap、窄屏隐藏说明文案、缩小 padding/gap",
+    "768 合盘双列表单过窄：≤900px 改单列",
+    "390 历史档案筛选标签竖排：手机两列网格，搜索整行、类型/状态各半、按钮整行",
+    "时间轴打开即自动生成年度报告：改为只读已有报告，用户点击才生成",
+    "登录/注册未水合时原生 GET 可能把密码带进 URL：水合前禁用输入与提交"
+  ],
+  "regression": {
+    "fullSuite": { "total": 106, "passed": 106 },
+    "ci": { "status": "pending_after_push" }
+  },
+  "pendingBeforeV2": [
+    "用户在 iOS/Android 真机完成注册、登录、起盘、账号设置、数据保险箱入口",
+    "V2_DEVICE_CHECK.md 记录通过"
+  ]
+}

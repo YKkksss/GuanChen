@@ -1,6 +1,6 @@
 {
   "name": "ziwei-master",
-  "version": "2.0.0-rc.1",
+  "version": "2.0.0-rc.2",
   "private": true,
   "scripts": {
     "test:qimen": "tsx scripts/test-qimen.ts",
@@ -126,6 +126,7 @@
     "ops:backup": "node scripts/ops/backup-all.mjs",
     "qa:staging-smoke": "node scripts/qa-staging-smoke.mjs",
     "qa:web-e2e": "tsx scripts/qa-web-e2e.ts",
+    "qa:responsive": "tsx scripts/qa-responsive-audit.ts",
     "qa:ai-smoke": "tsx scripts/qa-ai-smoke.ts"
   },
   "dependencies": {
