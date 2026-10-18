@@ -1,0 +1,78 @@
+{
+  "stage": "P1",
+  "stageName": "发布工程",
+  "completedAt": "2026-10-18",
+  "timezone": "Asia/Shanghai",
+  "passed": true,
+  "branch": "release/2.0",
+  "tag": "v2.0.0-beta.1",
+  "commits": [
+    "7f5d238 feat(observability): 增加结构化请求日志与 request id",
+    "76a2a57 feat(api): 增加健康检查端点",
+    "e591a4d chore(release): 增加发布自检与生产只读脚本",
+    "b1f7425 ci(release): 增加类型检查、构建与全量回归工作流",
+    "8d205e7 docs(p1): 记录发布工程实施与验收",
+    "814ee29 test(reports): 固定 PDF 分页测试字体",
+    "ccab837 ci(release): 失败时上传回归日志"
+  ],
+  "local": {
+    "typecheck": true,
+    "build": true,
+    "releaseCheck": {
+      "passed": true,
+      "trackedFiles": 1186,
+      "scannedTextFiles": 1088,
+      "secretFindings": 0,
+      "schema": 56
+    },
+    "fullSuite": {
+      "total": 105,
+      "passed": 105,
+      "runs": 1,
+      "failures": 0,
+      "logDirectory": "C:/Users/11474/AppData/Local/Temp/guanchen-v1-checks-L78wlu"
+    },
+    "releaseEngineeringTest": 20
+  },
+  "ci": {
+    "provider": "GitHub Actions",
+    "runner": "windows-latest",
+    "workflow": ".github/workflows/ci.yml",
+    "finalRun": {
+      "id": 39112743990,
+      "url": "https://github.com/YKkksss/GuanChen/actions/runs/39112743990",
+      "conclusion": "success",
+      "duration": "9m16s",
+      "steps": ["install", "build", "typecheck", "release-check", "full-regression"]
+    },
+    "previousRuns": [
+      {
+        "id": 39111101850,
+        "conclusion": "failure",
+        "reason": "test:report-pdf 在 GitHub Windows runner 上因系统字体度量/可用性漂移失败",
+        "fix": "加入固定 Noto Sans SC 子集测试字体并在测试内设置 REPORT_PDF_FONT_PATH，页数基线改为 3"
+      },
+      {
+        "id": 39111946338,
+        "conclusion": "failure",
+        "reason": "test:synthesis-dynamic-review 单次失败；本地连续 5 次未复现，第三次 CI 通过",
+        "status": "observed_once_not_reproduced"
+      }
+    ]
+  },
+  "features": [
+    "/api/health 公开健康检查，只读探测账号库，200/503",
+    "withAccount 统一结构化请求日志与 x-request-id",
+    "release:check 发布自检：产物、文档、脚本、迁移、密钥",
+    "qa:production-readonly 只读生产验收脚本",
+    "GitHub Actions：build、tsc、release-check、105 组回归",
+    "失败时上传 .qa-logs 回归日志"
+  ],
+  "notDone": [
+    "Linux 部署验证（P2）",
+    "日志落盘/轮转/外部告警（P2）",
+    "staging 与生产只读执行（P2）",
+    "真实模型冒烟（P5）"
+  ],
+  "nextStage": "P2 数据与部署：主机、HTTPS、部署、迁移/恢复/回滚、staging"
+}

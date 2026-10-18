@@ -74,15 +74,26 @@
 - 未登录 401 与登录 200 都带合法且独立的 request id。
 - 健康检查禁止缓存。
 
+### 1.7 PDF 测试字体固定
+
+首次 CI 在 GitHub Windows runner 上 `test:report-pdf` 失败：系统缺少固定中文字体或字体度量不同，导致同一分页夹具的页数漂移。
+
+处理：
+
+- 将 Noto Sans SC 子集字体提交到 `scripts/fixtures/fonts/`（Regular/Bold 约 280 KB，SIL OFL 1.1，许可全文随包）。
+- `test-report-pdf-exports.ts` 在渲染前显式设置 `REPORT_PDF_FONT_PATH` 与 `REPORT_PDF_BOLD_FONT_PATH`，不再依赖开发机或 CI 系统字体。
+- 固定字体下页数基线为 3 页；测试仍防止免责声明孤页或额外增页。
+
 ## 2. 验收
 
 - `tsc --noEmit`：通过。
 - `next build`：通过。
-- `npm run release:check`：通过（1,179 个跟踪文件、1,081 个文本文件、0 个密钥命中）。
+- `npm run release:check`：通过（1,186 个跟踪文件、1,088 个文本文件、0 个密钥命中）。
 - `test:release-engineering`：20 项通过。
-- 全量 `test:v1-all`：**105/105 组通过**（新增发布工程专项；运行目录 `guanchen-v1-checks-L78wlu`）。
-- 账号安全专项同步更新：`/api/health` 作为公开健康检查加入白名单，并断言其返回 200；专项 289 项通过。
-- CI：推送 `release/2.0` 后由 GitHub Actions 验证，结果记录在 P1 交付 JSON。
+- 全量 `test:v1-all`：**105/105 组通过**。
+- 账号安全专项：289 项通过；`/api/health` 加入公开白名单并断言 200。
+- GitHub Actions：最终 run **39112743990** 成功（windows-latest，9m16s），步骤为 install / build / typecheck / release-check / full-regression。
+- CI 历史：首轮因 PDF 字体失败（已修）；第二轮 `test:synthesis-dynamic-review` 单次失败，本地连续 5 次未复现，第三轮通过；该单次失败保留为观察项。
 
 ## 3. 本轮明确不做
 
