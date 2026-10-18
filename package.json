@@ -117,8 +117,12 @@
     "test:bazi-month-command": "tsx scripts/test-bazi-month-command.ts",
     "test:bazi-month-intake": "tsx scripts/test-bazi-month-intake.ts",
     "test:release-engineering": "tsx scripts/test-release-engineering.ts",
+    "test:deployment-ops": "tsx scripts/test-deployment-ops.ts",
     "release:check": "node scripts/release-check.mjs",
-    "qa:production-readonly": "node scripts/qa-production-readonly.mjs"
+    "qa:production-readonly": "node scripts/qa-production-readonly.mjs",
+    "ops:preflight": "tsx scripts/ops/preflight.ts",
+    "ops:backup": "node scripts/ops/backup-all.mjs",
+    "qa:staging-smoke": "node scripts/qa-staging-smoke.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.27.0",
