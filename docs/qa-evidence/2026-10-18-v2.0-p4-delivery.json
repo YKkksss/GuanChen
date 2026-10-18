@@ -37,8 +37,12 @@
       "docs/qa-evidence/2026-10-18-v2.0-p4/chart-1280.jpg"
     ],
     "ci": {
-      "status": "pending_after_push",
-      "note": "CI 在 windows-latest 运行 106 组回归 + 浏览器 E2E；结果见后续记录"
+      "status": "success",
+      "run": 39124250223,
+      "url": "https://github.com/YKkksss/GuanChen/actions/runs/39124250223",
+      "runner": "windows-latest",
+      "duration": "11m13s",
+      "steps": ["build", "typecheck", "release-check", "106 regression", "browser E2E + axe"]
     }
   },
   "notDone": [

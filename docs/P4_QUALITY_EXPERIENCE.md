@@ -27,6 +27,8 @@ npm run qa:web-e2e
 - **0 个横向溢出**。
 - **0 个控制台错误、0 个页面异常**。
 - **0 个 critical/serious axe 违规**。
+- GitHub Actions run **39124250223** 成功：106 组回归 + 浏览器 E2E + axe，windows-latest，11m13s。
+- 首次 CI 浏览器验收因 `networkidle` 等待首页超时；改为 `domcontentloaded` + 显式等待后通过。该超时是等待策略问题，不是页面错误。
 
 首次运行 axe 在命盘页报 `color-contrast`，原因是 Framer Motion 入场动画尚未结束，axe 读取到透明度中间态。已在检查前等待 1.2 秒，复跑后 0 违规；这不是放宽规则，而是避免把动画中间帧当成静态样式。
 
