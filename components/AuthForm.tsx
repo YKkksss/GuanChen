@@ -18,7 +18,9 @@ export default function AuthForm({ register = false }: { register?: boolean }) {
   const [enabled, setEnabled] = useState<boolean | null>(null);
   const [visiblePassword, setVisiblePassword] = useState(false);
   const [capsLock, setCapsLock] = useState(false);
+  const [hydrated, setHydrated] = useState(false);
   useEffect(() => {
+    setHydrated(true);
     if (new URLSearchParams(window.location.search).has('passwordChanged')) setNotice('密码已修改，请使用新密码登录。');
     const controller = new AbortController();
     void fetch('/api/auth/session', { cache: 'no-store', signal: controller.signal })
@@ -81,7 +83,7 @@ export default function AuthForm({ register = false }: { register?: boolean }) {
               <label htmlFor="auth-username">用户名</label>
               <div className={styles.inputShell}>
                 <User size={19} aria-hidden="true" />
-                <input id="auth-username" name="username" autoComplete="username" required minLength={3} maxLength={32} pattern="[a-zA-Z0-9_.\-]+" placeholder={register ? '设置你的用户名' : '请输入用户名'} disabled={busy} autoCapitalize="none" spellCheck={false} aria-describedby={register ? 'username-hint' : undefined} />
+                <input id="auth-username" name="username" autoComplete="username" required minLength={3} maxLength={32} pattern="[a-zA-Z0-9_.\-]+" placeholder={register ? '设置你的用户名' : '请输入用户名'} disabled={busy || !hydrated} autoCapitalize="none" spellCheck={false} aria-describedby={register ? 'username-hint' : undefined} />
               </div>
               {register && <small id="username-hint">3–32 位字母、数字或 _ . -，不区分大小写。</small>}
             </div>
@@ -89,15 +91,15 @@ export default function AuthForm({ register = false }: { register?: boolean }) {
               <label htmlFor="auth-display-name">显示名称</label>
               <div className={styles.inputShell}>
                 <User size={19} aria-hidden="true" />
-                <input id="auth-display-name" name="displayName" autoComplete="nickname" required maxLength={40} placeholder="希望我们如何称呼你" disabled={busy} />
+                <input id="auth-display-name" name="displayName" autoComplete="nickname" required maxLength={40} placeholder="希望我们如何称呼你" disabled={busy || !hydrated} />
               </div>
             </div>}
             <div className={styles.field}>
               <label htmlFor="auth-password">密码</label>
               <div className={styles.inputShell}>
                 <LockKey size={19} aria-hidden="true" />
-                <input id="auth-password" name="password" type={visiblePassword ? 'text' : 'password'} autoComplete={register ? 'new-password' : 'current-password'} required minLength={register ? 10 : undefined} maxLength={128} placeholder={register ? '至少 10 个字符' : '请输入密码'} disabled={busy} onKeyUp={trackCapsLock} onKeyDown={trackCapsLock} onBlur={() => setCapsLock(false)} aria-describedby={capsLock ? 'caps-lock-hint' : undefined} />
-                <button type="button" className={styles.passwordButton} onClick={() => setVisiblePassword(value => !value)} aria-label={visiblePassword ? '隐藏密码' : '显示密码'} aria-pressed={visiblePassword} disabled={busy}>
+                <input id="auth-password" name="password" type={visiblePassword ? 'text' : 'password'} autoComplete={register ? 'new-password' : 'current-password'} required minLength={register ? 10 : undefined} maxLength={128} placeholder={register ? '至少 10 个字符' : '请输入密码'} disabled={busy || !hydrated} onKeyUp={trackCapsLock} onKeyDown={trackCapsLock} onBlur={() => setCapsLock(false)} aria-describedby={capsLock ? 'caps-lock-hint' : undefined} />
+                <button type="button" className={styles.passwordButton} onClick={() => setVisiblePassword(value => !value)} aria-label={visiblePassword ? '隐藏密码' : '显示密码'} aria-pressed={visiblePassword} disabled={busy || !hydrated}>
                   {visiblePassword ? <EyeSlash size={19} aria-hidden="true" /> : <Eye size={19} aria-hidden="true" />}
                 </button>
               </div>
@@ -107,11 +109,11 @@ export default function AuthForm({ register = false }: { register?: boolean }) {
               <label htmlFor="auth-confirmation">确认密码</label>
               <div className={styles.inputShell}>
                 <LockKey size={19} aria-hidden="true" />
-                <input id="auth-confirmation" name="confirmation" type={visiblePassword ? 'text' : 'password'} autoComplete="new-password" required minLength={10} maxLength={128} placeholder="再输入一次密码" disabled={busy} onKeyUp={trackCapsLock} onKeyDown={trackCapsLock} onBlur={() => setCapsLock(false)} aria-describedby={capsLock ? 'caps-lock-hint' : undefined} />
+                <input id="auth-confirmation" name="confirmation" type={visiblePassword ? 'text' : 'password'} autoComplete="new-password" required minLength={10} maxLength={128} placeholder="再输入一次密码" disabled={busy || !hydrated} onKeyUp={trackCapsLock} onKeyDown={trackCapsLock} onBlur={() => setCapsLock(false)} aria-describedby={capsLock ? 'caps-lock-hint' : undefined} />
               </div>
             </div>}
             {error && <p role="alert" className={styles.error}>{error}</p>}
-            <button className={styles.submit} disabled={busy} type="submit">
+            <button className={styles.submit} disabled={busy || !hydrated} type="submit">
               <span>{busy ? '正在处理…' : register ? '注册并登录' : '登录'}</span>
               {busy ? <SpinnerGap className={styles.spinner} size={20} aria-hidden="true" /> : <ArrowRight size={20} aria-hidden="true" />}
             </button>
