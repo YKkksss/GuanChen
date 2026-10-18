@@ -33,7 +33,13 @@
       "accountScreenshot": "docs/qa-evidence/2026-10-18-v2.0-p4/account-1280.jpg"
     },
     "ci": {
-      "status": "pending_after_push"
+      "status": "success",
+      "run": 39128020840,
+      "url": "https://github.com/YKkksss/GuanChen/actions/runs/39128020840",
+      "runner": "windows-latest",
+      "duration": "12m13s",
+      "tests": 106,
+      "browser": true
     }
   },
   "notDone": [

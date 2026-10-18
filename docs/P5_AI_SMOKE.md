@@ -70,7 +70,7 @@ AI_DAILY_LIMIT=200
 - 真实模型冒烟：4/4 通过，0 越权词。
 - 账号设置页在真实 Chrome 中渲染 AI 状态；P4 浏览器 E2E 46/46 通过，axe 0 critical/serious。
 - 配额与状态接口由既有 `test:accounts`（未登录 401）与 `test:release-engineering`（配额）覆盖。
-- CI 与全量回归结果见 P5 交付 JSON。
+- CI 与全量回归结果见 P5 交付 JSON。GitHub Actions run **39128020840** 成功：106 组回归 + 浏览器 E2E + axe，windows-latest，12m13s；CI 环境使用占位密钥，不调用真实供应商。
 
 ## 4. 明确不做
 
