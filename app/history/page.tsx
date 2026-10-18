@@ -55,11 +55,11 @@ export default function HistoryPage() {
       <Link className="inline-flex min-h-11 items-center underline" href="/bazi">八字档案</Link>
       <Link className="inline-flex min-h-11 items-center underline" href="/rectification">校时任务</Link>
     </nav>
-    <form className="flex flex-wrap items-end gap-3" onSubmit={event => { event.preventDefault(); setPage(0); setQuery(draft.trim()); setRetry(value => value + 1); }}>
-      <label className="min-w-0 flex-1 space-y-2"><span className="block text-sm">名称或姓名</span><input className="rectification-input min-h-11" type="search" maxLength={100} value={draft} onChange={event => setDraft(event.target.value)} placeholder="搜索所有档案" /></label>
-      <label className="space-y-2"><span className="block text-sm">类型</span><select className="rectification-input min-h-11" value={type} onChange={event => { setType(event.target.value); setPage(0); }}><option value="">全部</option><option value="chart">个人命盘</option><option value="heming">合盘</option></select></label>
-      <label className="space-y-2"><span className="block text-sm">状态</span><select className="rectification-input min-h-11" value={status} onChange={event => { setStatus(event.target.value); setPage(0); }}><option value="active">使用中</option><option value="archived">已归档</option><option value="">全部</option></select></label>
-      <button type="submit" className="btn-accent min-h-11">搜索</button>
+    <form className="grid grid-cols-2 items-end gap-3 sm:flex sm:flex-wrap" onSubmit={event => { event.preventDefault(); setPage(0); setQuery(draft.trim()); setRetry(value => value + 1); }}>
+      <label className="col-span-2 min-w-0 space-y-2 sm:flex-1"><span className="block whitespace-nowrap text-sm">名称或姓名</span><input className="rectification-input min-h-11" type="search" maxLength={100} value={draft} onChange={event => setDraft(event.target.value)} placeholder="搜索所有档案" /></label>
+      <label className="min-w-0 space-y-2"><span className="block whitespace-nowrap text-sm">类型</span><select className="rectification-input min-h-11" value={type} onChange={event => { setType(event.target.value); setPage(0); }}><option value="">全部</option><option value="chart">个人命盘</option><option value="heming">合盘</option></select></label>
+      <label className="min-w-0 space-y-2"><span className="block whitespace-nowrap text-sm">状态</span><select className="rectification-input min-h-11" value={status} onChange={event => { setStatus(event.target.value); setPage(0); }}><option value="active">使用中</option><option value="archived">已归档</option><option value="">全部</option></select></label>
+      <button type="submit" className="btn-accent col-span-2 min-h-11 sm:col-span-1">搜索</button>
     </form>
     {loading ? <p role="status">正在读取档案…</p> : error ? <div role="alert"><p>{error}</p><button className="min-h-11 underline" type="button" onClick={() => setRetry(value => value + 1)}>重新读取</button></div> : <>
       <p role="status" className="text-sm">共 {total} 条{query ? `，搜索“${query}”` : ''}</p>
