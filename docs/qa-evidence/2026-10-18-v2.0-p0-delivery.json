@@ -12,7 +12,9 @@
     "6fe6104 feat(server): 收口统一账号、八字与术数服务端开发态",
     "84b989c feat(ui): 收口工作台、报告与术数界面开发态",
     "3627ed6 test(docs): 收口回归脚本、实施文档与验收证据",
-    "e1ad805 fix(repo): 允许原生依赖安装脚本并记录 P0 盘点结果"
+    "e1ad805 fix(repo): 允许原生依赖安装脚本并记录 P0 盘点结果",
+    "343bf24 docs(p0): 记录 P0 验收结果与干净环境复验",
+    "b72c37b docs(repo): 增加 Git 提交与阶段推送约定"
   ],
   "workspace": {
     "before": 610,
@@ -70,8 +72,12 @@
   "github": {
     "milestone": { "number": 1, "title": "v2.0.0" },
     "labels": ["P0", "P1", "P2"],
-    "pushed": false,
-    "note": "仅创建 milestone 与标签；代码分支和 tag 仍在本地，未 push。"
+    "pushed": true,
+    "remote": "origin",
+    "branch": "release/2.0",
+    "tag": "v2.0.0-alpha.1",
+    "tagCommit": "b72c37b",
+    "note": "release/2.0 与 v2.0.0-alpha.1 已推送；未推送 codex/user-accounts 开发分支。"
   },
   "scope": {
     "fiveCombine": "v2.1",

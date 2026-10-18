@@ -109,4 +109,4 @@ node -e "require('better-sqlite3'); console.log('ok')"
 2. `docs/images` 与 `docs/qa-evidence` 体积较大，但单个文件均小于 1 MB，GitHub 可接受。
 3. `.next-*` 目录保留在磁盘，容易被误以为源码；`.gitignore` 已阻断入库，但清理前需确认不是唯一验收证据。
 4. npm 12 默认阻止原生安装脚本；已通过 `allowScripts` 固定 `better-sqlite3` 与 `esbuild`，但每次依赖升级都要重新确认版本条目，否则干净部署会缺 `better_sqlite3.node`。
-5. 未推送远程；`release/2.0` 与标签目前只在本地，需用户确认后再 push。
+5. `release/2.0` 与 `v2.0.0-alpha.1` 已推送 `origin`；`codex/user-accounts` 开发分支未推送。后续阶段按 [Git 约定](GIT_WORKFLOW.md) 每阶段推送一次分支与标签。
