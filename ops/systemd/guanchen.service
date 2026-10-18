@@ -1,0 +1,22 @@
+[Unit]
+Description=GuanChen 观辰
+After=network.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=guanchen
+Group=guanchen
+WorkingDirectory=/opt/guanchen
+EnvironmentFile=/etc/guanchen.env
+Environment=NODE_ENV=production
+ExecStart=/usr/bin/node /opt/guanchen/node_modules/next/dist/bin/next start -H 127.0.0.1 -p 30001
+Restart=always
+RestartSec=5
+LimitNOFILE=65535
+NoNewPrivileges=true
+PrivateTmp=true
+ReadWritePaths=/var/lib/guanchen /var/backups/guanchen
+
+[Install]
+WantedBy=multi-user.target
