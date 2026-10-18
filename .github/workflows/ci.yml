@@ -47,6 +47,30 @@ jobs:
       - name: Full regression
         run: npm run test:v1-all
 
+      - name: Locate Chrome or Edge
+        shell: pwsh
+        run: |
+          $candidates = @(
+            "C:\Program Files\Google\Chrome\Application\chrome.exe",
+            "C:\Program Files (x86)\Google\Chrome\Application\chrome.exe",
+            "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"
+          )
+          $found = $candidates | Where-Object { Test-Path $_ } | Select-Object -First 1
+          if ($found) { "CHROME_PATH=$found" | Out-File -FilePath $env:GITHUB_ENV -Append }
+
+      - name: Browser E2E and axe
+        run: npm run qa:web-e2e
+
+      - name: Upload browser evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-e2e-evidence
+          path: |
+            docs/qa-evidence/2026-10-18-v2.0-p4-web.json
+            docs/qa-evidence/2026-10-18-v2.0-p4/
+          if-no-files-found: ignore
+
       - name: Upload regression logs
         if: failure()
         uses: actions/upload-artifact@v4
