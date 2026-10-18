@@ -201,14 +201,22 @@ export interface AiUsageResult {
 }
 
 /** 按账号、按北京日期累计 AI 调用次数；limit <= 0 表示不限制。 */
-export function consumeAiUsage(userId: string, limit: number): AiUsageResult {
-  if (!Number.isFinite(limit) || limit <= 0) return { allowed: true, used: 0, limit: 0 };
-  const db = accounts();
+function aiDayKey() {
+  return new Date(Date.now() + 8 * 3_600_000).toISOString().slice(0, 10);
+}
+
+function ensureAiUsageTable(db: Database.Database) {
   db.exec(`CREATE TABLE IF NOT EXISTS ai_usage (
     day TEXT NOT NULL, user_id TEXT NOT NULL, count INTEGER NOT NULL, updated_at INTEGER NOT NULL,
     PRIMARY KEY(day, user_id)
   )`);
-  const day = new Date(Date.now() + 8 * 3_600_000).toISOString().slice(0, 10);
+}
+
+export function consumeAiUsage(userId: string, limit: number): AiUsageResult {
+  if (!Number.isFinite(limit) || limit <= 0) return { allowed: true, used: 0, limit: 0 };
+  const db = accounts();
+  ensureAiUsageTable(db);
+  const day = aiDayKey();
   return db.transaction(() => {
     const row = db.prepare('SELECT count FROM ai_usage WHERE day = ? AND user_id = ?').get(day, userId) as { count: number } | undefined;
     if (row && row.count >= limit) return { allowed: false, used: row.count, limit };
@@ -216,6 +224,15 @@ export function consumeAiUsage(userId: string, limit: number): AiUsageResult {
     else db.prepare('INSERT INTO ai_usage(day, user_id, count, updated_at) VALUES (?, ?, 1, ?)').run(day, userId, Date.now());
     return { allowed: true, used: (row?.count ?? 0) + 1, limit };
   })();
+}
+
+/** 只读当前账号今日已用次数；limit <= 0 视为不限制。 */
+export function getAiUsage(userId: string, limit: number): { used: number; limit: number } {
+  if (!Number.isFinite(limit) || limit <= 0) return { used: 0, limit: 0 };
+  const db = accounts();
+  ensureAiUsageTable(db);
+  const row = db.prepare('SELECT count FROM ai_usage WHERE day = ? AND user_id = ?').get(aiDayKey(), userId) as { count: number } | undefined;
+  return { used: row?.count ?? 0, limit };
 }
 
 export function closeAccountConnections() {
