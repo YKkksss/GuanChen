@@ -234,7 +234,8 @@ Invoke-WebRequest http://127.0.0.1:30002/login -UseBasicParsing
 - `test:deployment-ops`：15 项通过，覆盖预检、在线备份、SQLite 完整性、保留策略、拒绝嵌套备份目标、模拟数据丢失后恢复。
 - 本地 staging：`scripts/qa-staging-smoke.mjs` 在 `127.0.0.1:30002` 用隔离数据目录完成健康检查、登录页、注册、会话、7 个只读接口与注册后数据库健康检查，14/14 通过；证据见 [staging JSON](qa-evidence/2026-10-18-v2.0-p2-staging.json)。
 - 迁移演练：用 `v1.0.0` worktree 生成合成 v47 业务库，放入当前用户目录后自动迁移到 v56；标记表保留、`conversations` 表存在、`PRAGMA integrity_check=ok`；证据见 [迁移 JSON](qa-evidence/2026-10-18-v2.0-p2-migration-drill.json)。
-- 全量回归与 CI 结果见 P2 交付 JSON；正式主机/HTTPS/定时任务/真实数据恢复仍未执行。
+- 全量回归与 CI：本地 106/106；GitHub Actions run **39115216388** 成功（windows-latest，10m9s，106 组）。
+- **P2 只算本地部分完成**：正式主机、域名、HTTPS、服务器侧定时任务、离机备份与真实数据恢复仍未执行；因此本阶段标签为 `v2.0.0-beta.2`，不是 `rc.1`。
 
 ## 14. 已知限制
 

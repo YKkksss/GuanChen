@@ -4,8 +4,9 @@
   "completedAt": "2026-10-18",
   "timezone": "Asia/Shanghai",
   "passed": true,
+  "stageStatus": "local_complete_host_pending",
   "branch": "release/2.0",
-  "tag": "v2.0.0-rc.1",
+  "tag": "v2.0.0-beta.2",
   "features": [
     "docs/P2_DEPLOYMENT.md：安装、环境、反代、进程守护、备份、恢复、迁移、回滚、staging",
     "ops/nginx/guanchen.conf：HTTPS、流式不缓冲、130m 上传、300s 超时",
@@ -48,8 +49,12 @@
       "restoreVerified": true
     },
     "ci": {
-      "status": "pending_after_push",
-      "note": "P2 提交推送后由 GitHub Actions 运行 106 组回归"
+      "status": "success",
+      "run": 39115216388,
+      "url": "https://github.com/YKkksss/GuanChen/actions/runs/39115216388",
+      "runner": "windows-latest",
+      "duration": "10m9s",
+      "tests": 106
     }
   },
   "notDone": [
