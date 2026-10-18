@@ -143,11 +143,11 @@ export default function HemingWorkspace({ conversationId }: HemingWorkspaceProps
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg-0)' }}>
-      <header style={{ position: 'relative', zIndex: 20, background: 'rgba(255,253,248,.5)', borderBottom: '1px solid var(--bdr)', display: 'flex', alignItems: 'center', padding: '0 24px', height: '52px', gap: '16px' }}>
-        <button onClick={() => router.push('/')} style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '13px', color: 'var(--tx-3)', background: 'none', border: 'none', cursor: 'pointer' }}><span style={{ fontSize: '16px' }}>‹</span><span>返回</span></button>
-        <div style={{ width: '1px', height: '20px', background: 'var(--bdr-med)' }} />
-        <span style={{ fontSize: '12px', color: 'var(--ac)', letterSpacing: '0.2em' }}>合盘分析</span><div style={{ flex: 1 }} />
-        <span style={{ fontSize: '11px', color: 'var(--tx-3)' }}>双盘隔离 · 规则可追溯 · 对话可恢复</span>
+      <header className="heming-header" style={{ position: 'relative', zIndex: 20, background: 'rgba(255,253,248,.5)', borderBottom: '1px solid var(--bdr)', display: 'flex', alignItems: 'center', padding: '0 24px', height: '52px', gap: '16px' }}>
+        <button className="heming-back" onClick={() => router.push('/')} style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '13px', color: 'var(--tx-3)', background: 'none', border: 'none', cursor: 'pointer' }}><span style={{ fontSize: '16px' }}>‹</span><span>返回</span></button>
+        <div className="heming-header-separator" style={{ width: '1px', height: '20px', background: 'var(--bdr-med)' }} />
+        <span className="heming-title" style={{ fontSize: '12px', color: 'var(--ac)', letterSpacing: '0.2em' }}>合盘分析</span><div style={{ flex: 1 }} />
+        <span className="heming-tagline" style={{ fontSize: '11px', color: 'var(--tx-3)' }}>双盘隔离 · 规则可追溯 · 对话可恢复</span>
         <button
           type="button"
           className="eastern-mobile-history-button"
@@ -200,11 +200,27 @@ export default function HemingWorkspace({ conversationId }: HemingWorkspaceProps
       </div>
 
       <style>{`
+        .heming-header { white-space:nowrap; }
+        .heming-back, .heming-title, .heming-header .eastern-mobile-history-button { flex-shrink:0; white-space:nowrap; }
         .heming-shell { display:grid; grid-template-columns:260px minmax(0,1fr); gap:20px; transition:grid-template-columns .2s ease; }
         .heming-shell.history-collapsed { grid-template-columns:56px minmax(0,1fr); }
         .heming-relation-grid { display:grid; grid-template-columns:minmax(180px,.55fr) minmax(260px,1.45fr); gap:14px; }
         @media (max-width:1100px) { .heming-shell,.heming-shell.history-collapsed { grid-template-columns:1fr; } }
-        @media (max-width:680px) { .heming-grid,.heming-relation-grid { grid-template-columns:1fr !important; } .heming-shell { padding-left:12px !important; padding-right:12px !important; } }
+        @media (max-width:900px) { .heming-grid { grid-template-columns:minmax(0,1fr) !important; } }
+        @media (max-width:760px) {
+          .heming-header { padding:0 12px !important; gap:8px !important; }
+          .heming-tagline { display:none; }
+        }
+        @media (max-width:680px) {
+          .heming-relation-grid { grid-template-columns:minmax(0,1fr) !important; }
+          .heming-grid > div { min-width:0; padding:16px !important; }
+          .heming-grid .birth-form { padding:16px !important; }
+          .heming-shell { padding-left:12px !important; padding-right:12px !important; }
+        }
+        @media (max-width:360px) {
+          .heming-grid > div { padding:12px !important; }
+          .heming-grid .birth-form { padding:12px !important; }
+        }
       `}</style>
     </div>
   );
