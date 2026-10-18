@@ -1,3 +1,4 @@
+import { withAccount } from '@/lib/auth/route';
 import { NextResponse } from 'next/server';
 import {
   createChatCompletionStream,
@@ -10,7 +11,7 @@ import type { ZiweiChart } from '@/lib/ziwei/types';
 
 export const runtime = 'nodejs';
 
-export async function POST(request: Request) {
+async function POSTHandler(request: Request) {
   try {
     const body = await request.json();
     const chart = body.chart as ZiweiChart | undefined;
@@ -49,3 +50,5 @@ function normalizeMessages(messages: unknown[]): ChatMessage[] {
     })
     .filter((item): item is ChatMessage => Boolean(item));
 }
+
+export const POST = withAccount(POSTHandler);

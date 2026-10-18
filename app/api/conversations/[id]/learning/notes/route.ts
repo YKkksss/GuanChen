@@ -1,3 +1,4 @@
+import { withAccount } from '@/lib/auth/route';
 import { NextResponse } from 'next/server';
 import { getConversation } from '@/lib/db/conversations';
 import { saveLearningNote } from '@/lib/db/learning';
@@ -7,7 +8,7 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 interface RouteContext { params: Promise<{ id: string }> }
 
-export async function PUT(request: Request, context: RouteContext) {
+async function PUTHandler(request: Request, context: RouteContext) {
   const { id } = await context.params;
   const conversation = getConversation(id);
   if (!conversation || conversation.type !== 'chart') return NextResponse.json({ error: '单人命盘会话不存在' }, { status: 404 });
@@ -23,3 +24,5 @@ export async function PUT(request: Request, context: RouteContext) {
     return NextResponse.json({ error: error instanceof Error ? error.message : '学习笔记保存失败' }, { status: 400 });
   }
 }
+
+export const PUT = withAccount(PUTHandler);

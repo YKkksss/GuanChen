@@ -1,3 +1,4 @@
+import { withAccount } from '@/lib/auth/route';
 import { NextResponse } from 'next/server';
 import { getReportExport, listReportExports } from '@/lib/db/report-exports';
 import {
@@ -10,7 +11,7 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 120;
 
-export async function GET(request: Request) {
+async function GETHandler(request: Request) {
   const params = new URL(request.url).searchParams;
   const sourceKind = params.get('sourceKind');
   const reportId = params.get('reportId')?.trim();
@@ -20,7 +21,7 @@ export async function GET(request: Request) {
   return NextResponse.json({ exports: listReportExports({ sourceKind, reportId }) });
 }
 
-export async function POST(request: Request) {
+async function POSTHandler(request: Request) {
   const body = await request.json().catch(() => ({})) as {
     sourceKind?: unknown;
     reportId?: unknown;
@@ -69,3 +70,6 @@ function publicError(message: string): string {
   if (message.startsWith('PDF_')) return 'PDF 文件生成失败，请稍后重试';
   return message.slice(0, 240);
 }
+
+export const GET = withAccount(GETHandler);
+export const POST = withAccount(POSTHandler);

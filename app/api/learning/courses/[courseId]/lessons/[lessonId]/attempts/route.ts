@@ -1,3 +1,4 @@
+import { withAccount } from '@/lib/auth/route';
 import { NextResponse } from 'next/server';
 import { submitCourseLessonAttempt } from '@/lib/learning/course-service';
 
@@ -6,7 +7,7 @@ export const dynamic = 'force-dynamic';
 
 interface RouteContext { params: Promise<{ courseId: string; lessonId: string }> }
 
-export async function POST(request: Request, context: RouteContext) {
+async function POSTHandler(request: Request, context: RouteContext) {
   const { courseId, lessonId } = await context.params;
   try {
     const body = await request.json() as { answers?: unknown };
@@ -24,3 +25,5 @@ export async function POST(request: Request, context: RouteContext) {
     return NextResponse.json({ error: message }, { status });
   }
 }
+
+export const POST = withAccount(POSTHandler);

@@ -14,6 +14,28 @@ declare module 'lunar-javascript' {
     getMonthInChinese(): string;
     getDayInChinese(): string;
     getJieQi(): string;
+    getDayInGanZhi(): string;
+    getDayInGanZhiExact(): string;
+    getTimeInGanZhi(): string;
+    getTimeYi(): string[];
+    getTimeJi(): string[];
+    getTimeChongDesc(): string;
+    getTimeChongShengXiao(): string;
+    getTimeSha(): string;
+    getTimeTianShen(): string;
+    getTimeTianShenType(): string;
+    getTimeTianShenLuck(): string;
+    getMonthInGanZhi(): string;
+    getMonthInGanZhiExact(): string;
+    getDayYi(sect?: number): string[];
+    getDayJi(sect?: number): string[];
+    getZhiXing(): string;
+    getDayTianShen(): string;
+    getDayTianShenType(): string;
+    getDayTianShenLuck(): string;
+    getDayChongDesc(): string;
+    getDayChongShengXiao(): string;
+    getDaySha(): string;
     getEightChar(): EightChar;
     getSolar(): Solar;
   }

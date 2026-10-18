@@ -1,3 +1,4 @@
+import { withAccount } from '@/lib/auth/route';
 import { NextResponse } from 'next/server';
 import { createConversationFromRectificationSelection } from '@/lib/rectification/report-service';
 
@@ -5,7 +6,7 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 interface RouteContext { params: Promise<{ id: string }> }
 
-export async function POST(_request: Request, context: RouteContext) {
+async function POSTHandler(_request: Request, context: RouteContext) {
   const { id } = await context.params;
   try {
     return NextResponse.json(createConversationFromRectificationSelection(id));
@@ -15,3 +16,5 @@ export async function POST(_request: Request, context: RouteContext) {
     return NextResponse.json({ error: message }, { status });
   }
 }
+
+export const POST = withAccount(POSTHandler);

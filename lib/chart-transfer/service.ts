@@ -49,12 +49,18 @@ export const PORTABLE_CHART_TABLES = [
   'reminder_rules',
   'reminder_instances',
   'monthly_reviews',
+  'fortune_calendar_readings',
+  'fortune_topic_reports',
+  'fortune_topic_versions',
 ] as const;
 
 const PACKAGE_BOUNDARIES = [
   '匿名案例属于独立学习资料，不随来源命盘复制。',
   '生时校正工程可能关联多份候选盘，不进入单命盘包。',
   '由命盘派生的八字档案使用独立版本链，不进入单命盘包。',
+  '紫微八字合参依赖两套独立命盘，不进入单紫微命盘包；请使用当前账号完整备份保留合参与两盘关系。',
+  '择日方案是独立事项资料，不进入单紫微命盘包，随当前账号完整备份保存。',
+  '梅花占问及其对话是独立卦象资料，不进入单紫微命盘包，随当前账号完整备份保存。',
   'PDF 属于可重建缓存；报告正文和版本会迁移，PDF 可在导入后重新导出。',
 ] as const;
 
@@ -64,6 +70,7 @@ type ForeignKeyInfo = { table: string; from: string; to: string };
 type TableSchema = { columns: ColumnInfo[]; foreignKeys: ForeignKeyInfo[] };
 
 const SOFT_REFERENCES: Partial<Record<PortableTable, Partial<Record<string, PortableTable>>>> = {
+  fortune_topic_reports: { active_version_id: 'fortune_topic_versions' },
   messages: { reply_to_message_id: 'messages', retry_of_message_id: 'messages' },
   transit_reports: { active_version_id: 'transit_report_versions' },
   transit_report_versions: { base_version_id: 'transit_report_versions' },
@@ -522,7 +529,7 @@ function summarizeContent(tables: Record<string, PortableRow[]>): ChartPackageCo
   return {
     messages: count('messages', 'context_runs'),
     memories: count('memory_items'),
-    transitRecords: count('transit_snapshots', 'transit_reports', 'transit_report_versions'),
+    transitRecords: count('transit_snapshots', 'transit_reports', 'transit_report_versions', 'fortune_calendar_readings', 'fortune_topic_reports', 'fortune_topic_versions'),
     events: count('life_events', 'life_event_candidates', 'event_ai_analysis_versions'),
     reports: count('reports', 'report_versions', 'transit_reports', 'transit_report_versions'),
     learningRecords: count('learning_notes', 'learning_practice_attempts', 'learning_open_practice_attempts'),

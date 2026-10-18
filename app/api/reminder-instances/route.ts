@@ -1,3 +1,4 @@
+import { withAccount } from '@/lib/auth/route';
 import { NextResponse } from 'next/server';
 import type { ReminderInstanceStatus } from '@/lib/reminders/types';
 import { listReminderInstances } from '@/lib/db/reminders';
@@ -5,7 +6,7 @@ import { listReminderInstances } from '@/lib/db/reminders';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-export async function GET(request: Request) {
+async function GETHandler(request: Request) {
   try {
     const url = new URL(request.url);
     const statusValue = url.searchParams.get('status');
@@ -34,3 +35,5 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: error instanceof Error ? error.message : '提醒实例加载失败' }, { status: 500 });
   }
 }
+
+export const GET = withAccount(GETHandler);

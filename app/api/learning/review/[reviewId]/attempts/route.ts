@@ -1,3 +1,4 @@
+import { withAccount } from '@/lib/auth/route';
 import { NextResponse } from 'next/server';
 import { submitReviewAnswer } from '@/lib/db/learning-practice';
 
@@ -6,7 +7,7 @@ export const dynamic = 'force-dynamic';
 
 interface RouteContext { params: Promise<{ reviewId: string }> }
 
-export async function POST(request: Request, context: RouteContext) {
+async function POSTHandler(request: Request, context: RouteContext) {
   const { reviewId } = await context.params;
   try {
     const body = await request.json() as { selectedOptionId?: unknown };
@@ -19,3 +20,5 @@ export async function POST(request: Request, context: RouteContext) {
     return NextResponse.json({ error: message }, { status: message.includes('不存在') ? 404 : 400 });
   }
 }
+
+export const POST = withAccount(POSTHandler);

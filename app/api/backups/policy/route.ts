@@ -1,3 +1,4 @@
+import { withAccount } from '@/lib/auth/route';
 import { NextResponse } from 'next/server';
 import { updateBackupPolicy } from '@/lib/backups/lifecycle';
 import { BackupValidationError } from '@/lib/backups/service';
@@ -5,7 +6,7 @@ import { BackupValidationError } from '@/lib/backups/service';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-export async function PATCH(request: Request) {
+async function PATCHHandler(request: Request) {
   try {
     const body = await request.json() as Record<string, unknown>;
     const summary = await updateBackupPolicy({
@@ -22,3 +23,5 @@ export async function PATCH(request: Request) {
     }, { status: error instanceof BackupValidationError ? 422 : 500 });
   }
 }
+
+export const PATCH = withAccount(PATCHHandler);

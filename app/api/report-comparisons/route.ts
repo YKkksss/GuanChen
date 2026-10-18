@@ -1,3 +1,4 @@
+import { withAccount } from '@/lib/auth/route';
 import { NextResponse } from 'next/server';
 import { compareReportVersions } from '@/lib/report-comparisons/service';
 import { isReportComparisonSourceKind } from '@/lib/report-comparisons/types';
@@ -5,7 +6,7 @@ import { isReportComparisonSourceKind } from '@/lib/report-comparisons/types';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-export async function GET(request: Request) {
+async function GETHandler(request: Request) {
   const params = new URL(request.url).searchParams;
   const sourceKind = params.get('sourceKind');
   const reportId = params.get('reportId')?.trim();
@@ -34,3 +35,5 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: message }, { status });
   }
 }
+
+export const GET = withAccount(GETHandler);

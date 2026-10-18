@@ -1,3 +1,4 @@
+import { withAccount } from '@/lib/auth/route';
 import { NextResponse } from 'next/server';
 import { createMonthlyReview, listMonthlyReviews } from '@/lib/db/monthly-reviews';
 import type { MonthlyReviewDraftInput, MonthlyReviewStatus } from '@/lib/monthly-reviews/types';
@@ -5,7 +6,7 @@ import type { MonthlyReviewDraftInput, MonthlyReviewStatus } from '@/lib/monthly
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-export async function GET(request: Request) {
+async function GETHandler(request: Request) {
   try {
     const url = new URL(request.url);
     const statusValue = url.searchParams.get('status');
@@ -27,7 +28,7 @@ export async function GET(request: Request) {
   }
 }
 
-export async function POST(request: Request) {
+async function POSTHandler(request: Request) {
   try {
     const input = await request.json() as MonthlyReviewDraftInput;
     const review = createMonthlyReview(input);
@@ -37,3 +38,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: message }, { status: message.includes('不存在') ? 404 : 400 });
   }
 }
+
+export const GET = withAccount(GETHandler);
+export const POST = withAccount(POSTHandler);

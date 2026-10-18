@@ -1,3 +1,4 @@
+import { withAccount } from '@/lib/auth/route';
 import { NextResponse } from 'next/server';
 import { getConversation } from '@/lib/db/conversations';
 import { listReports } from '@/lib/db/reports';
@@ -11,13 +12,13 @@ interface RouteContext {
   params: Promise<{ id: string }>;
 }
 
-export async function GET(_request: Request, context: RouteContext) {
+async function GETHandler(_request: Request, context: RouteContext) {
   const { id } = await context.params;
   if (!getConversation(id)) return NextResponse.json({ error: '会话不存在' }, { status: 404 });
   return NextResponse.json({ reports: listReports(id) });
 }
 
-export async function POST(request: Request, context: RouteContext) {
+async function POSTHandler(request: Request, context: RouteContext) {
   const { id } = await context.params;
   try {
     const body = await request.json() as { type?: unknown; regenerate?: unknown };
@@ -36,3 +37,6 @@ export async function POST(request: Request, context: RouteContext) {
     return NextResponse.json({ error: message }, { status });
   }
 }
+
+export const GET = withAccount(GETHandler);
+export const POST = withAccount(POSTHandler);

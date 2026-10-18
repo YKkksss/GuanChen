@@ -1,10 +1,11 @@
+import { withAccount } from '@/lib/auth/route';
 import { NextResponse } from 'next/server';
 import { previewCaseFromConversation } from '@/lib/cases/service';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-export async function POST(request: Request) {
+async function POSTHandler(request: Request) {
   try {
     const body = await request.json() as { conversationId?: unknown };
     if (typeof body.conversationId !== 'string' || !body.conversationId.trim()) {
@@ -18,3 +19,5 @@ export async function POST(request: Request) {
     );
   }
 }
+
+export const POST = withAccount(POSTHandler);

@@ -1,3 +1,4 @@
+import { withAccount } from '@/lib/auth/route';
 import { NextResponse } from 'next/server';
 import { randomUUID } from 'node:crypto';
 import { createChatCompletion, getProviderConfig, sseResponse } from '@/lib/ai/deepseek';
@@ -13,7 +14,7 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 interface RouteContext { params: Promise<{ id: string }> }
 
-export async function POST(request: Request, context: RouteContext) {
+async function POSTHandler(request: Request, context: RouteContext) {
   const { id } = await context.params;
   if (!getBaziConversation(id)) return NextResponse.json({ error: '八字会话不存在' }, { status: 404 });
   let assistantId: string | null = null;
@@ -87,3 +88,5 @@ export async function POST(request: Request, context: RouteContext) {
     return NextResponse.json({ error: error instanceof Error ? error.message : '八字解读失败', assistantMessageId: assistantId, userMessageId: userId }, { status: assistantId ? 500 : 400 });
   }
 }
+
+export const POST = withAccount(POSTHandler);

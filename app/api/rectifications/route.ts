@@ -1,3 +1,4 @@
+import { withAccount } from '@/lib/auth/route';
 import { NextResponse } from 'next/server';
 import {
   createRectificationSession,
@@ -10,7 +11,7 @@ export const dynamic = 'force-dynamic';
 
 const VALID_STATUSES = new Set<RectificationStatus>(['draft', 'ready', 'evaluated', 'confirmed', 'archived']);
 
-export async function GET(request: Request) {
+async function GETHandler(request: Request) {
   const params = new URL(request.url).searchParams;
   const rawStatus = params.get('status');
   if (rawStatus && !VALID_STATUSES.has(rawStatus as RectificationStatus)) {
@@ -29,7 +30,7 @@ export async function GET(request: Request) {
   return NextResponse.json({ sessions });
 }
 
-export async function POST(request: Request) {
+async function POSTHandler(request: Request) {
   try {
     const body = await request.json() as CreateRectificationSessionInput;
     const session = createRectificationSession(body);
@@ -40,3 +41,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: message }, { status });
   }
 }
+
+export const GET = withAccount(GETHandler);
+export const POST = withAccount(POSTHandler);

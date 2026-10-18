@@ -1,3 +1,4 @@
+import { withAccount } from '@/lib/auth/route';
 import { NextResponse } from 'next/server';
 import {
   getOpenPracticeWorkspace,
@@ -9,7 +10,7 @@ import { listOpenPracticeTemplates } from '@/lib/learning/open-practice-catalog'
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-export async function GET(request: Request) {
+async function GETHandler(request: Request) {
   const params = new URL(request.url).searchParams;
   const conversationId = params.get('conversationId')?.trim();
   const templateId = params.get('templateId')?.trim() || 'ming-structure';
@@ -22,7 +23,7 @@ export async function GET(request: Request) {
   }
 }
 
-export async function POST(request: Request) {
+async function POSTHandler(request: Request) {
   try {
     const body = await request.json() as Record<string, unknown>;
     if (typeof body.conversationId !== 'string' || !body.conversationId.trim()) {
@@ -49,3 +50,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: message }, { status: message.includes('不存在') ? 404 : 400 });
   }
 }
+
+export const GET = withAccount(GETHandler);
+export const POST = withAccount(POSTHandler);

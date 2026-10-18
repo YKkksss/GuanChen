@@ -1,3 +1,4 @@
+import { withAccount } from '@/lib/auth/route';
 import { NextResponse } from 'next/server';
 import { deleteCaseRecord, getCaseRecord, updateCaseRecord } from '@/lib/db/cases';
 import type { CaseConfidence, CaseStatus } from '@/lib/cases/types';
@@ -7,14 +8,14 @@ export const dynamic = 'force-dynamic';
 
 interface RouteContext { params: Promise<{ id: string }> }
 
-export async function GET(_request: Request, context: RouteContext) {
+async function GETHandler(_request: Request, context: RouteContext) {
   const { id } = await context.params;
   const record = getCaseRecord(id);
   if (!record) return NextResponse.json({ error: '案例不存在' }, { status: 404 });
   return NextResponse.json({ case: record });
 }
 
-export async function PATCH(request: Request, context: RouteContext) {
+async function PATCHHandler(request: Request, context: RouteContext) {
   const { id } = await context.params;
   const body = await request.json() as { title?: unknown; status?: unknown; confidence?: unknown };
   const status: CaseStatus | undefined = body.status === 'draft' || body.status === 'reviewed' || body.status === 'archived'
@@ -32,7 +33,7 @@ export async function PATCH(request: Request, context: RouteContext) {
   return NextResponse.json({ case: record });
 }
 
-export async function DELETE(request: Request, context: RouteContext) {
+async function DELETEHandler(request: Request, context: RouteContext) {
   const { id } = await context.params;
   const body = await request.json().catch(() => ({})) as { caseCode?: unknown };
   if (typeof body.caseCode !== 'string' || !deleteCaseRecord(id, body.caseCode)) {
@@ -40,3 +41,7 @@ export async function DELETE(request: Request, context: RouteContext) {
   }
   return new Response(null, { status: 204 });
 }
+
+export const GET = withAccount(GETHandler);
+export const PATCH = withAccount(PATCHHandler);
+export const DELETE = withAccount(DELETEHandler);

@@ -1,3 +1,4 @@
+import { withAccount } from '@/lib/auth/route';
 import { NextResponse } from 'next/server';
 import { getBackupLifecycleSummary } from '@/lib/backups/lifecycle';
 import { getLocalDataSummary } from '@/lib/backups/service';
@@ -5,7 +6,7 @@ import { getLocalDataSummary } from '@/lib/backups/service';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-export async function GET() {
+async function GETHandler(_request: Request) {
   try {
     const [data, lifecycle] = await Promise.all([
       getLocalDataSummary(),
@@ -17,3 +18,5 @@ export async function GET() {
     return NextResponse.json({ error: '本地数据概览读取失败' }, { status: 500 });
   }
 }
+
+export const GET = withAccount(GETHandler);

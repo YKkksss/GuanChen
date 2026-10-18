@@ -1,3 +1,4 @@
+import { withAccount } from '@/lib/auth/route';
 import { NextResponse } from 'next/server';
 import {
   createChatCompletionStream,
@@ -19,7 +20,7 @@ const SYSTEM_PROMPT = `你是一个中文紫微斗数合盘分析助手。
 4. 不做绝对断言，不鼓励用户把婚恋、投资或健康重大决策完全交给命理。
 5. 输出中文，使用 **【小标题】** 分段。`;
 
-export async function POST(request: Request) {
+async function POSTHandler(request: Request) {
   try {
     const body = await request.json().catch(() => null);
     if (!body || typeof body !== 'object' || Array.isArray(body)) {
@@ -99,3 +100,5 @@ function summarizePalace(palace: Palace) {
     })),
   };
 }
+
+export const POST = withAccount(POSTHandler);

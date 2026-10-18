@@ -1,3 +1,4 @@
+import { withAccount } from '@/lib/auth/route';
 import { NextResponse } from 'next/server';
 import { getRectificationReportDetail } from '@/lib/db/rectification-reports';
 
@@ -5,7 +6,7 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 interface RouteContext { params: Promise<{ reportId: string }> }
 
-export async function GET(request: Request, context: RouteContext) {
+async function GETHandler(request: Request, context: RouteContext) {
   const { reportId } = await context.params;
   const raw = new URL(request.url).searchParams.get('version');
   const version = raw ? Number(raw) : undefined;
@@ -15,3 +16,5 @@ export async function GET(request: Request, context: RouteContext) {
   if (raw && !detail.version) return NextResponse.json({ error: '报告版本不存在' }, { status: 404 });
   return NextResponse.json(detail);
 }
+
+export const GET = withAccount(GETHandler);

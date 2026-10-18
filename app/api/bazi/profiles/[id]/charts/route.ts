@@ -1,3 +1,4 @@
+import { withAccount } from '@/lib/auth/route';
 import { NextResponse } from 'next/server';
 import { createBaziChartVersion } from '@/lib/db/bazi';
 import type { CreateBaziChartVersionInput } from '@/lib/bazi/types';
@@ -7,7 +8,7 @@ export const dynamic = 'force-dynamic';
 
 interface RouteContext { params: Promise<{ id: string }> }
 
-export async function POST(request: Request, context: RouteContext) {
+async function POSTHandler(request: Request, context: RouteContext) {
   try {
     const { id } = await context.params;
     const body = await request.json() as CreateBaziChartVersionInput;
@@ -18,3 +19,5 @@ export async function POST(request: Request, context: RouteContext) {
     return NextResponse.json({ error: message }, { status: message.includes('不存在') ? 404 : 400 });
   }
 }
+
+export const POST = withAccount(POSTHandler);

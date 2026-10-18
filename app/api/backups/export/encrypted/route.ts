@@ -1,3 +1,4 @@
+import { withAccount } from '@/lib/auth/route';
 import { createEncryptedLocalBackupArchive } from '@/lib/backups/encrypted';
 import { BackupValidationError } from '@/lib/backups/service';
 
@@ -5,7 +6,7 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 120;
 
-export async function POST(request: Request) {
+async function POSTHandler(request: Request) {
   try {
     const body = await request.json() as { password?: unknown };
     const archive = await createEncryptedLocalBackupArchive(
@@ -31,3 +32,5 @@ export async function POST(request: Request) {
     }, { status: error instanceof BackupValidationError ? 422 : 500 });
   }
 }
+
+export const POST = withAccount(POSTHandler);

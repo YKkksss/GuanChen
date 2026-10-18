@@ -1,8 +1,9 @@
+import { withAccount } from '@/lib/auth/route';
 import { NextResponse } from 'next/server';
 import { generateChart } from '@/lib/ziwei/algorithm';
 import type { BirthInfo } from '@/lib/ziwei/types';
 
-export async function POST(request: Request) {
+async function POSTHandler(request: Request) {
   try {
     const body = await request.json().catch(() => null);
     if (!body || typeof body !== 'object' || Array.isArray(body)) return error('请求体必须是有效的 JSON 对象');
@@ -54,3 +55,5 @@ function toInteger(value: unknown): number | undefined {
 function error(message: string, status = 400) {
   return NextResponse.json({ error: message }, { status });
 }
+
+export const POST = withAccount(POSTHandler);

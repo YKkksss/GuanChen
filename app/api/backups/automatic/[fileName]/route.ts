@@ -1,10 +1,11 @@
+import { withAccount } from '@/lib/auth/route';
 import { readManagedBackupArchive } from '@/lib/backups/lifecycle';
 import { BackupValidationError } from '@/lib/backups/service';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-export async function GET(
+async function GETHandler(
   _request: Request,
   context: { params: Promise<{ fileName: string }> },
 ) {
@@ -26,3 +27,5 @@ export async function GET(
     }, { status: error instanceof BackupValidationError ? 404 : 500 });
   }
 }
+
+export const GET = withAccount(GETHandler);

@@ -1,15 +1,42 @@
 import Database from 'better-sqlite3';
+import { userDataDirectory } from '@/lib/auth/scope';
 import { mkdirSync } from 'node:fs';
 import path from 'node:path';
 
-declare global {
-  // eslint-disable-next-line no-var
-  var __ziweiSqlite: Database.Database | undefined;
-  // eslint-disable-next-line no-var
-  var __ziweiSqliteMaintenanceToken: symbol | undefined;
+type DatabaseSlot = { db?: Database.Database; maintenanceToken?: symbol; leases: number; lastUsed: number };
+declare global { var __guanchenDatabases: Map<string, DatabaseSlot> | undefined; }
+const slots = globalThis.__guanchenDatabases ??= new Map<string, DatabaseSlot>();
+function databaseSlot(): DatabaseSlot {
+  const key = resolveDatabasePath();
+  let slot = slots.get(key);
+  if (!slot) { slot = { leases: 0, lastUsed: Date.now() }; slots.set(key, slot); }
+  slot.lastUsed = Date.now();
+  return slot;
+}
+
+/** 请求及流式响应结束前保留连接；只回收空闲用户，避免账号数增加耗尽文件句柄。 */
+export function leaseDatabaseScope() {
+  const slot = databaseSlot();
+  slot.leases += 1;
+  let released = false;
+  return () => {
+    if (released) return;
+    released = true;
+    slot.leases -= 1;
+    const idle = [...slots.entries()].filter(([, entry]) => !entry.leases && !entry.maintenanceToken);
+    idle.sort((a, b) => a[1].lastUsed - b[1].lastUsed);
+    while (slots.size > 64 && idle.length) {
+      const [key, entry] = idle.shift()!;
+      if (entry.db?.open) entry.db.close();
+      slots.delete(key);
+    }
+  };
 }
 
 function resolveDatabasePath(): string {
+  const directory = userDataDirectory();
+  if (directory) return path.join(directory, 'ziweidoushu.sqlite');
+  if (process.env.NEXT_RUNTIME === 'nodejs') throw new Error('服务端业务请求缺少账号上下文');
   const configuredPath = process.env.SQLITE_PATH?.trim();
   if (configuredPath) {
     return path.isAbsolute(configuredPath)
@@ -2571,6 +2598,221 @@ function migrate(db: Database.Database) {
     })();
   }
 
+  if (!applied.has(48)) {
+    db.transaction(() => {
+      db.exec(`CREATE TABLE fortune_calendar_readings (
+        id TEXT PRIMARY KEY,
+        conversation_id TEXT NOT NULL REFERENCES conversations(id) ON DELETE CASCADE,
+        target_date TEXT NOT NULL,
+        topic TEXT NOT NULL CHECK(topic IN ('overview', 'career', 'relationship', 'wealth', 'study')),
+        status TEXT NOT NULL CHECK(status IN ('generating', 'completed', 'failed')),
+        request_id TEXT NOT NULL,
+        facts_json TEXT NOT NULL,
+        content_json TEXT,
+        provider TEXT NOT NULL,
+        model TEXT NOT NULL,
+        prompt_version TEXT NOT NULL,
+        error_code TEXT,
+        input_tokens INTEGER,
+        output_tokens INTEGER,
+        created_at INTEGER NOT NULL,
+        updated_at INTEGER NOT NULL,
+        UNIQUE(conversation_id, target_date, topic)
+      );
+      CREATE INDEX idx_fortune_calendar_month ON fortune_calendar_readings(conversation_id, target_date);`);
+      db.prepare('INSERT INTO schema_migrations (version, applied_at) VALUES (?, ?)').run(48, Date.now());
+    })();
+  }
+
+  if (!applied.has(49)) {
+    db.transaction(() => {
+      db.exec(`CREATE TABLE fortune_topic_reports (
+        id TEXT PRIMARY KEY,
+        conversation_id TEXT NOT NULL REFERENCES conversations(id) ON DELETE CASCADE,
+        topic TEXT NOT NULL CHECK(topic IN ('career', 'relationship', 'wealth', 'study')),
+        period_key TEXT NOT NULL,
+        comparison_key TEXT NOT NULL DEFAULT '',
+        title TEXT NOT NULL,
+        active_version_id TEXT,
+        created_at INTEGER NOT NULL,
+        updated_at INTEGER NOT NULL,
+        UNIQUE(conversation_id, topic, period_key, comparison_key)
+      );
+      CREATE TABLE fortune_topic_versions (
+        id TEXT PRIMARY KEY,
+        report_id TEXT NOT NULL REFERENCES fortune_topic_reports(id) ON DELETE CASCADE,
+        version INTEGER NOT NULL,
+        request_id TEXT NOT NULL,
+        status TEXT NOT NULL CHECK(status IN ('generating', 'completed', 'failed')),
+        facts_json TEXT NOT NULL,
+        content_json TEXT,
+        provider TEXT NOT NULL,
+        model TEXT NOT NULL,
+        prompt_version TEXT NOT NULL,
+        error_code TEXT,
+        input_tokens INTEGER,
+        output_tokens INTEGER,
+        created_at INTEGER NOT NULL,
+        updated_at INTEGER NOT NULL,
+        UNIQUE(report_id, version)
+      );
+      CREATE INDEX idx_fortune_topics_conversation ON fortune_topic_reports(conversation_id, updated_at);
+      CREATE UNIQUE INDEX idx_fortune_topics_generating ON fortune_topic_versions(report_id) WHERE status = 'generating';`);
+      db.prepare('INSERT INTO schema_migrations (version, applied_at) VALUES (?, ?)').run(49, Date.now());
+    })();
+  }
+  if (!applied.has(50)) {
+    db.transaction(() => {
+      db.exec(`CREATE TABLE bazi_reading_versions (
+        id TEXT PRIMARY KEY,
+        chart_version_id TEXT NOT NULL REFERENCES bazi_chart_versions(id) ON DELETE CASCADE,
+        version INTEGER NOT NULL,
+        status TEXT NOT NULL CHECK(status IN ('generating', 'completed', 'failed')),
+        request_id TEXT NOT NULL,
+        facts_fingerprint TEXT NOT NULL,
+        facts_json TEXT NOT NULL,
+        content_json TEXT,
+        provider TEXT NOT NULL,
+        model TEXT NOT NULL,
+        prompt_version TEXT NOT NULL,
+        error_code TEXT,
+        input_tokens INTEGER,
+        output_tokens INTEGER,
+        created_at INTEGER NOT NULL,
+        updated_at INTEGER NOT NULL,
+        UNIQUE(chart_version_id, version)
+      );
+      CREATE INDEX idx_bazi_reading_chart ON bazi_reading_versions(chart_version_id, version);
+      CREATE UNIQUE INDEX idx_bazi_reading_generating ON bazi_reading_versions(chart_version_id) WHERE status = 'generating';`);
+      db.prepare('INSERT INTO schema_migrations (version, applied_at) VALUES (?, ?)').run(50, Date.now());
+    })();
+  }
+  if (!applied.has(51)) {
+    db.transaction(() => {
+      db.exec(`CREATE TABLE synthesis_sessions (
+        id TEXT PRIMARY KEY,
+        title TEXT NOT NULL,
+        input_fingerprint TEXT NOT NULL UNIQUE,
+        input_json TEXT NOT NULL,
+        policy_json TEXT NOT NULL,
+        conversation_id TEXT NOT NULL REFERENCES conversations(id) ON DELETE CASCADE,
+        bazi_chart_version_id TEXT NOT NULL REFERENCES bazi_chart_versions(id) ON DELETE CASCADE,
+        source_conversation_id TEXT REFERENCES conversations(id) ON DELETE SET NULL,
+        created_at INTEGER NOT NULL,
+        updated_at INTEGER NOT NULL
+      );
+      CREATE TABLE synthesis_report_versions (
+        id TEXT PRIMARY KEY,
+        session_id TEXT NOT NULL REFERENCES synthesis_sessions(id) ON DELETE CASCADE,
+        topic TEXT NOT NULL CHECK(topic IN ('overview','career','relationship','wealth','study')),
+        version INTEGER NOT NULL,
+        status TEXT NOT NULL CHECK(status IN ('generating','completed','failed')),
+        request_id TEXT NOT NULL,
+        facts_fingerprint TEXT NOT NULL,
+        facts_json TEXT NOT NULL,
+        content_json TEXT,
+        provider TEXT NOT NULL,
+        model TEXT NOT NULL,
+        prompt_version TEXT NOT NULL,
+        error_code TEXT,
+        input_tokens INTEGER,
+        output_tokens INTEGER,
+        created_at INTEGER NOT NULL,
+        updated_at INTEGER NOT NULL,
+        UNIQUE(session_id, topic, version)
+      );
+      CREATE INDEX idx_synthesis_sessions_recent ON synthesis_sessions(updated_at);
+      CREATE INDEX idx_synthesis_versions_session ON synthesis_report_versions(session_id, topic, version);
+      CREATE UNIQUE INDEX idx_synthesis_generating ON synthesis_report_versions(session_id, topic) WHERE status = 'generating';`);
+      db.prepare('INSERT INTO schema_migrations (version, applied_at) VALUES (?, ?)').run(51, Date.now());
+    })();
+  }
+  if (!applied.has(52)) {
+    db.transaction(() => {
+      db.exec(`CREATE TABLE election_plans (
+        id TEXT PRIMARY KEY,
+        title TEXT NOT NULL,
+        input_fingerprint TEXT NOT NULL UNIQUE,
+        input_json TEXT NOT NULL,
+        result_json TEXT NOT NULL,
+        selected_dates_json TEXT NOT NULL,
+        notes TEXT NOT NULL DEFAULT '',
+        created_at INTEGER NOT NULL,
+        updated_at INTEGER NOT NULL
+      );
+      CREATE INDEX idx_election_plans_recent ON election_plans(updated_at);`);
+      db.prepare('INSERT INTO schema_migrations (version, applied_at) VALUES (?, ?)').run(52, Date.now());
+    })();
+  }
+  if (!applied.has(53)) {
+    db.transaction(() => {
+      db.exec(`CREATE TABLE meihua_sessions (
+        id TEXT PRIMARY KEY,title TEXT NOT NULL,question TEXT NOT NULL,notes TEXT NOT NULL DEFAULT '',
+        input_fingerprint TEXT NOT NULL UNIQUE,result_json TEXT NOT NULL,created_at INTEGER NOT NULL,updated_at INTEGER NOT NULL
+      );
+      CREATE TABLE meihua_turns (
+        id TEXT PRIMARY KEY,session_id TEXT NOT NULL REFERENCES meihua_sessions(id) ON DELETE CASCADE,
+        sequence INTEGER NOT NULL,request_id TEXT NOT NULL,input_hash TEXT NOT NULL,request_token TEXT NOT NULL,
+        message TEXT NOT NULL,content TEXT,evidence_json TEXT,status TEXT NOT NULL CHECK(status IN ('generating','completed','failed','canceled')),
+        retry_of TEXT REFERENCES meihua_turns(id) ON DELETE SET NULL,
+        provider TEXT NOT NULL,model TEXT NOT NULL,prompt_version TEXT NOT NULL,
+        input_tokens INTEGER,output_tokens INTEGER,error_code TEXT,created_at INTEGER NOT NULL,updated_at INTEGER NOT NULL,
+        UNIQUE(session_id,sequence),UNIQUE(session_id,request_id)
+      );
+      CREATE INDEX idx_meihua_sessions_recent ON meihua_sessions(updated_at);
+      CREATE INDEX idx_meihua_turns_sequence ON meihua_turns(session_id,sequence);
+      CREATE UNIQUE INDEX idx_meihua_generating ON meihua_turns(session_id) WHERE status='generating';`);
+      db.prepare('INSERT INTO schema_migrations (version,applied_at) VALUES (?,?)').run(53,Date.now());
+    })();
+  }
+  if (!applied.has(54)) {
+    db.transaction(() => {
+      db.exec(`CREATE TABLE liuyao_sessions (
+        id TEXT PRIMARY KEY,title TEXT NOT NULL,question TEXT NOT NULL,notes TEXT NOT NULL DEFAULT '',
+        input_fingerprint TEXT NOT NULL UNIQUE,result_json TEXT NOT NULL,created_at INTEGER NOT NULL,updated_at INTEGER NOT NULL
+      );
+      CREATE TABLE liuyao_turns (
+        id TEXT PRIMARY KEY,session_id TEXT NOT NULL REFERENCES liuyao_sessions(id) ON DELETE CASCADE,
+        sequence INTEGER NOT NULL,request_id TEXT NOT NULL,input_hash TEXT NOT NULL,request_token TEXT NOT NULL,
+        message TEXT NOT NULL,content TEXT,evidence_json TEXT,status TEXT NOT NULL CHECK(status IN ('generating','completed','failed','canceled')),
+        retry_of TEXT REFERENCES liuyao_turns(id) ON DELETE SET NULL,
+        provider TEXT NOT NULL,model TEXT NOT NULL,prompt_version TEXT NOT NULL,
+        input_tokens INTEGER,output_tokens INTEGER,error_code TEXT,created_at INTEGER NOT NULL,updated_at INTEGER NOT NULL,
+        UNIQUE(session_id,sequence),UNIQUE(session_id,request_id)
+      );
+      CREATE INDEX idx_liuyao_sessions_recent ON liuyao_sessions(updated_at);
+      CREATE INDEX idx_liuyao_turns_sequence ON liuyao_turns(session_id,sequence);
+      CREATE UNIQUE INDEX idx_liuyao_generating ON liuyao_turns(session_id) WHERE status='generating';`);
+      db.prepare('INSERT INTO schema_migrations (version,applied_at) VALUES (?,?)').run(54,Date.now());
+    })();
+  }
+  if (!applied.has(55)) {
+    db.transaction(() => {
+      db.exec(`CREATE TABLE qimen_sessions (
+        id TEXT PRIMARY KEY,title TEXT NOT NULL,question TEXT NOT NULL,notes TEXT NOT NULL DEFAULT '',
+        input_fingerprint TEXT NOT NULL UNIQUE,result_json TEXT NOT NULL,created_at INTEGER NOT NULL,updated_at INTEGER NOT NULL
+      );
+      CREATE TABLE qimen_turns (
+        id TEXT PRIMARY KEY,session_id TEXT NOT NULL REFERENCES qimen_sessions(id) ON DELETE CASCADE,
+        sequence INTEGER NOT NULL,request_id TEXT NOT NULL,input_hash TEXT NOT NULL,request_token TEXT NOT NULL,
+        message TEXT NOT NULL,content TEXT,evidence_json TEXT,status TEXT NOT NULL CHECK(status IN ('generating','completed','failed','canceled')),
+        retry_of TEXT REFERENCES qimen_turns(id) ON DELETE SET NULL,
+        provider TEXT NOT NULL,model TEXT NOT NULL,prompt_version TEXT NOT NULL,
+        input_tokens INTEGER,output_tokens INTEGER,error_code TEXT,created_at INTEGER NOT NULL,updated_at INTEGER NOT NULL,
+        UNIQUE(session_id,sequence),UNIQUE(session_id,request_id)
+      );
+      CREATE INDEX idx_qimen_sessions_recent ON qimen_sessions(updated_at);
+      CREATE INDEX idx_qimen_turns_sequence ON qimen_turns(session_id,sequence);
+      CREATE UNIQUE INDEX idx_qimen_generating ON qimen_turns(session_id) WHERE status='generating';`);
+      db.prepare('INSERT INTO schema_migrations (version,applied_at) VALUES (?,?)').run(55,Date.now());
+    })();
+  }
+  if (!applied.has(56)) {
+    db.transaction(() => {
+      db.exec("ALTER TABLE election_plans ADD COLUMN selected_times_json TEXT NOT NULL DEFAULT '[]'");
+      db.prepare('INSERT INTO schema_migrations (version,applied_at) VALUES (?,?)').run(56,Date.now());
+    })();
+  }
   ensureMessageSearch(db);
 }
 
@@ -2644,39 +2886,39 @@ function createDatabase(): Database.Database {
 }
 
 export function getDatabase(): Database.Database {
-  if (globalThis.__ziweiSqliteMaintenanceToken) {
+  if (databaseSlot().maintenanceToken) {
     throw new Error('本地数据库正在执行维护，请稍后重试');
   }
-  if (!globalThis.__ziweiSqlite) {
-    globalThis.__ziweiSqlite = createDatabase();
+  if (!databaseSlot().db?.open) {
+    databaseSlot().db = createDatabase();
   }
-  return globalThis.__ziweiSqlite;
+  return databaseSlot().db!;
 }
 
 /** 在极短的整库文件替换窗口内，阻止其他请求重新打开数据库。 */
 export function beginDatabaseMaintenance(): symbol {
-  if (globalThis.__ziweiSqliteMaintenanceToken) {
+  if (databaseSlot().maintenanceToken) {
     throw new Error('本地数据库已有维护操作正在进行');
   }
   const token = Symbol('ziwei-sqlite-maintenance');
-  globalThis.__ziweiSqliteMaintenanceToken = token;
+  databaseSlot().maintenanceToken = token;
   return token;
 }
 
 /** 仅供持有本次维护令牌的恢复流程重新打开并复核数据库。 */
 export function getDatabaseDuringMaintenance(token: symbol): Database.Database {
-  if (globalThis.__ziweiSqliteMaintenanceToken !== token) {
+  if (databaseSlot().maintenanceToken !== token) {
     throw new Error('本地数据库维护令牌无效');
   }
-  if (!globalThis.__ziweiSqlite) {
-    globalThis.__ziweiSqlite = createDatabase();
+  if (!databaseSlot().db?.open) {
+    databaseSlot().db = createDatabase();
   }
-  return globalThis.__ziweiSqlite;
+  return databaseSlot().db!;
 }
 
 export function endDatabaseMaintenance(token: symbol): void {
-  if (globalThis.__ziweiSqliteMaintenanceToken === token) {
-    globalThis.__ziweiSqliteMaintenanceToken = undefined;
+  if (databaseSlot().maintenanceToken === token) {
+    databaseSlot().maintenanceToken = undefined;
   }
 }
 
@@ -2685,10 +2927,10 @@ export function endDatabaseMaintenance(token: symbol): void {
  * 调用方完成文件替换后再次调用 getDatabase() 即可重新建立连接并执行迁移检查。
  */
 export function closeDatabaseConnection(): void {
-  if (globalThis.__ziweiSqlite?.open) {
-    globalThis.__ziweiSqlite.close();
+  if (databaseSlot().db?.open) {
+    databaseSlot().db!.close();
   }
-  globalThis.__ziweiSqlite = undefined;
+  databaseSlot().db = undefined;
 }
 
 export function getDatabasePath(): string {

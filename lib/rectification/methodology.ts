@@ -1,4 +1,5 @@
 import type { LifeEventCategory } from '@/lib/events/types';
+import { TRANSIT_ENGINE_VERSION } from '@/lib/transits/engine';
 import type {
   RectificationMethodology,
   RectificationTimeSlotDefinition,
@@ -43,7 +44,7 @@ export const RECTIFICATION_METHODOLOGY: RectificationMethodology = {
   label: '出生时辰候选比较方法论 V1',
   status: 'provisional',
   chartEngineVersion: 'ziwei-v1-iztro-2.5.8',
-  transitEngineVersion: 'transit-v1-iztro-2.5.8',
+  transitEngineVersion: TRANSIT_ENGINE_VERSION,
   timePolicy: {
     version: RECTIFICATION_TIME_POLICY_VERSION,
     inputTimeScale: 'civil_time',

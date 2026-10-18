@@ -1,3 +1,4 @@
+import { withAccount } from '@/lib/auth/route';
 import { NextResponse } from 'next/server';
 import { readReportExportFile } from '@/lib/report-exports/service';
 
@@ -8,7 +9,7 @@ interface RouteContext {
   params: Promise<{ exportId: string }>;
 }
 
-export async function GET(_request: Request, context: RouteContext) {
+async function GETHandler(_request: Request, context: RouteContext) {
   const { exportId } = await context.params;
   try {
     const { record, buffer } = await readReportExportFile(exportId);
@@ -31,3 +32,5 @@ export async function GET(_request: Request, context: RouteContext) {
     return NextResponse.json({ error: message }, { status: message.includes('不存在') ? 404 : 409 });
   }
 }
+
+export const GET = withAccount(GETHandler);

@@ -1,3 +1,4 @@
+import { withAccount } from '@/lib/auth/route';
 import { NextResponse } from 'next/server';
 import { getConversation } from '@/lib/db/conversations';
 import { getLearningNote } from '@/lib/db/learning';
@@ -7,7 +8,7 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 interface RouteContext { params: Promise<{ id: string }> }
 
-export async function GET(request: Request, context: RouteContext) {
+async function GETHandler(request: Request, context: RouteContext) {
   const { id } = await context.params;
   const conversation = getConversation(id);
   if (!conversation || conversation.type !== 'chart' || !conversation.chartSnapshot) {
@@ -27,3 +28,5 @@ export async function GET(request: Request, context: RouteContext) {
     return NextResponse.json({ error: error instanceof Error ? error.message : '学习讲解生成失败' }, { status: 400 });
   }
 }
+
+export const GET = withAccount(GETHandler);

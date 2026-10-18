@@ -1,9 +1,10 @@
+import { withAccount } from '@/lib/auth/route';
 import { createChartPackage, ChartPackageValidationError } from '@/lib/chart-transfer/service';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-export async function GET(request: Request) {
+async function GETHandler(request: Request) {
   const conversationId = new URL(request.url).searchParams.get('conversationId')?.trim();
   if (!conversationId) return Response.json({ error: '请选择要导出的单人命盘' }, { status: 400 });
   try {
@@ -23,3 +24,5 @@ export async function GET(request: Request) {
     return Response.json({ error: error instanceof Error ? error.message : '单命盘导出失败' }, { status });
   }
 }
+
+export const GET = withAccount(GETHandler);

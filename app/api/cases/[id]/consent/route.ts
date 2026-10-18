@@ -1,3 +1,4 @@
+import { withAccount } from '@/lib/auth/route';
 import { NextResponse } from 'next/server';
 import { setCaseConsent } from '@/lib/db/cases';
 import type { CaseConsentScope } from '@/lib/cases/types';
@@ -7,7 +8,7 @@ export const dynamic = 'force-dynamic';
 
 interface RouteContext { params: Promise<{ id: string }> }
 
-export async function PATCH(request: Request, context: RouteContext) {
+async function PATCHHandler(request: Request, context: RouteContext) {
   try {
     const { id } = await context.params;
     const body = await request.json() as { scope?: unknown; active?: unknown };
@@ -29,3 +30,5 @@ export async function PATCH(request: Request, context: RouteContext) {
     );
   }
 }
+
+export const PATCH = withAccount(PATCHHandler);

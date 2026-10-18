@@ -1,3 +1,4 @@
+import { withAccount } from '@/lib/auth/route';
 import { NextResponse } from 'next/server';
 import { createCaseFromConversation } from '@/lib/cases/service';
 import { listCaseRecords } from '@/lib/db/cases';
@@ -8,7 +9,7 @@ export const dynamic = 'force-dynamic';
 
 const VALID_SCOPES: CaseConsentScope[] = ['local_only', 'teaching', 'anonymous_export'];
 
-export async function GET(request: Request) {
+async function GETHandler(request: Request) {
   const url = new URL(request.url);
   const statusValue = url.searchParams.get('status');
   const status = statusValue === 'draft' || statusValue === 'reviewed' || statusValue === 'archived'
@@ -25,7 +26,7 @@ export async function GET(request: Request) {
   });
 }
 
-export async function POST(request: Request) {
+async function POSTHandler(request: Request) {
   try {
     const body = await request.json() as {
       conversationId?: unknown;
@@ -58,3 +59,6 @@ export async function POST(request: Request) {
     );
   }
 }
+
+export const GET = withAccount(GETHandler);
+export const POST = withAccount(POSTHandler);

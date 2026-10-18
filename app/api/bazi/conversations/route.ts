@@ -1,10 +1,11 @@
+import { withAccount } from '@/lib/auth/route';
 import { NextResponse } from 'next/server';
 import { createBaziConversation, listBaziConversations } from '@/lib/db/bazi-conversations';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-export async function GET(request: Request) {
+async function GETHandler(request: Request) {
   const url = new URL(request.url);
   const status = url.searchParams.get('status');
   const limit = Number(url.searchParams.get('limit') || 50);
@@ -19,7 +20,7 @@ export async function GET(request: Request) {
   });
 }
 
-export async function POST(request: Request) {
+async function POSTHandler(request: Request) {
   try {
     const body = await request.json() as { chartVersionId?: unknown; title?: unknown; forceNew?: unknown };
     if (typeof body.chartVersionId !== 'string' || !body.chartVersionId.trim()) {
@@ -36,3 +37,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: message }, { status: message.includes('不存在') ? 404 : 400 });
   }
 }
+
+export const GET = withAccount(GETHandler);
+export const POST = withAccount(POSTHandler);

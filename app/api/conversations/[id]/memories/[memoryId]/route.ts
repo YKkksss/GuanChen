@@ -1,3 +1,4 @@
+import { withAccount } from '@/lib/auth/route';
 import { NextResponse } from 'next/server';
 import { updateMemoryItem } from '@/lib/db/context';
 import { getConversation } from '@/lib/db/conversations';
@@ -9,7 +10,7 @@ interface RouteContext {
   params: Promise<{ id: string; memoryId: string }>;
 }
 
-export async function PATCH(request: Request, context: RouteContext) {
+async function PATCHHandler(request: Request, context: RouteContext) {
   const { id, memoryId } = await context.params;
   if (!getConversation(id)) return NextResponse.json({ error: '会话不存在' }, { status: 404 });
   const body = await request.json() as { content?: unknown };
@@ -20,10 +21,13 @@ export async function PATCH(request: Request, context: RouteContext) {
   return NextResponse.json({ memory });
 }
 
-export async function DELETE(_request: Request, context: RouteContext) {
+async function DELETEHandler(_request: Request, context: RouteContext) {
   const { id, memoryId } = await context.params;
   if (!getConversation(id)) return NextResponse.json({ error: '会话不存在' }, { status: 404 });
   const memory = updateMemoryItem({ id: memoryId, conversationId: id, status: 'deleted' });
   if (!memory) return NextResponse.json({ error: '记忆不存在' }, { status: 404 });
   return new Response(null, { status: 204 });
 }
+
+export const PATCH = withAccount(PATCHHandler);
+export const DELETE = withAccount(DELETEHandler);

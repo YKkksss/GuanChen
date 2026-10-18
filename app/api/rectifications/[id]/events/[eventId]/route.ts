@@ -1,3 +1,4 @@
+import { withAccount } from '@/lib/auth/route';
 import { NextResponse } from 'next/server';
 import {
   findRectificationEventMatrix,
@@ -11,7 +12,7 @@ export const dynamic = 'force-dynamic';
 
 interface RouteContext { params: Promise<{ id: string; eventId: string }> }
 
-export async function PATCH(request: Request, context: RouteContext) {
+async function PATCHHandler(request: Request, context: RouteContext) {
   const { id, eventId } = await context.params;
   try {
     const body = await request.json() as Record<string, unknown>;
@@ -33,10 +34,13 @@ export async function PATCH(request: Request, context: RouteContext) {
   }
 }
 
-export async function DELETE(_request: Request, context: RouteContext) {
+async function DELETEHandler(_request: Request, context: RouteContext) {
   const { id, eventId } = await context.params;
   if (!removeRectificationEvent(id, eventId)) {
     return NextResponse.json({ error: '校时事件不存在' }, { status: 404 });
   }
   return new Response(null, { status: 204 });
 }
+
+export const PATCH = withAccount(PATCHHandler);
+export const DELETE = withAccount(DELETEHandler);

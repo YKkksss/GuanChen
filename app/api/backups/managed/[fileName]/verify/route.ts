@@ -1,3 +1,4 @@
+import { withAccount } from '@/lib/auth/route';
 import { NextResponse } from 'next/server';
 import { verifyManagedBackup } from '@/lib/backups/lifecycle';
 import { BackupValidationError } from '@/lib/backups/service';
@@ -6,7 +7,7 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 120;
 
-export async function POST(
+async function POSTHandler(
   _request: Request,
   context: { params: Promise<{ fileName: string }> },
 ) {
@@ -21,3 +22,5 @@ export async function POST(
     }, { status: error instanceof BackupValidationError ? 422 : 500 });
   }
 }
+
+export const POST = withAccount(POSTHandler);

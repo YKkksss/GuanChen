@@ -1,0 +1,7 @@
+import { NextResponse } from 'next/server';
+import { withAccount } from '@/lib/auth/route';
+import { sendQimenMessage } from '@/lib/qimen/chat';
+import { QimenError } from '@/lib/qimen/engine';
+export const runtime='nodejs';export const dynamic='force-dynamic';
+async function POSTHandler(request:Request,context:{params:Promise<{id:string}>}){const {id}=await context.params;let body:unknown;try{body=await request.json();}catch{return NextResponse.json({error:'请提交有效JSON'},{status:400});}try{const detail=await sendQimenMessage(id,body,request.signal);return NextResponse.json({detail},{status:detail.turns.some(t=>t.status==='generating')?202:200});}catch(e){return NextResponse.json({error:e instanceof QimenError?e.message:'回复失败，请稍后重试'},{status:e instanceof QimenError?e.status:500});}}
+export const POST=withAccount(POSTHandler);

@@ -1,3 +1,4 @@
+import { withAccount } from '@/lib/auth/route';
 import { NextResponse } from 'next/server';
 import { getBaziConversation, listBaziContextRuns } from '@/lib/db/bazi-conversations';
 
@@ -5,7 +6,7 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 interface RouteContext { params: Promise<{ id: string }> }
 
-export async function GET(_request: Request, context: RouteContext) {
+async function GETHandler(_request: Request, context: RouteContext) {
   const { id } = await context.params;
   const conversation = getBaziConversation(id);
   if (!conversation) return NextResponse.json({ error: '八字会话不存在' }, { status: 404 });
@@ -17,3 +18,5 @@ export async function GET(_request: Request, context: RouteContext) {
     runs: listBaziContextRuns(id),
   });
 }
+
+export const GET = withAccount(GETHandler);

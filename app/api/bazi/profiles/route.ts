@@ -1,3 +1,4 @@
+import { withAccount } from '@/lib/auth/route';
 import { NextResponse } from 'next/server';
 import { createBaziBirthProfile, listBaziBirthProfiles } from '@/lib/db/bazi';
 import type { CreateBaziBirthProfileInput } from '@/lib/bazi/types';
@@ -5,7 +6,7 @@ import type { CreateBaziBirthProfileInput } from '@/lib/bazi/types';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-export async function GET(request: Request) {
+async function GETHandler(request: Request) {
   try {
     const url = new URL(request.url);
     const limit = Number(url.searchParams.get('limit') || 50);
@@ -21,7 +22,7 @@ export async function GET(request: Request) {
   }
 }
 
-export async function POST(request: Request) {
+async function POSTHandler(request: Request) {
   try {
     const body = await request.json() as CreateBaziBirthProfileInput;
     const profile = createBaziBirthProfile(body);
@@ -31,3 +32,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: message }, { status: message.includes('不存在') ? 404 : 400 });
   }
 }
+
+export const GET = withAccount(GETHandler);
+export const POST = withAccount(POSTHandler);

@@ -1,9 +1,10 @@
+import { withAccount } from '@/lib/auth/route';
 import { ChartPackageValidationError, importChartPackage } from '@/lib/chart-transfer/service';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-export async function POST(request: Request) {
+async function POSTHandler(request: Request) {
   try {
     const form = await request.formData();
     const file = form.get('chartPackage');
@@ -22,3 +23,5 @@ export async function POST(request: Request) {
     }, { status: error instanceof ChartPackageValidationError ? 422 : 500 });
   }
 }
+
+export const POST = withAccount(POSTHandler);

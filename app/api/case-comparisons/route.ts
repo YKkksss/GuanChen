@@ -1,3 +1,4 @@
+import { withAccount } from '@/lib/auth/route';
 import { NextResponse } from 'next/server';
 import type { CaseComparisonMode, CaseComparisonStatus } from '@/lib/cases/types';
 import { createOrRefreshCaseComparison, listCaseComparisons } from '@/lib/db/case-comparisons';
@@ -5,7 +6,7 @@ import { createOrRefreshCaseComparison, listCaseComparisons } from '@/lib/db/cas
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-export async function GET(request: Request) {
+async function GETHandler(request: Request) {
   try {
     const url = new URL(request.url);
     const statusValue = url.searchParams.get('status');
@@ -27,7 +28,7 @@ export async function GET(request: Request) {
   }
 }
 
-export async function POST(request: Request) {
+async function POSTHandler(request: Request) {
   try {
     const body = await request.json() as {
       mode?: CaseComparisonMode;
@@ -56,3 +57,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: message }, { status });
   }
 }
+
+export const GET = withAccount(GETHandler);
+export const POST = withAccount(POSTHandler);

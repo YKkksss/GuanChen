@@ -1,3 +1,4 @@
+import { withAccount } from '@/lib/auth/route';
 import { NextResponse } from 'next/server';
 import { createConversation, listConversations, countConversations } from '@/lib/db/conversations';
 import type { ConversationStatus, ConversationType } from '@/lib/conversations/types';
@@ -14,7 +15,7 @@ import {
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-export async function GET(request: Request) {
+async function GETHandler(request: Request) {
   const url = new URL(request.url);
   const typeValue = url.searchParams.get('type');
   const statusValue = url.searchParams.get('status');
@@ -39,7 +40,7 @@ export async function GET(request: Request) {
   }
 }
 
-export async function POST(request: Request) {
+async function POSTHandler(request: Request) {
   try {
     const parsed = await request.json().catch(() => null);
     if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
@@ -135,3 +136,6 @@ function normalizeTitle(value: unknown, birthInfo: BirthInfo | null): string {
   const owner = birthInfo.name?.trim() ? `${birthInfo.name.trim()}的命盘` : '命盘解读';
   return `${owner} · ${birthInfo.year}-${String(birthInfo.month).padStart(2, '0')}-${String(birthInfo.day).padStart(2, '0')}`;
 }
+
+export const GET = withAccount(GETHandler);
+export const POST = withAccount(POSTHandler);

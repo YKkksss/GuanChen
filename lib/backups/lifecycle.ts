@@ -46,8 +46,8 @@ type HealthEntry = {
 
 type HealthIndex = Record<string, HealthEntry>;
 
-let automaticBackupRunning = false;
-let managedBackupRunning = false;
+const automaticBackupRunning = new Set<string>();
+const managedBackupRunning = new Set<string>();
 
 export async function getBackupLifecycleSummary(): Promise<BackupLifecycleSummary> {
   const policy = await readBackupPolicy();
@@ -113,11 +113,11 @@ export async function ensureAutomaticBackupDue(): Promise<AutomaticBackupCheckRe
   if (nextAutomaticBackupAt && Date.parse(nextAutomaticBackupAt) > Date.now()) {
     return { status: 'not_due', createdFileName: null, nextAutomaticBackupAt, prunedFileNames: [] };
   }
-  if (automaticBackupRunning || managedBackupRunning) {
+  if (automaticBackupRunning.has(getDatabasePath()) || managedBackupRunning.has(getDatabasePath())) {
     return { status: 'busy', createdFileName: null, nextAutomaticBackupAt, prunedFileNames: [] };
   }
 
-  automaticBackupRunning = true;
+  automaticBackupRunning.add(getDatabasePath());
   try {
     const item = await createManagedBackup('scheduled');
     const completedAt = new Date().toISOString();
@@ -136,15 +136,15 @@ export async function ensureAutomaticBackupDue(): Promise<AutomaticBackupCheckRe
       prunedFileNames,
     };
   } finally {
-    automaticBackupRunning = false;
+    automaticBackupRunning.delete(getDatabasePath());
   }
 }
 
 export async function createManagedBackup(source: 'manual' | 'scheduled' = 'manual'): Promise<ManagedBackupItem> {
-  if (managedBackupRunning) {
+  if (managedBackupRunning.has(getDatabasePath())) {
     throw new BackupValidationError('另一项本地备份正在生成，请稍后重试', 'BACKUP_CREATE_BUSY');
   }
-  managedBackupRunning = true;
+  managedBackupRunning.add(getDatabasePath());
   try {
     const archive = await createLocalBackupArchive();
     const directory = getBackupDirectory();
@@ -164,7 +164,7 @@ export async function createManagedBackup(source: 'manual' | 'scheduled' = 'manu
       healthMessage: null,
     };
   } finally {
-    managedBackupRunning = false;
+    managedBackupRunning.delete(getDatabasePath());
   }
 }
 

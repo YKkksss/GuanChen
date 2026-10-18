@@ -13,6 +13,8 @@ const privateLanDevOrigins = [
 const nextConfig = {
   // 独立验收服务使用单独缓存，避免覆盖正在运行的开发服务。
   distDir: process.env.ZIWEI_NEXT_DIST_DIR || '.next',
+  // 保留登录跳转的原始来源，避免 127.0.0.1 被框架再次改成 localhost。
+  skipMiddlewareUrlNormalize: true,
   transpilePackages: ['lunar-javascript'],
   serverExternalPackages: ['pdfkit'],
   // 项目上层还存在其他 lockfile，显式限定根目录，避免开发编译器扫描无关工作区。

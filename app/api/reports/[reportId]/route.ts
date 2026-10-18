@@ -1,3 +1,4 @@
+import { withAccount } from '@/lib/auth/route';
 import { NextResponse } from 'next/server';
 import { getReportDetail } from '@/lib/db/reports';
 
@@ -8,7 +9,7 @@ interface RouteContext {
   params: Promise<{ reportId: string }>;
 }
 
-export async function GET(request: Request, context: RouteContext) {
+async function GETHandler(request: Request, context: RouteContext) {
   const { reportId } = await context.params;
   const rawVersion = new URL(request.url).searchParams.get('version');
   const version = rawVersion ? Number(rawVersion) : undefined;
@@ -22,3 +23,5 @@ export async function GET(request: Request, context: RouteContext) {
   }
   return NextResponse.json(detail);
 }
+
+export const GET = withAccount(GETHandler);

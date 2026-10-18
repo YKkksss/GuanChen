@@ -1,3 +1,4 @@
+import { withAccount } from '@/lib/auth/route';
 import { NextResponse } from 'next/server';
 import { regenerateRectificationReport } from '@/lib/rectification/report-service';
 
@@ -5,7 +6,7 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 interface RouteContext { params: Promise<{ reportId: string }> }
 
-export async function POST(_request: Request, context: RouteContext) {
+async function POSTHandler(_request: Request, context: RouteContext) {
   const { reportId } = await context.params;
   try {
     const detail = await regenerateRectificationReport(reportId);
@@ -16,3 +17,5 @@ export async function POST(_request: Request, context: RouteContext) {
     return NextResponse.json({ error: message }, { status });
   }
 }
+
+export const POST = withAccount(POSTHandler);

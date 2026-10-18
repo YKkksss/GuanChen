@@ -1,3 +1,4 @@
+import { withAccount } from '@/lib/auth/route';
 import { NextResponse } from 'next/server';
 import type { ReminderConfig, ReminderRuleStatus } from '@/lib/reminders/types';
 import { deleteReminderRule, getReminderRule, updateReminderRule } from '@/lib/db/reminders';
@@ -7,7 +8,7 @@ export const dynamic = 'force-dynamic';
 
 interface RouteContext { params: Promise<{ id: string }> }
 
-export async function GET(_request: Request, context: RouteContext) {
+async function GETHandler(_request: Request, context: RouteContext) {
   const { id } = await context.params;
   const rule = getReminderRule(id);
   return rule
@@ -15,7 +16,7 @@ export async function GET(_request: Request, context: RouteContext) {
     : NextResponse.json({ error: '提醒规则不存在' }, { status: 404 });
 }
 
-export async function PATCH(request: Request, context: RouteContext) {
+async function PATCHHandler(request: Request, context: RouteContext) {
   try {
     const { id } = await context.params;
     const body = await request.json() as {
@@ -36,9 +37,13 @@ export async function PATCH(request: Request, context: RouteContext) {
   }
 }
 
-export async function DELETE(_request: Request, context: RouteContext) {
+async function DELETEHandler(_request: Request, context: RouteContext) {
   const { id } = await context.params;
   return deleteReminderRule(id)
     ? new Response(null, { status: 204 })
     : NextResponse.json({ error: '提醒规则不存在' }, { status: 404 });
 }
+
+export const GET = withAccount(GETHandler);
+export const PATCH = withAccount(PATCHHandler);
+export const DELETE = withAccount(DELETEHandler);

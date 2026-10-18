@@ -1,3 +1,4 @@
+import { withAccount } from '@/lib/auth/route';
 import { NextResponse } from 'next/server';
 import { getOrCreateHemingAnnualTransit } from '@/lib/heming/transit-service';
 
@@ -6,7 +7,7 @@ export const dynamic = 'force-dynamic';
 
 interface RouteContext { params: Promise<{ id: string }> }
 
-export async function GET(request: Request, context: RouteContext) {
+async function GETHandler(request: Request, context: RouteContext) {
   const { id } = await context.params;
   const rawYear = new URL(request.url).searchParams.get('year') ?? String(new Date().getFullYear());
   const selectedYear = Number.parseInt(rawYear, 10);
@@ -22,3 +23,5 @@ export async function GET(request: Request, context: RouteContext) {
     return NextResponse.json({ error: message }, { status });
   }
 }
+
+export const GET = withAccount(GETHandler);

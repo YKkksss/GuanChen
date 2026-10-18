@@ -1,10 +1,11 @@
+import { withAccount } from '@/lib/auth/route';
 import { createLocalBackupArchive } from '@/lib/backups/service';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 120;
 
-export async function GET() {
+async function GETHandler(_request: Request) {
   try {
     const archive = await createLocalBackupArchive();
     const encodedName = encodeURIComponent(archive.fileName);
@@ -23,3 +24,5 @@ export async function GET() {
     return Response.json({ error: '本地数据备份导出失败' }, { status: 500 });
   }
 }
+
+export const GET = withAccount(GETHandler);

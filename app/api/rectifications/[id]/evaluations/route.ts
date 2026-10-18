@@ -1,3 +1,4 @@
+import { withAccount } from '@/lib/auth/route';
 import { NextResponse } from 'next/server';
 import { findRectificationEvaluationHistory } from '@/lib/rectification/evaluation-service';
 
@@ -6,7 +7,7 @@ export const dynamic = 'force-dynamic';
 
 interface RouteContext { params: Promise<{ id: string }> }
 
-export async function GET(_request: Request, context: RouteContext) {
+async function GETHandler(_request: Request, context: RouteContext) {
   const { id } = await context.params;
   try {
     return NextResponse.json({ evaluations: findRectificationEvaluationHistory(id) });
@@ -15,3 +16,5 @@ export async function GET(_request: Request, context: RouteContext) {
     return NextResponse.json({ error: message }, { status: message.includes('不存在') ? 404 : 400 });
   }
 }
+
+export const GET = withAccount(GETHandler);

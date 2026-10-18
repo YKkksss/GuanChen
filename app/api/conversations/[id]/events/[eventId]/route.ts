@@ -1,3 +1,4 @@
+import { withAccount } from '@/lib/auth/route';
 import { NextResponse } from 'next/server';
 import { deleteLifeEvent, getLifeEvent } from '@/lib/db/events';
 import { updateLifeEventWithTransits } from '@/lib/events/service';
@@ -10,7 +11,7 @@ interface RouteContext {
   params: Promise<{ id: string; eventId: string }>;
 }
 
-export async function GET(_request: Request, context: RouteContext) {
+async function GETHandler(_request: Request, context: RouteContext) {
   const { id, eventId } = await context.params;
   const event = getLifeEvent(eventId);
   if (!event || event.conversationId !== id) {
@@ -19,7 +20,7 @@ export async function GET(_request: Request, context: RouteContext) {
   return NextResponse.json({ event });
 }
 
-export async function PATCH(request: Request, context: RouteContext) {
+async function PATCHHandler(request: Request, context: RouteContext) {
   const { id, eventId } = await context.params;
   const existing = getLifeEvent(eventId);
   if (!existing || existing.conversationId !== id) {
@@ -37,7 +38,7 @@ export async function PATCH(request: Request, context: RouteContext) {
   }
 }
 
-export async function DELETE(_request: Request, context: RouteContext) {
+async function DELETEHandler(_request: Request, context: RouteContext) {
   const { id, eventId } = await context.params;
   const existing = getLifeEvent(eventId);
   if (!existing || existing.conversationId !== id) {
@@ -46,3 +47,7 @@ export async function DELETE(_request: Request, context: RouteContext) {
   deleteLifeEvent(eventId);
   return new Response(null, { status: 204 });
 }
+
+export const GET = withAccount(GETHandler);
+export const PATCH = withAccount(PATCHHandler);
+export const DELETE = withAccount(DELETEHandler);

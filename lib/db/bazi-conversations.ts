@@ -48,7 +48,7 @@ import {
 } from './bazi-month-day-patterns';
 import { getDatabase } from './client';
 
-export const BAZI_CHAT_PROMPT_VERSION = 'bazi-chat-month-day-pattern-v17';
+export const BAZI_CHAT_PROMPT_VERSION = 'bazi-chat-month-intake-v23';
 
 interface ConversationRow {
   id: string; chart_version_id: string; analysis_version_id: string | null; luck_cycle_version_id: string | null;

@@ -111,6 +111,13 @@ function assertTimeZone(timeZoneId: string) {
   }
 }
 
+/** 只核对民用时刻的 UTC 候选，供排期复用；不执行太阳时换算或选择歧义偏移。 */
+export function resolveCivilTimeUtcCandidates(input: Pick<CivilTimeConversionInput, 'date' | 'time' | 'timeZoneId'>): RectificationUtcCandidate[] {
+  const local = parseLocalDateTime(input.date, input.time);
+  assertTimeZone(input.timeZoneId);
+  return resolveUtcCandidates(local, input.timeZoneId);
+}
+
 function resolveUtcCandidates(local: LocalDateTimeParts, timeZoneId: string): RectificationUtcCandidate[] {
   const nominalUtc = Date.UTC(local.year, local.month - 1, local.day, local.hour, local.minute, local.second);
   const offsets = new Set<number>();

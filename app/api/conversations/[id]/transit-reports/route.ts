@@ -1,3 +1,4 @@
+import { withAccount } from '@/lib/auth/route';
 import { NextResponse } from 'next/server';
 import { getConversation } from '@/lib/db/conversations';
 import { getAnnualTransitReportDetail } from '@/lib/db/transit-reports';
@@ -11,7 +12,7 @@ interface RouteContext {
   params: Promise<{ id: string }>;
 }
 
-export async function GET(request: Request, context: RouteContext) {
+async function GETHandler(request: Request, context: RouteContext) {
   const { id } = await context.params;
   if (!getConversation(id)) {
     return NextResponse.json({ error: '会话不存在' }, { status: 404 });
@@ -32,7 +33,7 @@ export async function GET(request: Request, context: RouteContext) {
   }
 }
 
-export async function POST(request: Request, context: RouteContext) {
+async function POSTHandler(request: Request, context: RouteContext) {
   const { id } = await context.params;
   if (!getConversation(id)) {
     return NextResponse.json({ error: '会话不存在' }, { status: 404 });
@@ -81,3 +82,6 @@ function parseYear(url: string): { year: number; version?: number } | { error: s
   }
   return { year, version };
 }
+
+export const GET = withAccount(GETHandler);
+export const POST = withAccount(POSTHandler);

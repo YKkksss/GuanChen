@@ -1,3 +1,4 @@
+import { withAccount } from '@/lib/auth/route';
 import { NextResponse } from 'next/server';
 import { getConversation } from '@/lib/db/conversations';
 import { confirmLifeEventCandidate, dismissCandidate } from '@/lib/events/candidate-service';
@@ -7,7 +8,7 @@ export const dynamic = 'force-dynamic';
 
 interface RouteContext { params: Promise<{ id: string; candidateId: string }> }
 
-export async function PATCH(request: Request, context: RouteContext) {
+async function PATCHHandler(request: Request, context: RouteContext) {
   const { id, candidateId } = await context.params;
   if (!getConversation(id)) return NextResponse.json({ error: '会话不存在' }, { status: 404 });
   try {
@@ -34,3 +35,5 @@ export async function PATCH(request: Request, context: RouteContext) {
     return NextResponse.json({ error: message }, { status: message.includes('不存在') ? 404 : 400 });
   }
 }
+
+export const PATCH = withAccount(PATCHHandler);

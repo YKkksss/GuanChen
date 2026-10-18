@@ -1,3 +1,4 @@
+import { withAccount } from '@/lib/auth/route';
 import { NextResponse } from 'next/server';
 import { setReviewItemStatus } from '@/lib/db/learning-practice';
 
@@ -6,7 +7,7 @@ export const dynamic = 'force-dynamic';
 
 interface RouteContext { params: Promise<{ reviewId: string }> }
 
-export async function PUT(request: Request, context: RouteContext) {
+async function PUTHandler(request: Request, context: RouteContext) {
   const { reviewId } = await context.params;
   try {
     const body = await request.json() as { status?: unknown };
@@ -19,3 +20,5 @@ export async function PUT(request: Request, context: RouteContext) {
     return NextResponse.json({ error: error instanceof Error ? error.message : '复习状态更新失败' }, { status: 400 });
   }
 }
+
+export const PUT = withAccount(PUTHandler);

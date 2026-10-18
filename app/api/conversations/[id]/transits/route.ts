@@ -1,3 +1,4 @@
+import { withAccount } from '@/lib/auth/route';
 import { NextResponse } from 'next/server';
 import { getConversation } from '@/lib/db/conversations';
 import {
@@ -13,7 +14,7 @@ interface RouteContext {
   params: Promise<{ id: string }>;
 }
 
-export async function GET(request: Request, context: RouteContext) {
+async function GETHandler(request: Request, context: RouteContext) {
   const { id } = await context.params;
   const conversation = getConversation(id);
   if (!conversation) {
@@ -49,3 +50,5 @@ export async function GET(request: Request, context: RouteContext) {
     return NextResponse.json({ error: message }, { status: 400 });
   }
 }
+
+export const GET = withAccount(GETHandler);

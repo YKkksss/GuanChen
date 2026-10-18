@@ -1,10 +1,11 @@
+import { withAccount } from '@/lib/auth/route';
 import { NextResponse } from 'next/server';
 import { retryOpenPracticeFeedback } from '@/lib/learning/open-practice-service';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-export async function POST(_request: Request, context: { params: Promise<{ attemptId: string }> }) {
+async function POSTHandler(_request: Request, context: { params: Promise<{ attemptId: string }> }) {
   try {
     const { attemptId } = await context.params;
     const attempt = await retryOpenPracticeFeedback(attemptId);
@@ -14,3 +15,5 @@ export async function POST(_request: Request, context: { params: Promise<{ attem
     return NextResponse.json({ error: message }, { status: message.includes('不存在') ? 404 : 400 });
   }
 }
+
+export const POST = withAccount(POSTHandler);

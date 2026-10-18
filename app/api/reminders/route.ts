@@ -1,3 +1,4 @@
+import { withAccount } from '@/lib/auth/route';
 import { NextResponse } from 'next/server';
 import type { CreateReminderRuleInput, ReminderKind, ReminderRuleStatus } from '@/lib/reminders/types';
 import { REMINDER_KINDS } from '@/lib/reminders/types';
@@ -6,7 +7,7 @@ import { createReminderRule, listReminderRules } from '@/lib/db/reminders';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-export async function GET(request: Request) {
+async function GETHandler(request: Request) {
   try {
     const url = new URL(request.url);
     const statusValue = url.searchParams.get('status');
@@ -33,7 +34,7 @@ export async function GET(request: Request) {
   }
 }
 
-export async function POST(request: Request) {
+async function POSTHandler(request: Request) {
   try {
     const body = await request.json() as CreateReminderRuleInput;
     if (!REMINDER_KINDS.includes(body.kind)) {
@@ -46,3 +47,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: message }, { status: message.includes('不存在') ? 404 : 400 });
   }
 }
+
+export const GET = withAccount(GETHandler);
+export const POST = withAccount(POSTHandler);

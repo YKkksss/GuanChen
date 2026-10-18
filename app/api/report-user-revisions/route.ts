@@ -1,3 +1,4 @@
+import { withAccount } from '@/lib/auth/route';
 import { NextResponse } from 'next/server';
 import { getReportUserRevision, saveReportUserRevision } from '@/lib/db/report-user-revisions';
 import {
@@ -12,7 +13,7 @@ import {
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-export async function GET(request: Request) {
+async function GETHandler(request: Request) {
   const params = new URL(request.url).searchParams;
   const parsed = parseIdentity({
     sourceKind: params.get('sourceKind'),
@@ -29,7 +30,7 @@ export async function GET(request: Request) {
   }
 }
 
-export async function PUT(request: Request) {
+async function PUTHandler(request: Request) {
   const body = await request.json().catch(() => ({})) as {
     sourceKind?: unknown;
     reportId?: unknown;
@@ -94,3 +95,6 @@ function errorResponse(error: unknown) {
       : 400;
   return NextResponse.json({ error: message.slice(0, 240) }, { status });
 }
+
+export const GET = withAccount(GETHandler);
+export const PUT = withAccount(PUTHandler);

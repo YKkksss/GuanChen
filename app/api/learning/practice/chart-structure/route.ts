@@ -1,10 +1,11 @@
+import { withAccount } from '@/lib/auth/route';
 import { NextResponse } from 'next/server';
 import { getChartPractice, submitChartPractice } from '@/lib/learning/practice-service';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-export async function GET(request: Request) {
+async function GETHandler(request: Request) {
   const conversationId = new URL(request.url).searchParams.get('conversationId')?.trim();
   if (!conversationId) return NextResponse.json({ error: '请选择单人命盘' }, { status: 400 });
   try {
@@ -14,7 +15,7 @@ export async function GET(request: Request) {
   }
 }
 
-export async function POST(request: Request) {
+async function POSTHandler(request: Request) {
   try {
     const body = await request.json() as { conversationId?: unknown; answers?: unknown };
     if (typeof body.conversationId !== 'string' || !body.conversationId.trim()) {
@@ -29,3 +30,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: message }, { status: message.includes('不存在') ? 404 : 400 });
   }
 }
+
+export const GET = withAccount(GETHandler);
+export const POST = withAccount(POSTHandler);

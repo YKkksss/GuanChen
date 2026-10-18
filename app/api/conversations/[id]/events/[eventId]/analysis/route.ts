@@ -1,3 +1,4 @@
+import { withAccount } from '@/lib/auth/route';
 import { NextResponse } from 'next/server';
 import {
   findEventAnalysisDetail,
@@ -12,7 +13,7 @@ interface RouteContext {
   params: Promise<{ id: string; eventId: string }>;
 }
 
-export async function GET(request: Request, context: RouteContext) {
+async function GETHandler(request: Request, context: RouteContext) {
   const { id, eventId } = await context.params;
   const rawVersion = new URL(request.url).searchParams.get('version');
   const version = rawVersion ? Number(rawVersion) : undefined;
@@ -31,7 +32,7 @@ export async function GET(request: Request, context: RouteContext) {
   }
 }
 
-export async function POST(request: Request, context: RouteContext) {
+async function POSTHandler(request: Request, context: RouteContext) {
   const { id, eventId } = await context.params;
   const body = await request.json().catch(() => ({})) as { regenerate?: unknown };
   try {
@@ -51,3 +52,6 @@ export async function POST(request: Request, context: RouteContext) {
     return NextResponse.json({ error: message }, { status });
   }
 }
+
+export const GET = withAccount(GETHandler);
+export const POST = withAccount(POSTHandler);

@@ -1,3 +1,4 @@
+import { withAccount } from '@/lib/auth/route';
 import { NextResponse } from 'next/server';
 import { randomUUID } from 'node:crypto';
 import { startGeneration, isRequestId, type GenerationJob } from '@/lib/chat/generations';
@@ -41,7 +42,7 @@ interface RespondBody {
   targetDate?: unknown;
 }
 
-export async function POST(request: Request, context: { params: Promise<{ id: string }> }) {
+async function POSTHandler(request: Request, context: { params: Promise<{ id: string }> }) {
   const { id } = await context.params;
   const conversation = getConversation(id);
   if (!conversation) return NextResponse.json({ error: '会话不存在' }, { status: 404 });
@@ -211,3 +212,5 @@ function normalizeSource(value: unknown): string {
   const allowed = new Set(['question', 'topic', 'palace', 'sihua', 'auto']);
   return typeof value === 'string' && allowed.has(value) ? value : 'question';
 }
+
+export const POST = withAccount(POSTHandler);

@@ -1,3 +1,4 @@
+import { withAccount } from '@/lib/auth/route';
 import { NextResponse } from 'next/server';
 import { getBaziChartVersion } from '@/lib/db/bazi';
 import {
@@ -10,7 +11,7 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 interface RouteContext { params: Promise<{ id: string }> }
 
-export async function GET(request: Request, context: RouteContext) {
+async function GETHandler(request: Request, context: RouteContext) {
   const { id } = await context.params;
   if (!getBaziChartVersion(id)) return NextResponse.json({ error: '八字命盘版本不存在' }, { status: 404 });
   const targetDate = new URL(request.url).searchParams.get('date');
@@ -20,7 +21,7 @@ export async function GET(request: Request, context: RouteContext) {
   });
 }
 
-export async function POST(request: Request, context: RouteContext) {
+async function POSTHandler(request: Request, context: RouteContext) {
   try {
     const { id } = await context.params;
     const body = await request.json().catch(() => ({})) as { targetDate?: unknown; targetYear?: unknown };
@@ -35,3 +36,6 @@ export async function POST(request: Request, context: RouteContext) {
     return NextResponse.json({ error: message }, { status: message.includes('不存在') ? 404 : 400 });
   }
 }
+
+export const GET = withAccount(GETHandler);
+export const POST = withAccount(POSTHandler);

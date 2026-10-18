@@ -1,3 +1,4 @@
+import { withAccount } from '@/lib/auth/route';
 import { NextResponse } from 'next/server';
 import { createManagedBackup, getBackupLifecycleSummary } from '@/lib/backups/lifecycle';
 import { BackupValidationError } from '@/lib/backups/service';
@@ -6,7 +7,7 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 120;
 
-export async function POST() {
+async function POSTHandler(_request: Request) {
   try {
     const backup = await createManagedBackup('manual');
     return NextResponse.json({ backup, summary: await getBackupLifecycleSummary() }, { status: 201 });
@@ -18,3 +19,5 @@ export async function POST() {
     }, { status: error instanceof BackupValidationError ? 409 : 500 });
   }
 }
+
+export const POST = withAccount(POSTHandler);

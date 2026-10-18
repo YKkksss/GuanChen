@@ -1,3 +1,4 @@
+import { withAccount } from '@/lib/auth/route';
 import { NextResponse } from 'next/server';
 import { listRectificationReports } from '@/lib/db/rectification-reports';
 import { findRectificationSession } from '@/lib/rectification/service';
@@ -7,13 +8,13 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 interface RouteContext { params: Promise<{ id: string }> }
 
-export async function GET(_request: Request, context: RouteContext) {
+async function GETHandler(_request: Request, context: RouteContext) {
   const { id } = await context.params;
   if (!findRectificationSession(id)) return NextResponse.json({ error: '校时会话不存在' }, { status: 404 });
   return NextResponse.json({ reports: listRectificationReports(id) });
 }
 
-export async function POST(request: Request, context: RouteContext) {
+async function POSTHandler(request: Request, context: RouteContext) {
   const { id } = await context.params;
   try {
     const body = await request.json().catch(() => ({})) as { regenerate?: unknown };
@@ -25,3 +26,6 @@ export async function POST(request: Request, context: RouteContext) {
     return NextResponse.json({ error: message }, { status });
   }
 }
+
+export const GET = withAccount(GETHandler);
+export const POST = withAccount(POSTHandler);

@@ -1,3 +1,4 @@
+import { withAccount } from '@/lib/auth/route';
 import { NextResponse } from 'next/server';
 import { deleteManagedBackup, getBackupLifecycleSummary } from '@/lib/backups/lifecycle';
 import { BackupValidationError } from '@/lib/backups/service';
@@ -5,7 +6,7 @@ import { BackupValidationError } from '@/lib/backups/service';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-export async function DELETE(
+async function DELETEHandler(
   request: Request,
   context: { params: Promise<{ fileName: string }> },
 ) {
@@ -22,3 +23,5 @@ export async function DELETE(
     }, { status: error instanceof BackupValidationError ? 422 : 500 });
   }
 }
+
+export const DELETE = withAccount(DELETEHandler);

@@ -1,3 +1,4 @@
+import { userDataDirectory } from '@/lib/auth/scope';
 import type { ChatKind } from '@/lib/db/chat-replies';
 
 export interface GenerationJob {
@@ -12,7 +13,7 @@ declare global {
 }
 const active = () => globalThis.__ziweiGenerations ??= new Map();
 const cancelled = () => globalThis.__ziweiCancelledGenerations ??= new Map();
-const keyFor = (kind: ChatKind, id: string) => `${kind}:${id}`;
+const keyFor = (kind: ChatKind, id: string) => `${userDataDirectory() ?? 'legacy'}:${kind}:${id}`;
 export const isRequestId = (value: unknown): value is string => typeof value === 'string' && /^[a-zA-Z0-9-]{16,80}$/.test(value);
 
 export function startGeneration(kind: ChatKind, id: string, requestId: string): GenerationJob | null {

@@ -1,3 +1,4 @@
+import { withAccount } from '@/lib/auth/route';
 import { NextResponse } from 'next/server';
 import { regenerateTopicReport } from '@/lib/reports/service';
 
@@ -8,7 +9,7 @@ interface RouteContext {
   params: Promise<{ reportId: string }>;
 }
 
-export async function POST(_request: Request, context: RouteContext) {
+async function POSTHandler(_request: Request, context: RouteContext) {
   const { reportId } = await context.params;
   try {
     const detail = await regenerateTopicReport(reportId);
@@ -19,3 +20,5 @@ export async function POST(_request: Request, context: RouteContext) {
     return NextResponse.json({ error: message }, { status });
   }
 }
+
+export const POST = withAccount(POSTHandler);

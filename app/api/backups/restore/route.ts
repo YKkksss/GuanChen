@@ -1,3 +1,4 @@
+import { withAccount } from '@/lib/auth/route';
 import { NextResponse } from 'next/server';
 import { decryptEncryptedLocalBackupArchive, isEncryptedLocalBackupArchive } from '@/lib/backups/encrypted';
 import {
@@ -10,7 +11,7 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 120;
 
-export async function POST(request: Request) {
+async function POSTHandler(request: Request) {
   try {
     const form = await request.formData();
     const file = form.get('backup');
@@ -43,3 +44,5 @@ export async function POST(request: Request) {
     }, { status });
   }
 }
+
+export const POST = withAccount(POSTHandler);

@@ -1,3 +1,4 @@
+import { withAccount } from '@/lib/auth/route';
 import { NextResponse } from 'next/server';
 import {
   deleteConversation,
@@ -16,14 +17,14 @@ interface RouteContext {
   params: Promise<{ id: string }>;
 }
 
-export async function GET(_request: Request, context: RouteContext) {
+async function GETHandler(_request: Request, context: RouteContext) {
   const { id } = await context.params;
   const conversation = getConversation(id);
   if (!conversation) return NextResponse.json({ error: '会话不存在' }, { status: 404 });
   return NextResponse.json({ conversation, messages: listMessages(id) });
 }
 
-export async function PATCH(request: Request, context: RouteContext) {
+async function PATCHHandler(request: Request, context: RouteContext) {
   const { id } = await context.params;
   const existing = getConversation(id);
   if (!existing) return NextResponse.json({ error: '会话不存在' }, { status: 404 });
@@ -69,10 +70,14 @@ export async function PATCH(request: Request, context: RouteContext) {
   return NextResponse.json({ conversation });
 }
 
-export async function DELETE(_request: Request, context: RouteContext) {
+async function DELETEHandler(_request: Request, context: RouteContext) {
   const { id } = await context.params;
   if (!deleteConversation(id)) {
     return NextResponse.json({ error: '会话不存在' }, { status: 404 });
   }
   return new Response(null, { status: 204 });
 }
+
+export const GET = withAccount(GETHandler);
+export const PATCH = withAccount(PATCHHandler);
+export const DELETE = withAccount(DELETEHandler);

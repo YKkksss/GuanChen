@@ -1,3 +1,4 @@
+import { withAccount } from '@/lib/auth/route';
 import { NextResponse } from 'next/server';
 import type { CaseComparisonStatus } from '@/lib/cases/types';
 import { getCaseComparison, setCaseComparisonStatus } from '@/lib/db/case-comparisons';
@@ -7,7 +8,7 @@ export const dynamic = 'force-dynamic';
 
 interface RouteContext { params: Promise<{ id: string }> }
 
-export async function GET(_request: Request, context: RouteContext) {
+async function GETHandler(_request: Request, context: RouteContext) {
   try {
     const { id } = await context.params;
     const comparison = getCaseComparison(id);
@@ -20,7 +21,7 @@ export async function GET(_request: Request, context: RouteContext) {
   }
 }
 
-export async function PATCH(request: Request, context: RouteContext) {
+async function PATCHHandler(request: Request, context: RouteContext) {
   try {
     const { id } = await context.params;
     const body = await request.json() as { status?: CaseComparisonStatus };
@@ -36,3 +37,6 @@ export async function PATCH(request: Request, context: RouteContext) {
     return NextResponse.json({ error: message }, { status });
   }
 }
+
+export const GET = withAccount(GETHandler);
+export const PATCH = withAccount(PATCHHandler);

@@ -11,9 +11,10 @@ import type {
   TransitTransform,
 } from './types';
 
-export const TRANSIT_ENGINE_VERSION = 'transit-v1-iztro-2.5.8';
-export const MONTHLY_TRANSIT_ENGINE_VERSION = 'transit-month-v1-iztro-2.5.8-normal-lunar-boundary';
-export const DAILY_TRANSIT_ENGINE_VERSION = 'transit-day-v1-iztro-2.5.8-early-rat-hour';
+export const TRANSIT_ENGINE_VERSION = 'transit-v2-iztro-2.5.8-palace-decadal-boundaries';
+export const MONTHLY_TRANSIT_ENGINE_VERSION = 'transit-month-v2-iztro-2.5.8-normal-lunar-decadal-boundaries';
+export const MONTHLY_OBSERVATION_TRANSIT_ENGINE_VERSION = 'transit-month-observation-v1-iztro-2.5.8-normal-lunar';
+export const DAILY_TRANSIT_ENGINE_VERSION = 'transit-day-v2-iztro-2.5.8-early-rat-decadal-boundaries';
 
 const TRANSFORM_TYPES: SiHua[] = ['禄', '权', '科', '忌'];
 
@@ -27,7 +28,7 @@ function findMappingBranch(
   mappings: TransitPalaceMapping[],
   palaceName: string,
 ): number {
-  return mappings.find(item => item.transitPalaceName === palaceName)?.branch ?? -1;
+  return mappings.find(item => item.transitPalaceName.replace(/宫$/, '') === palaceName.replace(/宫$/, ''))?.branch ?? -1;
 }
 
 function buildKeyPalaces(
@@ -190,7 +191,16 @@ export function buildAnnualTransitSnapshot(
   chart: ZiweiChart,
   selectedYear: number,
 ): AnnualTransitSnapshot {
-  const representativeDate = `${selectedYear}-7-1`;
+  return buildAnnualSnapshot(chart, `${selectedYear}-07-01`, 'annual-midyear-representative-date');
+}
+
+/** 专题按农历流年范围选取代表日，出生边界不能被固定的年中日期越过。 */
+export function buildAnnualTransitSnapshotAtDate(chart: ZiweiChart, targetDate: string): AnnualTransitSnapshot {
+  return buildAnnualSnapshot(chart, parseSolarDate(targetDate).iso, 'annual-observation-date');
+}
+
+function buildAnnualSnapshot(chart: ZiweiChart, representativeDate: string, boundaryPolicy: AnnualTransitSnapshot['boundaryPolicy']): AnnualTransitSnapshot {
+  const selectedYear = Number(representativeDate.slice(0, 4));
   const birth = chart.birthInfo;
   const gender = birth.gender === 'male' ? '男' : '女';
   const astrolabe = astro.bySolar(
@@ -210,8 +220,9 @@ export function buildAnnualTransitSnapshot(
   }));
 
   const flowYearBranch = branchIndex(astrolabe.palaces[horoscope.yearly.index].earthlyBranch as string);
-  const decadalBranch = branchIndex(astrolabe.palaces[horoscope.decadal.index].earthlyBranch as string);
-  const decadalFromChart = chart.daXians.find(item => item.palaceBranch === decadalBranch);
+  const decadalPalace = astrolabe.palaces[horoscope.decadal.index];
+  const decadalBranch = decadalPalace ? branchIndex(decadalPalace.earthlyBranch as string) : -1;
+  const decadalFromChart = chart.daXians.find(item => item.palaceBranch === decadalBranch && horoscope.age.nominalAge >= item.startAge && horoscope.age.nominalAge <= item.endAge);
   const transformations = buildTransformations(chart, horoscope.yearly.mutagen as string[]);
 
   const keyPalaces = buildKeyPalaces(
@@ -225,8 +236,8 @@ export function buildAnnualTransitSnapshot(
     level: 'year',
     selectedYear,
     targetDate: String(selectedYear),
-    representativeDate: `${selectedYear}-07-01`,
-    boundaryPolicy: 'annual-midyear-representative-date',
+    representativeDate,
+    boundaryPolicy,
     engineVersion: TRANSIT_ENGINE_VERSION,
     lunarDate: horoscope.lunarDate,
     nominalAge: horoscope.age.nominalAge,
@@ -236,10 +247,11 @@ export function buildAnnualTransitSnapshot(
       ganZhi: `${horoscope.yearly.heavenlyStem}${horoscope.yearly.earthlyBranch}`,
     },
     decadal: {
+      periodKind: horoscope.decadal.name === '童限' ? 'childhood' : decadalFromChart ? 'decadal' : 'unavailable',
       startAge: decadalFromChart?.startAge ?? null,
       endAge: decadalFromChart?.endAge ?? null,
       palaceBranch: decadalBranch,
-      nativePalaceName: chart.palaces.find(item => item.branch === decadalBranch)?.name ?? '未知宫位',
+      nativePalaceName: chart.palaces.find(item => item.branch === decadalBranch)?.name ?? '超出已排大限',
       heavenlyStem: horoscope.decadal.heavenlyStem as string,
       earthlyBranch: horoscope.decadal.earthlyBranch as string,
     },
@@ -313,8 +325,25 @@ export function buildMonthlyTransitSnapshot(
   chart: ZiweiChart,
   targetDate: string,
 ): MonthlyTransitSnapshot {
+  return buildMonthlySnapshot(chart, targetDate, 'lunar-month-first-day');
+}
+
+/** 合参按真实观察日定位流月，保留闰月后半月变化，不复用初一代表快照。 */
+export function buildMonthlyTransitSnapshotAtDate(
+  chart: ZiweiChart,
+  targetDate: string,
+): MonthlyTransitSnapshot {
+  return buildMonthlySnapshot(chart, targetDate, 'lunar-month-observation-date');
+}
+
+function buildMonthlySnapshot(
+  chart: ZiweiChart,
+  targetDate: string,
+  boundaryPolicy: MonthlyTransitSnapshot['boundaryPolicy'],
+): MonthlyTransitSnapshot {
   const lunarMonth = resolveMonthlyTransitPeriod(targetDate);
-  const representativeDate = lunarMonth.startDate;
+  const observation = boundaryPolicy === 'lunar-month-observation-date';
+  const representativeDate = observation ? parseSolarDate(targetDate).iso : lunarMonth.startDate;
   const birth = chart.birthInfo;
   const gender = birth.gender === 'male' ? '男' : '女';
   const astrolabe = astro.bySolar(
@@ -334,8 +363,9 @@ export function buildMonthlyTransitSnapshot(
   }));
   const flowYearBranch = branchIndex(astrolabe.palaces[horoscope.yearly.index].earthlyBranch as string);
   const flowMonthBranch = branchIndex(astrolabe.palaces[horoscope.monthly.index].earthlyBranch as string);
-  const decadalBranch = branchIndex(astrolabe.palaces[horoscope.decadal.index].earthlyBranch as string);
-  const decadalFromChart = chart.daXians.find(item => item.palaceBranch === decadalBranch);
+  const decadalPalace = astrolabe.palaces[horoscope.decadal.index];
+  const decadalBranch = decadalPalace ? branchIndex(decadalPalace.earthlyBranch as string) : -1;
+  const decadalFromChart = chart.daXians.find(item => item.palaceBranch === decadalBranch && horoscope.age.nominalAge >= item.startAge && horoscope.age.nominalAge <= item.endAge);
   const yearlyTransformations = buildTransformations(chart, horoscope.yearly.mutagen as string[]);
   const transformations = buildTransformations(chart, horoscope.monthly.mutagen as string[]);
   const keyPalaces = buildKeyPalaces(
@@ -348,10 +378,10 @@ export function buildMonthlyTransitSnapshot(
 
   return {
     level: 'month',
-    targetDate: lunarMonth.startDate,
+    targetDate: observation ? representativeDate : lunarMonth.startDate,
     representativeDate,
-    boundaryPolicy: 'lunar-month-first-day',
-    engineVersion: MONTHLY_TRANSIT_ENGINE_VERSION,
+    boundaryPolicy,
+    engineVersion: observation ? MONTHLY_OBSERVATION_TRANSIT_ENGINE_VERSION : MONTHLY_TRANSIT_ENGINE_VERSION,
     lunarDate: horoscope.lunarDate,
     nominalAge: horoscope.age.nominalAge,
     lunarMonth,
@@ -361,10 +391,11 @@ export function buildMonthlyTransitSnapshot(
       ganZhi: `${horoscope.yearly.heavenlyStem}${horoscope.yearly.earthlyBranch}`,
     },
     decadal: {
+      periodKind: horoscope.decadal.name === '童限' ? 'childhood' : decadalFromChart ? 'decadal' : 'unavailable',
       startAge: decadalFromChart?.startAge ?? null,
       endAge: decadalFromChart?.endAge ?? null,
       palaceBranch: decadalBranch,
-      nativePalaceName: chart.palaces.find(item => item.branch === decadalBranch)?.name ?? '未知宫位',
+      nativePalaceName: chart.palaces.find(item => item.branch === decadalBranch)?.name ?? '超出已排大限',
       heavenlyStem: horoscope.decadal.heavenlyStem as string,
       earthlyBranch: horoscope.decadal.earthlyBranch as string,
     },
@@ -402,7 +433,9 @@ export function buildMonthlyTransitSnapshot(
         id: 'monthly-boundary',
         label: '流月边界',
         source: 'project-rule',
-        details: `按农历初一换月，本流月覆盖公历 ${lunarMonth.startDate} 至 ${lunarMonth.endDate}，共 ${lunarMonth.dayCount} 天。`,
+        details: observation
+          ? `观察日为 ${representativeDate}，所属农历月覆盖公历 ${lunarMonth.startDate} 至 ${lunarMonth.endDate}，共 ${lunarMonth.dayCount} 天；落宫与四化按观察日定位，闰月后半月依 iztro 规则处理，不代表整月结构恒定。`
+          : `按农历初一换月，本流月覆盖公历 ${lunarMonth.startDate} 至 ${lunarMonth.endDate}，共 ${lunarMonth.dayCount} 天。`,
       },
       {
         id: 'monthly-ganzhi',
@@ -477,8 +510,9 @@ export function buildDailyTransitSnapshot(
   const flowYearBranch = branchIndex(astrolabe.palaces[horoscope.yearly.index].earthlyBranch as string);
   const flowMonthBranch = branchIndex(astrolabe.palaces[horoscope.monthly.index].earthlyBranch as string);
   const flowDayBranch = branchIndex(astrolabe.palaces[horoscope.daily.index].earthlyBranch as string);
-  const decadalBranch = branchIndex(astrolabe.palaces[horoscope.decadal.index].earthlyBranch as string);
-  const decadalFromChart = chart.daXians.find(item => item.palaceBranch === decadalBranch);
+  const decadalPalace = astrolabe.palaces[horoscope.decadal.index];
+  const decadalBranch = decadalPalace ? branchIndex(decadalPalace.earthlyBranch as string) : -1;
+  const decadalFromChart = chart.daXians.find(item => item.palaceBranch === decadalBranch && horoscope.age.nominalAge >= item.startAge && horoscope.age.nominalAge <= item.endAge);
   const yearlyTransformations = buildTransformations(chart, horoscope.yearly.mutagen as string[]);
   const monthlyTransformations = buildTransformations(chart, horoscope.monthly.mutagen as string[]);
   const transformations = buildTransformations(chart, horoscope.daily.mutagen as string[]);
@@ -516,10 +550,11 @@ export function buildDailyTransitSnapshot(
       ganZhi: `${horoscope.yearly.heavenlyStem}${horoscope.yearly.earthlyBranch}`,
     },
     decadal: {
+      periodKind: horoscope.decadal.name === '童限' ? 'childhood' : decadalFromChart ? 'decadal' : 'unavailable',
       startAge: decadalFromChart?.startAge ?? null,
       endAge: decadalFromChart?.endAge ?? null,
       palaceBranch: decadalBranch,
-      nativePalaceName: chart.palaces.find(item => item.branch === decadalBranch)?.name ?? '未知宫位',
+      nativePalaceName: chart.palaces.find(item => item.branch === decadalBranch)?.name ?? '超出已排大限',
       heavenlyStem: horoscope.decadal.heavenlyStem as string,
       earthlyBranch: horoscope.decadal.earthlyBranch as string,
     },

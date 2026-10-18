@@ -1,3 +1,4 @@
+import { bindUserScope } from '@/lib/auth/scope';
 import { readSseData } from './sse';
 import type { GenerationJob } from './generations';
 
@@ -22,6 +23,8 @@ export function generationStream(input: {
   savePartial: (text: string) => void;
   finish: (status: GenerationStatus, text: string, errorCode: string | null) => void;
 }) {
+  const savePartial = bindUserScope(input.savePartial);
+  const finish = bindUserScope(input.finish);
   const encoder = new TextEncoder();
   let finished = false;
   let disconnected = false;
@@ -36,7 +39,7 @@ export function generationStream(input: {
     if (finished) return;
     finished = true;
     try {
-      input.finish(status, text, code);
+      finish(status, text, code);
       if (status === 'completed') emit('[DONE]');
       else emit({ error: { status, code, message: status === 'cancelled' ? '已停止生成，已收到的内容已保留。' : code === 'incomplete_stream' ? '响应中途断开，已保留部分内容，可重试。' : '生成失败，可重试或恢复原问题。' } });
       if (!disconnected) responseController.close();
@@ -66,7 +69,7 @@ export function generationStream(input: {
             text += delta;
             emit({ delta: { text: delta } });
             if (text.length - savedLength >= 300 || Date.now() - savedAt >= 800) {
-              input.savePartial(text); savedLength = text.length; savedAt = Date.now();
+              savePartial(text); savedLength = text.length; savedAt = Date.now();
             }
           }
           if (!text.trim()) throw new Error('返回内容为空');

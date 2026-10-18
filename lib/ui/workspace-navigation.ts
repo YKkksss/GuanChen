@@ -1,4 +1,6 @@
 export const WORKSPACE_DESTINATIONS = {
+  fortune: { label: '紫微运势专题', description: '查看指定流年、流月的主题分析，比较阶段变化并保存报告。' },
+  calendar: { label: '运势日历', description: '按公历月查看紫微运限，生成并回看每日主题解读。' },
   reports: { label: '命盘报告', description: '查看或生成所选档案的年度、专题报告。' },
   events: { label: '人生时间轴', description: '记录与回看个人命盘中的真实人生事件。' },
   timeline: { label: '运限分析', description: '查看个人命盘或合盘的大限、流年等运限分析。' },
@@ -12,6 +14,7 @@ export function isWorkspaceDestination(value: unknown): value is WorkspaceDestin
 }
 
 export function supportsDestination(section: WorkspaceSection, target: WorkspaceDestination) {
+  if (target === 'calendar' || target === 'fortune') return section === 'chart';
   return target === 'reports' || (target === 'events' ? section === 'chart' : section !== 'rectification');
 }
 

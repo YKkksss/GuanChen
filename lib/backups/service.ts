@@ -44,7 +44,7 @@ const MAX_UNCOMPRESSED_BYTES = 256 * 1024 * 1024;
 const MAX_ATTACHMENT_COUNT = 2_000;
 const REQUIRED_TABLES = ['schema_migrations', 'conversations', 'messages'] as const;
 const AUTOMATIC_BACKUP_PREFIX = '恢复前自动备份-';
-let restoring = false;
+const restoring = new Set<string>();
 
 type ParsedBackup = {
   envelope: LocalBackupEnvelope;
@@ -153,8 +153,8 @@ export async function restoreLocalBackupArchive(input: {
   if (input.confirmation !== LOCAL_BACKUP_CONFIRMATION) {
     throw new BackupValidationError(`请输入“${LOCAL_BACKUP_CONFIRMATION}”确认整库替换`, 'CONFIRMATION_REQUIRED');
   }
-  if (restoring) throw new BackupRestoreBusyError();
-  restoring = true;
+  if (restoring.has(getDatabasePath())) throw new BackupRestoreBusyError();
+  restoring.add(getDatabasePath());
 
   const databasePath = getDatabasePath();
   const databaseDirectory = path.dirname(databasePath);
@@ -243,7 +243,7 @@ export async function restoreLocalBackupArchive(input: {
     if (!databaseRetired) await rm(retiredPath, { force: true }).catch(() => undefined);
     if (!reportRootRetired) await rm(retiredReportRoot, { recursive: true, force: true }).catch(() => undefined);
     if (maintenanceToken) endDatabaseMaintenance(maintenanceToken);
-    restoring = false;
+    restoring.delete(getDatabasePath());
   }
 }
 

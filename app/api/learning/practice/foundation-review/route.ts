@@ -1,14 +1,15 @@
+import { withAccount } from '@/lib/auth/route';
 import { NextResponse } from 'next/server';
 import { getFoundationReviewPractice, submitFoundationReview } from '@/lib/learning/practice-service';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-export async function GET() {
+async function GETHandler(_request: Request) {
   return NextResponse.json({ practice: getFoundationReviewPractice() });
 }
 
-export async function POST(request: Request) {
+async function POSTHandler(request: Request) {
   try {
     const body = await request.json() as { answers?: unknown };
     if (!body.answers || typeof body.answers !== 'object' || Array.isArray(body.answers)) {
@@ -19,3 +20,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: error instanceof Error ? error.message : '综合练习提交失败' }, { status: 400 });
   }
 }
+
+export const GET = withAccount(GETHandler);
+export const POST = withAccount(POSTHandler);

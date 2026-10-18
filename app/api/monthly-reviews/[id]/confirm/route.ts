@@ -1,3 +1,4 @@
+import { withAccount } from '@/lib/auth/route';
 import { NextResponse } from 'next/server';
 import { confirmMonthlyReview } from '@/lib/db/monthly-reviews';
 import type { ConfirmMonthlyReviewInput } from '@/lib/monthly-reviews/types';
@@ -7,7 +8,7 @@ export const dynamic = 'force-dynamic';
 
 interface RouteContext { params: Promise<{ id: string }> }
 
-export async function POST(request: Request, context: RouteContext) {
+async function POSTHandler(request: Request, context: RouteContext) {
   try {
     const { id } = await context.params;
     const input = await request.json().catch(() => ({})) as ConfirmMonthlyReviewInput;
@@ -19,3 +20,5 @@ export async function POST(request: Request, context: RouteContext) {
     return NextResponse.json({ error: error instanceof Error ? error.message : '月度复盘确认失败' }, { status: 400 });
   }
 }
+
+export const POST = withAccount(POSTHandler);

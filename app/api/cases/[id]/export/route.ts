@@ -1,3 +1,4 @@
+import { withAccount } from '@/lib/auth/route';
 import { NextResponse } from 'next/server';
 import { buildAnonymousCaseExport } from '@/lib/db/cases';
 
@@ -6,7 +7,7 @@ export const dynamic = 'force-dynamic';
 
 interface RouteContext { params: Promise<{ id: string }> }
 
-export async function GET(_request: Request, context: RouteContext) {
+async function GETHandler(_request: Request, context: RouteContext) {
   try {
     const { id } = await context.params;
     const payload = buildAnonymousCaseExport(id);
@@ -24,3 +25,5 @@ export async function GET(_request: Request, context: RouteContext) {
     );
   }
 }
+
+export const GET = withAccount(GETHandler);

@@ -1,3 +1,4 @@
+import { withAccount } from '@/lib/auth/route';
 import { NextResponse } from 'next/server';
 import { searchTeachingCases } from '@/lib/db/case-search';
 import { LIFE_EVENT_CATEGORIES, type LifeEventCategory } from '@/lib/events/types';
@@ -5,7 +6,7 @@ import { LIFE_EVENT_CATEGORIES, type LifeEventCategory } from '@/lib/events/type
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-export async function GET(request: Request) {
+async function GETHandler(request: Request) {
   try {
     const url = new URL(request.url);
     const mingValue = url.searchParams.get('mingBranch');
@@ -34,3 +35,5 @@ export async function GET(request: Request) {
     );
   }
 }
+
+export const GET = withAccount(GETHandler);

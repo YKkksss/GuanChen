@@ -1,3 +1,4 @@
+import { withAccount } from '@/lib/auth/route';
 import { NextResponse } from 'next/server';
 import { listActiveMemories, listContextRuns } from '@/lib/db/context';
 import {
@@ -9,7 +10,7 @@ import { getConversation } from '@/lib/db/conversations';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-export async function GET(request: Request, context: { params: Promise<{ id: string }> }) {
+async function GETHandler(request: Request, context: { params: Promise<{ id: string }> }) {
   const { id } = await context.params;
   const conversation = getConversation(id);
   if (!conversation) return NextResponse.json({ error: '会话不存在' }, { status: 404 });
@@ -26,7 +27,7 @@ export async function GET(request: Request, context: { params: Promise<{ id: str
   });
 }
 
-export async function POST(request: Request, context: { params: Promise<{ id: string }> }) {
+async function POSTHandler(request: Request, context: { params: Promise<{ id: string }> }) {
   const { id } = await context.params;
   if (!getConversation(id)) return NextResponse.json({ error: '会话不存在' }, { status: 404 });
   const body = await request.json().catch(() => ({})) as { action?: unknown };
@@ -52,3 +53,6 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
+
+export const GET = withAccount(GETHandler);
+export const POST = withAccount(POSTHandler);

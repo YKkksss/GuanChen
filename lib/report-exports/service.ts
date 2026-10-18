@@ -1,3 +1,4 @@
+import { userDataDirectory } from '@/lib/auth/scope';
 import { createHash, randomUUID } from 'node:crypto';
 import { mkdir, readFile, readdir, rename, rm, stat, writeFile } from 'node:fs/promises';
 import path from 'node:path';
@@ -119,7 +120,8 @@ export async function pruneOrphanedReportExportFiles(minimumAgeMs = 0): Promise<
     if ((!isPdf && !isTemporary) || (isPdf && retained.has(entry.name))) continue;
     const target = resolveInsideRoot(root, entry.name);
     const fileStat = await stat(target).catch(() => null);
-    if (!fileStat || Date.now() - fileStat.mtimeMs < minimumAgeMs) continue;
+    // 文件系统可能保存更细的时间戳；无等待期时不能因不足一毫秒的负差值跳过孤儿文件。
+    if (!fileStat || (minimumAgeMs > 0 && Date.now() - fileStat.mtimeMs < minimumAgeMs)) continue;
     await rm(target, { force: true });
     removed += 1;
   }
@@ -127,6 +129,9 @@ export async function pruneOrphanedReportExportFiles(minimumAgeMs = 0): Promise<
 }
 
 export function getReportExportRoot(): string {
+  const directory = userDataDirectory();
+  if (directory) return path.join(directory, 'report-exports');
+  if (process.env.NEXT_RUNTIME === 'nodejs') throw new Error('服务端报告请求缺少账号上下文');
   return path.resolve(process.env.REPORT_EXPORT_DIR || path.join(process.cwd(), 'data', 'report-exports'));
 }
 

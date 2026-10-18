@@ -35,7 +35,7 @@ export interface AnnualTransitSnapshot {
   selectedYear: number;
   targetDate: string;
   representativeDate: string;
-  boundaryPolicy: 'annual-midyear-representative-date';
+  boundaryPolicy: 'annual-midyear-representative-date' | 'annual-observation-date';
   engineVersion: string;
   lunarDate: string;
   nominalAge: number;
@@ -45,6 +45,7 @@ export interface AnnualTransitSnapshot {
     ganZhi: string;
   };
   decadal: {
+    periodKind?: 'childhood' | 'decadal' | 'unavailable';
     startAge: number | null;
     endAge: number | null;
     palaceBranch: number;
@@ -70,7 +71,7 @@ export interface MonthlyTransitSnapshot {
   level: 'month';
   targetDate: string;
   representativeDate: string;
-  boundaryPolicy: 'lunar-month-first-day';
+  boundaryPolicy: 'lunar-month-first-day' | 'lunar-month-observation-date';
   engineVersion: string;
   lunarDate: string;
   nominalAge: number;
@@ -89,6 +90,7 @@ export interface MonthlyTransitSnapshot {
     ganZhi: string;
   };
   decadal: {
+    periodKind?: 'childhood' | 'decadal' | 'unavailable';
     startAge: number | null;
     endAge: number | null;
     palaceBranch: number;
