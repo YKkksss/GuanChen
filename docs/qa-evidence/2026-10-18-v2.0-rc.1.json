@@ -1,0 +1,43 @@
+{
+  "version": "2.0.0-rc.1",
+  "stage": "B / 冻结评估",
+  "date": "2026-10-18",
+  "timezone": "Asia/Shanghai",
+  "branch": "release/2.0",
+  "tag": "v2.0.0-rc.1",
+  "decision": "release_candidate_pending_real_device",
+  "gates": {
+    "G0_repo": "passed",
+    "G1_build_observability": "passed",
+    "G2_local_data_deploy": "passed",
+    "G2P_public_deploy": "optional_user_configured",
+    "G3_security": "passed",
+    "G4_browser_quality": "browser_passed_real_device_pending",
+    "G5_real_model": "smoke_passed_quality_sampled",
+    "G6_docs_rc": "passed"
+  },
+  "validation": {
+    "fullSuite": { "total": 106, "passed": 106 },
+    "browser": { "checks": 46, "passed": 46, "axeCriticalSerious": 0 },
+    "realModelSmoke": { "passed": 4, "total": 4, "inputTokens": 190, "outputTokens": 261 },
+    "migration": { "from": 47, "to": 56, "integrity": "ok" },
+    "backupRestore": "passed",
+    "localStaging": { "checks": 14, "passed": 14 },
+    "ci": {
+      "status": "success",
+      "run": 39128998951,
+      "url": "https://github.com/YKkksss/GuanChen/actions/runs/39128998951",
+      "runner": "windows-latest",
+      "duration": "7m9s"
+    }
+  },
+  "pendingBeforeV2": [
+    "用户在 iOS/Android 真机完成注册、登录、起盘、账号设置、数据保险箱入口",
+    "V2_DEVICE_CHECK.md 记录通过"
+  ],
+  "notBlocking": [
+    "公网 HTTPS/域名/离机备份（用户可选配置）",
+    "真实模型全面质量（只做冒烟与抽样）",
+    "邮件找回/2FA/多实例（v2.1+）"
+  ]
+}
