@@ -44,6 +44,7 @@ AI_PROVIDER=deepseek
 DEEPSEEK_API_KEY=...
 DEEPSEEK_BASE_URL=https://api.deepseek.com
 DEEPSEEK_MODEL=deepseek-chat
+AI_DAILY_LIMIT=200
 
 REPORT_PDF_FONT_PATH=/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc
 REPORT_PDF_BOLD_FONT_PATH=/usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc
@@ -241,6 +242,6 @@ Invoke-WebRequest http://127.0.0.1:30002/login -UseBasicParsing
 
 - 当前单 Node 进程；生成锁、取消、维护互斥不跨实例，不要直接多开。
 - 自动备份的浏览器触发逻辑仍存在；运营级备份必须使用服务器定时任务。
-- 没有邮件找回密码、2FA、完整 AI 费用配额；这些是 v2.1/P3 之后的工程项。
+- 没有邮件找回密码、2FA、全局 AI 预算平台；已有管理员本地重置密码（`accounts:manage -- reset-password`）与每账号每日 AI 次数上限。
 - 真实模型质量只做 P5 冒烟与抽样，不承诺全面合格。
 - Windows 与 Linux 的字体、原生模块、路径需要分别验证。

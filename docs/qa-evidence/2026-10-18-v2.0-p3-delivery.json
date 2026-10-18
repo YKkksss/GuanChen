@@ -1,0 +1,50 @@
+{
+  "stage": "P3",
+  "stageName": "安全与账号功能收口",
+  "completedAt": "2026-10-18",
+  "timezone": "Asia/Shanghai",
+  "passed": true,
+  "branch": "release/2.0",
+  "tag": "v2.0.0-beta.4",
+  "features": [
+    "管理员本地一次性密码重置：accounts:manage -- reset-password 用户名，撤销全部旧会话并清理登录限额",
+    "每账号每日 AI 配额 AI_DAILY_LIMIT，默认 200，0/负数不限制；账号库 ai_usage 按北京日期计数",
+    "供应商错误对外脱敏，只在服务端记录 provider/status/detailLength",
+    "既有跨账号、同源、Cookie、登录限额、上传边界继续复用"
+  ],
+  "validation": {
+    "accountSecurity": {
+      "passed": true,
+      "assertions": 293,
+      "new": ["一次性密码长度", "旧会话撤销", "新密码可登录", "旧密码失效"]
+    },
+    "releaseEngineering": {
+      "passed": true,
+      "assertions": 26,
+      "new": ["配额扣减 1/2/3 次", "超限拒绝", "入口抛错", "429 错误"]
+    },
+    "fullSuite": {
+      "total": 106,
+      "passed": 106,
+      "runs": 1,
+      "failures": 0,
+      "logDirectory": "C:/Users/11474/AppData/Local/Temp/guanchen-v1-checks-Zsp8mq"
+    },
+    "resetCli": {
+      "passed": true,
+      "command": "accounts:manage -- reset-password cli-reset",
+      "temporaryDataOnly": true
+    },
+    "ci": {
+      "status": "pending_after_push"
+    }
+  },
+  "notDone": [
+    "邮件/短信找回密码、2FA、账号自助注销",
+    "管理员网页端重置密码（当前只做本机命令）",
+    "按 IP/设备的风控、验证码、WAF",
+    "全局 AI 预算/账单平台",
+    "真实公网安全验收（由用户自行部署后执行）"
+  ],
+  "nextStage": "P4 质量与体验：入口面板四宽度、统一 E2E、桌面/窄屏、局域网真机、axe、空/错状态"
+}
