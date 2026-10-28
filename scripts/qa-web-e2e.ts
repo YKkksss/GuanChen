@@ -180,9 +180,13 @@ async function main() {
 main().catch(error => { console.error(error); process.exitCode = 1; }).finally(async () => {
   try { await browser?.close(); } catch { /* ignore */ }
   if (server) {
+    spawnSync('taskkill', ['/PID', String(server.pid), '/T', '/F'], { stdio: 'ignore', windowsHide: true });
     server.kill();
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    if (!server.killed) spawnSync('taskkill', ['/PID', String(server.pid), '/T', '/F'], { stdio: 'ignore', windowsHide: true });
+    await new Promise(resolve => setTimeout(resolve, 1500));
   }
-  rmSync(directory, { recursive: true, force: true });
+  try {
+    rmSync(directory, { recursive: true, force: true, maxRetries: 10, retryDelay: 300 });
+  } catch {
+    // Windows 临时目录可能在进程刚退出时仍被占用；清理失败不影响验收结果。
+  }
 });

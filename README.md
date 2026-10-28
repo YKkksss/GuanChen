@@ -7,7 +7,6 @@
 当前版本 **2.0.0-rc.2**。本地/局域网启动见 [快速开始](docs/LOCAL_QUICKSTART.md)，版本与已知限制见 [v2.0 发布说明](docs/V2_RELEASE_NOTES.md)；v1.0.0 见 [v1 发布记录](docs/V1_RELEASE.md)。
 
 ## 项目和数据来源说明
-本项目基于ziwei-doushu进行二次开发，项目地址为：https://github.com/Renhuai123/ziwei-doushu
 
 本项目使用了 紫微斗数开源样本数据集 v3.0（518,400 条） 来源：https://github.com/Renhuai123/ziwei-doushu 作者：王多鱼AI
 
