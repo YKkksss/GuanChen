@@ -1,4 +1,4 @@
-import { copyFileSync, existsSync, mkdirSync } from 'node:fs';
+import { copyFileSync, existsSync, mkdirSync, readdirSync, statSync } from 'node:fs';
 import net from 'node:net';
 import os from 'node:os';
 import path from 'node:path';
@@ -37,6 +37,23 @@ function portAvailable() {
   });
 }
 
+function latestMtime(target) {
+  const info = statSync(target, { throwIfNoEntry: false });
+  if (!info) return 0;
+  if (!info.isDirectory()) return info.mtimeMs;
+  let latest = info.mtimeMs;
+  for (const entry of readdirSync(target, { withFileTypes: true })) {
+    if (entry.name === 'node_modules' || entry.name.startsWith('.next')) continue;
+    latest = Math.max(latest, latestMtime(path.join(target, entry.name)));
+  }
+  return latest;
+}
+
+function newestSourceMtime() {
+  const roots = ['app', 'components', 'lib', 'hooks', 'middleware.ts', 'next.config.ts', 'next.config.mjs', 'tsconfig.json', 'tailwind.config.ts', 'postcss.config.mjs', 'package.json'];
+  return roots.reduce((latest, item) => Math.max(latest, latestMtime(path.join(root, item))), 0);
+}
+
 async function main() {
   const major = Number(process.versions.node.split('.')[0]);
   if (major < 22) fail(`Node.js ${process.versions.node} 过低，请使用 Node 24（最低 22）。`);
@@ -49,11 +66,21 @@ async function main() {
   }
   mkdirSync(path.join(root, 'data'), { recursive: true });
 
-  if (!dev && !existsSync(path.join(root, '.next', 'BUILD_ID'))) {
-    if (checkOnly) fail('没有生产构建：请先运行 npm run build，或去掉 --check 让脚本自动构建。');
-    console.log('[local] 没有生产构建，开始执行 npm run build（首次会稍慢）…');
-    const build = spawnSync(process.execPath, [nextBin, 'build'], { cwd: root, stdio: 'inherit', env: process.env });
-    if (build.status !== 0) fail('构建失败，请查看上方输出。');
+  if (!dev) {
+    const buildId = path.join(root, '.next', 'BUILD_ID');
+    const buildTime = existsSync(buildId) ? statSync(buildId).mtimeMs : 0;
+    const sourceTime = newestSourceMtime();
+    const stale = buildTime > 0 && sourceTime > buildTime + 1_000;
+    if (!buildTime || stale) {
+      if (checkOnly) fail(stale
+        ? '生产构建早于当前源码：请先运行 npm run build，或去掉 --check 让脚本自动重建。'
+        : '没有生产构建：请先运行 npm run build，或去掉 --check 让脚本自动构建。');
+      console.log(stale
+        ? '[local] 源码比生产构建新，开始执行 npm run build（避免启动旧版本）…'
+        : '[local] 没有生产构建，开始执行 npm run build（首次会稍慢）…');
+      const build = spawnSync(process.execPath, [nextBin, 'build'], { cwd: root, stdio: 'inherit', env: process.env });
+      if (build.status !== 0) fail('构建失败，请查看上方输出。');
+    }
   }
 
   const local = `http://127.0.0.1:${port}`;
