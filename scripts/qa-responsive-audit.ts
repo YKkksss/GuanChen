@@ -260,13 +260,13 @@ async function main() {
 main().catch(error => { console.error(error); process.exitCode = 1; }).finally(async () => {
   try { await browser?.close(); } catch { /* ignore */ }
   if (server) {
+    spawnSync('taskkill', ['/PID', String(server.pid), '/T', '/F'], { stdio: 'ignore', windowsHide: true });
     server.kill();
     await new Promise(resolve => setTimeout(resolve, 1500));
-    if (server.exitCode === null) spawnSync('taskkill', ['/PID', String(server.pid), '/T', '/F'], { stdio: 'ignore', windowsHide: true });
   }
   try {
     rmSync(directory, { recursive: true, force: true, maxRetries: 10, retryDelay: 300 });
-  } catch (error) {
-    console.warn('临时目录清理失败（可手动删除）：', error instanceof Error ? error.message : error);
+  } catch {
+    // Windows 可能在进程刚退出时仍持有临时目录句柄；目录位于系统临时区，不应让清理失败覆盖验收结果。
   }
 });
